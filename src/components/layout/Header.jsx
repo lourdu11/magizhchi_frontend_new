@@ -273,8 +273,16 @@ export default function Header() {
                             <p className="text-[10px] font-black uppercase tracking-widest text-charcoal/40">Welcome back</p>
                             <p className="text-xs font-black text-charcoal truncate">{user?.name || 'Customer'}</p>
                           </div>
-                          <Link to="/dashboard" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-charcoal/60 hover:text-premium-gold hover:bg-premium-gold/5 transition-all">My Account</Link>
-                          <Link to="/dashboard/orders" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-charcoal/60 hover:text-premium-gold hover:bg-premium-gold/5 transition-all">Order History</Link>
+                          {user?.role === 'admin' ? (
+                            <Link to="/admin" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-premium-gold hover:bg-premium-gold/5 transition-all">Admin Panel</Link>
+                          ) : user?.role === 'staff' ? (
+                            <Link to="/staff" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-premium-gold hover:bg-premium-gold/5 transition-all">Staff Portal</Link>
+                          ) : (
+                            <>
+                              <Link to="/dashboard" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-charcoal/60 hover:text-premium-gold hover:bg-premium-gold/5 transition-all">My Account</Link>
+                              <Link to="/dashboard/orders" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-charcoal/60 hover:text-premium-gold hover:bg-premium-gold/5 transition-all">Order History</Link>
+                            </>
+                          )}
                           <div className="h-px bg-white/20 my-2 mx-4" />
                           <button onClick={handleLogout} className="w-full flex items-center gap-3 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-stock-out hover:bg-stock-out/5 transition-all text-left">Sign Out</button>
                         </motion.div>
@@ -371,20 +379,40 @@ export default function Header() {
                 {isAuthenticated && (
                   <div className="pt-5">
                     <p className="text-[9px] font-black uppercase tracking-[0.3em] text-premium-gold mb-3">My Account</p>
-                    {[
-                      { label: 'My Profile', to: '/dashboard' },
-                      { label: 'Order History', to: '/dashboard/orders' },
-                      { label: 'Wishlist', to: '/wishlist' },
-                    ].map(item => (
+                    {user?.role === 'admin' ? (
                       <Link
-                        key={item.to}
-                        to={item.to}
+                        to="/admin"
                         onClick={() => setMobileMenu(false)}
-                        className="block py-2.5 text-sm font-bold text-charcoal hover:text-premium-gold transition-colors border-b border-gray-50 last:border-0"
+                        className="block py-2.5 text-sm font-bold text-premium-gold hover:text-premium-gold transition-colors border-b border-gray-50 last:border-0"
                       >
-                        {item.label}
+                        Admin Panel
                       </Link>
-                    ))}
+                    ) : user?.role === 'staff' ? (
+                      <Link
+                        to="/staff"
+                        onClick={() => setMobileMenu(false)}
+                        className="block py-2.5 text-sm font-bold text-premium-gold hover:text-premium-gold transition-colors border-b border-gray-50 last:border-0"
+                      >
+                        Staff Portal
+                      </Link>
+                    ) : (
+                      <>
+                        <Link
+                          to="/dashboard"
+                          onClick={() => setMobileMenu(false)}
+                          className="block py-2.5 text-sm font-bold text-charcoal hover:text-premium-gold transition-colors border-b border-gray-50 last:border-0"
+                        >
+                          My Profile
+                        </Link>
+                        <Link
+                          to="/dashboard/orders"
+                          onClick={() => setMobileMenu(false)}
+                          className="block py-2.5 text-sm font-bold text-charcoal hover:text-premium-gold transition-colors border-b border-gray-50 last:border-0"
+                        >
+                          Order History
+                        </Link>
+                      </>
+                    )}
                   </div>
                 )}
               </div>

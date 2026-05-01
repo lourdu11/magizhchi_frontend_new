@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion'; // eslint-disable-line no-unused-vars
 
 import { Eye, EyeOff, ArrowLeft, Phone, Mail, Sparkles, ShieldCheck } from 'lucide-react';
@@ -45,7 +45,8 @@ export default function Login() {
     setLoading(true);
     try {
       const { data } = await authService.login(identifier.trim(), password);
-      const { user, accessToken, isNewUser } = data.data;
+      const { user, accessToken } = data.data;
+      const isNewUser = user.isNewUser;
       setAuth(user, accessToken);
 
       if (isNewUser) {
