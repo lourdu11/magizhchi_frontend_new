@@ -105,8 +105,9 @@ export default function Home() {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  // Auto-play carousel
+  // Auto-play carousel (Disabled on mobile to reduce main-thread tasks)
   useEffect(() => {
+    if (window.innerWidth < 768) return;
     const timer = setInterval(() => {
       setHeroIdx(prev => (prev + 1) % slides.length);
     }, 5000);
@@ -149,7 +150,7 @@ export default function Home() {
               alt="" 
               width={window.innerWidth < 768 ? 400 : 1200} 
               height={window.innerWidth < 768 ? 600 : 800}
-              quality={window.innerWidth < 768 ? 50 : 60}
+              quality={heroIdx === 0 ? (window.innerWidth < 768 ? 45 : 60) : 40}
               fetchPriority="high"
               loading="eager"
               className="w-full h-full object-cover opacity-60" 
@@ -178,7 +179,7 @@ export default function Home() {
             }}
             transition={{ 
               duration: 0.8,
-              y: { duration: 4, repeat: Infinity, ease: "easeInOut" } // Loop for floating
+              y: window.innerWidth < 768 ? { duration: 0 } : { duration: 4, repeat: Infinity, ease: "easeInOut" }
             }}
             className="max-w-3xl"
           >
