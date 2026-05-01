@@ -18,11 +18,18 @@ export const resolveAssetURL = (path) => {
 
   // 1. If it's already a full URL (HTTPS), return as is
   if (path.startsWith('http')) {
+    let resolved = path;
     // Only upgrade to HTTPS if it's NOT a local address
     if (!path.includes('localhost') && !path.includes('127.0.0.1')) {
-      return path.replace('http://', 'https://');
+      resolved = path.replace('http://', 'https://');
     }
-    return path;
+    
+    // Inject Cloudinary Optimizations
+    if (resolved.includes('res.cloudinary.com') && resolved.includes('/upload/')) {
+      resolved = resolved.replace('/upload/', '/upload/f_auto,q_auto/');
+    }
+    
+    return resolved;
   }
 
   // 2. If it's a relative upload path starting with /uploads

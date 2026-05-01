@@ -144,7 +144,13 @@ export default function Home() {
             transition={{ duration: 1 }}
             className="absolute inset-0"
           >
-            <SafeImage src={slides[heroIdx]?.img} alt="" className="w-full h-full object-cover opacity-60" />
+            <SafeImage 
+              src={slides[heroIdx]?.img} 
+              alt="" 
+              width={1920} 
+              height={1080} 
+              className="w-full h-full object-cover opacity-60" 
+            />
             <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent" />
           </motion.div>
         </AnimatePresence>
@@ -249,7 +255,13 @@ export default function Home() {
                     style={{ transformStyle: "preserve-3d" }}
                     className="w-full h-full"
                   >
-                    <SafeImage src={cat.image || cat.img} alt="" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+                    <SafeImage 
+                      src={cat.image || cat.img} 
+                      alt={cat.name} 
+                      width={400} 
+                      height={500} 
+                      className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" 
+                    />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80" />
                     <div className="absolute bottom-10 left-8" style={{ transform: "translateZ(50px)" }}>
                       <p className="text-white font-black text-3xl tracking-tighter mb-1 uppercase">{cat.name}</p>

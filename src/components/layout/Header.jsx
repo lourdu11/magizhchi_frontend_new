@@ -110,7 +110,7 @@ export default function Header() {
             <div className="flex-1 flex justify-start">
               <button
                 onClick={() => setMobileMenu(true)}
-                aria-label="Open menu"
+                aria-label="Open navigation menu"
                 className="w-10 h-10 flex items-center justify-center text-charcoal hover:text-premium-gold transition-colors"
               >
                 <Menu size={22} />
@@ -208,7 +208,7 @@ export default function Header() {
                 <div key={link.path} className="relative group/nav"
                   onMouseEnter={() => link.hasDropdown && setShowDropdown(true)}
                   onMouseLeave={() => link.hasDropdown && setShowDropdown(false)}>
-                  <Link to={link.path} className={`text-[11px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-1 ${location.pathname === link.path ? 'text-premium-gold' : 'text-charcoal hover:text-premium-gold'}`}>
+                  <Link to={link.path} aria-label={`Go to ${link.label}`} className={`text-[11px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-1 ${location.pathname === link.path ? 'text-premium-gold' : 'text-charcoal hover:text-premium-gold'}`}>
                     {link.label} {link.hasDropdown && <ChevronDown size={12} className={`transition-transform duration-300 ${showDropdown ? 'rotate-180' : ''}`} />}
                   </Link>
                   {link.hasDropdown && (
@@ -256,7 +256,7 @@ export default function Header() {
               <div className="hidden md:block relative">
                 {isAuthenticated ? (
                   <div className="relative group/user">
-                    <button onClick={() => setShowUserMenu(!showUserMenu)} className={`w-11 h-11 rounded-2xl flex items-center justify-center shadow-lg transition-all ${showUserMenu ? 'bg-premium-gold text-charcoal' : 'bg-charcoal text-premium-gold hover:scale-105'}`}>
+                    <button onClick={() => setShowUserMenu(!showUserMenu)} aria-label="Toggle user menu" className={`w-11 h-11 rounded-2xl flex items-center justify-center shadow-lg transition-all ${showUserMenu ? 'bg-premium-gold text-charcoal' : 'bg-charcoal text-premium-gold hover:scale-105'}`}>
                       <User size={18} />
                     </button>
                     <AnimatePresence mode="wait">

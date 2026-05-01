@@ -56,6 +56,7 @@ export default function Footer() {
             <input
               type="email"
               placeholder="Enter your email"
+              aria-label="Newsletter email subscription"
               className="flex-1 md:w-72 px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/40 text-sm focus:outline-none focus:border-premium-gold transition-colors"
             />
             <button type="submit" className="btn-gold whitespace-nowrap">Subscribe</button>
@@ -105,6 +106,7 @@ export default function Footer() {
                   transition={{ type: "spring", stiffness: 400, damping: 10 }}
                   style={{ transformStyle: "preserve-3d" }}
                   className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center transition-all duration-200 text-white/60 hover:text-charcoal shadow-lg"
+                  aria-label={`Follow us on ${title}`}
                 >
                   <Icon size={18} style={{ transform: "translateZ(20px)" }} />
                 </motion.a>
