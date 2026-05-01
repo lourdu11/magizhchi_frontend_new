@@ -50,7 +50,7 @@ export default function Footer() {
         <div className="container-custom py-10 flex flex-col md:flex-row items-center justify-between gap-6">
           <div>
             <h3 className="font-display text-xl font-bold text-white">Get Exclusive Offers</h3>
-            <p className="text-white/60 text-sm mt-1">Subscribe for new arrivals, deals &amp; style tips</p>
+            <p className="text-white/80 text-sm mt-1">Subscribe for new arrivals, deals &amp; style tips</p>
           </div>
           <form className="flex gap-2 w-full md:w-auto" onSubmit={e => e.preventDefault()}>
             <input
@@ -83,7 +83,7 @@ export default function Footer() {
                 </div>
               </motion.div>
             </Link>
-            <p className="text-white/50 text-sm leading-relaxed mb-6 font-medium">
+            <p className="text-white/70 text-sm leading-relaxed mb-6 font-medium">
 
               Premium men&apos;s clothing. Where tradition meets modern style. Tamil Nadu&apos;s finest fashion destination.
             </p>
@@ -143,7 +143,7 @@ export default function Footer() {
                 { label: 'Contact Us', path: '/contact' },
               ].map(({ label, path }) => (
                 <li key={path}>
-                  <Link to={path} className="text-white/50 hover:text-premium-gold text-sm transition-colors">{label}</Link>
+                  <Link to={path} className="text-white/70 hover:text-premium-gold text-sm transition-colors">{label}</Link>
                 </li>
               ))}
             </ul>
@@ -153,15 +153,15 @@ export default function Footer() {
           <div>
             <h4 className="text-white font-semibold text-sm uppercase tracking-wider mb-4">Contact</h4>
             <ul className="space-y-3">
-              <li className="flex gap-2.5 text-white/50 text-sm">
+              <li className="flex gap-2.5 text-white/70 text-sm">
                 <Phone size={14} className="text-premium-gold mt-0.5 shrink-0" />
                 <a href={`tel:${store.phone.replace(/ /g, '')}`} className="hover:text-premium-gold transition-colors">{store.phone}</a>
               </li>
-              <li className="flex gap-2.5 text-white/50 text-sm">
+              <li className="flex gap-2.5 text-white/70 text-sm">
                 <Mail size={14} className="text-premium-gold mt-0.5 shrink-0" />
                 <a href={`mailto:${store.email}`} className="hover:text-premium-gold transition-colors">{store.email}</a>
               </li>
-              <li className="flex gap-2.5 text-white/50 text-sm">
+              <li className="flex gap-2.5 text-white/70 text-sm">
                 <MapPin size={14} className="text-premium-gold mt-0.5 shrink-0" />
                 <span>{store.address}</span>
               </li>
@@ -175,10 +175,10 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="mt-10 pt-6 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-3">
-          <p className="text-white/30 text-xs">© {year} {store.name}. All rights reserved. {store.gstin && `GSTIN: ${store.gstin}`}</p>
+          <p className="text-white/60 text-xs">© {year} {store.name}. All rights reserved. {store.gstin && `GSTIN: ${store.gstin}`}</p>
           <div className="flex items-center gap-4">
             <img src="https://razorpay.com/favicon.png" alt="Razorpay" className="h-4 opacity-40" />
-            <span className="text-white/30 text-xs">Secured by Razorpay</span>
+            <span className="text-white/60 text-xs">Secured by Razorpay</span>
           </div>
         </div>
       </div>

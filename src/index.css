@@ -67,7 +67,14 @@
 
   /* Accessibility Overrides */
   .text-premium-gold {
-    color: var(--gold-dark) !important; /* Forces 4.5:1 contrast ratio */
+    color: var(--gold-dark) !important; /* Passes 4.5:1 on LIGHT backgrounds */
+  }
+
+  /* When gold text is inside a dark container (like charcoal footer) */
+  .bg-charcoal .text-premium-gold,
+  .bg-primary-black .text-premium-gold,
+  footer .text-premium-gold {
+    color: var(--gold-light) !important; /* Passes 4.5:1 on DARK backgrounds */
   }
 }
 
