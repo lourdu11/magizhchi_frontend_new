@@ -220,7 +220,7 @@ export default function Header() {
                           className="absolute top-full left-0 mt-4 w-64 glass rounded-[2rem] shadow-2xl border border-white/40 overflow-hidden py-4"
                         >
                           {categories.map(cat => (
-                            <Link key={cat.path} to={cat.path} className="flex items-center gap-3 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-charcoal/80 hover:text-premium-gold hover:bg-premium-gold/5 transition-all">
+                            <Link key={cat.path} to={cat.path} className="flex items-center gap-3 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-charcoal hover:text-premium-gold hover:bg-premium-gold/5 transition-all">
                               <Sparkles size={12} className="text-premium-gold/60" /> {cat.label}
                             </Link>
                           ))}

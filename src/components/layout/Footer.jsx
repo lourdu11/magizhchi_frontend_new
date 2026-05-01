@@ -123,7 +123,7 @@ export default function Footer() {
               {['All Products', 'Shirts', 'T-Shirts', 'Jeans', 'Trousers', 'Formals', 'New Arrivals', 'Best Sellers'].map(item => (
                 <li key={item}>
                   <Link to={`/collections/${item.toLowerCase().replace(/ /g, '-')}`}
-                    className="text-white/50 hover:text-premium-gold text-sm transition-colors">{item}</Link>
+                    className="text-white/80 hover:text-premium-gold text-sm transition-colors">{item}</Link>
                 </li>
               ))}
             </ul>
@@ -143,7 +143,7 @@ export default function Footer() {
                 { label: 'Contact Us', path: '/contact' },
               ].map(({ label, path }) => (
                 <li key={path}>
-                  <Link to={path} className="text-white/70 hover:text-premium-gold text-sm transition-colors">{label}</Link>
+                  <Link to={path} className="text-white/85 hover:text-premium-gold text-sm transition-colors">{label}</Link>
                 </li>
               ))}
             </ul>
@@ -177,8 +177,8 @@ export default function Footer() {
         <div className="mt-10 pt-6 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-3">
           <p className="text-white/60 text-xs">© {year} {store.name}. All rights reserved. {store.gstin && `GSTIN: ${store.gstin}`}</p>
           <div className="flex items-center gap-4">
-            <img src="https://razorpay.com/favicon.png" alt="Razorpay" className="h-4 opacity-40" />
-            <span className="text-white/60 text-xs">Secured by Razorpay</span>
+            <img src="https://razorpay.com/favicon.png" alt="Razorpay" width="16" height="16" className="h-4 w-4 opacity-70" />
+            <span className="text-white/85 text-xs">Secured by Razorpay</span>
           </div>
         </div>
       </div>
