@@ -147,8 +147,8 @@ export default function Home() {
             <SafeImage 
               src={slides[heroIdx]?.img} 
               alt="" 
-              width={1200} 
-              height={800}
+              width={window.innerWidth < 768 ? 600 : 1200} 
+              height={window.innerWidth < 768 ? 800 : 800}
               fetchPriority="high"
               loading="eager"
               className="w-full h-full object-cover opacity-60" 
@@ -188,7 +188,7 @@ export default function Home() {
             <h1 className="text-5xl md:text-8xl font-black text-white leading-[0.9] mb-8 whitespace-pre-line tracking-tighter" style={{ transform: "translateZ(60px)" }}>
               {slides[heroIdx]?.title}
             </h1>
-            <p className="text-white/60 text-base md:text-xl mb-10 max-w-lg leading-relaxed font-medium" style={{ transform: "translateZ(80px)" }}>
+            <p className="text-white/80 text-base md:text-xl mb-10 max-w-lg leading-relaxed font-medium" style={{ transform: "translateZ(80px)" }}>
               {slides[heroIdx]?.subtitle}
             </p>
             <div className="flex flex-col sm:flex-row gap-4" style={{ transform: "translateZ(100px)" }}>
