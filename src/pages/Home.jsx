@@ -147,8 +147,10 @@ export default function Home() {
             <SafeImage 
               src={slides[heroIdx]?.img} 
               alt="" 
-              width={1200} 
+              width={window.innerWidth < 768 ? 600 : 1200} 
+              height={800}
               fetchPriority="high"
+              loading="eager"
               className="w-full h-full object-cover opacity-60" 
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent" />
