@@ -13,7 +13,7 @@ const PLACEHOLDER = 'https://placehold.co/600x800/1A1A1A/D4AF37?text=Magizhchi+G
  * - Relative paths (/uploads/...)
  * - Local dev paths
  */
-export const resolveAssetURL = (path) => {
+export const resolveAssetURL = (path, width = null) => {
   if (!path) return PLACEHOLDER;
 
   // 1. If it's already a full URL (HTTPS), return as is
@@ -26,16 +26,24 @@ export const resolveAssetURL = (path) => {
     
     // Inject Cloudinary Optimizations
     if (resolved.includes('res.cloudinary.com') && resolved.includes('/upload/')) {
-      resolved = resolved.replace('/upload/', '/upload/f_auto,q_auto/');
+      const transformations = width ? `f_auto,q_auto,w_${width}/` : 'f_auto,q_auto/';
+      resolved = resolved.replace('/upload/', `/upload/${transformations}`);
     }
 
     // Inject ImageKit Optimizations
     if (resolved.includes('ik.imagekit.io')) {
+      const ikTransform = width ? `tr=f-auto,q-80,w-${width}` : 'tr=f-auto,q-80';
       if (!resolved.includes('tr=')) {
         const separator = resolved.includes('?') ? '&' : '?';
-        resolved = `${resolved}${separator}tr=f-auto`;
-      } else if (!resolved.includes('f-auto')) {
-        resolved = resolved.replace('tr=', 'tr=f-auto,');
+        resolved = `${resolved}${separator}${ikTransform}`;
+      } else {
+        // Replace existing tr if needed or just append quality/format
+        if (!resolved.includes('f-auto')) {
+          resolved = resolved.replace('tr=', 'tr=f-auto,');
+        }
+        if (width && !resolved.includes('w-')) {
+          resolved = resolved.replace('tr=', `tr=w-${width},`);
+        }
       }
     }
     
