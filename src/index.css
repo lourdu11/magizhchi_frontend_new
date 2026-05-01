@@ -6,9 +6,9 @@
 /* ─── Modern Design System ────────────────────────── */
 :root {
   --primary-black: #080808;
-  --premium-gold: #D4AF37;
-  --gold-light: #E5C365;
-  --gold-dark: #B58D21;
+  --premium-gold: #B58D21; /* Darkened for better contrast (Gold-Dark) */
+  --gold-light: #D4AF37;   /* Swapped to keep original gold as a light variant */
+  --gold-dark: #8A6D19;    /* Even darker for text accessibility */
   --charcoal: #121212;
   --light-bg: #F8F8F6;
   --cream-bg: #FCFCFA;
@@ -64,6 +64,11 @@
   /* Card Styles */
   .card-premium {
     @apply bg-white rounded-2xl border border-border-light shadow-sm hover:shadow-md transition-all duration-300;
+  }
+
+  /* Accessibility Overrides */
+  .text-premium-gold {
+    color: var(--gold-dark) !important; /* Forces 4.5:1 contrast ratio */
   }
 }
 
