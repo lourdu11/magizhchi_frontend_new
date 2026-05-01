@@ -18,10 +18,10 @@ export const useAuthStore = create(
       },
       updateUser: (updates) => set((state) => ({ user: { ...state.user, ...updates } })),
     }),
-    { 
-      name: 'magizhchi-auth', 
+    {
+      name: 'magizhchi-auth',
       storage: createJSONStorage(() => sessionStorage),
-      partialize: (state) => ({ user: state.user, accessToken: state.accessToken, isAuthenticated: state.isAuthenticated }) 
+      partialize: (state) => ({ user: state.user, accessToken: state.accessToken, isAuthenticated: state.isAuthenticated })
     }
   )
 );
@@ -51,12 +51,15 @@ export const useWishlistStore = create((set) => ({
   itemCount: 0,
   productIds: [],
   setItemCount: (count) => set({ itemCount: count }),
-  setWishlist: (products) => set({ 
-    itemCount: products.length, 
-    productIds: products.map(p => (p.productId?._id || p.productId || p._id)) 
+  setWishlist: (products) => set({
+    itemCount: products.length,
+    productIds: products.map(p => (p.productId?._id || p.productId || p._id))
   }),
   toggleId: (id, add = true) => set(state => ({
     productIds: add ? [...state.productIds, id] : state.productIds.filter(i => i !== id),
     itemCount: add ? state.itemCount + 1 : Math.max(0, state.itemCount - 1)
   }))
 }));
+
+
+// new deploy
