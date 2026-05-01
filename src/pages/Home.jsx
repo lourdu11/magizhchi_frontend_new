@@ -149,6 +149,7 @@ export default function Home() {
               alt="" 
               width={window.innerWidth < 768 ? 600 : 1200} 
               height={window.innerWidth < 768 ? 800 : 800}
+              quality={60}
               fetchPriority="high"
               loading="eager"
               className="w-full h-full object-cover opacity-60" 

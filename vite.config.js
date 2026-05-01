@@ -52,6 +52,9 @@ export default defineConfig({
           if (id.includes('node_modules/@tanstack')) {
             return 'query';
           }
+          if (id.includes('node_modules/framer-motion') || id.includes('node_modules/lucide-react') || id.includes('node_modules/axios')) {
+            return 'ui-lib';
+          }
           if (id.includes('node_modules/recharts')) {
             return 'charts';
           }
