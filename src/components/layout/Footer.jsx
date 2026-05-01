@@ -57,7 +57,7 @@ export default function Footer() {
               type="email"
               placeholder="Enter your email"
               aria-label="Newsletter email subscription"
-              className="flex-1 md:w-72 px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/40 text-sm focus:outline-none focus:border-premium-gold transition-colors"
+              className="flex-1 md:w-72 px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/70 text-sm focus:outline-none focus:border-premium-gold transition-colors"
             />
             <button type="submit" className="btn-gold whitespace-nowrap">Subscribe</button>
           </form>

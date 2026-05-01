@@ -220,8 +220,8 @@ export default function Header() {
                           className="absolute top-full left-0 mt-4 w-64 glass rounded-[2rem] shadow-2xl border border-white/40 overflow-hidden py-4"
                         >
                           {categories.map(cat => (
-                            <Link key={cat.path} to={cat.path} className="flex items-center gap-3 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-charcoal/60 hover:text-premium-gold hover:bg-premium-gold/5 transition-all">
-                              <Sparkles size={12} className="text-premium-gold/40" /> {cat.label}
+                            <Link key={cat.path} to={cat.path} className="flex items-center gap-3 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-charcoal/80 hover:text-premium-gold hover:bg-premium-gold/5 transition-all">
+                              <Sparkles size={12} className="text-premium-gold/60" /> {cat.label}
                             </Link>
                           ))}
                         </motion.div>
@@ -271,7 +271,7 @@ export default function Header() {
                           className="absolute top-full right-0 mt-4 w-56 glass rounded-[2rem] shadow-2xl border border-white/40 overflow-hidden py-4 z-[100] perspective-1000"
                         >
                           <div className="px-6 py-4 border-b border-white/20 mb-2">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-charcoal/40">Welcome back</p>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-charcoal/60">Welcome back</p>
                             <p className="text-xs font-black text-charcoal truncate">{user?.name || 'Customer'}</p>
                           </div>
                           {user?.role === 'admin' ? (
@@ -368,9 +368,9 @@ export default function Header() {
                       <Link
                         to={cat.path}
                         onClick={() => setMobileMenu(false)}
-                        className="flex items-center gap-2 py-3.5 text-[11px] font-black uppercase tracking-widest text-charcoal/50 hover:text-premium-gold transition-colors border-b border-gray-100 last:border-0"
+                        className="flex items-center gap-2 py-3.5 text-[11px] font-black uppercase tracking-widest text-charcoal/70 hover:text-premium-gold transition-colors border-b border-gray-100 last:border-0"
                       >
-                        <Sparkles size={9} className="text-premium-gold/50 flex-shrink-0" />
+                        <Sparkles size={9} className="text-premium-gold/70 flex-shrink-0" />
                         {cat.label}
                       </Link>
                     </motion.div>
