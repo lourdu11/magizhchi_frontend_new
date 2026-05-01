@@ -147,9 +147,9 @@ export default function Home() {
             <SafeImage 
               src={slides[heroIdx]?.img} 
               alt="" 
-              width={window.innerWidth < 768 ? 600 : 1200} 
-              height={window.innerWidth < 768 ? 800 : 800}
-              quality={60}
+              width={window.innerWidth < 768 ? 400 : 1200} 
+              height={window.innerWidth < 768 ? 600 : 800}
+              quality={window.innerWidth < 768 ? 50 : 60}
               fetchPriority="high"
               loading="eager"
               className="w-full h-full object-cover opacity-60" 
