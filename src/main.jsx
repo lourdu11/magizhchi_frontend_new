@@ -15,8 +15,8 @@ if (typeof window !== 'undefined') {
     'Violation',
   ];
 
-  // Aggressive Global Noise Suppression
-  if (process.env.NODE_ENV === 'production' || true) {
+  // Only run noise filter in development to keep production main-thread lean
+  if (process.env.NODE_ENV === 'development') {
     const originalWarn = console.warn;
     const originalError = console.error;
     const originalLog = console.log;
@@ -32,21 +32,6 @@ if (typeof window !== 'undefined') {
     console.warn = (...args) => { if (!shouldSilence(args)) originalWarn(...args); };
     console.error = (...args) => { if (!shouldSilence(args)) originalError(...args); };
     console.log = (...args) => { if (!shouldSilence(args)) originalLog(...args); };
-
-    // Catch unhandled promise rejections (often from SDKs)
-    window.addEventListener('unhandledrejection', (event) => {
-      const reason = event.reason?.message || String(event.reason);
-      if (noisePatterns.some(p => reason.toLowerCase().includes(p.toLowerCase()))) {
-        event.preventDefault();
-      }
-    });
-
-    // Catch global errors
-    window.addEventListener('error', (event) => {
-      if (noisePatterns.some(p => event.message.toLowerCase().includes(p.toLowerCase()))) {
-        event.preventDefault();
-      }
-    }, true);
   }
 }
 

@@ -82,6 +82,7 @@ export default function ProductCard({ product }) {
             src={product.images?.[0]}
             alt={product.name}
             width={400}
+            height={500}
             className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
             loading="lazy"
           />
