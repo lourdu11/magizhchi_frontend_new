@@ -37,7 +37,10 @@ export default function AdminLogin() {
       }
       setAuth(data.data.user, data.data.accessToken);
       toast.success(`Welcome back, ${data.data.user.role === 'admin' ? 'Admin' : 'Staff'}!`);
-      navigate('/admin');
+      
+      if (data.data.user.role === 'admin') navigate('/admin');
+      else if (data.data.user.role === 'staff') navigate('/staff');
+      else navigate('/');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Login failed');
     } finally {

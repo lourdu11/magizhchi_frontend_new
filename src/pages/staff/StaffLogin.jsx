@@ -21,7 +21,9 @@ export default function StaffLogin() {
       }
       setAuth(data.data.user, data.data.accessToken);
       toast.success(`Welcome, ${data.data.user.name}!`);
-      navigate('/staff');
+      
+      if (data.data.user.role === 'admin') navigate('/admin');
+      else navigate('/staff');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Login failed');
     } finally {

@@ -48,7 +48,11 @@ export default function Login() {
       const role = user.role;
       if (role === 'admin') navigate('/admin');
       else if (role === 'staff') navigate('/staff');
-      else navigate(from);
+      else {
+        // For regular users, go to the page they came from, or the dashboard
+        const dashboardPath = from === '/' ? '/dashboard' : from;
+        navigate(dashboardPath);
+      }
     } catch (err) {
       const msg = err.response?.data?.message || 'Login failed. Please try again.';
       toast.error(msg);
