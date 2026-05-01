@@ -179,7 +179,7 @@ export default function Header() {
           <div className="hidden lg:flex items-center justify-between h-full flex-nowrap gap-2">
             {/* Logo */}
             <div className="flex items-center flex-shrink-0">
-              <Link to="/" className="flex items-center gap-2 md:gap-3 group transition-transform">
+              <Link to="/" aria-label="Go to homepage" className="flex items-center gap-2 md:gap-3 group transition-transform">
                 <motion.div
                   whileHover={{ rotateY: 360, scale: 1.1 }}
                   transition={{ duration: 0.8, type: "spring", stiffness: 100 }}
@@ -234,7 +234,7 @@ export default function Header() {
             {/* Icons */}
             <div className="flex items-center gap-0.5 md:gap-4 flex-shrink-0">
               {isAuthenticated && (
-                <Link to="/wishlist" className="w-9 h-9 md:w-11 md:h-11 flex items-center justify-center text-charcoal hover:text-premium-gold transition-colors relative">
+                <Link to="/wishlist" aria-label={`Wishlist (${wishlistCount} items)`} className="w-9 h-9 md:w-11 md:h-11 flex items-center justify-center text-charcoal hover:text-premium-gold transition-colors relative">
                   <Heart size={20} />
                   {wishlistCount > 0 && (
                     <span className="absolute top-1.5 right-1.5 md:top-2 md:right-2 w-4 h-4 bg-premium-gold text-white text-[8px] font-black rounded-full flex items-center justify-center shadow-lg">
@@ -244,7 +244,7 @@ export default function Header() {
                 </Link>
               )}
 
-              <Link to="/cart" className="w-9 h-9 md:w-11 md:h-11 flex items-center justify-center text-charcoal hover:text-premium-gold transition-colors relative">
+              <Link to="/cart" aria-label={`Cart (${itemCount} items)`} className="w-9 h-9 md:w-11 md:h-11 flex items-center justify-center text-charcoal hover:text-premium-gold transition-colors relative">
                 <ShoppingBag size={20} />
                 {itemCount > 0 && (
                   <span className="absolute top-1.5 right-1.5 md:top-2 md:right-2 w-4 h-4 bg-charcoal text-white text-[8px] font-black rounded-full flex items-center justify-center shadow-lg">

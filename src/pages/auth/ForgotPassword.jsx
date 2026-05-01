@@ -165,15 +165,18 @@ export default function ForgotPassword() {
             {/* ── Step Indicators ── */}
             <div className="flex items-center gap-2 mb-8">
               {[1, 2, 3].map((s) => (
-                <div key={s} className="flex items-center gap-2 flex-1 last:flex-none">
-                  <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
-                    step > s ? 'bg-emerald-500 text-white' :
-                    step === s ? 'bg-primary-black text-white' :
-                    'bg-gray-100 text-gray-400'
-                  }`}>
-                    {step > s ? <CheckCircle size={14} /> : s}
+                <div key={s} className="flex items-center gap-2 flex-1 last:flex-none" aria-current={step === s ? 'step' : undefined}>
+                  <div 
+                    className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                      step > s ? 'bg-emerald-500 text-white' :
+                      step === s ? 'bg-primary-black text-white' :
+                      'bg-gray-100 text-gray-400'
+                    }`}
+                    aria-label={`Step ${s}`}
+                  >
+                    {step > s ? <CheckCircle size={14} aria-hidden="true" /> : s}
                   </div>
-                  {s < 3 && <div className={`h-0.5 flex-1 transition-all ${step > s ? 'bg-emerald-500' : 'bg-gray-100'}`} />}
+                  {s < 3 && <div className={`h-0.5 flex-1 transition-all ${step > s ? 'bg-emerald-500' : 'bg-gray-100'}`} aria-hidden="true" />}
                 </div>
               ))}
             </div>
@@ -322,8 +325,12 @@ export default function ForgotPassword() {
                           placeholder="Min 8 characters"
                           className="input pr-10"
                         />
-                        <button type="button" onClick={() => setShowPass(!showPass)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted">
+                        <button 
+                          type="button" 
+                          onClick={() => setShowPass(!showPass)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted"
+                          aria-label={showPass ? "Hide password" : "Show password"}
+                        >
                           {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
                         </button>
                       </div>

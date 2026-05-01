@@ -14,8 +14,8 @@
   --cream-bg: #FCFCFA;
   --text-primary: #111111;
   --text-secondary: #555555;
-  --text-muted: #999999;
-  --border-light: #EEEEEE;
+  --text-muted: #707070; /* WCAG 2.1 AA Compliant (4.6:1 on white) */
+  --border-light: #E5E5E5;
   --glass: rgba(255, 255, 255, 0.7);
   --glass-dark: rgba(0, 0, 0, 0.7);
 }
