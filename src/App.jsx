@@ -12,7 +12,6 @@ import PageLoader from './components/common/PageLoader';
 
 // Eagerly loaded pages
 import Home from './pages/Home';
-import Login from './pages/auth/Login';
 import { Navigate } from 'react-router-dom';
 
 // Lazily loaded pages
@@ -31,6 +30,7 @@ const WriteReview = lazy(() => import('./pages/WriteReview'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const TrackOrder = lazy(() => import('./pages/TrackOrder'));
 const Services = lazy(() => import('./pages/Services'));
+const Login = lazy(() => import('./pages/auth/Login'));
 
 // Legal pages
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));

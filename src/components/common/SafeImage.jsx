@@ -13,6 +13,8 @@ export default function SafeImage({ src, alt, className, width, ...props }) {
       src={resolvedSrc}
       alt={alt || 'Magizhchi Garments Asset'}
       className={className}
+      width={width}
+      height={props.height}
       loading={props.loading || "lazy"}
       decoding="async"
       onError={(e) => {
