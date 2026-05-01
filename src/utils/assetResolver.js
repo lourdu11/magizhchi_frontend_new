@@ -28,6 +28,16 @@ export const resolveAssetURL = (path) => {
     if (resolved.includes('res.cloudinary.com') && resolved.includes('/upload/')) {
       resolved = resolved.replace('/upload/', '/upload/f_auto,q_auto/');
     }
+
+    // Inject ImageKit Optimizations
+    if (resolved.includes('ik.imagekit.io')) {
+      if (!resolved.includes('tr=')) {
+        const separator = resolved.includes('?') ? '&' : '?';
+        resolved = `${resolved}${separator}tr=f-auto`;
+      } else if (!resolved.includes('f-auto')) {
+        resolved = resolved.replace('tr=', 'tr=f-auto,');
+      }
+    }
     
     return resolved;
   }

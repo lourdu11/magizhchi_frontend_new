@@ -11,9 +11,10 @@ export default function SafeImage({ src, alt, className, ...props }) {
   return (
     <img
       src={resolvedSrc}
-      alt={alt || ''}
+      alt={alt || 'Magizhchi Garments Asset'}
       className={className}
-      loading="lazy"
+      loading={props.loading || "lazy"}
+      decoding="async"
       onError={(e) => {
         if (e.target.src !== getPlaceholder()) {
           e.target.src = getPlaceholder();

@@ -64,7 +64,7 @@ export default function ProductCard({ product }) {
       viewport={{ once: true }}
       className="group relative"
     >
-      <Link to={`/product/${product.slug}`} className="block">
+      <Link to={`/product/${product.slug}`} aria-label={`View details for ${product.name}`} className="block">
         {/* Image Container */}
         <motion.div 
           whileHover={{ 
@@ -100,8 +100,12 @@ export default function ProductCard({ product }) {
 
           {/* Wishlist Button (Always Visible) */}
           <div className="absolute top-4 right-4 z-30">
-            <button onClick={handleWishlist} disabled={isAddingWishlist}
-              className={`w-10 h-10 md:w-12 md:h-12 rounded-2xl backdrop-blur-md flex items-center justify-center transition-all shadow-lg active:scale-90 ${isWishlisted ? 'bg-premium-gold text-white' : 'bg-white/70 text-charcoal hover:bg-premium-gold hover:text-white'}`}>
+            <button 
+              onClick={handleWishlist} 
+              disabled={isAddingWishlist}
+              aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+              className={`w-10 h-10 md:w-12 md:h-12 rounded-2xl backdrop-blur-md flex items-center justify-center transition-all shadow-lg active:scale-90 ${isWishlisted ? 'bg-premium-gold text-white' : 'bg-white/70 text-charcoal hover:bg-premium-gold hover:text-white'}`}
+            >
               {isAddingWishlist ? <div className="w-4 h-4 border-2 border-charcoal/30 border-t-charcoal rounded-full animate-spin" /> : <Heart size={18} className={`md:size-5 ${isWishlisted ? 'fill-white' : ''}`} />}
             </button>
           </div>
@@ -110,8 +114,12 @@ export default function ProductCard({ product }) {
           {/* Add to Cart Overlay (Desktop) */}
           {!isOutOfStock && (
             <div className="hidden md:block absolute bottom-6 left-6 right-6 translate-y-12 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 z-30">
-              <button onClick={handleCart} disabled={isAddingCart}
-                className="w-full py-4 bg-charcoal text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-premium-gold transition-all shadow-xl">
+              <button 
+                onClick={handleCart} 
+                disabled={isAddingCart}
+                aria-label={`Quick add ${product.name} to cart`}
+                className="w-full py-4 bg-charcoal text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-premium-gold transition-all shadow-xl"
+              >
                 {isAddingCart ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <><ShoppingBag size={16} /> Quick Add</>}
               </button>
             </div>
@@ -120,8 +128,12 @@ export default function ProductCard({ product }) {
           {/* Mobile Direct Action */}
           {!isOutOfStock && (
             <div className="md:hidden absolute bottom-3 right-3 z-30">
-              <button onClick={handleCart} disabled={isAddingCart}
-                className="w-10 h-10 bg-charcoal text-white rounded-xl flex items-center justify-center shadow-lg active:scale-90 transition-transform">
+              <button 
+                onClick={handleCart} 
+                disabled={isAddingCart}
+                aria-label={`Add ${product.name} to cart`}
+                className="w-10 h-10 bg-charcoal text-white rounded-xl flex items-center justify-center shadow-lg active:scale-90 transition-transform"
+              >
                 {isAddingCart ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Plus size={20} />}
               </button>
             </div>

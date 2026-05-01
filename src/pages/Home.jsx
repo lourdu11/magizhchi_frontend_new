@@ -204,7 +204,12 @@ export default function Home() {
         {/* Hero Nav */}
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-4 z-20">
           {slides.map((_, i) => (
-            <button key={i} onClick={() => setHeroIdx(i)} className={`h-1.5 rounded-full transition-all duration-500 ${i === heroIdx ? 'w-12 bg-premium-gold' : 'w-3 bg-white/30'}`} />
+            <button 
+              key={i} 
+              onClick={() => setHeroIdx(i)} 
+              aria-label={`Go to slide ${i + 1}`}
+              className={`h-1.5 rounded-full transition-all duration-500 ${i === heroIdx ? 'w-12 bg-premium-gold' : 'w-3 bg-white/30'}`} 
+            />
           ))}
         </div>
       </section>

@@ -163,14 +163,24 @@ export default function ProductDetails() {
               {/* Image Nav Dots */}
               <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
                 {images.map((_, i) => (
-                  <button key={i} onClick={() => setSelectedImage(i)} className={`h-1.5 rounded-full transition-all ${i === selectedImage ? 'w-8 bg-premium-gold' : 'w-2 bg-white/40 hover:bg-white/60'}`} />
+                  <button 
+                    key={i} 
+                    onClick={() => setSelectedImage(i)} 
+                    aria-label={`View product image ${i + 1}`}
+                    className={`h-1.5 rounded-full transition-all ${i === selectedImage ? 'w-8 bg-premium-gold' : 'w-2 bg-white/40 hover:bg-white/60'}`} 
+                  />
                 ))}
               </div>
             </div>
             
             <div className="hidden md:flex gap-4">
               {images.map((img, i) => (
-                <button key={i} onClick={() => setSelectedImage(i)} className={`w-24 aspect-square rounded-2xl overflow-hidden border-2 transition-all ${selectedImage === i ? 'border-premium-gold scale-95 shadow-lg shadow-premium-gold/20' : 'border-transparent hover:border-border-light'}`}>
+                <button 
+                  key={i} 
+                  onClick={() => setSelectedImage(i)} 
+                  aria-label={`Switch to product image ${i + 1}`}
+                  className={`w-24 aspect-square rounded-2xl overflow-hidden border-2 transition-all ${selectedImage === i ? 'border-premium-gold scale-95 shadow-lg shadow-premium-gold/20' : 'border-transparent hover:border-border-light'}`}
+                >
                   <SafeImage src={img} alt="" className="w-full h-full object-cover" />
                 </button>
               ))}
@@ -283,17 +293,26 @@ export default function ProductDetails() {
             <div className="pt-6 border-t border-border-light space-y-6">
               <div className="flex items-center gap-6">
                 <div className="flex items-center bg-light-bg rounded-2xl p-1.5 border border-border-light">
-                  <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="w-10 h-10 rounded-xl hover:bg-white flex items-center justify-center transition-all">−</button>
+                  <button onClick={() => setQuantity(q => Math.max(1, q - 1))} aria-label="Decrease quantity" className="w-10 h-10 rounded-xl hover:bg-white flex items-center justify-center transition-all">−</button>
                   <span className="w-12 text-center font-black text-sm">{quantity}</span>
-                  <button onClick={() => setQuantity(q => q + 1)} className="w-10 h-10 rounded-xl hover:bg-white flex items-center justify-center transition-all">+</button>
+                  <button onClick={() => setQuantity(q => q + 1)} aria-label="Increase quantity" className="w-10 h-10 rounded-xl hover:bg-white flex items-center justify-center transition-all">+</button>
                 </div>
-                  <button onClick={handleWishlist} disabled={isAddingWishlist} 
-                    className={`w-14 h-14 rounded-2xl border-2 flex items-center justify-center transition-all ${isWishlisted ? 'bg-premium-gold border-premium-gold text-white' : 'border-border-light hover:bg-red-50 hover:border-red-100 hover:text-red-500'}`}>
+                  <button 
+                    onClick={handleWishlist} 
+                    disabled={isAddingWishlist} 
+                    aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                    className={`w-14 h-14 rounded-2xl border-2 flex items-center justify-center transition-all ${isWishlisted ? 'bg-premium-gold border-premium-gold text-white' : 'border-border-light hover:bg-red-50 hover:border-red-100 hover:text-red-500'}`}
+                  >
                     {isAddingWishlist ? <div className="w-5 h-5 border-2 border-charcoal/30 border-t-charcoal rounded-full animate-spin" /> : <Heart size={20} className={isWishlisted ? 'fill-white' : ''} />}
                   </button>
               </div>
 
-              <button onClick={handleAddToCart} disabled={isAddingCart || isOutOfStock} className="w-full btn-gold py-5 rounded-[2rem] flex items-center justify-center gap-3">
+              <button 
+                onClick={handleAddToCart} 
+                disabled={isAddingCart} 
+                aria-label={isOutOfStock ? "Product is out of stock" : "Add product to shopping bag"}
+                className="w-full btn-gold py-5 rounded-[2rem] flex items-center justify-center gap-3"
+              >
                 {isAddingCart ? <div className="w-5 h-5 border-2 border-charcoal/30 border-t-charcoal rounded-full animate-spin" /> : <><ShoppingBag size={20} /> {isOutOfStock ? 'OUT OF STOCK' : 'ADD TO BAG'}</>}
               </button>
             </div>
@@ -319,7 +338,12 @@ export default function ProductDetails() {
         <div className="mt-24 max-w-5xl">
           <div className="flex gap-10 border-b border-border-light mb-10 overflow-x-auto no-scrollbar">
             {['details', 'reviews', 'shipping', 'care'].map(tab => (
-              <button key={tab} onClick={() => setActiveTab(tab)} className={`pb-4 text-[11px] font-black uppercase tracking-[0.3em] transition-all border-b-2 -mb-px ${activeTab === tab ? 'border-premium-gold text-charcoal' : 'border-transparent text-text-muted'}`}>
+              <button 
+                key={tab} 
+                onClick={() => setActiveTab(tab)} 
+                aria-label={`View product ${tab}`}
+                className={`pb-4 text-[11px] font-black uppercase tracking-[0.3em] transition-all border-b-2 -mb-px ${activeTab === tab ? 'border-premium-gold text-charcoal' : 'border-transparent text-text-muted'}`}
+              >
                 {tab} {tab === 'reviews' && product.ratings?.count > 0 && `(${product.ratings.count})`}
               </button>
             ))}

@@ -96,8 +96,12 @@ function FilterPanel({ categoriesData, category, selectedSizes, minPrice, maxPri
         <h3 className="font-semibold text-text-primary text-sm uppercase tracking-wide mb-3">Sizes</h3>
         <div className="flex flex-wrap gap-2">
           {SIZES.map(size => (
-            <button key={size} onClick={() => toggleSize(size)}
-              className={`px-3 py-1.5 text-xs font-semibold border rounded transition-all duration-150 ${selectedSizes.includes(size) ? 'bg-primary-black text-white border-primary-black' : 'border-border-dark text-text-secondary hover:border-primary-black'}`}>
+            <button 
+              key={size} 
+              onClick={() => toggleSize(size)}
+              aria-label={`Filter by size ${size}`}
+              className={`px-3 py-1.5 text-xs font-semibold border rounded transition-all duration-150 ${selectedSizes.includes(size) ? 'bg-primary-black text-white border-primary-black' : 'border-border-dark text-text-secondary hover:border-primary-black'}`}
+            >
               {size}
             </button>
           ))}
@@ -244,6 +248,7 @@ export default function Collections() {
                    <button 
                      type="button"
                      onClick={() => updateParams({ search: searchInput })}
+                     aria-label="Submit search"
                      className="h-full px-4 bg-charcoal text-premium-gold rounded-xl flex items-center justify-center text-[10px] font-black uppercase tracking-widest hover:bg-premium-gold hover:text-charcoal transition-all active:scale-95"
                    >
                      Search
@@ -279,8 +284,11 @@ export default function Collections() {
             <div className="flex-1 min-w-0">
               {/* Toolbar */}
               <div className="flex items-center justify-between gap-4 mb-6">
-                <button onClick={() => setIsFilterOpen(true)}
-                  className="lg:hidden flex items-center gap-2 btn-outline py-2 text-sm">
+                <button 
+                  onClick={() => setIsFilterOpen(true)}
+                  aria-label="Open filters"
+                  className="lg:hidden flex items-center gap-2 btn-outline py-2 text-sm"
+                >
                   <SlidersHorizontal size={16} />
                   Filters {hasFilters && <span className="badge-gold text-[10px]">{selectedSizes.length + (minPrice ? 1 : 0)}</span>}
                 </button>
@@ -291,6 +299,7 @@ export default function Collections() {
                     <select
                       value={sort}
                       onChange={e => updateParams({ sort: e.target.value })}
+                      aria-label="Sort products by"
                       className="appearance-none pr-8 pl-3 py-2 text-sm border border-border-light rounded-lg bg-white text-text-primary focus:outline-none focus:border-premium-gold cursor-pointer"
                     >
 
@@ -301,10 +310,10 @@ export default function Collections() {
 
                   {/* View toggle */}
                   <div className="hidden md:flex border border-border-light rounded-lg overflow-hidden">
-                    <button onClick={() => setViewMode('grid')} className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-primary-black text-white' : 'hover:bg-light-bg text-text-muted'}`}>
+                    <button onClick={() => setViewMode('grid')} aria-label="Grid view" className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-primary-black text-white' : 'hover:bg-light-bg text-text-muted'}`}>
                       <Grid2X2 size={16} />
                     </button>
-                    <button onClick={() => setViewMode('list')} className={`p-2 transition-colors ${viewMode === 'list' ? 'bg-primary-black text-white' : 'hover:bg-light-bg text-text-muted'}`}>
+                    <button onClick={() => setViewMode('list')} aria-label="List view" className={`p-2 transition-colors ${viewMode === 'list' ? 'bg-primary-black text-white' : 'hover:bg-light-bg text-text-muted'}`}>
                       <List size={16} />
                     </button>
                   </div>
