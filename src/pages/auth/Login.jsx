@@ -19,9 +19,18 @@ export default function Login() {
 
 
 
-  const { setAuth } = useAuthStore();
+  const { setAuth, isAuthenticated, user } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Redirect if already logged in
+  if (isAuthenticated && user) {
+    const role = user.role;
+    if (role === 'admin') return <Navigate to="/admin" replace />;
+    if (role === 'staff') return <Navigate to="/staff" replace />;
+    return <Navigate to="/dashboard" replace />;
+  }
+
   const from = location.state?.from || '/';
 
   // Detect input type for dynamic UI
@@ -46,12 +55,14 @@ export default function Login() {
       }
 
       const role = user.role;
-      if (role === 'admin') navigate('/admin');
-      else if (role === 'staff') navigate('/staff');
-      else {
+      if (role === 'admin') {
+        navigate('/admin', { replace: true });
+      } else if (role === 'staff') {
+        navigate('/staff', { replace: true });
+      } else {
         // For regular users, go to the page they came from, or the dashboard
-        const dashboardPath = from === '/' ? '/dashboard' : from;
-        navigate(dashboardPath);
+        const dashboardPath = from === '/' || from === '/login' ? '/dashboard' : from;
+        navigate(dashboardPath, { replace: true });
       }
     } catch (err) {
       const msg = err.response?.data?.message || 'Login failed. Please try again.';

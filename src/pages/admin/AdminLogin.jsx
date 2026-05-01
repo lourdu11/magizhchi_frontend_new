@@ -21,9 +21,10 @@ export default function AdminLogin() {
   const { setAuth, isAuthenticated, user } = useAuthStore();
   const navigate = useNavigate();
 
-  // Redirect if already logged in as admin
-  if (isAuthenticated && user?.role === 'admin') {
-    return <Navigate to="/admin" replace />;
+  // Redirect if already logged in as admin/staff
+  if (isAuthenticated && user) {
+    if (user.role === 'admin') return <Navigate to="/admin" replace />;
+    if (user.role === 'staff') return <Navigate to="/staff" replace />;
   }
 
   const handleLogin = async (e) => {
