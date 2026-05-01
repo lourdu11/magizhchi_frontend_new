@@ -1,0 +1,259 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Modern Design System ────────────────────────── */
+:root {
+  --primary-black: #080808;
+  --premium-gold: #D4AF37;
+  --gold-light: #E5C365;
+  --gold-dark: #B58D21;
+  --charcoal: #121212;
+  --light-bg: #F8F8F6;
+  --cream-bg: #FCFCFA;
+  --text-primary: #111111;
+  --text-secondary: #555555;
+  --text-muted: #999999;
+  --border-light: #EEEEEE;
+  --glass: rgba(255, 255, 255, 0.7);
+  --glass-dark: rgba(0, 0, 0, 0.7);
+}
+
+@layer base {
+  body {
+    font-family: 'Outfit', sans-serif;
+    @apply antialiased text-text-primary bg-white;
+    -webkit-tap-highlight-color: transparent;
+  }
+  h1, h2, h3 { font-family: 'Playfair Display', serif; }
+}
+
+@layer components {
+  /* Premium Buttons */
+  .btn-primary {
+    @apply bg-primary-black text-white px-8 py-3.5 rounded-2xl font-bold text-sm tracking-wide transition-all duration-300
+    hover:bg-charcoal hover:shadow-2xl hover:-translate-y-0.5 active:scale-95 disabled:opacity-50;
+  }
+  
+  .btn-gold {
+    @apply bg-premium-gold text-primary-black px-8 py-3.5 rounded-2xl font-black text-sm tracking-widest transition-all duration-300
+    hover:shadow-xl hover:shadow-premium-gold/20 hover:-translate-y-0.5 active:scale-95;
+    &:hover { background-color: var(--gold-light); }
+  }
+
+
+  .btn-outline {
+    @apply border-2 border-primary-black text-primary-black px-8 py-3.5 rounded-2xl font-bold text-sm transition-all duration-300
+    hover:bg-primary-black hover:text-white active:scale-95;
+  }
+
+  /* Responsive Container */
+  .container-custom {
+    @apply max-w-7xl mx-auto px-5 md:px-8;
+  }
+
+  /* Glassmorphism */
+  .glass {
+    @apply backdrop-blur-xl bg-white/70 border border-white/20;
+  }
+  .glass-dark {
+    @apply backdrop-blur-xl bg-black/60 border border-white/10;
+  }
+
+  /* Card Styles */
+  .card-premium {
+    @apply bg-white rounded-2xl border border-border-light shadow-sm hover:shadow-md transition-all duration-300;
+  }
+}
+
+/* ─── Global Refinements ────────────────────────────── */
+:root {
+  font-size: 14px; /* Professional SaaS Standard */
+}
+
+.shadow-sm { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
+.shadow-md { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04); }
+.shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03); }
+.shadow-xl { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+.shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15); }
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Custom Animations */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+.animate-float { animation: float 6s ease-in-out infinite; }
+
+/* ─── Premium Scrollbar Engine ──────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d1d5db; /* slate-300 */
+  border-radius: 20px;
+  transition: all 0.3s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--premium-gold);
+}
+
+/* Special scrollbar for dark surfaces */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--premium-gold);
+}
+
+/* Mobile Alignment Fixes */
+@media (max-width: 640px) {
+  .section-title { @apply text-2xl leading-tight; }
+  .btn-primary, .btn-gold, .btn-outline { @apply py-3 px-6 text-xs rounded-xl; }
+}
+
+/* Premium Gradients */
+.bg-gold-gradient {
+  background: linear-gradient(135deg, #D4AF37 0%, #F4E5C2 50%, #B58D21 100%);
+}
+
+/* Marquee Animation */
+.animate-marquee {
+  display: inline-block;
+  animation: marquee 40s linear infinite;
+}
+.animate-marquee2 {
+  display: inline-block;
+  animation: marquee2 40s linear infinite;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-100%); }
+}
+@keyframes marquee2 {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-100%); }
+}
+
+
+/* ─── Print Optimization (80mm Thermal POS) ────────────────────────── */
+@media print {
+  /* Hide everything by default */
+  body * {
+    visibility: hidden;
+    overflow: visible !important;
+  }
+
+  /* Show only the bill container and its children */
+  #bill-print, #bill-print * {
+    visibility: visible;
+  }
+
+  /* POS Receipt Styling (80mm) */
+  #bill-print {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 80mm !important;
+    max-width: 80mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    background: white !important;
+    font-size: 8pt !important;
+  }
+
+  /* Fix the massive paddings from Tailwind p-12 */
+  #bill-print .p-12, #bill-print .p-10 {
+    padding: 10px !important;
+  }
+  
+  #bill-print .p-6 {
+    padding: 5px !important;
+  }
+
+  #bill-print .gap-8, #bill-print .gap-10 {
+    gap: 10px !important;
+  }
+
+  /* Adjust Logo & Header */
+  #bill-print h2 {
+    font-size: 14pt !important;
+    letter-spacing: 0.1em !important;
+  }
+  
+  /* Fix purchase summary lines */
+  #bill-print .space-y-10, #bill-print .space-y-6, #bill-print .space-y-4 {
+    margin-top: 8px !important;
+    margin-bottom: 8px !important;
+  }
+
+  #bill-print .text-4xl {
+    font-size: 16pt !important;
+  }
+
+  /* Fix overlapping totals */
+  #bill-print .flex.justify-between {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+  }
+
+  #bill-print .text-[10px], #bill-print .text-[9px], #bill-print .text-[8px] {
+    font-size: 7pt !important;
+  }
+
+  #bill-print .text-sm, #bill-print .text-xs {
+    font-size: 9pt !important;
+  }
+
+  /* Force background colors to print */
+  #bill-print .bg-charcoal {
+    background-color: #121212 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    border-radius: 0 !important;
+  }
+  
+  #bill-print .text-premium-gold {
+    color: #D4AF37 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Remove page padding/margins set by browsers for thermal rolls */
+  @page {
+    margin: 0;
+    size: 80mm auto; /* Continuous roll size */
+  }
+
+  /* Hide the receipt's outer wrapper shadow and background */
+  .bg-light-bg {
+    background: transparent !important;
+  }
+  
+  /* Ensure images don't overflow */
+  #bill-print img {
+    max-width: 30px !important;
+    height: auto !important;
+  }
+}
