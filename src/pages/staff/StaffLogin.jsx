@@ -12,10 +12,10 @@ export default function StaffLogin() {
   const navigate = useNavigate();
 
   // Redirect if already logged in
-  if (isAuthenticated && user) {
+  if (isAuthenticated && user?.role) {
     if (user.role === 'admin') return <Navigate to="/admin" replace />;
     if (user.role === 'staff') return <Navigate to="/staff" replace />;
-    return <Navigate to="/dashboard" replace />;
+    if (user.role === 'user') return <Navigate to="/dashboard" replace />;
   }
 
   const handleSubmit = async (e) => {

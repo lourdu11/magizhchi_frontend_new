@@ -23,12 +23,11 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Redirect if already logged in
-  if (isAuthenticated && user) {
-    const role = user.role;
-    if (role === 'admin') return <Navigate to="/admin" replace />;
-    if (role === 'staff') return <Navigate to="/staff" replace />;
-    return <Navigate to="/dashboard" replace />;
+  // Redirect if already logged in - ensure role is available before redirecting
+  if (isAuthenticated && user?.role) {
+    if (user.role === 'admin') return <Navigate to="/admin" replace />;
+    if (user.role === 'staff') return <Navigate to="/staff" replace />;
+    if (user.role === 'user') return <Navigate to="/dashboard" replace />;
   }
 
   const from = location.state?.from || '/';

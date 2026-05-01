@@ -22,7 +22,7 @@ export default function AdminLogin() {
   const navigate = useNavigate();
 
   // Redirect if already logged in as admin/staff
-  if (isAuthenticated && user) {
+  if (isAuthenticated && user?.role) {
     if (user.role === 'admin') return <Navigate to="/admin" replace />;
     if (user.role === 'staff') return <Navigate to="/staff" replace />;
   }
