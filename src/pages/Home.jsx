@@ -148,6 +148,7 @@ export default function Home() {
               src={slides[heroIdx]?.img} 
               alt="" 
               width={1200} 
+              fetchPriority="high"
               className="w-full h-full object-cover opacity-60" 
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent" />
