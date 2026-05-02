@@ -488,11 +488,14 @@ export default function AdminSettings() {
 
                         <button 
                           type="button"
-                          onClick={() => toast.promise(adminService.updateSettings({...formData, testAlert: true, testType: 'order'}), {
-                            loading: 'Sending order test...',
-                            success: 'Order test triggered!',
-                            error: 'Failed to send order test'
-                          })}
+                          onClick={() => toast.promise(
+                            adminService.testNotifications('order').then(r => { if (!r.data.success) throw new Error(r.data.message); return r; }),
+                            {
+                              loading: 'Sending order test email...',
+                              success: (r) => `✅ ${r.data.data?.emailOrder?.message || 'Order alert sent! Check inbox.'}`,
+                              error: (e) => `❌ ${e.response?.data?.message || e.message}`
+                            }
+                          )}
                           className="mt-4 px-6 py-2 bg-blue-50 text-blue-600 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-100 transition-colors border border-blue-100"
                         >
                           Send Test Order Alert
@@ -537,11 +540,14 @@ export default function AdminSettings() {
 
                         <button 
                           type="button"
-                          onClick={() => toast.promise(adminService.updateSettings({...formData, testAlert: true, testType: 'contact'}), {
-                            loading: 'Sending contact test...',
-                            success: 'Contact test triggered!',
-                            error: 'Failed to send contact test'
-                          })}
+                          onClick={() => toast.promise(
+                            adminService.testNotifications('contact').then(r => { if (!r.data.success) throw new Error(r.data.message); return r; }),
+                            {
+                              loading: 'Sending contact test email...',
+                              success: (r) => `✅ ${r.data.data?.emailContact?.message || 'Contact alert sent! Check inbox.'}`,
+                              error: (e) => `❌ ${e.response?.data?.message || e.message}`
+                            }
+                          )}
                           className="mt-4 px-6 py-2 bg-purple-50 text-purple-600 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-purple-100 transition-colors border border-purple-100"
                         >
                           Send Test Contact Alert
@@ -586,16 +592,19 @@ export default function AdminSettings() {
                     </div>
                     
                      <button 
-                       type="button"
-                       onClick={() => toast.promise(adminService.updateSettings({...formData, testAlert: true, testType: 'stock'}), {
-                         loading: 'Sending stock test...',
-                         success: 'Stock test triggered!',
-                         error: 'Failed to send stock test'
-                       })}
-                       className="px-6 py-3 bg-red-50 text-red-600 border border-red-100 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-100 transition-all"
-                     >
-                       Send Test Stock Alert
-                     </button>
+                        type="button"
+                        onClick={() => toast.promise(
+                          adminService.testNotifications('stock').then(r => { if (!r.data.success) throw new Error(r.data.message); return r; }),
+                          {
+                            loading: 'Sending stock test alert...',
+                            success: '✅ Stock alert sent! Check inbox.',
+                            error: (e) => `❌ ${e.response?.data?.message || e.message}`
+                          }
+                        )}
+                        className="px-6 py-3 bg-red-50 text-red-600 border border-red-100 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-100 transition-all"
+                      >
+                        Send Test Stock Alert
+                      </button>
                  </div>
                </motion.div>
             )}

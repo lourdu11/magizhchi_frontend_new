@@ -86,6 +86,7 @@ export const adminService = {
   getWastageHistory: () => api.get('/admin/wastage'),
   createWastage: (data) => api.post('/admin/wastage', data),
   reconcileStock: (data) => api.post('/admin/inventory/reconcile', data),
+  testNotifications: (type) => api.post('/admin/test-notifications', { type }),
 };
 
 export const reviewService = {
