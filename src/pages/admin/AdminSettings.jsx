@@ -486,25 +486,38 @@ export default function AdminSettings() {
                            </select>
                         </label>
 
+                      <div className="flex flex-col gap-2">
+                        <p className="text-[9px] text-amber-600 font-bold uppercase tracking-tight bg-amber-50 p-2 rounded-lg border border-amber-100">
+                          ⚠️ Click "SAVE SETTINGS" at bottom before testing if you changed the email!
+                        </p>
                         <button 
                           type="button"
-                          onClick={() => toast.promise(
-                            adminService.testNotifications('order').then(r => { if (!r.data.success) throw new Error(r.data.message); return r; }),
-                            {
-                              loading: 'Sending order test email...',
-                              success: (r) => {
-                                const d = r.data.data?.emailOrder;
-                                return d?.messageId
-                                  ? `✅ Brevo accepted! ID:${d.messageId} → Check inbox or Spam`
-                                  : `✅ ${d?.message || 'Order alert sent! Check inbox or Spam folder.'}` ;
-                              },
-                              error: (e) => `❌ ${e.response?.data?.message || e.message}`
-                            }
-                          )}
+                          onClick={() => {
+                            console.log('Testing Order Notification...');
+                            toast.promise(
+                              adminService.testNotifications('order').then(r => { 
+                                console.log('Test Result Body:', r.data);
+                                if (!r.data.success) throw new Error(r.data.message); 
+                                return r; 
+                              }),
+                              {
+                                loading: 'Sending order test email...',
+                                success: (r) => {
+                                  const d = r.data.data?.emailOrder;
+                                  console.log('Email Result Details:', d);
+                                  return d?.messageId
+                                    ? `✅ Brevo accepted! ID:${d.messageId} → Check ${formData.notifications?.email?.alertEmail || 'inbox'}`
+                                    : `✅ ${d?.message || 'Order alert sent! Check inbox or Spam folder.'}` ;
+                                },
+                                error: (e) => `❌ ${e.response?.data?.message || e.message}`
+                              }
+                            )
+                          }}
                           className="mt-4 px-6 py-2 bg-blue-50 text-blue-600 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-100 transition-colors border border-blue-100"
                         >
                           Send Test Order Alert
                         </button>
+                      </div>
                      </div>
                    )}
                 </div>
@@ -543,20 +556,38 @@ export default function AdminSettings() {
                            </select>
                         </label>
 
-                        <button 
-                          type="button"
-                          onClick={() => toast.promise(
-                            adminService.testNotifications('contact').then(r => { if (!r.data.success) throw new Error(r.data.message); return r; }),
-                            {
-                              loading: 'Sending contact test email...',
-                              success: (r) => `✅ ${r.data.data?.emailContact?.message || 'Contact alert sent! Check inbox.'}`,
-                              error: (e) => `❌ ${e.response?.data?.message || e.message}`
-                            }
-                          )}
-                          className="mt-4 px-6 py-2 bg-purple-50 text-purple-600 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-purple-100 transition-colors border border-purple-100"
-                        >
-                          Send Test Contact Alert
-                        </button>
+                        <div className="flex flex-col gap-2">
+                          <p className="text-[9px] text-amber-600 font-bold uppercase tracking-tight bg-amber-50 p-2 rounded-lg border border-amber-100 mb-2">
+                            ⚠️ Click "SAVE SETTINGS" at bottom before testing if you changed the email!
+                          </p>
+                          <button 
+                            type="button"
+                            onClick={() => {
+                              console.log('Testing Contact Notification...');
+                              toast.promise(
+                                adminService.testNotifications('contact').then(r => { 
+                                  console.log('Test Result Body:', r.data);
+                                  if (!r.data.success) throw new Error(r.data.message); 
+                                  return r; 
+                                }),
+                                {
+                                  loading: 'Sending contact test email...',
+                                  success: (r) => {
+                                    const d = r.data.data?.emailContact;
+                                    console.log('Email Result Details:', d);
+                                    return d?.messageId
+                                      ? `✅ Brevo accepted! ID:${d.messageId} → Check ${formData.notifications?.email?.alertEmail || 'inbox'}`
+                                      : `✅ ${d?.message || 'Contact alert sent! Check inbox or Spam folder.'}` ;
+                                  },
+                                  error: (e) => `❌ ${e.response?.data?.message || e.message}`
+                                }
+                              )
+                            }}
+                            className="mt-4 px-6 py-2 bg-purple-50 text-purple-600 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-purple-100 transition-colors border border-purple-100"
+                          >
+                            Send Test Contact Alert
+                          </button>
+                        </div>
                      </div>
                    )}
                 </div>
