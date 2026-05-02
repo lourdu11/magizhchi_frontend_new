@@ -130,7 +130,22 @@ export default function AdminSettings() {
 
   const handleSettingsSubmit = (e) => {
     e.preventDefault();
-    settingsMutation.mutate(formData);
+    
+    // Create a copy and sanitize
+    const sanitizedData = { ...formData };
+    if (sanitizedData.notifications?.email?.alertEmail) {
+      sanitizedData.notifications.email.alertEmail = sanitizedData.notifications.email.alertEmail.trim().toLowerCase();
+    }
+
+    const isEmailChanged = sanitizedData.notifications?.email?.alertEmail !== settings?.notifications?.email?.alertEmail;
+
+    settingsMutation.mutate(sanitizedData, {
+      onSuccess: () => {
+        if (isEmailChanged) {
+          toast.success('Notification email updated successfully');
+        }
+      }
+    });
   };
 
   const handleProfileSubmit = (e) => {
