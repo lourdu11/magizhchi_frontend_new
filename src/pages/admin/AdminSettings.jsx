@@ -58,18 +58,18 @@ export default function AdminSettings() {
         store: { ...formData.store, ...(settings.store || {}) },
         payment: { ...formData.payment, ...(settings.payment || {}) },
         shipping: { ...formData.shipping, ...(settings.shipping || {}) },
-        notifications: { 
-          email: { 
-            host: settings.notifications?.email?.host || '', 
-            port: settings.notifications?.email?.port || 587, 
-            user: settings.notifications?.email?.user || '', 
-            password: '', 
+        notifications: {
+          email: {
+            host: '',
+            port: 587,
+            user: settings.notifications?.email?.user || '',
+            password: '',
             // ✅ FIXED: No fallback to store.email — show empty if not explicitly set
             alertEmail: settings.notifications?.email?.alertEmail || ''
           },
-          whatsapp: { 
+          whatsapp: {
             // ✅ FIXED: No fallback to store.phone — show empty if not explicitly set
-            adminPhone: settings.notifications?.whatsapp?.adminPhone || '' 
+            adminPhone: settings.notifications?.whatsapp?.adminPhone || ''
           },
           orderNotifications: {
             enabled: settings.notifications?.orderNotifications?.enabled ?? true,
