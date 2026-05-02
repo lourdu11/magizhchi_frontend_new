@@ -492,7 +492,12 @@ export default function AdminSettings() {
                             adminService.testNotifications('order').then(r => { if (!r.data.success) throw new Error(r.data.message); return r; }),
                             {
                               loading: 'Sending order test email...',
-                              success: (r) => `✅ ${r.data.data?.emailOrder?.message || 'Order alert sent! Check inbox.'}`,
+                              success: (r) => {
+                                const d = r.data.data?.emailOrder;
+                                return d?.messageId
+                                  ? `✅ Brevo accepted! ID:${d.messageId} → Check inbox or Spam`
+                                  : `✅ ${d?.message || 'Order alert sent! Check inbox or Spam folder.'}` ;
+                              },
                               error: (e) => `❌ ${e.response?.data?.message || e.message}`
                             }
                           )}
@@ -614,3 +619,4 @@ export default function AdminSettings() {
     </div>
   );
 }
+
