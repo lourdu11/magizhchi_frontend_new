@@ -64,10 +64,12 @@ export default function AdminSettings() {
             port: settings.notifications?.email?.port || 587, 
             user: settings.notifications?.email?.user || '', 
             password: '', 
-            alertEmail: settings.notifications?.email?.alertEmail || settings.store?.email || ''
+            // ✅ FIXED: No fallback to store.email — show empty if not explicitly set
+            alertEmail: settings.notifications?.email?.alertEmail || ''
           },
           whatsapp: { 
-            adminPhone: settings.notifications?.whatsapp?.adminPhone || settings.store?.phone || '' 
+            // ✅ FIXED: No fallback to store.phone — show empty if not explicitly set
+            adminPhone: settings.notifications?.whatsapp?.adminPhone || '' 
           },
           orderNotifications: {
             enabled: settings.notifications?.orderNotifications?.enabled ?? true,
