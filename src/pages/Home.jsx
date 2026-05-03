@@ -6,6 +6,7 @@ import { ArrowRight, Truck, RefreshCw, Shield, ShoppingBag, Sparkles, Loader2 } 
 import { Helmet } from 'react-helmet-async';
 import { productService, bannerService } from '../services';
 import ProductCard from '../components/product/ProductCard';
+import SkeletonCard from '../components/product/SkeletonCard';
 import SafeImage from '../components/common/SafeImage';
 
 const HERO_SLIDES = [
@@ -311,8 +312,8 @@ export default function Home() {
           </motion.div>
 
           {loadingFeatured ? (
-            <div className="h-40 flex items-center justify-center">
-              <Loader2 className="animate-spin text-premium-gold" size={32} />
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-10">
+              {Array(8).fill(0).map((_, i) => <SkeletonCard key={i} />)}
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-10">

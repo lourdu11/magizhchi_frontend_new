@@ -7,6 +7,7 @@ import { Grid2X2, List, ChevronDown, X, SlidersHorizontal, Search, Loader2 } fro
 import { Helmet } from 'react-helmet-async';
 import { productService, categoryService } from '../services';
 import ProductCard from '../components/product/ProductCard';
+import SkeletonCard from '../components/product/SkeletonCard';
 
 
 const SORT_OPTIONS = [
@@ -322,8 +323,8 @@ export default function Collections() {
 
               {/* Products Grid */}
               {isLoading ? (
-                <div className="h-60 flex items-center justify-center">
-                  <Loader2 className="animate-spin text-premium-gold" size={40} />
+                <div className={`grid gap-4 md:gap-6 ${viewMode === 'grid' ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-1'}`}>
+                  {Array(9).fill(0).map((_, i) => <SkeletonCard key={i} />)}
                 </div>
               ) : products.length === 0 ? (
                 <div className="text-center py-24">

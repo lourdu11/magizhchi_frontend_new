@@ -1,3 +1,5 @@
+import { LazyLoadImage } from 'react-lazy-load-image-component';
+import 'react-lazy-load-image-component/src/effects/blur.css';
 import { resolveAssetURL, getPlaceholder } from '../../utils/assetResolver';
 
 /**
@@ -9,14 +11,15 @@ export default function SafeImage({ src, alt, className, width, quality, ...prop
   const resolvedSrc = resolveAssetURL(src, width, quality);
 
   return (
-    <img
+    <LazyLoadImage
       src={resolvedSrc}
       alt={alt || 'Magizhchi Garments Asset'}
       className={className}
       width={width}
       height={props.height}
-      loading={props.loading || "lazy"}
-      decoding="async"
+      effect="blur"
+      threshold={300}
+      wrapperClassName={className}
       onError={(e) => {
         if (e.target.src !== getPlaceholder()) {
           e.target.src = getPlaceholder();
