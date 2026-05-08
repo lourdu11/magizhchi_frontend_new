@@ -113,8 +113,8 @@ export default function AdminCategories() {
                          <div className="space-y-3">
                             <div className="relative group aspect-square bg-light-bg rounded-[2rem] overflow-hidden border border-border-light cursor-pointer">
                                {form.image ? <img src={resolveAssetURL(form.image)} className="w-full h-full object-cover" onError={(e) => { e.target.src = '/placeholder.jpg'; }} /> : <div className="w-full h-full flex flex-col items-center justify-center text-text-muted gap-2"><ImageIcon size={32} /><span className="text-[9px] font-black uppercase">Cover Photo</span></div>}
-                               <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={e => handleUpload(e, 'image')} />
-                               <div className="absolute inset-0 bg-charcoal/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center"><Plus className="text-white" /></div>
+                               <input type="file" className="absolute inset-0 opacity-0 cursor-pointer z-10" onChange={e => handleUpload(e, 'image')} />
+                               <div className="absolute inset-0 bg-charcoal/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center pointer-events-none"><Plus className="text-white" /></div>
                             </div>
                             <input 
                                className="w-full bg-light-bg border-none rounded-xl px-4 py-2.5 text-[10px] font-bold focus:ring-2 focus:ring-premium-gold/30" 
@@ -127,8 +127,8 @@ export default function AdminCategories() {
                          <div className="space-y-3">
                             <div className="relative group aspect-square bg-light-bg rounded-[2rem] overflow-hidden border border-border-light cursor-pointer">
                                {form.sizeChart ? <img src={resolveAssetURL(form.sizeChart)} className="w-full h-full object-cover" onError={(e) => { e.target.src = '/placeholder.jpg'; }} /> : <div className="w-full h-full flex flex-col items-center justify-center text-text-muted gap-2"><Ruler size={32} /><span className="text-[9px] font-black uppercase">Size Chart</span></div>}
-                               <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={e => handleUpload(e, 'sizeChart')} />
-                               <div className="absolute inset-0 bg-charcoal/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center"><Plus className="text-white" /></div>
+                               <input type="file" className="absolute inset-0 opacity-0 cursor-pointer z-10" onChange={e => handleUpload(e, 'sizeChart')} />
+                               <div className="absolute inset-0 bg-charcoal/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center pointer-events-none"><Plus className="text-white" /></div>
                             </div>
                             <input 
                                className="w-full bg-light-bg border-none rounded-xl px-4 py-2.5 text-[10px] font-bold focus:ring-2 focus:ring-premium-gold/30" 

@@ -1057,7 +1057,7 @@ export default function StaffCreateBill() {
                         <span className="block text-[9px] font-bold text-text-muted line-through">₹{product.sellingPrice}</span>
                         <span className="block text-sm font-black text-charcoal leading-none mt-1">₹{product.discountedPrice || product.sellingPrice}</span>
                       </div>
-                      <div className="w-8 h-8 bg-light-bg rounded-xl flex items-center justify-center text-text-muted group-hover:bg-premium-gold group-hover:text-charcoal group-hover:shadow-lg group-hover:shadow-premium-gold/20 transition-all shrink-0 ml-2 border border-border-light/60">
+                      <div onClick={(e) => { e.stopPropagation(); handleProductClick(product); }} className="w-8 h-8 bg-light-bg rounded-xl flex items-center justify-center text-text-muted group-hover:bg-premium-gold group-hover:text-charcoal group-hover:shadow-lg group-hover:shadow-premium-gold/20 transition-all shrink-0 ml-2 border border-border-light/60 cursor-pointer">
                         <Plus size={14} />
                       </div>
                     </div>

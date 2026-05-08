@@ -386,7 +386,7 @@ export default function AdminProcurement() {
    };
    
    const grandTotal = purchaseRows.reduce((sum, r) => sum + calculateRowTotal(r), 0);
-   const finalTotalAmount = purchaseBill.totalAmount !== '' && purchaseBill.totalAmount !== undefined ? Number(purchaseBill.totalAmount) : grandTotal;
+   const finalTotalAmount = grandTotal; 
    const subtotal = grandTotal;
    const totalGST = 0;
 
@@ -564,6 +564,9 @@ export default function AdminProcurement() {
    };
 
    const resetPurchaseForm = () => {
+      localStorage.removeItem('draft_purchase_bill');
+      localStorage.removeItem('draft_purchase_rows');
+      localStorage.removeItem('open_purchase_form');
       setPurchaseBill({ 
          supplierId: '', 
          supplierName: '', 
@@ -1202,29 +1205,14 @@ export default function AdminProcurement() {
                               <p className="text-xl font-black text-charcoal">{purchaseRows.reduce((s, r) => s + (Number(r.quantity) || 0), 0)} Units</p>
                            </div>
                            <div className="flex flex-col">
-                              <p className="text-[9px] font-black text-text-muted uppercase tracking-widest mb-1">Financial Impact ₹ *</p>
-                              <div className="relative flex items-center">
-                                 <span className="absolute left-4 text-xs font-bold text-text-muted/60">₹</span>
-                                 <input 
-                                    type="number" 
-                                    className="w-36 bg-light-bg border border-border-light/60 rounded-xl pl-8 pr-3 py-2 text-xs font-black text-charcoal focus:outline-none focus:ring-2 focus:ring-premium-gold/40 focus:border-premium-gold transition-all" 
-                                    placeholder={grandTotal}
-                                    value={purchaseBill.totalAmount}
-                                    onChange={e => {
-                                       const val = e.target.value;
-                                       setPurchaseBill(prev => ({
-                                          ...prev,
-                                          totalAmount: val,
-                                          paidAmount: prev.paymentStatus === 'paid' ? (val !== '' ? Number(val) : grandTotal) : prev.paidAmount
-                                       }));
-                                    }}
-                                 />
+                              <p className="text-[9px] font-black text-text-muted uppercase tracking-widest mb-1">Total Impact ₹</p>
+                              <div className="text-xl font-black text-charcoal tracking-tighter">
+                                 {formatCurrency(grandTotal)}
                               </div>
-                              <p className="text-[7px] font-bold text-text-muted/60 uppercase tracking-widest mt-1">Calculated: {formatCurrency(grandTotal)}</p>
                            </div>
                         </div>
                         <div className="flex gap-4">
-                           <button type="button" onClick={resetPurchaseForm} className="px-10 py-5 text-[10px] font-black uppercase tracking-widest text-text-muted hover:text-charcoal transition-all">Cancel</button>
+                           <button type="button" onClick={resetPurchaseForm} className="px-10 py-5 text-[10px] font-black uppercase tracking-widest text-text-muted hover:text-charcoal transition-all">Clear Draft</button>
                            <button type="submit" disabled={createPurchaseMutation.isPending} className="bg-charcoal text-white px-12 py-5 rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] shadow-2xl hover:bg-premium-gold hover:text-charcoal transition-all flex items-center gap-3">
                               {createPurchaseMutation.isPending ? <Loader2 size={18} className="animate-spin" /> : <><Save size={18} /> Authorize Procurement</>}
                            </button>
