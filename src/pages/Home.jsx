@@ -9,45 +9,7 @@ import ProductCard from '../components/product/ProductCard';
 import SkeletonCard from '../components/product/SkeletonCard';
 import SafeImage from '../components/common/SafeImage';
 
-const HERO_SLIDES = [
-  {
-    id: 1,
-    title: 'Modern\nGentleman',
-    subtitle: "Tamil Nadu's destination for MAGIZHCHI GARMENTS. Discover the art of perfect tailoring.",
 
-    cta: 'Shop Collection',
-    ctaLink: '/collections',
-    img: 'https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0048.jpg?updatedAt=1772379292131',
-    accent: 'Luxury Fabrics'
-  },
-  {
-    id: 2,
-    title: 'The Formal\nStandard',
-    subtitle: 'From boardroom to weddings. Look your absolute best with our premium formal range.',
-    cta: 'Explore Suits',
-    ctaLink: '/collections/formals',
-    img: 'https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0097.jpg?updatedAt=1772379295602',
-    accent: 'Office Ready'
-  },
-  {
-    id: 3,
-    title: 'Casual\nComfort',
-    subtitle: 'Elevate your daily style with our range of premium t-shirts and comfort wear.',
-    cta: 'Shop Casuals',
-    ctaLink: '/collections/t-shirts',
-    img: 'https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0085.jpg?updatedAt=1772379294664',
-    accent: 'Everyday Style'
-  },
-  {
-    id: 4,
-    title: 'Timeless\nDenim',
-    subtitle: 'Classic jeans that fit perfectly and last forever. The foundation of every wardrobe.',
-    cta: 'Explore Jeans',
-    ctaLink: '/collections/jeans',
-    img: 'https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925',
-    accent: 'Built To Last'
-  }
-];
 
 const CATEGORIES = [
   { name: 'Shirts', slug: 'shirts', img: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?q=80&w=400&auto=format&fit=crop', items: '120+ Items' },
@@ -98,7 +60,7 @@ export default function Home() {
     accent: b.type === 'hero' ? 'New Arrival' : 'Special Offer'
   })) || [];
 
-  const slides = dynamicSlides.length > 0 ? dynamicSlides : HERO_SLIDES;
+  const slides = dynamicSlides;
 
   useEffect(() => {
     const handleMouseMove = (e) => setMousePos({ x: e.clientX, y: e.clientY });
@@ -136,8 +98,9 @@ export default function Home() {
 
 
       {/* ── Hero Section ── */}
-      <section className="relative h-[65vh] md:h-[80vh] w-full bg-charcoal overflow-hidden">
-        <AnimatePresence mode="wait">
+      {slides.length > 0 && (
+        <section className="relative h-[65vh] md:h-[80vh] w-full bg-charcoal overflow-hidden">
+          <AnimatePresence mode="wait">
           <motion.div 
             key={heroIdx}
             initial={{ opacity: 0, scale: 1.1 }}
@@ -218,6 +181,7 @@ export default function Home() {
           ))}
         </div>
       </section>
+      )}
 
       {/* ── Category Spotlight ── */}
       <section className="py-24 bg-white">

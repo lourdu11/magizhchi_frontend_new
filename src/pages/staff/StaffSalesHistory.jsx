@@ -14,7 +14,8 @@ export default function StaffSalesHistory() {
   });
 
   const bills = data?.data || [];
-  const totalToday = bills.reduce((s, b) => s + (b.pricing?.totalAmount || 0), 0);
+  const activeBills = bills.filter(b => b.status !== 'voided');
+  const totalToday = activeBills.reduce((s, b) => s + (b.pricing?.totalAmount || 0), 0);
 
   return (
     <div className="space-y-6">
@@ -25,7 +26,7 @@ export default function StaffSalesHistory() {
           <h1 className="text-2xl font-bold text-text-primary flex items-center gap-2">
             <Receipt size={22} className="text-premium-gold" /> Sales History
           </h1>
-          <p className="text-text-muted text-sm">{bills.length} bill{bills.length !== 1 ? 's' : ''} · Rs.{totalToday.toLocaleString('en-IN')} total</p>
+          <p className="text-text-muted text-sm">{activeBills.length} active bill{activeBills.length !== 1 ? 's' : ''} · Rs.{totalToday.toLocaleString('en-IN')} total</p>
         </div>
       </div>
 
@@ -72,16 +73,23 @@ export default function StaffSalesHistory() {
               </td></tr>
             )}
             {bills.map(b => (
-              <tr key={b._id} className="hover:bg-light-bg/50 transition-colors">
-                <td className="px-5 py-3.5 font-bold text-premium-gold">#{b.billNumber}</td>
+              <tr key={b._id} className={`hover:bg-light-bg/50 transition-colors ${b.status === 'voided' ? 'opacity-50' : ''}`}>
+                <td className="px-5 py-3.5">
+                  <div className="flex items-center gap-2">
+                    <span className={`font-bold ${b.status === 'voided' ? 'text-red-500 line-through' : 'text-premium-gold'}`}>#{b.billNumber}</span>
+                    {b.status === 'voided' && <span className="text-[8px] font-black px-1.5 py-0.5 rounded bg-red-100 text-red-600 border border-red-200 uppercase tracking-tighter">Voided</span>}
+                  </div>
+                </td>
                 <td className="px-5 py-3.5">
                   <p className="font-medium text-text-primary">{b.customerDetails?.name || 'Walk-in'}</p>
                   {b.customerDetails?.phone && <p className="text-xs text-text-muted">{b.customerDetails.phone}</p>}
                 </td>
                 <td className="px-5 py-3.5 text-text-muted">{b.items?.length || 0} item{b.items?.length !== 1 ? 's' : ''}</td>
-                <td className="px-5 py-3.5 font-bold text-text-primary">Rs.{(b.pricing?.totalAmount || 0).toLocaleString('en-IN')}</td>
+                <td className={`px-5 py-3.5 font-bold ${b.status === 'voided' ? 'text-text-muted line-through' : 'text-text-primary'}`}>
+                  Rs.{(b.pricing?.totalAmount || 0).toLocaleString('en-IN')}
+                </td>
                 <td className="px-5 py-3.5">
-                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 uppercase">{b.paymentMethod}</span>
+                  <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase ${b.status === 'voided' ? 'bg-gray-100 text-gray-500' : 'bg-blue-50 text-blue-700'}`}>{b.paymentMethod}</span>
                 </td>
                 <td className="px-5 py-3.5 text-text-muted text-xs">{new Date(b.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
               </tr>

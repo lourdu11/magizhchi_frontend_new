@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Save, Loader2, ShieldCheck, Truck, Globe, Share2, CreditCard, Wallet, Percent, BellRing, Mail, Smartphone, User, KeyRound, CheckCircle2 } from 'lucide-react';
+import { Save, Loader2, ShieldCheck, Truck, Globe, Share2, CreditCard, Wallet, Percent, BellRing, Mail, Smartphone, User, KeyRound, CheckCircle2, Trash2 } from 'lucide-react';
 import { adminService, userService } from '../../services';
 import { toast } from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
@@ -11,17 +11,60 @@ export default function AdminSettings() {
   const queryClient = useQueryClient();
   const { user: currentUser, setAuth } = useAuthStore();
   const [activeTab, setActiveTab] = useState('general');
+  const [resetSelections, setResetSelections] = useState({
+    dashboard: true,
+    category: false,
+    catalog: false,
+    procurement: false,
+    customer: false,
+    offlineBills: true,
+    reviews: true,
+    analysis: true,
+    staff: false,
+    banners: false
+  });
+
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [isVerified, setIsVerified] = useState(() => {
+    return sessionStorage.getItem('admin_settings_verified') === 'true';
+  });
+  const [securityKeyInput, setSecurityKeyInput] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [shake, setShake] = useState(false);
+  const [resetConfirmInput, setResetConfirmInput] = useState('');
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [saveConfirmInput, setSaveConfirmInput] = useState('');
+  // Prevent double-click duplicate email sends
+  const [testLoading, setTestLoading] = useState({ order: false, contact: false, stock: false });
+
+  useEffect(() => {
+    // Session isolation: We no longer need to sync verification across tabs.
+  }, []);
+
+  const toggleSelection = (key) => {
+    setResetSelections(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const selectAllSelections = (value) => {
+    const updated = {};
+    Object.keys(resetSelections).forEach(k => {
+      updated[k] = value;
+    });
+    setResetSelections(updated);
+  };
 
   // Store Settings Query
   const { data: settings, isLoading: settingsLoading } = useQuery({
     queryKey: ['admin-settings'],
     queryFn: () => adminService.getSettings().then(r => r.data.data),
+    enabled: isVerified,
   });
 
   // User Profile Query (for Admin Profile tab)
   const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ['admin-profile'],
     queryFn: () => userService.getProfile().then(r => r.data.data),
+    enabled: isVerified,
   });
 
   const [formData, setFormData] = useState({
@@ -64,11 +107,9 @@ export default function AdminSettings() {
             port: 587,
             user: settings.notifications?.email?.user || '',
             password: '',
-            // ✅ FIXED: No fallback to store.email — show empty if not explicitly set
             alertEmail: settings.notifications?.email?.alertEmail || ''
           },
           whatsapp: {
-            // ✅ FIXED: No fallback to store.phone — show empty if not explicitly set
             adminPhone: settings.notifications?.whatsapp?.adminPhone || ''
           },
           orderNotifications: {
@@ -99,6 +140,10 @@ export default function AdminSettings() {
     }
   }, [profile]);
 
+  const isEmailDirty = formData.notifications?.email?.alertEmail?.trim().toLowerCase() !== (settings?.notifications?.email?.alertEmail || '').trim().toLowerCase();
+  const isPhoneDirty = formData.notifications?.whatsapp?.adminPhone?.trim() !== (settings?.notifications?.whatsapp?.adminPhone || '').trim();
+  const isDirty = isEmailDirty || isPhoneDirty;
+
   const settingsMutation = useMutation({
     mutationFn: (data) => adminService.updateSettings(data),
     onSuccess: () => {
@@ -106,14 +151,13 @@ export default function AdminSettings() {
       queryClient.invalidateQueries({ queryKey: ['public-settings'] });
       toast.success('Store settings updated');
     },
-    onError: () => toast.error('Failed to update store settings'),
+    onError: (err) => toast.error(err.response?.data?.message || 'Failed to update store settings'),
   });
 
   const profileMutation = useMutation({
     mutationFn: (data) => userService.updateProfile(data),
     onSuccess: (res) => {
       queryClient.invalidateQueries({ queryKey: ['admin-profile'] });
-      // Update auth store with new name/phone
       const updatedUser = { ...currentUser, ...res.data.data };
       setAuth(updatedUser, localStorage.getItem('accessToken'));
       toast.success('Admin profile updated');
@@ -131,23 +175,28 @@ export default function AdminSettings() {
   });
 
   const handleSettingsSubmit = (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     
-    // Create a copy and sanitize
-    const sanitizedData = { ...formData };
-    if (sanitizedData.notifications?.email?.alertEmail) {
-      sanitizedData.notifications.email.alertEmail = sanitizedData.notifications.email.alertEmail.trim().toLowerCase();
+    const alertEmail = formData.notifications?.email?.alertEmail?.trim().toLowerCase();
+    if (alertEmail) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(alertEmail)) {
+        return toast.error("Please enter a valid admin notification email");
+      }
     }
 
-    const isEmailChanged = sanitizedData.notifications?.email?.alertEmail !== settings?.notifications?.email?.alertEmail;
+    setSaveConfirmInput('');
+    setShowSaveModal(true);
+  };
 
-    settingsMutation.mutate(sanitizedData, {
-      onSuccess: () => {
-        if (isEmailChanged) {
-          toast.success('Notification email updated successfully');
-        }
-      }
-    });
+  const executeSettingsSave = () => {
+    const confirmPhrase = "Xavi2006";
+    if (saveConfirmInput !== confirmPhrase) {
+      return toast.error('Save aborted: Security passkey did not match.', { icon: '🛡️' });
+    }
+
+    setShowSaveModal(false);
+    settingsMutation.mutate(formData);
   };
 
   const handleProfileSubmit = (e) => {
@@ -165,6 +214,142 @@ export default function AdminSettings() {
       newPassword: passwordData.newPassword
     });
   };
+
+  const handleSystemResetTrigger = () => {
+    const selectedKeys = Object.keys(resetSelections).filter(k => resetSelections[k]);
+    if (selectedKeys.length === 0) {
+      return toast.error("Please select at least one system data module to reset.", { icon: '⚠️' });
+    }
+    setResetConfirmInput('');
+    setShowResetModal(true);
+  };
+
+  const executeSystemReset = () => {
+    const confirmPhrase = "Xavi2006";
+    if (resetConfirmInput !== confirmPhrase) {
+      return toast.error('Reset aborted: Confirmation text did not match.', { icon: '🛡️' });
+    }
+
+    setShowResetModal(false);
+    toast.promise(
+      adminService.resetSystemData(resetSelections).then(r => {
+        queryClient.invalidateQueries();
+        return r;
+      }),
+      {
+        loading: 'Processing granular system data reset...',
+        success: '🎉 Selected system modules successfully reset and cleaned!',
+        error: (err) => `Failed to reset system: ${err.response?.data?.message || err.message}`
+      }
+    );
+  };
+
+  const handleVerifyKey = (e) => {
+    e.preventDefault();
+    setIsVerifying(true);
+    
+    setTimeout(() => {
+      if (securityKeyInput === 'Xavi2006') {
+        setIsVerified(true);
+        sessionStorage.setItem('admin_settings_verified', 'true');
+        toast.success('Access Granted! Welcome to Settings.', {
+          icon: '🔓',
+          style: {
+            borderRadius: '1.5rem',
+            background: '#1E1E1E',
+            color: '#fff',
+            fontFamily: 'sans-serif',
+            fontWeight: 'bold',
+          }
+        });
+      } else {
+        setShake(true);
+        setTimeout(() => setShake(false), 500);
+        toast.error('Invalid Security Key. Access Denied.', {
+          icon: '🛡️',
+          style: {
+            borderRadius: '1.5rem',
+            background: '#1E1E1E',
+            color: '#fff',
+            fontFamily: 'sans-serif',
+            fontWeight: 'bold',
+          }
+        });
+      }
+      setIsVerifying(false);
+    }, 800);
+  };
+
+  if (!isVerified) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center font-sans p-4">
+        <Helmet><title>Security Lock — Magizhchi</title></Helmet>
+        <motion.div
+          initial={{ scale: 0.95, opacity: 0, y: 20 }}
+          animate={shake ? { x: [-10, 10, -10, 10, -5, 5, 0] } : { scale: 1, opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-md bg-white rounded-[2.5rem] border border-border-light shadow-2xl p-8 text-center space-y-6"
+        >
+          {/* Animated Lock Circle */}
+          <div className="flex justify-center">
+            <div className="relative">
+              <motion.div
+                animate={{ scale: [1, 1.05, 1] }}
+                transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+                className="w-20 h-20 bg-premium-gold/10 text-premium-gold rounded-full flex items-center justify-center shadow-inner"
+              >
+                <KeyRound size={36} className="text-premium-gold" />
+              </motion.div>
+              <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-charcoal text-white rounded-full flex items-center justify-center border-2 border-white shadow-md">
+                <ShieldCheck size={14} className="text-premium-gold" />
+              </div>
+            </div>
+          </div>
+
+          {/* Title & Description */}
+          <div className="space-y-2">
+            <h2 className="text-2xl font-black text-charcoal tracking-tight">Security Lock</h2>
+            <p className="text-xs text-text-muted font-semibold leading-relaxed px-2">
+              This settings area contains highly sensitive business configurations. Enter your security key to unlock.
+            </p>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleVerifyKey} className="space-y-4">
+            <div className="relative">
+              <input
+                type="password"
+                required
+                placeholder="Enter access password..."
+                value={securityKeyInput}
+                onChange={(e) => setSecurityKeyInput(e.target.value)}
+                className="w-full bg-light-bg border border-border-light focus:border-premium-gold rounded-2xl px-5 py-4 pl-12 focus:ring-4 focus:ring-premium-gold/10 outline-none font-sans font-bold text-sm tracking-widest text-charcoal transition-all placeholder:text-charcoal/30 placeholder:tracking-normal text-center"
+              />
+              <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 text-charcoal/30" size={18} />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isVerifying}
+              className="w-full bg-charcoal text-white hover:bg-premium-gold hover:text-charcoal px-8 py-4 rounded-2xl font-black text-xs tracking-widest transition-all shadow-xl shadow-charcoal/10 flex items-center justify-center gap-2"
+            >
+              {isVerifying ? (
+                <>
+                  <Loader2 className="animate-spin" size={16} />
+                  Verifying...
+                </>
+              ) : (
+                <>
+                  <ShieldCheck size={16} />
+                  Verify Access
+                </>
+              )}
+            </button>
+          </form>
+        </motion.div>
+      </div>
+    );
+  }
 
   if (settingsLoading || profileLoading) return (
     <div className="min-h-[400px] flex items-center justify-center">
@@ -196,9 +381,9 @@ export default function AdminSettings() {
           <button 
             onClick={handleSettingsSubmit}
             disabled={settingsMutation.isPending}
-            className="bg-charcoal text-white px-8 py-4 rounded-2xl font-black text-sm tracking-widest shadow-2xl shadow-charcoal/20 hover:bg-premium-gold transition-all flex items-center gap-3"
+            className={`px-8 py-4 rounded-2xl font-black text-sm tracking-widest shadow-2xl transition-all flex items-center gap-3 ${isDirty ? 'bg-amber-500 text-white hover:bg-amber-600 shadow-amber-200' : 'bg-charcoal text-white hover:bg-premium-gold shadow-charcoal/20'}`}
           >
-            {settingsMutation.isPending ? <Loader2 className="animate-spin" size={20} /> : <><Save size={20} /> Save Store Settings</>}
+            {settingsMutation.isPending ? <Loader2 className="animate-spin" size={20} /> : <><Save size={20} /> {isDirty ? 'Save Pending Changes' : 'Save Store Settings'}</>}
           </button>
         )}
       </div>
@@ -212,6 +397,7 @@ export default function AdminSettings() {
             { id: 'payment', label: 'Payment & COD', icon: Wallet },
             { id: 'shipping', label: 'Shipping', icon: Truck },
             { id: 'notifications', label: 'Notifications', icon: BellRing },
+            { id: 'maintenance', label: 'System Maintenance', icon: Trash2 },
           ].map(tab => (
             <button
               key={tab.id}
@@ -442,12 +628,16 @@ export default function AdminSettings() {
                          <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-2 block">Admin Notification Email</span>
                          <div className="relative">
                             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-premium-gold" size={18} />
-                            <input className="w-full bg-light-bg border-none rounded-2xl pl-12 pr-5 py-4 focus:ring-2 focus:ring-premium-gold/30 font-black text-lg" 
+                            <input className={`w-full bg-light-bg border-none rounded-2xl pl-12 pr-5 py-4 focus:ring-2 focus:ring-premium-gold/30 font-black text-lg ${isEmailDirty ? 'ring-2 ring-amber-400' : ''}`} 
                               value={formData.notifications.email.alertEmail} 
                               onChange={e => updateEmail('alertEmail', e.target.value)} 
                               placeholder="admin@magizhchi.in" />
                          </div>
-                         <p className="text-[9px] text-text-muted mt-2 font-bold uppercase italic">Receives Email alerts</p>
+                         {isEmailDirty ? (
+                           <p className="text-[9px] font-black text-amber-600 uppercase tracking-widest mt-2 animate-pulse">⚠️ Unsaved Change — Alerts still going to {settings?.notifications?.email?.alertEmail || 'nowhere'}</p>
+                         ) : (
+                           <p className="text-[9px] text-text-muted mt-2 font-bold uppercase italic">Receives Email alerts</p>
+                         )}
                       </label>
                    </div>
                 </div>
@@ -486,38 +676,33 @@ export default function AdminSettings() {
                            </select>
                         </label>
 
-                      <div className="flex flex-col gap-2">
-                        <p className="text-[9px] text-amber-600 font-bold uppercase tracking-tight bg-amber-50 p-2 rounded-lg border border-amber-100">
-                          ⚠️ Click "SAVE SETTINGS" at bottom before testing if you changed the email!
-                        </p>
-                        <button 
-                          type="button"
-                          onClick={() => {
-                            console.log('Testing Order Notification...');
-                            toast.promise(
-                              adminService.testNotifications('order').then(r => { 
-                                console.log('Test Result Body:', r.data);
-                                if (!r.data.success) throw new Error(r.data.message); 
-                                return r; 
-                              }),
-                              {
-                                loading: 'Sending order test email...',
-                                success: (r) => {
-                                  const d = r.data.data?.emailOrder;
-                                  console.log('Email Result Details:', d);
-                                  return d?.messageId
-                                    ? `✅ Brevo accepted! ID:${d.messageId} → Check ${formData.notifications?.email?.alertEmail || 'inbox'}`
-                                    : `✅ ${d?.message || 'Order alert sent! Check inbox or Spam folder.'}` ;
-                                },
-                                error: (e) => `❌ ${e.response?.data?.message || e.message}`
-                              }
-                            )
-                          }}
-                          className="mt-4 px-6 py-2 bg-blue-50 text-blue-600 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-100 transition-colors border border-blue-100"
-                        >
-                          Send Test Order Alert
-                        </button>
-                      </div>
+                       <div className="flex flex-col gap-2">
+                         <button 
+                           type="button"
+                           disabled={isEmailDirty || testLoading.order}
+                           onClick={() => {
+                             if (isEmailDirty || testLoading.order) return;
+                             setTestLoading(p => ({ ...p, order: true }));
+                             toast.promise(
+                               adminService.testNotifications('order').then(r => { if (!r.data.success) throw new Error(r.data.message); return r; }).finally(() => setTestLoading(p => ({ ...p, order: false }))),
+                               {
+                                 loading: 'Sending order test email...',
+                                 success: (r) => {
+                                   const d = r.data.data?.emailOrder;
+                                   return d?.messageId
+                                     ? `✅ Brevo accepted! ID:${d.messageId} → Check ${settings?.notifications?.email?.alertEmail}`
+                                     : `✅ ${d?.message || 'Order alert sent! Check inbox.'}` ;
+                                 },
+                                 error: (e) => `❌ ${e.response?.data?.message || e.message}`
+                               }
+                             )
+                           }}
+                           className={`mt-4 px-6 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all border ${isEmailDirty ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-50' : 'bg-blue-50 text-blue-600 border-blue-100 hover:bg-blue-100'}`} data-test="order-btn"
+                         >
+                           {testLoading.order ? '⏳ Sending...' : 'Send Test Order Alert'}
+                         </button>
+                         {isEmailDirty && <p className="text-[9px] text-amber-600 font-bold uppercase text-center mt-1">Save settings first to test updated email</p>}
+                       </div>
                      </div>
                    )}
                 </div>
@@ -556,38 +741,32 @@ export default function AdminSettings() {
                            </select>
                         </label>
 
-                        <div className="flex flex-col gap-2">
-                          <p className="text-[9px] text-amber-600 font-bold uppercase tracking-tight bg-amber-50 p-2 rounded-lg border border-amber-100 mb-2">
-                            ⚠️ Click "SAVE SETTINGS" at bottom before testing if you changed the email!
-                          </p>
-                          <button 
-                            type="button"
-                            onClick={() => {
-                              console.log('Testing Contact Notification...');
-                              toast.promise(
-                                adminService.testNotifications('contact').then(r => { 
-                                  console.log('Test Result Body:', r.data);
-                                  if (!r.data.success) throw new Error(r.data.message); 
-                                  return r; 
-                                }),
-                                {
-                                  loading: 'Sending contact test email...',
-                                  success: (r) => {
-                                    const d = r.data.data?.emailContact;
-                                    console.log('Email Result Details:', d);
-                                    return d?.messageId
-                                      ? `✅ Brevo accepted! ID:${d.messageId} → Check ${formData.notifications?.email?.alertEmail || 'inbox'}`
-                                      : `✅ ${d?.message || 'Contact alert sent! Check inbox or Spam folder.'}` ;
-                                  },
-                                  error: (e) => `❌ ${e.response?.data?.message || e.message}`
-                                }
-                              )
-                            }}
-                            className="mt-4 px-6 py-2 bg-purple-50 text-purple-600 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-purple-100 transition-colors border border-purple-100"
-                          >
-                            Send Test Contact Alert
-                          </button>
-                        </div>
+                         <div className="flex flex-col gap-2">
+                           <button 
+                             type="button"
+                             disabled={isEmailDirty}
+                             onClick={() => {
+                               if (isEmailDirty) return;
+                               toast.promise(
+                                 adminService.testNotifications('contact').then(r => { if (!r.data.success) throw new Error(r.data.message); return r; }).finally(() => setTestLoading(p => ({ ...p, contact: false }))),
+                                 {
+                                   loading: 'Sending contact test email...',
+                                   success: (r) => {
+                                     const d = r.data.data?.emailContact;
+                                     return d?.messageId
+                                       ? `✅ Brevo accepted! ID:${d.messageId} → Check ${settings?.notifications?.email?.alertEmail}`
+                                       : `✅ ${d?.message || 'Contact alert sent! Check inbox.'}` ;
+                                   },
+                                   error: (e) => `❌ ${e.response?.data?.message || e.message}`
+                                 }
+                               )
+                             }}
+                             className={`mt-4 px-6 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all border ${isEmailDirty ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-50' : testLoading.contact ? 'bg-purple-100 text-purple-400 border-purple-100 cursor-not-allowed' : 'bg-purple-50 text-purple-600 border-purple-100 hover:bg-purple-100'}`}
+                           >
+                             {testLoading.contact ? '⏳ Sending...' : 'Send Test Contact Alert'}
+                           </button>
+                           {isEmailDirty && <p className="text-[9px] text-amber-600 font-bold uppercase text-center mt-1">Save settings first to test updated email</p>}
+                         </div>
                      </div>
                    )}
                 </div>
@@ -627,27 +806,284 @@ export default function AdminSettings() {
                        </label>
                     </div>
                     
-                     <button 
-                        type="button"
-                        onClick={() => toast.promise(
-                          adminService.testNotifications('stock').then(r => { if (!r.data.success) throw new Error(r.data.message); return r; }),
-                          {
-                            loading: 'Sending stock test alert...',
-                            success: '✅ Stock alert sent! Check inbox.',
-                            error: (e) => `❌ ${e.response?.data?.message || e.message}`
-                          }
-                        )}
-                        className="px-6 py-3 bg-red-50 text-red-600 border border-red-100 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-100 transition-all"
-                      >
-                        Send Test Stock Alert
-                      </button>
-                 </div>
-               </motion.div>
+                    <div className="flex flex-col gap-2">
+                      <button 
+                         type="button"
+                         disabled={isEmailDirty}
+                         onClick={() => {
+                           if (isEmailDirty) return;
+                           toast.promise(
+                             adminService.testNotifications('stock').then(r => { if (!r.data.success) throw new Error(r.data.message); return r; }).finally(() => setTestLoading(p => ({ ...p, stock: false }))),
+                             {
+                               loading: 'Sending stock test alert...',
+                               success: (r) => `✅ Stock alert sent! Check ${settings?.notifications?.email?.alertEmail}`,
+                               error: (e) => `❌ ${e.response?.data?.message || e.message}`
+                             }
+                           )
+                         }}
+                         className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${isEmailDirty ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-50' : testLoading.stock ? 'bg-red-100 text-red-400 border-red-100 cursor-not-allowed' : 'bg-red-50 text-red-600 border-red-100 hover:bg-red-100'}`}
+                       >
+                         {testLoading.stock ? '⏳ Sending...' : 'Send Test Stock Alert'}
+                       </button>
+                        {isEmailDirty && <p className="text-[9px] text-amber-600 font-bold uppercase text-center mt-1">Save settings first to test updated email</p>}
+                     </div>
+                  </div>
+                </motion.div>
             )}
-          </AnimatePresence>
+
+            {activeTab === 'maintenance' && (
+                  <motion.div key="maintenance" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="space-y-8">
+                    <div>
+                      <h2 className="text-xl font-black text-charcoal tracking-tight">Granular System Data Reset</h2>
+                      <p className="text-xs text-text-muted font-bold uppercase tracking-widest mt-1">Select exactly which data modules you wish to reset</p>
+                    </div>
+
+                    {/* Bulk Select Toggles */}
+                    <div className="flex gap-3">
+                      <button
+                        type="button"
+                        onClick={() => selectAllSelections(true)}
+                        className="bg-light-bg hover:bg-premium-gold/15 hover:text-[#8C6D1F] border border-border-light px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider text-charcoal/80 transition-all"
+                      >
+                        Select All Modules
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => selectAllSelections(false)}
+                        className="bg-light-bg hover:bg-red-50 hover:text-red-600 border border-border-light px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider text-charcoal/80 transition-all"
+                      >
+                        Deselect All
+                      </button>
+                    </div>
+
+                    {/* Grid checklist */}
+                    <div className="grid md:grid-cols-2 gap-4">
+                      {[
+                        { key: 'dashboard', label: 'Dashboard Stats', desc: 'Wipes cached statistics counters and forces instant dashboard reload' },
+                        { key: 'category', label: 'Garment Categories', desc: 'Deletes all catalog category collections and groupings' },
+                        { key: 'catalog', label: 'Product Catalog', desc: 'Deletes all product listings, cost structures, and variants inventory' },
+                        { key: 'procurement', label: 'Procurement Hub', desc: 'Wipes all supplier directories, transaction ledgers, and purchases' },
+                        { key: 'customer', label: 'Customer Directory', desc: 'Removes registered retail user profiles (safely retains admin profiles)' },
+                        { key: 'offlineBills', label: 'POS Bills / Invoices', desc: 'Permanently deletes all billing invoices, sales records, and PDF references' },
+                        { key: 'reviews', label: 'Customer Reviews', desc: 'Wipes catalog rating stars and feedback posts left by web buyers' },
+                        { key: 'analysis', label: 'Sales Analytics & Logs', desc: 'Resets stock transaction history, recorded damages, and sells counts' },
+                        { key: 'staff', label: 'Staff Accounts', desc: 'Removes billing operators, assistants, and clerk log-ins' },
+                        { key: 'banners', label: 'Slider Banners', desc: 'Clears e-commerce homepage hero sliders and advertising images' },
+                      ].map(module => {
+                        const isChecked = resetSelections[module.key];
+                        return (
+                          <div
+                            key={module.key}
+                            onClick={() => toggleSelection(module.key)}
+                            className={`p-5 rounded-3xl border cursor-pointer transition-all flex items-start gap-4 ${isChecked ? 'bg-premium-gold/5 border-premium-gold/40 shadow-md' : 'bg-white hover:bg-light-bg/50 border-border-light'}`}
+                          >
+                            <div className="pt-0.5">
+                              <input
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={() => {}} // managed by click on parent div
+                                className="rounded border-gray-300 text-premium-gold focus:ring-premium-gold w-5 h-5 cursor-pointer accent-premium-gold"
+                              />
+                            </div>
+                            <div>
+                              <p className={`font-black text-xs uppercase tracking-wider ${isChecked ? 'text-charcoal' : 'text-charcoal/80'}`}>{module.label}</p>
+                              <p className="text-[10px] text-text-muted font-semibold mt-1 leading-relaxed">{module.desc}</p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Final Danger Card and Action Button */}
+                    <div className="p-6 bg-red-50 rounded-[2rem] border border-red-100 mt-6">
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div className="text-xs font-black text-red-600 uppercase tracking-widest animate-pulse">
+                          ⚠️ WARNING: Selected data modules will be deleted forever. This CANNOT be undone!
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleSystemResetTrigger}
+                          className="bg-red-600 text-white hover:bg-red-700 px-8 py-4 rounded-2xl font-black text-xs tracking-widest shadow-lg shadow-red-200 transition-all flex items-center justify-center gap-2"
+                        >
+                          <Trash2 size={16} /> Reset Selected Data Modules
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
         </div>
-      </div>
     </div>
+
+      {/* Premium Custom Security Reset Modal */}
+      <AnimatePresence>
+        {showResetModal && (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+            {/* Backdrop Blur overlay */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowResetModal(false)}
+              className="absolute inset-0 bg-charcoal/60 backdrop-blur-md"
+            />
+            
+            {/* Modal Card */}
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 15 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 15 }}
+              transition={{ type: "spring", duration: 0.4, bounce: 0.15 }}
+              className="relative w-full max-w-lg bg-white rounded-[2.5rem] border border-red-100 shadow-3xl overflow-hidden p-8 z-10 space-y-6"
+            >
+              {/* Header Icon */}
+              <div className="flex items-center gap-4">
+                <div className="p-4 bg-red-50 rounded-2xl text-red-600 animate-bounce">
+                  <ShieldCheck size={28} />
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-charcoal tracking-tight">Critical Safety Verification</h3>
+                  <p className="text-[10px] text-red-600 font-bold uppercase tracking-widest">High-Risk Administrative Action</p>
+                </div>
+              </div>
+
+              {/* Modules warning list */}
+              <div className="p-5 bg-red-50/50 rounded-2xl border border-red-50 space-y-2">
+                <p className="text-[11px] font-black text-charcoal/80 uppercase tracking-wider">
+                  ⚠️ This will permanently delete selected data modules:
+                </p>
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {Object.keys(resetSelections).filter(k => resetSelections[k]).map(k => (
+                    <span key={k} className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-[10px] font-black uppercase tracking-wider">
+                      {k === 'offlineBills' ? 'POS Bills' : k === 'customer' ? 'Customers' : k === 'procurement' ? 'Procurement' : k === 'catalog' ? 'Products' : k}
+                    </span>
+                  ))}
+                </div>
+                <p className="text-[10px] text-text-muted font-semibold mt-2 leading-relaxed">
+                  Deleting these modules will erase all associated records, configurations, and logs from the cloud database. This action is final and CANNOT be reversed.
+                </p>
+              </div>
+
+              {/* Confirmation Prompt Input */}
+              <div className="space-y-3 bg-red-50/30 p-5 rounded-3xl border border-red-100/50">
+                <label className="block text-[10px] font-black text-charcoal/70 uppercase tracking-[0.15em]">
+                  To confirm permanent deletion, enter the administrator passkey:
+                </label>
+                <div className="relative">
+                  <input
+                    type="password"
+                    placeholder="Enter security passkey..."
+                    value={resetConfirmInput}
+                    onChange={(e) => setResetConfirmInput(e.target.value)}
+                    className="w-full px-5 py-4 rounded-2xl border border-border-light bg-white focus:border-red-500 focus:ring-4 focus:ring-red-100/50 outline-none font-sans font-bold text-sm tracking-widest text-charcoal transition-all placeholder:text-charcoal/30 placeholder:tracking-normal text-center shadow-inner"
+                  />
+                </div>
+              </div>
+
+              {/* Actions buttons */}
+              <div className="flex gap-4 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowResetModal(false)}
+                  className="flex-1 bg-light-bg hover:bg-gray-200 text-charcoal font-black text-xs uppercase tracking-widest py-4 rounded-2xl transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={resetConfirmInput !== 'Xavi2006'}
+                  onClick={executeSystemReset}
+                  className={`flex-1 flex items-center justify-center gap-2 font-black text-xs uppercase tracking-widest py-4 rounded-2xl transition-all ${resetConfirmInput === 'Xavi2006' ? 'bg-red-600 text-white hover:bg-red-700 hover:scale-[1.02] active:scale-95 shadow-lg shadow-red-200' : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'}`}
+                >
+                  <Trash2 size={16} /> Delete Forever
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Premium Save Settings Security Modal */}
+      <AnimatePresence>
+        {showSaveModal && (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+            {/* Backdrop Blur overlay */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowSaveModal(false)}
+              className="absolute inset-0 bg-charcoal/60 backdrop-blur-md"
+            />
+            
+            {/* Modal Card */}
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 15 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 15 }}
+              transition={{ type: "spring", duration: 0.4, bounce: 0.15 }}
+              className="relative w-full max-w-lg bg-white rounded-[2.5rem] border border-premium-gold/20 shadow-3xl overflow-hidden p-8 z-10 space-y-6"
+            >
+              {/* Header Icon */}
+              <div className="flex items-center gap-4">
+                <div className="p-4 bg-premium-gold/10 text-premium-gold rounded-2xl animate-bounce">
+                  <ShieldCheck size={28} />
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-charcoal tracking-tight">Authorize Store Changes</h3>
+                  <p className="text-[10px] text-premium-gold font-bold uppercase tracking-widest">Administrative Verification</p>
+                </div>
+              </div>
+
+              {/* Warning/Info Box */}
+              <div className="p-5 bg-gold-soft/10 rounded-2xl border border-premium-gold/10 space-y-2">
+                <p className="text-[11px] font-black text-charcoal/80 uppercase tracking-wider">
+                  🔑 Confirming configuration updates:
+                </p>
+                <p className="text-[10px] text-text-muted font-semibold leading-relaxed">
+                  You are about to modify global store settings, checkout parameters, notifications, or shipping structures. Enter the security key to authorize.
+                </p>
+              </div>
+
+              {/* Confirmation Prompt Input */}
+              <div className="space-y-3 bg-light-bg p-5 rounded-3xl border border-border-light">
+                <label className="block text-[10px] font-black text-charcoal/70 uppercase tracking-[0.15em] text-center">
+                  Enter the administrator passkey to save settings:
+                </label>
+                <div className="relative">
+                  <input
+                    type="password"
+                    placeholder="Enter security passkey..."
+                    value={saveConfirmInput}
+                    onChange={(e) => setSaveConfirmInput(e.target.value)}
+                    className="w-full px-5 py-4 rounded-2xl border border-border-light bg-white focus:border-premium-gold focus:ring-4 focus:ring-premium-gold/10 outline-none font-sans font-bold text-sm tracking-widest text-charcoal transition-all placeholder:text-charcoal/30 placeholder:tracking-normal text-center shadow-inner"
+                  />
+                </div>
+              </div>
+
+              {/* Actions buttons */}
+              <div className="flex gap-4 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowSaveModal(false)}
+                  className="flex-1 bg-light-bg hover:bg-gray-200 text-charcoal font-black text-xs uppercase tracking-widest py-4 rounded-2xl transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={saveConfirmInput !== 'Xavi2006'}
+                  onClick={executeSettingsSave}
+                  className={`flex-1 flex items-center justify-center gap-2 font-black text-xs uppercase tracking-widest py-4 rounded-2xl transition-all ${saveConfirmInput === 'Xavi2006' ? 'bg-charcoal text-white hover:bg-premium-gold hover:text-charcoal hover:scale-[1.02] active:scale-95 shadow-lg shadow-charcoal/20' : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'}`}
+                >
+                  <Save size={16} /> Save Changes
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </div>
+
   );
 }
-

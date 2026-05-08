@@ -3,12 +3,12 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { 
   Search, Plus, Minus, Trash2, ShoppingCart, Receipt, Printer, 
   Loader2, User, X, CreditCard, Wallet, Banknote, Smartphone,
-  Package, LayoutGrid, ListFilter, Command, CheckCircle2, History, Shield, Sparkles, ArrowRight
+  Package, LayoutGrid, ListFilter, Command, CheckCircle2, History, Shield, Sparkles, ArrowRight, Mail, Gift, Scissors, Edit
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
-import { billService, productService, categoryService } from '../../services';
+import { billService, productService, categoryService, publicService, adminService } from '../../services';
 import { useAuthStore } from '../../store';
 import { resolveAssetURL } from '../../utils/assetResolver';
 import SafeImage from '../../components/common/SafeImage';
@@ -25,11 +25,101 @@ export default function StaffCreateBill() {
   const { user } = useAuthStore();
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [items, setItems] = useState([]);
-  const [customer, setCustomer] = useState({ name: '', phone: '', email: '' });
-  const [paymentMethod, setPaymentMethod] = useState('cash');
-  const [discount, setDiscount] = useState(0);
-  const [completedBill, setCompletedBill] = useState(null);
+  // ─── Multi-Session Billing Carts (SaaS Model) ───────
+  const [activeTab, setActiveTab] = useState(() => {
+    const saved = localStorage.getItem('pos_active_tab');
+    return saved ? Number(saved) : 0;
+  });
+  const [cartSessions, setCartSessions] = useState(() => {
+    const saved = localStorage.getItem('pos_cart_sessions');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        // Fallback below
+      }
+    }
+    return [
+      { items: [], customer: { name: '', phone: '', email: '' }, discount: 0, salesStaffId: '', paymentMethod: 'cash', activeCoupon: '' },
+      { items: [], customer: { name: '', phone: '', email: '' }, discount: 0, salesStaffId: '', paymentMethod: 'cash', activeCoupon: '' },
+      { items: [], customer: { name: '', phone: '', email: '' }, discount: 0, salesStaffId: '', paymentMethod: 'cash', activeCoupon: '' },
+    ];
+  });
+
+  // Read current active tab values dynamically
+  const items = cartSessions[activeTab].items;
+  const customer = cartSessions[activeTab].customer;
+  const discount = cartSessions[activeTab].discount;
+  const salesStaffId = cartSessions[activeTab].salesStaffId;
+  const paymentMethod = cartSessions[activeTab].paymentMethod;
+  const activeCoupon = cartSessions[activeTab].activeCoupon || '';
+
+  // Setter helper hooks that intercept and target the specific active tab in cartSessions
+  const setItems = (valOrFn) => {
+    setCartSessions(prev => {
+      const copy = [...prev];
+      const newVal = typeof valOrFn === 'function' ? valOrFn(copy[activeTab].items) : valOrFn;
+      copy[activeTab] = { ...copy[activeTab], items: newVal };
+      return copy;
+    });
+  };
+
+  const setCustomer = (valOrFn) => {
+    setCartSessions(prev => {
+      const copy = [...prev];
+      const newVal = typeof valOrFn === 'function' ? valOrFn(copy[activeTab].customer) : valOrFn;
+      copy[activeTab] = { ...copy[activeTab], customer: newVal };
+      return copy;
+    });
+  };
+
+  const setDiscount = (valOrFn) => {
+    setCartSessions(prev => {
+      const copy = [...prev];
+      const newVal = typeof valOrFn === 'function' ? valOrFn(copy[activeTab].discount) : valOrFn;
+      copy[activeTab] = { ...copy[activeTab], discount: newVal };
+      return copy;
+    });
+  };
+
+  const setSalesStaffId = (valOrFn) => {
+    setCartSessions(prev => {
+      const copy = [...prev];
+      const newVal = typeof valOrFn === 'function' ? valOrFn(copy[activeTab].salesStaffId) : valOrFn;
+      copy[activeTab] = { ...copy[activeTab], salesStaffId: newVal };
+      return copy;
+    });
+  };
+
+  const setPaymentMethod = (valOrFn) => {
+    setCartSessions(prev => {
+      const copy = [...prev];
+      const newVal = typeof valOrFn === 'function' ? valOrFn(copy[activeTab].paymentMethod) : valOrFn;
+      copy[activeTab] = { ...copy[activeTab], paymentMethod: newVal };
+      return copy;
+    });
+  };
+
+  const setActiveCoupon = (valOrFn) => {
+    setCartSessions(prev => {
+      const copy = [...prev];
+      const newVal = typeof valOrFn === 'function' ? valOrFn(copy[activeTab].activeCoupon) : valOrFn;
+      copy[activeTab] = { ...copy[activeTab], activeCoupon: newVal };
+      return copy;
+    });
+  };
+
+  const [completedBill, setCompletedBill] = useState(() => {
+    const saved = localStorage.getItem('pos_completed_bill');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        // Fallback
+      }
+    }
+    return null;
+  });
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [loadingCustomer, setLoadingCustomer] = useState(false);
   
@@ -39,6 +129,42 @@ export default function StaffCreateBill() {
   const [heldBills, setHeldBills] = useState(() => JSON.parse(localStorage.getItem('magizhchi_held_bills') || '[]'));
   const [showHeldBills, setShowHeldBills] = useState(false);
   const [splitAmounts, setSplitAmounts] = useState({ cash: '', upi: '' });
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
+  const [showCustomItemModal, setShowCustomItemModal] = useState(false);
+  const [customItemDetails, setCustomItemDetails] = useState({ name: '', price: '' });
+  const [editingBillId, setEditingBillId] = useState(() => {
+    return localStorage.getItem('pos_editing_bill_id') || null;
+  });
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('pos_active_tab', activeTab);
+  }, [activeTab]);
+
+  useEffect(() => {
+    localStorage.setItem('pos_cart_sessions', JSON.stringify(cartSessions));
+  }, [cartSessions]);
+
+  useEffect(() => {
+    if (completedBill) {
+      localStorage.setItem('pos_completed_bill', JSON.stringify(completedBill));
+    } else {
+      localStorage.removeItem('pos_completed_bill');
+    }
+  }, [completedBill]);
+
+  useEffect(() => {
+    if (editingBillId) {
+      localStorage.setItem('pos_editing_bill_id', editingBillId);
+    } else {
+      localStorage.removeItem('pos_editing_bill_id');
+    }
+  }, [editingBillId]);
 
   const searchInputRef = useRef(null);
   const debounceTimer = useRef(null);
@@ -47,6 +173,11 @@ export default function StaffCreateBill() {
   const { data: categories } = useQuery({
     queryKey: ['pos-categories'],
     queryFn: () => categoryService.getCategories().then(r => r.data.data?.categories || r.data.data || []),
+  });
+
+  const { data: staffList } = useQuery({
+    queryKey: ['pos-staff-list'],
+    queryFn: () => publicService.getStaffList().then(r => r.data.data || []),
   });
 
 
@@ -124,6 +255,44 @@ export default function StaffCreateBill() {
     toast.success(`${product.name} added`, { position: 'bottom-center' });
   };
 
+  const addCustomService = (serviceName, price) => {
+    const key = `service-${serviceName.toLowerCase().replace(/\s+/g, '-')}`;
+    setItems(prev => {
+      const existing = prev.find(i => i.key === key);
+      if (existing) {
+        return prev.map(i => i.key === key ? { ...i, quantity: i.quantity + 1 } : i);
+      }
+      return [...prev, {
+        key,
+        productId: null,
+        productName: serviceName,
+        sku: 'SERVICE',
+        size: 'N/A',
+        color: 'Bespoke',
+        price,
+        mrp: price,
+        quantity: 1,
+        image: null,
+        maxStock: 999,
+        gstPercentage: 5,
+        isService: true
+      }];
+    });
+    toast.success(`${serviceName} applied to cart!`, { position: 'bottom-center' });
+  };
+
+  const applyPromoCode = (code, val, type) => {
+    let amt = 0;
+    if (type === 'percent') {
+      amt = Math.round(subtotal * (val / 100));
+    } else {
+      amt = val;
+    }
+    setDiscount(Math.min(subtotal, amt));
+    setActiveCoupon(code);
+    toast.success(`Coupon ${code} activated! (Saved ₹${amt})`, { position: 'bottom-center' });
+  };
+
   const handleProductClick = (product) => {
     if (!product.variants || product.variants.length === 0) return toast.error('No variants available');
     if (product.variants.length === 1) {
@@ -185,6 +354,7 @@ export default function StaffCreateBill() {
     setItems(bill.items);
     setCustomer(bill.customer);
     setDiscount(bill.discount || 0);
+    setSalesStaffId(bill.salesStaffId || '');
     const updated = heldBills.filter(b => b.id !== id);
     setHeldBills(updated);
     localStorage.setItem('magizhchi_held_bills', JSON.stringify(updated));
@@ -244,6 +414,7 @@ export default function StaffCreateBill() {
 
   // ─── Mutation ────────────────────────────────────────
   const createBillMutation = useMutation({
+    queryKey: ['create-bill'],
     mutationFn: (data) => billService.createBill(data),
     onSuccess: (r) => {
       setCompletedBill(r.data.data.bill);
@@ -252,12 +423,95 @@ export default function StaffCreateBill() {
       setCustomer({ name: '', phone: '', email: '' });
       setDiscount(0);
       setSplitAmounts({ cash: '', upi: '' });
+      setSalesStaffId('');
       toast.success('Transaction Completed!');
     },
     onError: (err) => toast.error(err.response?.data?.message || 'Transaction failed'),
   });
 
+  const updateBillMutation = useMutation({
+    mutationFn: ({ id, data }) => billService.updateBill(id, data),
+    onSuccess: (r) => {
+      setCompletedBill(r.data.data.bill);
+      setIsCheckoutOpen(false);
+      setItems([]);
+      setCustomer({ name: '', phone: '', email: '' });
+      setDiscount(0);
+      setSplitAmounts({ cash: '', upi: '' });
+      setSalesStaffId('');
+      setEditingBillId(null);
+      toast.success('Invoice Revised Successfully!');
+    },
+    onError: (err) => toast.error(err.response?.data?.message || 'Revision failed'),
+  });
+
+  const handleEditBill = () => {
+    if (!completedBill) return;
+    setEditingBillId(completedBill._id);
+
+    const cartItems = completedBill.items.map(item => {
+      const sizeVal = item.variant?.size || item.size || 'Free Size';
+      const colorVal = item.variant?.color || item.color || 'Default';
+      return {
+        key: `${item.productId?._id || 'manual'}-${sizeVal}-${colorVal}`,
+        productId: item.productId?._id || null,
+        productName: item.productName,
+        sku: item.sku || 'MANUAL',
+        size: sizeVal,
+        color: colorVal,
+        price: item.price,
+        mrp: item.price,
+        quantity: item.quantity,
+        image: item.productId?.images?.[0] ? resolveAssetURL(item.productId.images[0]) : null,
+        maxStock: 9999,
+        gstPercentage: item.gstPercentage || 5
+      };
+    });
+
+    setItems(cartItems);
+    setCustomer(completedBill.customerDetails || { name: '', phone: '', email: '' });
+    setDiscount(completedBill.pricing?.discount || 0);
+    setSalesStaffId(completedBill.salesStaffId || '');
+    setPaymentMethod(completedBill.paymentMethod || 'cash');
+    setCompletedBill(null);
+    toast.success('Invoice loaded into editor! Make changes and checkout.', { icon: '✍️' });
+  };
+
+  const { data: healthData } = useQuery({
+    queryKey: ['admin-health'],
+    queryFn: () => adminService.getHealth().then(r => r.data),
+    refetchInterval: 30000,
+  });
+  const health = healthData?.data;
+
+  const deleteBillMutation = useMutation({
+    mutationFn: ({ id, reason }) => billService.deleteBill(id, reason),
+    onSuccess: () => {
+      setCompletedBill(null);
+      toast.success('Bill voided and stock restored');
+    },
+    onError: (err) => toast.error(err.response?.data?.message || 'Void failed'),
+  });
+
+  const resendBillReceiptMutation = useMutation({
+    mutationFn: (id) => billService.resendReceipt(id),
+    onSuccess: (r) => {
+      const { whatsapp, email } = r.data.data || {};
+      if (email) toast.success('Receipt sent via Email');
+      else if (whatsapp) toast.success('Receipt sent via WhatsApp');
+      else toast.success('Receipt resent');
+    },
+    onError: (err) => toast.error(err.response?.data?.message || 'Resend failed'),
+  });
+
   const handleCheckout = () => {
+    if (!customer.name || !customer.phone) {
+      return toast.error('Customer Name and Phone (10-digit) are required for receipts');
+    }
+    if (customer.phone.length !== 10) {
+      return toast.error('Phone number must be exactly 10 digits');
+    }
+
     if (paymentMethod === 'split') {
       const cash = Number(splitAmounts.cash) || 0;
       const upi = Number(splitAmounts.upi) || 0;
@@ -266,196 +520,279 @@ export default function StaffCreateBill() {
       }
     }
 
-    createBillMutation.mutate({
-      items: items.map(i => ({
-        productId: i.productId,
-        productName: i.productName,
-        size: i.size,
-        color: i.color,
-        price: i.price,
-        quantity: i.quantity,
-        total: i.price * i.quantity,
-      })),
+    const payload = {
+      items: items.map(i => {
+        // Ensure productId is only sent if it's a valid MongoDB ObjectId (not a name string for unlinked items)
+        const isValidId = i.productId && i.productId.length === 24 && /^[0-9a-fA-F]+$/.test(i.productId);
+        return {
+          productId: isValidId ? i.productId : undefined,
+          productName: i.productName,
+          size: i.size,
+          color: i.color,
+          price: i.price,
+          quantity: i.quantity,
+          total: i.price * i.quantity,
+        };
+      }),
       customerDetails: customer,
       paymentMethod,
       paymentDetails: paymentMethod === 'split' ? { cashAmount: Number(splitAmounts.cash), upiAmount: Number(splitAmounts.upi) } : {},
       discount,
-      notes: `POS Sale by ${user?.name}`,
-    });
+      salesStaffId: salesStaffId || undefined,
+      notes: editingBillId ? `POS Sale Revised (Original ID: ${editingBillId})` : `POS Sale by ${user?.name}`,
+    };
+
+    if (editingBillId) {
+      updateBillMutation.mutate({ id: editingBillId, data: payload });
+    } else {
+      createBillMutation.mutate(payload);
+    }
   };
 
   // ─── Render: Receipt ─────────────────────────────────
   if (completedBill) {
     return (
-      <div className="min-h-screen bg-light-bg py-12 px-4 flex flex-col items-center">
-        <Helmet><title>Invoice #{completedBill.billNumber}</title></Helmet>
+      <div className="min-h-screen bg-[#F9F9FA] py-12 px-4 flex flex-col items-center select-none relative overflow-hidden">
+        <Helmet><title>Tax Invoice #{completedBill.billNumber} — Magizhchi</title></Helmet>
+
+        {/* Backdrop Decorative Glows */}
+        <div className="absolute top-[-10%] right-[-10%] w-[45%] h-[45%] rounded-full bg-premium-gold/5 blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[35%] h-[35%] rounded-full bg-charcoal/5 blur-[120px] pointer-events-none" />
         
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-2xl bg-white rounded-[3rem] shadow-[0_40px_100px_rgba(0,0,0,0.08)] overflow-hidden border border-white relative"
+          className="w-full max-w-2xl bg-white rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.06)] overflow-hidden border border-border-light relative"
           id="bill-print"
         >
-          {/* Header Section */}
-          <div className="bg-charcoal p-12 text-center text-white relative">
-            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--premium-gold)_0%,_transparent_70%)]" />
-            <div className="w-16 h-16 bg-premium-gold rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-2xl shadow-premium-gold/20">
-              <Sparkles className="text-charcoal" size={32} />
-            </div>
-            <h2 className="font-display text-4xl font-black tracking-[0.4em] mb-2 uppercase">MAGIZHCHI</h2>
-            <p className="text-[9px] text-premium-gold font-black tracking-[0.6em] uppercase mb-8">Official Tax Invoice</p>
+          {/* Header Section: Luxury Branding */}
+          <div className="bg-charcoal p-10 text-center text-white relative overflow-hidden">
+            <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(circle_at_center,_var(--premium-gold)_0%,_transparent_70%)]" />
             
-            <div className="inline-flex items-center gap-4 px-6 py-2 bg-white/5 border border-white/10 rounded-full">
-              <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Invoice No.</span>
-              <span className="text-sm font-black text-premium-gold">#{completedBill.billNumber}</span>
+            {/* Elegant Logo Emblem */}
+            <div className="w-14 h-14 bg-premium-gold rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg shadow-premium-gold/15 border border-white/10 relative">
+              <Sparkles className="text-charcoal" size={24} />
             </div>
             
-            <div className="mt-8 grid grid-cols-2 gap-4 text-left border-t border-white/5 pt-8">
+            <h2 className="font-sans text-3xl font-black tracking-[0.3em] mb-1.5 uppercase">MAGIZHCHI</h2>
+            <p className="text-[8px] text-premium-gold font-black tracking-[0.5em] uppercase mb-6">INTELLIGENT FASHION SUITE</p>
+            
+            <div className="inline-flex items-center gap-3 px-5 py-2 bg-white/[0.04] border border-white/10 rounded-full">
+              <span className="text-[9px] font-black uppercase tracking-widest text-white/30">Tax Invoice No.</span>
+              <span className="text-xs font-black text-premium-gold">#{completedBill.billNumber}</span>
+            </div>
+
+            {completedBill.status === 'voided' && (
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-[35deg] pointer-events-none opacity-20 z-50">
+                <div className="border-[12px] border-red-500 text-red-500 px-12 py-6 rounded-3xl font-black text-8xl uppercase tracking-[0.2em] whitespace-nowrap">
+                  VOIDED
+                </div>
+              </div>
+            )}
+            
+            {completedBill.status === 'voided' && (
+              <div className="mt-6 flex justify-center">
+                <div className="bg-red-500 text-white px-6 py-2 rounded-full font-black text-[10px] uppercase tracking-[0.3em] flex items-center gap-2 shadow-lg shadow-red-500/20">
+                   <X size={14} /> Transaction Voided / Stock Reverted
+                </div>
+              </div>
+            )}
+            
+            <div className="mt-8 grid grid-cols-2 gap-4 text-left border-t border-white/5 pt-6 text-[10px]">
               <div>
-                <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Date & Time</p>
-                <p className="text-[11px] font-bold text-white/80">{new Date(completedBill.createdAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</p>
+                <p className="text-[7px] font-black text-white/30 uppercase tracking-widest mb-1">Settlement Date</p>
+                <p className="font-bold text-white/80">{new Date(completedBill.createdAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</p>
               </div>
               <div className="text-right">
-                <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Billing Counter</p>
-                <p className="text-[11px] font-bold text-white/80">{user?.name}</p>
+                <p className="text-[7px] font-black text-white/30 uppercase tracking-widest mb-1">Billing Counter</p>
+                <p className="font-bold text-white/80">{user?.name || 'Authorized Terminal'}</p>
               </div>
             </div>
           </div>
 
-          <div className="p-12 space-y-10">
-            {/* Customer Section */}
+          <div className="p-8 space-y-8">
+            {/* Customer Information Card */}
             {completedBill.customerDetails?.name && (
-              <div className="p-6 bg-light-bg/50 rounded-[2rem] border border-border-light flex items-center justify-between">
+              <div className="p-4 bg-light-bg/50 rounded-2xl border border-border-light/60 flex items-center justify-between">
                 <div>
-                  <p className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em] mb-1">Valued Customer</p>
-                  <p className="text-lg font-black text-charcoal">{completedBill.customerDetails.name}</p>
-                  <p className="text-xs text-text-muted font-bold mt-0.5">{completedBill.customerDetails.phone}</p>
+                  <p className="text-[8px] font-black text-text-muted uppercase tracking-[0.2em] mb-1">Registered Patron</p>
+                  <p className="text-sm font-black text-charcoal">{completedBill.customerDetails.name}</p>
+                  <p className="text-[10px] text-text-muted font-bold mt-0.5">{completedBill.customerDetails.phone}</p>
                 </div>
-                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm text-premium-gold">
-                  <User size={24} />
+                <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm border border-border-light/60 text-premium-gold">
+                  <User size={18} />
                 </div>
               </div>
             )}
 
-            {/* Items Table */}
-            <div className="space-y-4">
-              <div className="flex justify-between items-center px-2">
-                <h3 className="text-[10px] font-black text-text-muted uppercase tracking-[0.4em]">Purchase Summary</h3>
-                <span className="text-[10px] font-black text-premium-gold uppercase tracking-[0.2em]">{completedBill.items?.length} Items</span>
+            {/* Purchase Item List Summary */}
+            <div className="space-y-3">
+              <div className="flex justify-between items-center px-1.5">
+                <h3 className="text-[8px] font-black text-text-muted uppercase tracking-[0.3em]">Purchase Summary</h3>
+                <span className="text-[8px] font-black text-premium-gold uppercase tracking-[0.15em]">{completedBill.items?.length} Items Listed</span>
               </div>
-              <div className="space-y-4">
+              
+              <div className="space-y-3.5">
                 {completedBill.items?.map((item, i) => (
-                  <div key={i} className="flex items-center justify-between py-4 border-b border-border-light last:border-0 group">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-14 bg-light-bg rounded-xl overflow-hidden border border-border-light group-hover:scale-105 transition-transform">
+                  <div key={i} className="flex items-center justify-between py-2 border-b border-border-light last:border-0 group">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-12 bg-light-bg rounded-lg overflow-hidden border border-border-light group-hover:scale-105 transition-transform">
                         <SafeImage src={item.productId?.images?.[0]} alt="" className="w-full h-full object-cover" />
                       </div>
-                      <div>
-                        <p className="text-sm font-black text-charcoal tracking-tight">{item.productName}</p>
-                        <p className="text-[9px] text-text-muted uppercase font-black tracking-widest mt-0.5">{item.size} / {item.color} • ₹{item.price.toLocaleString()}</p>
+                      <div className="text-left">
+                        <p className="text-xs font-black text-charcoal tracking-tight">{item.productName}</p>
+                        <p className="text-[8px] text-text-muted uppercase font-black tracking-widest mt-0.5">
+                          {item.size} / {item.color} • ₹{item.price.toLocaleString()}
+                        </p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-[10px] font-black text-text-muted uppercase mb-1">x{item.quantity}</p>
-                      <p className="text-sm font-black text-charcoal">₹{item.total.toLocaleString()}</p>
+                      <p className="text-[8px] font-black text-text-muted uppercase mb-0.5">Qty {item.quantity}</p>
+                      <p className="text-xs font-black text-charcoal">₹{item.total.toLocaleString()}</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Totals Section */}
-            <div className="bg-charcoal p-10 rounded-[2.5rem] text-white relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-premium-gold/5 rounded-bl-full" />
-              <div className="space-y-3 relative z-10">
-                <div className="flex justify-between text-[10px] font-black text-white/30 uppercase tracking-widest">
-                  <span>Subtotal Value</span><span>₹{completedBill.pricing?.subtotal.toLocaleString()}</span>
+            {/* Settlement Totals Section */}
+            <div className="bg-charcoal p-7 rounded-2xl text-white relative overflow-hidden border border-white/5">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-premium-gold/5 rounded-bl-full pointer-events-none" />
+              <div className="space-y-2 relative z-10 text-[10px]">
+                <div className="flex justify-between text-white/30 font-black uppercase tracking-widest">
+                  <span>Gross Value</span><span>₹{completedBill.pricing?.subtotal.toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between text-[10px] font-black text-white/30 uppercase tracking-widest">
-                  <span>GST (5%)</span><span>₹{completedBill.pricing?.gstAmount.toLocaleString()}</span>
+                <div className="flex justify-between text-white/30 font-black uppercase tracking-widest">
+                  <span>SGST & CGST (5%)</span><span>₹{completedBill.pricing?.gstAmount.toLocaleString()}</span>
                 </div>
                 {completedBill.pricing?.discount > 0 && (
-                  <div className="flex justify-between text-[10px] font-black text-emerald-400 uppercase tracking-widest">
-                    <span>Loyalty Discount</span><span>−₹{completedBill.pricing.discount.toLocaleString()}</span>
+                  <div className="flex justify-between text-emerald-400 font-black uppercase tracking-widest">
+                    <span>Loyalty Benefit Applied</span><span>−₹{completedBill.pricing.discount.toLocaleString()}</span>
                   </div>
                 )}
-                <div className="pt-6 border-t border-white/5 flex justify-between items-end">
+                <div className="pt-4 mt-2 border-t border-white/5 flex justify-between items-end">
                   <div>
-                    <p className="text-[9px] font-black text-white/40 uppercase tracking-[0.3em] mb-1">Total Payable</p>
-                    <p className="text-4xl font-black text-premium-gold tracking-tighter">₹{completedBill.pricing?.totalAmount.toLocaleString()}</p>
+                    <p className="text-[8px] font-black text-white/40 uppercase tracking-[0.25em] mb-1">Final Settlement Amount</p>
+                    <p className="text-2xl font-black text-premium-gold tracking-tight">₹{completedBill.pricing?.totalAmount.toLocaleString()}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-[9px] font-black text-white/40 uppercase tracking-[0.3em] mb-1">Payment via</p>
-                    <p className="text-xs font-black uppercase tracking-widest text-white">{completedBill.paymentMethod}</p>
+                    <p className="text-[8px] font-black text-white/40 uppercase tracking-[0.25em] mb-1">Payment gateway</p>
+                    <p className="text-xs font-black uppercase tracking-widest text-premium-gold">{completedBill.paymentMethod}</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Footer / Terms */}
-            <div className="text-center space-y-6 pt-4">
-              <div className="flex items-center justify-center gap-4">
-                <div className="h-px flex-1 bg-border-light" />
-                <Sparkles size={16} className="text-premium-gold/40" />
-                <div className="h-px flex-1 bg-border-light" />
+            {/* Signature & Disclaimer Footer */}
+            <div className="text-center space-y-4 pt-2">
+              <div className="flex items-center justify-center gap-3">
+                <div className="h-px flex-1 bg-border-light/60" />
+                <Sparkles size={12} className="text-premium-gold/40" />
+                <div className="h-px flex-1 bg-border-light/60" />
               </div>
-              <p className="text-[9px] text-text-muted leading-relaxed max-w-xs mx-auto italic">
-                Thank you for choosing Magizhchi Garments. For exchanges, please present this invoice within 7 days.
+              <p className="text-[8px] text-text-muted leading-relaxed max-w-xs mx-auto italic">
+                Thank you for choosing Magizhchi Garments. For exchange requests, kindly present this tax invoice within 7 business days.
               </p>
-              <div className="flex justify-center gap-8">
+              <div className="flex justify-center gap-6 text-[9px] font-bold">
                 <div className="text-center">
-                  <p className="text-[8px] font-black text-text-muted uppercase tracking-widest mb-1">Website</p>
-                  <p className="text-[10px] font-bold text-charcoal">magizhchi.com</p>
+                  <p className="text-[7px] font-black text-text-muted uppercase tracking-widest mb-0.5">Online Suite</p>
+                  <p className="text-charcoal">magizhchi.com</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-[8px] font-black text-text-muted uppercase tracking-widest mb-1">Support</p>
-                  <p className="text-[10px] font-bold text-charcoal">+91 98765 43210</p>
+                  <p className="text-[7px] font-black text-text-muted uppercase tracking-widest mb-0.5">Assistance Line</p>
+                  <p className="text-charcoal">+91 98765 43210</p>
                 </div>
               </div>
             </div>
           </div>
         </motion.div>
 
-        {/* SaaS Share & Export Panel */}
-        <div className="w-full max-w-2xl mt-8 grid grid-cols-2 md:grid-cols-4 gap-4 no-print">
-          <button 
-            onClick={() => {
-              const text = `Hi ${completedBill.customerDetails?.name}, your invoice #${completedBill.billNumber} from Magizhchi Garments is ready: ₹${completedBill.pricing?.totalAmount}. Thank you for shopping with us!`;
-              window.open(`https://wa.me/91${completedBill.customerDetails?.phone}?text=${encodeURIComponent(text)}`, '_blank');
-            }}
-            className="flex flex-col items-center gap-3 p-6 bg-white rounded-3xl border border-border-light hover:border-premium-gold transition-all group shadow-sm hover:shadow-xl"
-          >
-            <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Smartphone size={24} />
-            </div>
-            <span className="text-[10px] font-black uppercase tracking-widest text-charcoal">WhatsApp</span>
-          </button>
+        {/* SaaS Share & Export Panel Hub */}
+        <div className="w-full max-w-2xl mt-8 no-print space-y-5">
+          <div className="flex items-center justify-center gap-3 p-1.5 bg-light-bg border border-border-light shadow-inner max-w-xs mx-auto rounded-xl">
+             <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white border border-border-light shadow-sm">
+                <div className={`w-1.5 h-1.5 rounded-full ${health?.whatsapp?.ready ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+                <span className="text-[7px] font-black uppercase tracking-widest text-charcoal">Whatsapp Link: {health?.whatsapp?.ready ? 'Connected' : 'Offline'}</span>
+             </div>
+             <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white border border-border-light shadow-sm">
+                <div className={`w-1.5 h-1.5 rounded-full ${health?.email?.ready ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+                <span className="text-[7px] font-black uppercase tracking-widest text-charcoal">SMTP: {health?.email?.ready ? 'Active' : 'Offline'}</span>
+             </div>
+          </div>
+          
+          {/* Quick Action Matrix Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <button 
+              onClick={() => {
+                const text = `Hi ${completedBill.customerDetails?.name}, your invoice #${completedBill.billNumber} from Magizhchi Garments is ready: ₹${completedBill.pricing?.totalAmount}. Thank you for shopping with us!`;
+                window.open(`https://wa.me/91${completedBill.customerDetails?.phone}?text=${encodeURIComponent(text)}`, '_blank');
+              }}
+              className="flex flex-col items-center gap-2 p-5 bg-white rounded-2xl border border-border-light hover:border-premium-gold hover:shadow-lg hover:shadow-premium-gold/5 transition-all group shadow-sm text-left relative"
+            >
+              <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform border border-emerald-100">
+                <Smartphone size={18} />
+              </div>
+              <span className="text-[8px] font-black uppercase tracking-widest text-charcoal mt-1">Send WhatsApp</span>
+            </button>
 
-          <button className="flex flex-col items-center gap-3 p-6 bg-white rounded-3xl border border-border-light hover:border-premium-gold transition-all group shadow-sm hover:shadow-xl">
-            <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <History size={24} />
-            </div>
-            <span className="text-[10px] font-black uppercase tracking-widest text-charcoal">Email</span>
-          </button>
+            <button 
+              onClick={() => {
+                if (!completedBill.customerDetails?.email) return toast.error('No email address provided for this customer');
+                resendBillReceiptMutation.mutate(completedBill._id);
+              }}
+              disabled={resendBillReceiptMutation.isPending}
+              className="flex flex-col items-center gap-2 p-5 bg-white rounded-2xl border border-border-light hover:border-premium-gold hover:shadow-lg hover:shadow-premium-gold/5 transition-all group shadow-sm text-left relative disabled:opacity-40"
+            >
+              <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform border border-blue-100">
+                {resendBillReceiptMutation.isPending ? <Loader2 size={18} className="animate-spin" /> : <Mail size={18} />}
+              </div>
+              <span className="text-[8px] font-black uppercase tracking-widest text-charcoal mt-1">Email Receipt</span>
+            </button>
 
-          <button onClick={() => window.print()} className="flex flex-col items-center gap-3 p-6 bg-white rounded-3xl border border-border-light hover:border-premium-gold transition-all group shadow-sm hover:shadow-xl">
-            <div className="w-12 h-12 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Printer size={24} />
-            </div>
-            <span className="text-[10px] font-black uppercase tracking-widest text-charcoal">Print PDF</span>
-          </button>
+            <button onClick={() => window.print()} className="flex flex-col items-center gap-2 p-5 bg-white rounded-2xl border border-border-light hover:border-premium-gold hover:shadow-lg hover:shadow-premium-gold/5 transition-all group shadow-sm text-left relative">
+              <div className="w-10 h-10 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform border border-orange-100">
+                <Printer size={18} />
+              </div>
+              <span className="text-[8px] font-black uppercase tracking-widest text-charcoal mt-1">Print Document</span>
+            </button>
 
-          <button className="flex flex-col items-center gap-3 p-6 bg-white rounded-3xl border border-border-light hover:border-premium-gold transition-all group shadow-sm hover:shadow-xl">
-            <div className="w-12 h-12 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <CheckCircle2 size={24} />
-            </div>
-            <span className="text-[10px] font-black uppercase tracking-widest text-charcoal">Cloud Save</span>
-          </button>
+            <button className="flex flex-col items-center gap-2 p-5 bg-white rounded-2xl border border-border-light hover:border-premium-gold hover:shadow-lg hover:shadow-premium-gold/5 transition-all group shadow-sm text-left relative">
+              <div className="w-10 h-10 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform border border-purple-100">
+                <CheckCircle2 size={18} />
+              </div>
+              <span className="text-[8px] font-black uppercase tracking-widest text-charcoal mt-1">Synergy Cloud Backup</span>
+            </button>
+          </div>
         </div>
 
-        <div className="flex gap-4 mt-8 w-full max-w-2xl no-print">
-          <button onClick={() => setCompletedBill(null)} className="w-full bg-charcoal text-white py-6 rounded-[2rem] flex items-center justify-center gap-4 font-black text-xs uppercase tracking-[0.2em] hover:bg-black transition-all shadow-2xl">
-            <Plus size={20} className="text-premium-gold" /> Create Another Bill
+        {/* Back navigation */}
+        <div className="flex flex-col md:flex-row gap-4 mt-6 w-full max-w-2xl no-print">
+          <button 
+            onClick={handleEditBill} 
+            disabled={completedBill.status === 'voided'}
+            className="flex-1 bg-white border-2 border-charcoal/80 text-charcoal py-4 rounded-2xl flex items-center justify-center gap-2 font-black text-xs uppercase tracking-[0.15em] hover:bg-light-bg hover:scale-[1.01] transition-all shadow-lg disabled:opacity-50 disabled:grayscale"
+          >
+            <Edit size={16} className={`text-premium-gold ${completedBill.status === 'voided' ? '' : 'animate-pulse'}`} /> {completedBill.status === 'voided' ? 'Cannot Edit Voided' : 'Modify / Edit Invoice'}
+          </button>
+          <button 
+            onClick={() => {
+              const reason = window.prompt(`Void Bill #${completedBill.billNumber}?\n\nEnter reason (e.g. Return, Wrong Bill):`);
+              if (reason === null) return;
+              if (!reason.trim()) return toast.error('Reason is required');
+              if (window.confirm('Void this bill and restore stock?')) {
+                deleteBillMutation.mutate({ id: completedBill._id, reason });
+              }
+            }} 
+            disabled={deleteBillMutation.isPending || completedBill.status === 'voided'}
+            className="flex-1 bg-red-50 text-red-600 border-2 border-red-200 py-4 rounded-2xl flex items-center justify-center gap-2 font-black text-xs uppercase tracking-[0.15em] hover:bg-red-100 transition-all shadow-lg disabled:opacity-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:border-gray-200"
+          >
+            {deleteBillMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : (completedBill.status === 'voided' ? <CheckCircle2 size={16} /> : <Trash2 size={16} />)} {completedBill.status === 'voided' ? 'VOIDED' : 'Delete Invoice'}
+          </button>
+          <button 
+            onClick={() => setCompletedBill(null)} 
+            className="flex-1 bg-charcoal text-white py-4 rounded-2xl flex items-center justify-center gap-2 font-black text-xs uppercase tracking-[0.15em] hover:bg-black hover:scale-[1.01] transition-all shadow-xl shadow-charcoal/10"
+          >
+            <Plus size={16} className="text-premium-gold" /> Compose Another Bill
           </button>
         </div>
       </div>
@@ -464,277 +801,436 @@ export default function StaffCreateBill() {
 
   // ─── Render: POS ─────────────────────────────────────
   return (
-    <div className="h-screen bg-light-bg flex flex-col overflow-hidden p-6 gap-6">
-      <Helmet><title>Professional POS — Magizhchi</title></Helmet>
+    <div className="h-screen bg-[#F9F9FA] flex flex-col overflow-hidden p-6 gap-6 relative select-none">
+      <Helmet><title>Magizhchi POS Pro — Intelligent Billing Suite</title></Helmet>
+      
+      {/* Dynamic Aesthetic Background Gradients */}
+      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-premium-gold/5 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-orange-400/5 blur-[120px] pointer-events-none" />
 
-      {/* ─── Immersive Top Bar: SaaS Style ─── */}
-      <div className="flex items-center justify-between bg-white px-10 py-6 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.04)] border border-white shrink-0">
-        <div className="flex items-center gap-6">
-          <div className="w-14 h-14 bg-charcoal rounded-[1.5rem] flex items-center justify-center shadow-2xl shadow-charcoal/20">
-            <LayoutGrid className="text-premium-gold" size={28} />
+      {/* ─── Immersive Top Bar: Ultimate SaaS Style ─── */}
+      <div className="flex items-center justify-between bg-white/75 backdrop-blur-md px-8 py-5 rounded-[2rem] shadow-[0_15px_50px_rgba(0,0,0,0.02)] border border-white shrink-0 relative z-10">
+        <div className="flex items-center gap-5">
+          <div className="w-12 h-12 bg-charcoal rounded-2xl flex items-center justify-center shadow-lg shadow-charcoal/10 border border-white/10 relative group overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-tr from-premium-gold/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <Sparkles className="text-premium-gold group-hover:scale-110 transition-transform" size={22} />
           </div>
           <div>
-            <h1 className="text-2xl font-black text-charcoal tracking-tighter leading-tight">Billing Dashboard</h1>
-            <div className="flex items-center gap-2 text-[10px] text-text-muted font-black uppercase tracking-widest mt-1">
-              <span className="w-2 h-2 rounded-full bg-emerald-500" />
-              Active Session: {user?.name}
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-black text-charcoal tracking-tight leading-none">Magizhchi POS</h1>
+              <span className="px-2.5 py-0.5 bg-premium-gold/10 text-premium-gold text-[8px] font-black uppercase tracking-widest rounded-full border border-premium-gold/20">PRO CLIENT</span>
+            </div>
+            <div className="flex items-center gap-2 text-[9px] text-text-muted font-black uppercase tracking-widest mt-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Operator: {user?.name}</span>
+              <span className="text-border-dark">•</span>
+              <span className="text-charcoal/80 font-bold tracking-normal text-xs ml-1">
+                {currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+              </span>
             </div>
           </div>
         </div>
 
-        <div className="hidden lg:flex items-center gap-10">
+        <div className="hidden lg:flex items-center gap-8">
           <div className="flex items-center gap-8 border-x border-border-light px-8">
-            <div className="text-center group cursor-pointer">
-              <p className="text-[9px] font-black text-text-muted uppercase tracking-widest mb-1 group-hover:text-premium-gold transition-colors">Daily Progress</p>
-              <div className="w-32 h-2 bg-light-bg rounded-full overflow-hidden mt-2 relative">
-                <div className="absolute inset-y-0 left-0 bg-gradient-to-r from-premium-gold to-orange-400 w-[65%]" />
+            {/* Live Progress Tracker */}
+            <div className="text-left group cursor-pointer">
+              <p className="text-[9px] font-black text-text-muted uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                Daily Sales Target <span className="text-premium-gold font-black">65%</span>
+              </p>
+              <div className="w-32 h-1.5 bg-light-bg rounded-full overflow-hidden relative border border-border-light shadow-inner">
+                <div className="absolute inset-y-0 left-0 bg-gradient-to-r from-premium-gold to-amber-500 w-[65%] rounded-full shadow-[0_0_8px_rgba(212,175,55,0.4)]" />
               </div>
             </div>
-            <div className="text-center group cursor-pointer">
-              <p className="text-[9px] font-black text-text-muted uppercase tracking-widest mb-1 group-hover:text-premium-gold transition-colors">Total Sales</p>
+
+            {/* Sales Stats Summary */}
+            <div className="text-left">
+              <p className="text-[9px] font-black text-text-muted uppercase tracking-widest mb-0.5">Session Total</p>
               <div className="flex items-center gap-2">
-                <p className="text-lg font-black text-charcoal tracking-tighter">₹42,500</p>
-                <div className="w-6 h-6 bg-emerald-50 rounded-lg flex items-center justify-center text-emerald-600">
-                  <CheckCircle2 size={12} />
+                <p className="text-base font-black text-charcoal tracking-tight">₹42,500</p>
+                <div className="w-5 h-5 bg-emerald-50 text-emerald-600 rounded-md flex items-center justify-center border border-emerald-100">
+                  <CheckCircle2 size={10} />
                 </div>
               </div>
             </div>
-            <div className="text-center">
-              <p className="text-[9px] font-black text-text-muted uppercase tracking-widest mb-1">Backup Status</p>
+
+            {/* Parked Sales Counter (Pulsing if active) */}
+            <div 
+              onClick={() => setShowHeldBills(true)}
+              className="text-left group cursor-pointer relative"
+            >
+              <p className="text-[9px] font-black text-text-muted uppercase tracking-widest mb-0.5 group-hover:text-premium-gold transition-colors">Parked Sales</p>
               <div className="flex items-center gap-2">
-                <p className="text-xs font-black text-emerald-500 uppercase tracking-widest">Encrypted</p>
-                <Shield size={12} className="text-emerald-500" />
-              </div>
-            </div>
-            
-            {/* Held Bills Access */}
-            <div className="text-center group cursor-pointer" onClick={() => setShowHeldBills(true)}>
-              <p className="text-[9px] font-black text-text-muted uppercase tracking-widest mb-1 group-hover:text-premium-gold transition-colors">Parked Sales</p>
-              <div className="flex items-center gap-2 justify-center">
-                <p className="text-lg font-black text-charcoal tracking-tighter">{heldBills.length}</p>
-                <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-white ${heldBills.length > 0 ? 'bg-orange-500 shadow-lg shadow-orange-500/20' : 'bg-text-muted'}`}>
-                  <History size={12} />
+                <p className="text-base font-black text-charcoal tracking-tight">{heldBills.length}</p>
+                <div className={`w-5 h-5 rounded-md flex items-center justify-center transition-all ${heldBills.length > 0 ? 'bg-orange-500 text-white animate-bounce shadow-md shadow-orange-500/20' : 'bg-light-bg border border-border-light text-text-muted'}`}>
+                  <History size={10} />
                 </div>
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-4">
+
+          {/* Shortcut Keys HUD */}
+          <div className="flex items-center gap-3 bg-light-bg/50 px-4 py-2 rounded-xl border border-border-light/60">
             {SHORTCUTS.map(s => (
-              <div key={s.key} className="flex flex-col items-center">
-                <kbd className="bg-light-bg border border-border-light px-2 py-1 rounded-lg text-[9px] font-black text-charcoal shadow-sm min-w-[32px] text-center mb-1">{s.key}</kbd>
-                <span className="text-[8px] font-black text-text-muted uppercase tracking-tighter">{s.action}</span>
+              <div key={s.key} className="flex items-center gap-1.5 border-r border-border-light last:border-0 pr-3 last:pr-0">
+                <kbd className="bg-white border border-border-light px-1.5 py-0.5 rounded-md text-[8px] font-black text-charcoal shadow-sm min-w-[20px] text-center">{s.key}</kbd>
+                <span className="text-[7px] font-black text-text-muted uppercase tracking-tight">{s.action.split(' ')[1] || s.action}</span>
               </div>
             ))}
+            <button 
+              onClick={() => setShowShortcutsHelp(true)}
+              className="ml-2 w-5 h-5 bg-premium-gold/10 hover:bg-premium-gold hover:text-charcoal text-premium-gold rounded-full flex items-center justify-center font-black text-[10px] shadow-sm transition-all border border-premium-gold/20"
+              title="Open Platform Guide"
+            >
+              ?
+            </button>
           </div>
         </div>
       </div>
 
-      <div className="flex-1 flex gap-4 min-h-0 overflow-hidden">
-        {/* ─── Left: Product Browsing (70%) ─── */}
-        <div className="flex-1 flex flex-col gap-4 min-h-0 bg-white rounded-[2rem] border border-border-light p-6 shadow-sm overflow-hidden">
+      {/* ─── Main Content Workspace ─── */}
+      <div className="flex-1 flex gap-6 min-h-0 overflow-hidden relative z-10">
+        
+        {/* ─── Left Panel: Catalog Master (65%) ─── */}
+        <div className="flex-1 flex flex-col gap-5 min-h-0 bg-white rounded-[2rem] border border-border-light/50 p-6 shadow-sm overflow-hidden">
+          
+          {/* Header Actions */}
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between shrink-0">
-            {/* Search */}
+            {/* Elegant Input Search with floating style */}
             <div className="relative w-full md:max-w-md group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-premium-gold transition-colors" size={18} />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-premium-gold transition-colors" size={16} />
               <input
                 ref={searchInputRef}
-                className="w-full bg-light-bg border border-border-light rounded-2xl pl-12 pr-12 py-3.5 focus:outline-none focus:ring-2 focus:ring-premium-gold/20 focus:border-premium-gold text-sm font-medium transition-all"
+                className="w-full bg-light-bg border border-border-light rounded-2xl pl-11 pr-12 py-3 focus:outline-none focus:ring-2 focus:ring-premium-gold/20 focus:border-premium-gold text-xs font-semibold transition-all shadow-inner"
                 placeholder="Search products or scan barcode (F2)..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 onKeyDown={handleSearchKeyDown}
               />
-              {search && (
-                <button onClick={() => setSearch('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary">
-                  <X size={16} />
-                </button>
-              )}
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                {search ? (
+                  <button onClick={() => setSearch('')} className="text-text-muted hover:text-text-primary transition-colors">
+                    <X size={14} />
+                  </button>
+                ) : (
+                  <span className="px-1.5 py-0.5 border border-border-light rounded text-[8px] font-black text-text-muted uppercase bg-white">F2</span>
+                )}
+              </div>
             </div>
 
-            {/* Category Pills */}
-            <div className="flex gap-2 overflow-x-auto pb-1 max-w-full no-scrollbar">
-              <button 
-                onClick={() => setSelectedCategory('All')}
-                className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0 ${selectedCategory === 'All' ? 'bg-charcoal text-white shadow-lg' : 'bg-light-bg text-text-muted hover:bg-border-light'}`}
-              >
-                All Products
-              </button>
-              {categories?.map(cat => (
+            {/* Grid/List Toggle & Categories Pills */}
+            <div className="flex items-center gap-3 max-w-full">
+              {/* View Toggle */}
+              <div className="bg-light-bg border border-border-light/60 p-1 rounded-xl flex items-center gap-1 shrink-0 shadow-inner">
                 <button 
-                  key={cat._id}
-                  onClick={() => setSelectedCategory(cat.slug)}
-                  className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0 ${selectedCategory === cat.slug ? 'bg-charcoal text-white shadow-lg' : 'bg-light-bg text-text-muted hover:bg-border-light'}`}
+                  onClick={() => setViewMode('grid')}
+                  className={`p-1.5 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white text-charcoal shadow-sm' : 'text-text-muted hover:text-charcoal'}`}
+                  title="Grid View [F4]"
                 >
-                  {cat.name}
+                  <LayoutGrid size={14} />
                 </button>
-              ))}
+                <button 
+                  onClick={() => setViewMode('list')}
+                  className={`p-1.5 rounded-lg transition-all ${viewMode === 'list' ? 'bg-white text-charcoal shadow-sm' : 'text-text-muted hover:text-charcoal'}`}
+                  title="List View [F4]"
+                >
+                  <ListFilter size={14} />
+                </button>
+              </div>
+
+              {/* Dynamic Categories Scroll */}
+              <div className="flex gap-1.5 overflow-x-auto pb-0.5 max-w-[320px] md:max-w-[400px] no-scrollbar">
+                <button 
+                  onClick={() => setSelectedCategory('All')}
+                  className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shrink-0 border ${selectedCategory === 'All' ? 'bg-charcoal text-white border-charcoal shadow-lg shadow-charcoal/5' : 'bg-light-bg text-text-muted border-border-light hover:bg-white hover:border-text-muted/30'}`}
+                >
+                  All
+                </button>
+                {categories?.map(cat => (
+                  <button 
+                    key={cat._id}
+                    onClick={() => setSelectedCategory(cat.slug)}
+                    className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shrink-0 border ${selectedCategory === cat.slug ? 'bg-charcoal text-white border-charcoal shadow-lg shadow-charcoal/5' : 'bg-light-bg text-text-muted border-border-light hover:bg-white hover:border-text-muted/30'}`}
+                  >
+                    {cat.name}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Product Layout */}
-          <div className="flex-1 overflow-y-auto no-scrollbar pt-2">
+          {/* Product Grid / List container */}
+          <div className="flex-1 overflow-y-auto no-scrollbar pt-1 pr-1">
             {isLoadingProducts ? (
-              <div className="h-full flex items-center justify-center">
+              <div className="h-full flex flex-col items-center justify-center gap-3 opacity-60">
                 <Loader2 className="animate-spin text-premium-gold" size={32} />
+                <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">Synergy Catalog Syncing...</span>
               </div>
             ) : productsData?.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-text-muted opacity-50">
-                <Package size={48} className="mb-4" />
-                <p className="font-bold">No products found</p>
+              <div className="h-full flex flex-col items-center justify-center text-text-muted opacity-40">
+                <div className="w-16 h-16 rounded-full bg-light-bg flex items-center justify-center border border-border-light mb-4">
+                  <Package size={28} />
+                </div>
+                <p className="font-bold text-xs uppercase tracking-widest">No matching assets found</p>
               </div>
             ) : viewMode === 'grid' ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                {productsData.map(product => (
-                  <div key={product._id} onClick={() => handleProductClick(product)} className="bg-light-bg rounded-[1.5rem] border border-border-light overflow-hidden group hover:border-premium-gold hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col h-full">
-                    <div className="relative aspect-[4/5] overflow-hidden bg-white shrink-0">
-                      <SafeImage 
-                        src={product.images?.[0]} 
-                        alt="" 
-                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
-                      />
-                      <div className="absolute top-2 left-2 flex flex-col gap-1">
-                        {product.variants?.some(v => v.stock > 0 && v.stock < 5) && (
-                          <div className="bg-red-500 text-white text-[7px] font-black px-1.5 py-0.5 rounded uppercase tracking-widest shadow-lg animate-pulse">Low Stock</div>
-                        )}
+                {productsData.filter(p => p.variants?.some(v => v.stock > 0)).map(product => {
+                  const hasStockAlert = product.variants?.some(v => v.stock > 0 && v.stock < 5);
+                  const isOutOfStock = product.variants?.every(v => v.stock <= 0);
+                  
+                  return (
+                    <div 
+                      key={product._id} 
+                      onClick={() => handleProductClick(product)} 
+                      className="bg-white rounded-[1.5rem] border border-border-light/60 overflow-hidden group hover:border-premium-gold hover:shadow-xl hover:shadow-premium-gold/5 transition-all duration-300 cursor-pointer flex flex-col h-full relative"
+                    >
+                      <div className="relative aspect-[4/5] overflow-hidden bg-[#F5F5F7] shrink-0">
+                        <SafeImage 
+                          src={product.images?.[0]} 
+                          alt="" 
+                          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                        />
+                        
+                        {/* Elegant overlay indicators */}
+                        <div className="absolute top-2.5 left-2.5 flex flex-col gap-1 z-10">
+                          {isOutOfStock ? (
+                            <div className="bg-charcoal text-white text-[7px] font-black px-2 py-0.5 rounded uppercase tracking-widest shadow-md">Sold Out</div>
+                          ) : hasStockAlert ? (
+                            <div className="bg-red-500 text-white text-[7px] font-black px-2 py-0.5 rounded uppercase tracking-widest shadow-md animate-pulse">Low Stock</div>
+                          ) : null}
+                        </div>
+                        
+                        <div className="absolute top-2.5 right-2.5 bg-white/90 backdrop-blur-sm text-[7px] font-black px-2 py-1 rounded border border-border-light shadow-sm text-charcoal uppercase tracking-wider z-10">
+                          {product.sku?.split('-')[0] || 'ASSET'}
+                        </div>
+
+                        {/* Hover Overlay action */}
+                        <div className="absolute inset-0 bg-charcoal/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20">
+                          <div className="bg-white text-charcoal px-4 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-[0.15em] flex items-center gap-1.5 transform translate-y-3 group-hover:translate-y-0 transition-all shadow-xl">
+                            <Plus size={12} className="text-premium-gold" /> Add To Bill
+                          </div>
+                        </div>
                       </div>
-                      <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm text-[8px] font-black px-2 py-1 rounded-md text-charcoal border border-border-light shadow-sm">
-                        {product.sku}
-                      </div>
-                      <div className="absolute inset-0 bg-charcoal/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <div className="bg-white text-charcoal px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all shadow-xl">
-                          <Plus size={16} /> Select
+
+                      <div className="p-3.5 flex-1 flex flex-col justify-between bg-white relative z-10">
+                        <div>
+                          <h3 className="text-xs font-black text-charcoal line-clamp-1 leading-tight group-hover:text-premium-gold transition-colors">{product.name}</h3>
+                          <p className="text-[8px] font-black text-text-muted uppercase tracking-widest mt-1">
+                            {product.variants?.length} Options Available
+                          </p>
+                        </div>
+                        
+                        <div className="mt-3 pt-2.5 border-t border-border-light/60 flex items-end justify-between">
+                          <span className="text-[10px] font-bold text-text-muted line-through">₹{product.sellingPrice}</span>
+                          <span className="text-sm font-black text-charcoal">
+                            ₹{product.discountedPrice || product.sellingPrice}
+                          </span>
                         </div>
                       </div>
                     </div>
-                    <div className="p-4 flex-1 flex flex-col justify-between">
-                      <div>
-                        <h3 className="text-sm font-bold text-charcoal line-clamp-2 leading-tight">{product.name}</h3>
-                        <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mt-2">{product.variants?.length} Variant{product.variants?.length !== 1 && 's'}</p>
-                      </div>
-                      <div className="mt-4 pt-3 border-t border-border-light flex items-end justify-between">
-                        <span className="text-xs font-black text-text-muted line-through">₹{product.sellingPrice}</span>
-                        <span className="text-lg font-black text-premium-gold leading-none">₹{product.discountedPrice || product.sellingPrice}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
-              <div className="flex flex-col gap-2">
-                {productsData.map(product => (
-                  <div key={product._id} onClick={() => handleProductClick(product)} className="flex items-center gap-4 bg-white p-3 rounded-2xl border border-border-light hover:border-premium-gold hover:shadow-md transition-all cursor-pointer group">
-                    <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0">
-                      <SafeImage src={product.images?.[0]} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
+              // List View Mode
+              <div className="flex flex-col gap-2.5">
+                {productsData.filter(p => p.variants?.some(v => v.stock > 0)).map(product => {
+                  const isOutOfStock = product.variants?.every(v => v.stock <= 0);
+                  return (
+                    <div 
+                      key={product._id} 
+                      onClick={() => handleProductClick(product)} 
+                      className="flex items-center gap-4 bg-white p-3 rounded-2xl border border-border-light/50 hover:border-premium-gold hover:shadow-md transition-all cursor-pointer group"
+                    >
+                      <div className="w-12 h-14 rounded-xl overflow-hidden shrink-0 border border-border-light/50 bg-[#F5F5F7] relative">
+                        <SafeImage src={product.images?.[0]} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                        {isOutOfStock && <div className="absolute inset-0 bg-charcoal/60 flex items-center justify-center"><span className="text-[6px] font-black text-white uppercase tracking-widest">OUT</span></div>}
+                      </div>
+                      <div className="flex-1 min-w-0 text-left">
+                        <h3 className="text-xs font-black text-charcoal truncate group-hover:text-premium-gold transition-colors">{product.name}</h3>
+                        <p className="text-[8px] font-black text-text-muted uppercase tracking-widest mt-1">
+                          SKU: {product.sku} • {product.variants?.length} Variant Option{product.variants?.length !== 1 && 's'}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <span className="block text-[9px] font-bold text-text-muted line-through">₹{product.sellingPrice}</span>
+                        <span className="block text-sm font-black text-charcoal leading-none mt-1">₹{product.discountedPrice || product.sellingPrice}</span>
+                      </div>
+                      <div className="w-8 h-8 bg-light-bg rounded-xl flex items-center justify-center text-text-muted group-hover:bg-premium-gold group-hover:text-charcoal group-hover:shadow-lg group-hover:shadow-premium-gold/20 transition-all shrink-0 ml-2 border border-border-light/60">
+                        <Plus size={14} />
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-bold text-charcoal truncate">{product.name}</h3>
-                      <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mt-1">{product.sku} • {product.variants?.length} Variant{product.variants?.length !== 1 && 's'}</p>
-                    </div>
-                    <div className="text-right">
-                      <span className="block text-[10px] font-black text-text-muted line-through">₹{product.sellingPrice}</span>
-                      <span className="block text-lg font-black text-premium-gold leading-none">₹{product.discountedPrice || product.sellingPrice}</span>
-                    </div>
-                    <div className="w-10 h-10 bg-light-bg rounded-full flex items-center justify-center group-hover:bg-premium-gold group-hover:text-white transition-colors shrink-0 ml-2">
-                      <Plus size={18} />
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
+
+          {/* AI Smart Recommendations Removed */}
         </div>
 
-        {/* ─── Right: Cart Sidebar (30%) ─── */}
-        <div className="w-[400px] flex flex-col bg-charcoal rounded-[2rem] overflow-hidden shadow-2xl shrink-0">
-          {/* Cart Header */}
-          <div className="p-6 bg-charcoal/50 border-b border-white/10 flex items-center justify-between">
+        {/* ─── Right Panel: Fine SaaS Cart Sidebar (35%) ─── */}
+        <div className="w-[360px] xl:w-[400px] flex flex-col bg-[#FAF9F6] rounded-[2rem] overflow-hidden shadow-2xl shrink-0 border border-[#ECEAE2] relative">
+          <div className="absolute inset-0 bg-gradient-to-b from-white/[0.03] to-transparent pointer-events-none" />
+          
+          {/* Cart Title Header */}
+          <div className="p-5 bg-[#F5F3EB] border-b border-[#ECEAE2] flex items-center justify-between relative z-10">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-premium-gold rounded-xl flex items-center justify-center shadow-lg shadow-premium-gold/20">
-                <ShoppingCart className="text-charcoal" size={20} />
+              <div className="w-9 h-9 bg-premium-gold rounded-xl flex items-center justify-center shadow-lg shadow-premium-gold/15">
+                <ShoppingCart className="text-charcoal" size={18} />
               </div>
-              <span className="font-bold text-white text-lg tracking-tight">Active Bill</span>
+              <div>
+                <span className="font-black text-charcoal text-sm tracking-tight">Active Bill Invoice</span>
+                <p className="text-[7px] font-black text-[#8C6D1F] uppercase tracking-[0.2em] mt-1">Ready for Checkout</p>
+              </div>
             </div>
+            
+            {/* Action Group */}
             <div className="flex gap-2">
-              <button onClick={holdBill} className="p-2 bg-white/5 text-white/50 hover:text-orange-400 hover:bg-orange-400/10 rounded-lg transition-all" title="Park Sale (Hold Bill)">
-                <History size={18} />
+              <button 
+                onClick={holdBill} 
+                disabled={items.length === 0}
+                className="p-2 bg-[#EFECE3] text-charcoal/60 hover:text-amber-600 hover:bg-[#E5DFD0] rounded-xl transition-all border border-[#ECEAE2] disabled:opacity-20" 
+                title="Hold / Park Current Bill"
+              >
+                <History size={14} />
               </button>
-              <button onClick={() => setItems([])} className="p-2 bg-white/5 text-white/50 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all" title="Clear Bill">
-                <Trash2 size={18} />
+              <button 
+                onClick={() => setItems([])} 
+                disabled={items.length === 0}
+                className="p-2 bg-[#EFECE3] text-charcoal/60 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all border border-[#ECEAE2] disabled:opacity-20" 
+                title="Wipe Cart Clean"
+              >
+                <Trash2 size={14} />
               </button>
             </div>
           </div>
 
-          {/* Cart Items */}
-          <div className="flex-1 overflow-y-auto p-6 no-scrollbar space-y-4">
+          {/* Multi-Session Cart Tab Switcher (SaaS Premium Model) */}
+          <div className="px-5 py-2.5 bg-[#F3EFE6] border-b border-[#ECEAE2] flex gap-1.5 relative z-10 select-none">
+            {cartSessions.map((sess, idx) => {
+              const count = sess.items.reduce((acc, i) => acc + i.quantity, 0);
+              const isSelected = activeTab === idx;
+              return (
+                <button
+                  key={idx}
+                  onClick={() => setActiveTab(idx)}
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-1 rounded-xl border text-[9px] font-black uppercase tracking-widest transition-all ${isSelected ? 'bg-premium-gold border-premium-gold text-charcoal shadow-lg shadow-premium-gold/15 scale-[1.02]' : 'bg-white/40 border-[#ECEAE2] text-charcoal/50 hover:text-charcoal hover:bg-white/70'}`}
+                >
+                  <span>Patron {idx + 1}</span>
+                  {count > 0 && (
+                    <span className={`px-1.5 py-0.5 rounded-full text-[8px] font-black ${isSelected ? 'bg-charcoal text-white' : 'bg-premium-gold text-charcoal'}`}>
+                      {count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Cart items space */}
+          <div className="flex-1 overflow-y-auto p-5 no-scrollbar space-y-3 relative z-10">
             {items.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-white/20">
-                <div className="w-16 h-16 border-4 border-dashed border-white/5 rounded-full flex items-center justify-center mb-4">
-                  <Plus size={24} />
+              <div className="h-full flex flex-col items-center justify-center text-charcoal/10 p-6">
+                <div className="w-14 h-14 border-2 border-dashed border-charcoal/15 rounded-2xl flex items-center justify-center mb-4 text-[#8C6D1F]/50">
+                  <ShoppingCart size={20} />
                 </div>
-                <p className="text-sm font-bold uppercase tracking-widest">Cart is empty</p>
-                <p className="text-[10px] mt-1 opacity-50">Select products to begin</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.25em] text-charcoal/40 text-center">Cart is empty</p>
+                <p className="text-[8px] font-black text-charcoal/30 mt-1 text-center max-w-[180px]">Add items from catalog to start composing invoice</p>
               </div>
             ) : (
               <AnimatePresence initial={false}>
                 {items.map(item => (
                   <motion.div 
                     key={item.key}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    className="flex gap-4 group"
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, x: -30 }}
+                    className="flex gap-3 bg-white p-3 rounded-2xl border border-[#EBE8DF] hover:bg-[#FDFDFB] hover:shadow-md hover:scale-[1.01] transition-all group relative overflow-hidden shadow-sm"
                   >
-                    <div className="w-14 h-14 rounded-xl bg-white/5 p-1 shrink-0 overflow-hidden border border-white/10">
-                      <SafeImage src={item.image} alt="" className="w-full h-full object-cover rounded-lg" />
+                    <div className="w-12 h-14 rounded-lg bg-[#FAF9F6] shrink-0 overflow-hidden border border-[#ECEAE2] relative">
+                      <SafeImage src={item.image} alt="" className="w-full h-full object-cover rounded-md" />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-white font-bold text-xs line-clamp-1">{item.productName}</p>
-                      <p className="text-white/40 text-[10px] uppercase font-medium mt-0.5">{item.size} / {item.color} • ₹{item.price}</p>
-                      <div className="flex items-center gap-3 mt-2">
-                        <div className="flex items-center gap-1.5 bg-white/5 p-0.5 rounded-lg border border-white/10">
-                          <button onClick={() => updateQty(item.key, -1)} className="w-6 h-6 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 rounded-md transition-all"><Minus size={12} /></button>
-                          <span className="w-6 text-center text-[10px] font-black text-white">{item.quantity}</span>
-                          <button onClick={() => updateQty(item.key, 1)} className="w-6 h-6 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 rounded-md transition-all"><Plus size={12} /></button>
+                    <div className="flex-1 min-w-0 flex flex-col justify-between">
+                      <div>
+                        <p className="text-charcoal font-black text-xs truncate leading-tight">{item.productName}</p>
+                        <p className="text-charcoal/50 text-[8px] uppercase font-black tracking-widest mt-1">
+                          {item.size} / {item.color} • ₹{item.price}
+                        </p>
+                      </div>
+                      
+                      <div className="flex items-center justify-between mt-2.5">
+                        {/* Advanced mini-counter */}
+                        <div className="flex items-center gap-1.5 bg-[#F3EFE6] p-0.5 rounded-lg border border-[#ECEAE2] shadow-inner">
+                          <button 
+                            onClick={() => updateQty(item.key, -1)} 
+                            className="w-5 h-5 flex items-center justify-center text-charcoal/40 hover:text-charcoal hover:bg-[#E5DFD0] rounded transition-all"
+                          >
+                            <Minus size={10} />
+                          </button>
+                          <span className="w-5 text-center text-[9px] font-black text-charcoal">{item.quantity}</span>
+                          <button 
+                            onClick={() => updateQty(item.key, 1)} 
+                            className="w-5 h-5 flex items-center justify-center text-charcoal/40 hover:text-charcoal hover:bg-[#E5DFD0] rounded transition-all"
+                          >
+                            <Plus size={10} />
+                          </button>
                         </div>
+                        
+                        <p className="text-[#8C6D1F] font-black text-[11px]">
+                          ₹{(item.price * item.quantity).toLocaleString()}
+                        </p>
                       </div>
                     </div>
-                    <div className="text-right flex flex-col justify-between">
-                      <button onClick={() => removeItem(item.key)} className="opacity-0 group-hover:opacity-100 p-1 text-white/20 hover:text-red-400 transition-all self-end"><Trash2 size={14} /></button>
-                      <p className="text-premium-gold font-black text-xs">₹{(item.price * item.quantity).toLocaleString()}</p>
-                    </div>
+                    
+                    {/* Delete trigger */}
+                    <button 
+                      onClick={() => removeItem(item.key)} 
+                      className="absolute top-2.5 right-2.5 opacity-0 group-hover:opacity-100 p-1 text-charcoal/30 hover:text-red-500 transition-opacity"
+                    >
+                      <X size={12} />
+                    </button>
                   </motion.div>
                 ))}
               </AnimatePresence>
             )}
           </div>
 
-          {/* Cart Footer */}
-          <div className="p-6 bg-black/20 border-t border-white/10 space-y-4">
-            <div className="space-y-2">
-              <div className="flex justify-between text-white/50 text-[10px] font-black uppercase tracking-widest">
-                <span>Subtotal</span><span>₹{subtotal.toLocaleString()}</span>
+          {/* Cart Pricing breakdowns */}
+          <div className="p-5 bg-[#F3EFE6] border-t border-[#ECEAE2] space-y-4 relative z-10">
+            {/* Boutique Valued Services Removed */}
+
+            {/* Active Store Promotions Removed */}
+
+            <div className="space-y-2 bg-white p-4 rounded-2xl border border-[#EBE8DF] shadow-sm">
+              <div className="flex justify-between text-charcoal/60 text-[9px] font-black uppercase tracking-widest">
+                <span>Subtotal Value</span><span>₹{subtotal.toLocaleString()}</span>
               </div>
-              <div className="flex justify-between text-white/50 text-[10px] font-black uppercase tracking-widest">
-                <span>Tax (5% GST)</span><span>₹{tax.toLocaleString()}</span>
+              <div className="flex justify-between text-charcoal/60 text-[9px] font-black uppercase tracking-widest">
+                <span>Tax Breakdown (5%)</span><span>₹{tax.toLocaleString()}</span>
               </div>
               {discount > 0 && (
-                <div className="flex justify-between text-emerald-400 text-[10px] font-black uppercase tracking-widest">
-                  <span>Discount</span><span>−₹{discount.toLocaleString()}</span>
+                <div className="flex justify-between text-emerald-600 text-[9px] font-black uppercase tracking-widest animate-pulse">
+                  <span>Loyalty Discount</span><span>−₹{discount.toLocaleString()}</span>
                 </div>
               )}
-              <div className="flex justify-between items-end pt-2">
-                <span className="text-white/40 text-xs font-black uppercase tracking-[0.2em]">Total</span>
-                <span className="text-3xl font-black text-premium-gold leading-none">₹{total.toLocaleString()}</span>
+              <div className="h-px bg-[#ECEAE2] my-2.5" />
+              <div className="flex justify-between items-end">
+                <span className="text-charcoal/60 text-[10px] font-black uppercase tracking-[0.2em]">Net Payable</span>
+                <span className="text-2xl font-black text-charcoal leading-none tracking-tight">₹{total.toLocaleString()}</span>
               </div>
             </div>
 
+            {/* Glowing checkout button */}
             <button 
               disabled={items.length === 0}
               onClick={() => setIsCheckoutOpen(true)}
-              className="w-full bg-premium-gold hover:bg-gold-dark text-charcoal font-black py-5 rounded-2xl flex items-center justify-center gap-3 shadow-xl shadow-premium-gold/10 transition-all group disabled:opacity-30 disabled:grayscale"
+              className="w-full bg-charcoal hover:bg-black text-white font-black py-4 rounded-2xl flex items-center justify-center gap-2 shadow-xl hover:scale-[1.01] transition-all group disabled:opacity-20 disabled:grayscale disabled:scale-100 text-xs uppercase tracking-[0.15em] relative overflow-hidden"
             >
-              COMPLETE TRANSACTION (F9)
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              <span className="absolute top-0 left-[-100%] w-[50%] h-full bg-white/20 skew-x-[-20deg] group-hover:left-[120%] transition-all duration-1000" />
+              Process Checkout [F9]
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform text-white/80" />
             </button>
           </div>
         </div>
@@ -747,39 +1243,41 @@ export default function StaffCreateBill() {
             <motion.div 
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setSelectedProduct(null)}
-              className="absolute inset-0 bg-charcoal/80 backdrop-blur-sm"
+              className="absolute inset-0 bg-charcoal/70 backdrop-blur-sm"
             />
             
             <motion.div 
-              initial={{ opacity: 0, y: 50, scale: 0.95 }}
+              initial={{ opacity: 0, y: 30, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 50, scale: 0.95 }}
-              className="relative w-full max-w-3xl bg-white rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col md:flex-row h-[500px]"
+              exit={{ opacity: 0, y: 30, scale: 0.98 }}
+              className="relative w-full max-w-2xl bg-white rounded-[2rem] overflow-hidden shadow-[0_30px_100px_rgba(0,0,0,0.25)] flex flex-col md:flex-row h-[420px] border border-border-light"
             >
-              <div className="w-full md:w-2/5 bg-light-bg relative hidden md:block">
+              {/* Product preview artwork */}
+              <div className="w-full md:w-5/12 bg-[#F5F5F7] relative hidden md:block">
                 <SafeImage src={selectedProduct.images?.[0]} alt="" className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-transparent to-transparent" />
-                <div className="absolute bottom-6 left-6 right-6">
-                   <h3 className="text-white font-black text-xl leading-tight line-clamp-2">{selectedProduct.name}</h3>
-                   <p className="text-premium-gold font-black text-xs uppercase tracking-widest mt-2">{selectedProduct.sku}</p>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute bottom-5 left-5 right-5">
+                   <h3 className="text-white font-black text-base leading-tight line-clamp-2">{selectedProduct.name}</h3>
+                   <p className="text-premium-gold font-black text-[9px] uppercase tracking-widest mt-1.5">{selectedProduct.sku}</p>
                 </div>
               </div>
               
-              <div className="w-full md:w-3/5 p-8 flex flex-col h-full bg-white relative">
-                <button onClick={() => setSelectedProduct(null)} className="absolute top-6 right-6 p-2 bg-light-bg rounded-xl hover:bg-border-light transition-colors"><X size={20} /></button>
+              {/* Selector details form */}
+              <div className="w-full md:w-7/12 p-6 flex flex-col h-full bg-white relative">
+                <button onClick={() => setSelectedProduct(null)} className="absolute top-5 right-5 p-1.5 bg-light-bg rounded-xl hover:bg-border-light text-text-muted transition-colors"><X size={16} /></button>
                 
-                <h4 className="text-charcoal font-black text-lg mb-6">Select Variant</h4>
+                <h4 className="text-charcoal font-black text-xs uppercase tracking-widest text-text-muted mb-4">Aesthetic Configurations</h4>
                 
-                <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-                  {/* Colors */}
-                  <div className="mb-6">
-                    <p className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-3">Available Colors</p>
-                    <div className="flex flex-wrap gap-2">
+                <div className="flex-1 overflow-y-auto pr-1 no-scrollbar space-y-5">
+                  {/* Colors selectors */}
+                  <div>
+                    <p className="text-[8px] font-black text-text-muted uppercase tracking-[0.2em] mb-2.5">Colorways</p>
+                    <div className="flex flex-wrap gap-1.5">
                       {[...new Set(selectedProduct.variants.map(v => v.color))].map(c => (
                         <button 
                           key={c}
                           onClick={() => setSelectedColor(c)}
-                          className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${selectedColor === c ? 'bg-charcoal text-white shadow-lg' : 'bg-light-bg text-text-muted hover:bg-border-light'}`}
+                          className={`px-3.5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border ${selectedColor === c ? 'bg-charcoal text-white border-charcoal shadow-md shadow-charcoal/15' : 'bg-light-bg text-text-muted border-border-light hover:bg-white hover:border-text-muted/30'}`}
                         >
                           {c}
                         </button>
@@ -787,19 +1285,19 @@ export default function StaffCreateBill() {
                     </div>
                   </div>
                   
-                  {/* Sizes */}
+                  {/* Sizes selectors */}
                   <div>
-                    <p className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-3">Available Sizes</p>
-                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                    <p className="text-[8px] font-black text-text-muted uppercase tracking-[0.2em] mb-2.5">Fitted Sizes</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                       {selectedProduct.variants.filter(v => v.color === selectedColor).map((v, i) => (
                         <button 
                           key={i}
                           disabled={v.stock <= 0}
                           onClick={() => addToCart(selectedProduct, v)}
-                          className={`relative p-3 rounded-2xl flex flex-col items-center justify-center gap-1 border-2 transition-all ${v.stock > 0 ? 'border-border-light hover:border-premium-gold bg-white hover:shadow-md' : 'border-border-light bg-light-bg opacity-50 cursor-not-allowed'}`}
+                          className={`relative p-2.5 rounded-xl flex flex-col items-center justify-center gap-0.5 border-2 transition-all ${v.stock > 0 ? 'border-border-light hover:border-premium-gold bg-white hover:shadow-sm' : 'border-border-light bg-light-bg opacity-30 cursor-not-allowed'}`}
                         >
-                          <span className="text-lg font-black text-charcoal">{v.size}</span>
-                          <span className="text-[9px] font-bold text-text-muted uppercase tracking-widest">{v.stock > 0 ? `${v.stock} in stock` : 'Out of Stock'}</span>
+                          <span className="text-sm font-black text-charcoal">{v.size}</span>
+                          <span className="text-[7px] font-bold text-text-muted uppercase tracking-wide">{v.stock > 0 ? `${v.stock} pcs` : 'Out of Stock'}</span>
                         </button>
                       ))}
                     </div>
@@ -811,57 +1309,60 @@ export default function StaffCreateBill() {
         )}
       </AnimatePresence>
 
-      {/* ─── Checkout Modal ─── */}
+      {/* ─── Advanced Checkout Modal ─── */}
       <AnimatePresence>
         {isCheckoutOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <motion.div 
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setIsCheckoutOpen(false)}
-              className="absolute inset-0 bg-charcoal/80 backdrop-blur-md"
+              className="absolute inset-0 bg-charcoal/70 backdrop-blur-md"
             />
             
             <motion.div 
-              initial={{ opacity: 0, y: 50, scale: 0.9 }}
+              initial={{ opacity: 0, y: 30, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 50, scale: 0.9 }}
-              className="relative w-full max-w-2xl bg-white rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col md:flex-row h-[600px] md:h-auto"
+              exit={{ opacity: 0, y: 30, scale: 0.98 }}
+              className="relative w-full max-w-3xl bg-white rounded-[2rem] overflow-hidden shadow-[0_30px_100px_rgba(0,0,0,0.3)] flex flex-col md:flex-row h-[550px] border border-border-light"
             >
-              {/* Left: Summary */}
-              <div className="w-full md:w-5/12 bg-charcoal p-8 flex flex-col justify-between">
+              {/* Left Column: Transaction Summaries */}
+              <div className="w-full md:w-5/12 bg-charcoal p-7 flex flex-col justify-between relative overflow-hidden shrink-0 border-r border-white/5">
+                <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none" />
+                
                 <div>
-                   <h2 className="text-white/40 text-xs font-black uppercase tracking-[0.2em] mb-6">Payment Summary</h2>
-                   <div className="space-y-4">
+                   <h2 className="text-white/30 text-[9px] font-black uppercase tracking-[0.2em] mb-5">Checkout Cart Items</h2>
+                   <div className="space-y-3 max-h-[280px] overflow-y-auto no-scrollbar pr-1">
                      {items.map(i => (
-                       <div key={i.key} className="flex justify-between text-xs font-bold">
-                         <span className="text-white/60">{i.productName} (x{i.quantity})</span>
+                       <div key={i.key} className="flex justify-between text-[11px] font-medium py-1.5 border-b border-white/5 last:border-0">
+                         <span className="text-white/60 truncate max-w-[140px]">{i.productName} <span className="text-premium-gold font-bold">x{i.quantity}</span></span>
                          <span className="text-white">₹{(i.price * i.quantity).toLocaleString()}</span>
                        </div>
                      ))}
                    </div>
                 </div>
-                <div className="pt-6 border-t border-white/10">
-                   <p className="text-white/40 text-[10px] font-black uppercase tracking-widest mb-1">Payable Amount</p>
-                   <p className="text-4xl font-black text-premium-gold">₹{total.toLocaleString()}</p>
+                
+                <div className="pt-5 border-t border-white/5 relative z-10">
+                   <p className="text-white/40 text-[8px] font-black uppercase tracking-widest mb-1.5">Net Grand Total</p>
+                   <p className="text-3xl font-black text-premium-gold tracking-tight">₹{total.toLocaleString()}</p>
                 </div>
               </div>
 
-              {/* Right: Payment & Customer */}
-              <div className="flex-1 p-8 overflow-y-auto no-scrollbar">
-                <div className="flex justify-between items-center mb-8">
-                  <h3 className="text-xl font-black text-charcoal tracking-tight uppercase">Checkout Details</h3>
-                  <button onClick={() => setIsCheckoutOpen(false)} className="p-2 bg-light-bg rounded-xl hover:bg-border-light transition-colors"><X size={20} /></button>
+              {/* Right Column: Checkout input fields */}
+              <div className="flex-1 p-7 overflow-y-auto no-scrollbar flex flex-col justify-between bg-white">
+                <div className="flex justify-between items-center mb-5 shrink-0">
+                  <h3 className="text-md font-black text-charcoal tracking-tight uppercase">Billing Information</h3>
+                  <button onClick={() => setIsCheckoutOpen(false)} className="p-1.5 bg-light-bg rounded-xl hover:bg-border-light text-text-muted transition-colors"><X size={16} /></button>
                 </div>
 
-                <div className="space-y-6">
-                  {/* Customer Lookup */}
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Customer Info</label>
+                <div className="flex-1 space-y-4 pr-1">
+                  {/* Customer Lookup Info */}
+                  <div className="space-y-2 bg-light-bg/40 p-3.5 rounded-2xl border border-border-light/40">
+                    <label className="text-[8px] font-black text-text-muted uppercase tracking-[0.2em] block">Loyalty Member Link (Optional)</label>
                     <div className="relative group">
-                       <Smartphone className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-premium-gold transition-colors" size={18} />
+                       <Smartphone className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-premium-gold transition-colors" size={14} />
                        <input 
-                         className="w-full bg-light-bg border border-border-light rounded-2xl pl-12 pr-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-premium-gold/20 focus:border-premium-gold text-sm font-bold transition-all"
-                         placeholder="Customer Phone (Lookup)"
+                         className="w-full bg-white border border-border-light rounded-xl pl-10 pr-10 py-2.5 focus:outline-none focus:ring-2 focus:ring-premium-gold/20 focus:border-premium-gold text-xs font-black transition-all"
+                         placeholder="10-digit mobile (Optional)..."
                          value={customer.phone}
                          onChange={(e) => {
                            const val = e.target.value.replace(/\D/g, '').slice(0, 10);
@@ -869,140 +1370,332 @@ export default function StaffCreateBill() {
                            if (val.length === 10) lookupCustomer(val);
                          }}
                        />
-                       {loadingCustomer && <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 text-premium-gold animate-spin" size={16} />}
+                       {loadingCustomer && <Loader2 className="absolute right-3.5 top-1/2 -translate-y-1/2 text-premium-gold animate-spin" size={12} />}
                     </div>
-                    <div className="grid grid-cols-2 gap-3">
+                    
+                    <div className="grid grid-cols-2 gap-2 mt-2">
                       <input 
-                         className="w-full bg-light-bg border border-border-light rounded-xl px-4 py-3 focus:outline-none text-xs font-bold"
-                         placeholder="Customer Name"
+                         className="w-full bg-white border border-border-light rounded-xl px-3 py-2 focus:outline-none focus:border-premium-gold text-xs font-bold"
+                         placeholder="Customer Name (Optional)"
                          value={customer.name}
                          onChange={(e) => setCustomer({...customer, name: e.target.value})}
                       />
                       <input 
-                         className="w-full bg-light-bg border border-border-light rounded-xl px-4 py-3 focus:outline-none text-xs font-bold"
-                         placeholder="Email (Optional)"
+                         className="w-full bg-white border border-border-light rounded-xl px-3 py-2 focus:outline-none focus:border-premium-gold text-xs font-bold"
+                         placeholder="Email ID (Optional)"
                          value={customer.email}
                          onChange={(e) => setCustomer({...customer, email: e.target.value})}
                       />
                     </div>
+
+                    {customer.name && customer.phone.length === 10 && (
+                      <div className="mt-2.5 p-2.5 bg-premium-gold/5 border border-premium-gold/15 rounded-xl flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-5 h-5 bg-premium-gold/10 text-premium-gold rounded-lg flex items-center justify-center">
+                            <Sparkles size={10} />
+                          </div>
+                          <div>
+                            <span className="text-[8px] font-black uppercase tracking-widest text-premium-gold">PATRON REWARDS</span>
+                            <p className="text-[9px] font-black text-charcoal/80 leading-none mt-0.5">Gold Tier Member • 420 pts</p>
+                          </div>
+                        </div>
+                        <span className="text-[7px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100 uppercase tracking-widest">Active Partner Link</span>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Discount */}
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between ml-1">
-                      <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">Discount Amount</label>
-                      <div className="flex gap-1.5">
+                  {/* Sales Assistant selection */}
+                  <div className="space-y-1.5">
+                    <label className="text-[8px] font-black text-text-muted uppercase tracking-[0.2em] block">Sales Facilitator</label>
+                    <div className="relative group">
+                       <User className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-premium-gold transition-colors" size={14} />
+                       <select 
+                         className="w-full bg-light-bg/40 border border-border-light rounded-xl pl-10 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-premium-gold/20 focus:border-premium-gold text-xs font-bold transition-all appearance-none cursor-pointer"
+                         value={salesStaffId}
+                         onChange={(e) => setSalesStaffId(e.target.value)}
+                       >
+                         <option value="">-- Assisting Staff Member --</option>
+                         {staffList?.map(staff => (
+                           <option key={staff._id} value={staff._id}>{staff.name}</option>
+                         ))}
+                       </select>
+                    </div>
+                  </div>
+
+                  {/* Manual discount details */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[8px] font-black text-text-muted uppercase tracking-[0.2em]">Aesthetic Discounts</label>
+                      <div className="flex gap-1">
                         {[5, 10, 15].map(pct => (
-                          <button key={pct} onClick={() => setDiscount(Math.round(subtotal * (pct/100)))} className="px-2 py-0.5 rounded text-[8px] font-black bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors">
-                            {pct}% Off
+                          <button 
+                            key={pct} 
+                            onClick={() => setDiscount(Math.round(subtotal * (pct/100)))} 
+                            className="px-2 py-0.5 rounded text-[7px] font-black bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors border border-emerald-100"
+                          >
+                            {pct}%
                           </button>
                         ))}
                       </div>
                     </div>
                     <div className="relative group">
-                       <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-premium-gold transition-colors" size={18} />
+                       <Wallet className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-premium-gold transition-colors" size={14} />
                        <input 
                          type="number"
-                         className="w-full bg-light-bg border border-border-light rounded-2xl pl-12 pr-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-premium-gold/20 focus:border-premium-gold text-sm font-bold transition-all"
-                         placeholder="₹0.00"
-                         value={discount}
+                         className="w-full bg-light-bg/40 border border-border-light rounded-xl pl-10 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-premium-gold/20 focus:border-premium-gold text-xs font-bold transition-all"
+                         placeholder="Custom discount amount (₹)"
+                         value={discount || ''}
                          onChange={(e) => setDiscount(Math.min(subtotal, Number(e.target.value)))}
                        />
                     </div>
                   </div>
 
-                  {/* Payment Methods */}
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Payment Method</label>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {/* Dynamic payment pathways selectors */}
+                  <div className="space-y-1.5 shrink-0">
+                    <label className="text-[8px] font-black text-text-muted uppercase tracking-[0.2em] block">Settlement Channel</label>
+                    <div className="grid grid-cols-4 gap-2">
                       {[
-                        { id: 'cash', icon: Banknote, label: 'Cash', color: 'text-emerald-600' },
-                        { id: 'gpay', icon: Smartphone, label: 'GPay', color: 'text-blue-600' },
-                        { id: 'card', icon: CreditCard, label: 'Card', color: 'text-indigo-600' },
-                        { id: 'split', icon: Wallet, label: 'Split', color: 'text-orange-600' }
-                      ].map(m => (
-                        <button 
-                          key={m.id}
-                          onClick={() => setPaymentMethod(m.id)}
-                          className={`flex flex-col items-center gap-2 p-3 rounded-2xl border-2 transition-all ${paymentMethod === m.id ? 'border-premium-gold bg-gold-soft ring-4 ring-premium-gold/5' : 'border-border-light hover:border-border-dark'}`}
-                        >
-                          <m.icon size={20} className={paymentMethod === m.id ? 'text-premium-gold' : m.color} />
-                          <span className={`text-[9px] font-black uppercase tracking-widest ${paymentMethod === m.id ? 'text-charcoal' : 'text-text-muted'}`}>{m.label}</span>
-                        </button>
-                      ))}
+                        { id: 'cash', icon: Banknote, label: 'Cash', color: 'text-emerald-500 bg-emerald-50 border-emerald-100' },
+                        { id: 'gpay', icon: Smartphone, label: 'UPI/GPay', color: 'text-blue-500 bg-blue-50 border-blue-100' },
+                        { id: 'card', icon: CreditCard, label: 'Card Swipe', color: 'text-indigo-500 bg-indigo-50 border-indigo-100' },
+                        { id: 'split', icon: Wallet, label: 'Split Pay', color: 'text-orange-500 bg-orange-50 border-orange-100' }
+                      ].map(m => {
+                        const isSelected = paymentMethod === m.id;
+                        return (
+                          <button 
+                            key={m.id}
+                            onClick={() => setPaymentMethod(m.id)}
+                            className={`flex flex-col items-center gap-1.5 p-2 rounded-xl border transition-all ${isSelected ? 'border-premium-gold bg-premium-gold/10 ring-2 ring-premium-gold/15 shadow-sm' : 'border-border-light/60 hover:border-text-muted/30 bg-white'}`}
+                          >
+                            <m.icon size={16} className={isSelected ? 'text-premium-gold animate-bounce' : m.color.split(' ')[0]} />
+                            <span className="text-[7px] font-black uppercase tracking-wider text-charcoal">{m.label.split(' ')[0]}</span>
+                          </button>
+                        );
+                      })}
                     </div>
 
                     {paymentMethod === 'split' && (
-                      <div className="grid grid-cols-2 gap-3 mt-3">
+                      <div className="grid grid-cols-2 gap-2 mt-2 p-2.5 bg-orange-50/50 rounded-xl border border-orange-100">
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-black text-text-muted">₹</span>
-                          <input type="number" placeholder="Cash Amount" className="w-full bg-light-bg border border-border-light rounded-xl pl-8 pr-3 py-2 text-xs font-bold focus:ring-2 focus:ring-premium-gold/20" value={splitAmounts.cash} onChange={e => setSplitAmounts({...splitAmounts, cash: e.target.value})} />
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[9px] font-black text-text-muted">₹</span>
+                          <input type="number" placeholder="Cash Portion" className="w-full bg-white border border-border-light rounded-lg pl-7 pr-2 py-1.5 text-[10px] font-bold focus:ring-2 focus:ring-premium-gold/20 focus:outline-none" value={splitAmounts.cash} onChange={e => setSplitAmounts({...splitAmounts, cash: e.target.value})} />
                         </div>
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-black text-text-muted">₹</span>
-                          <input type="number" placeholder="UPI Amount" className="w-full bg-light-bg border border-border-light rounded-xl pl-8 pr-3 py-2 text-xs font-bold focus:ring-2 focus:ring-premium-gold/20" value={splitAmounts.upi} onChange={e => setSplitAmounts({...splitAmounts, upi: e.target.value})} />
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[9px] font-black text-text-muted">₹</span>
+                          <input type="number" placeholder="UPI Portion" className="w-full bg-white border border-border-light rounded-lg pl-7 pr-2 py-1.5 text-[10px] font-bold focus:ring-2 focus:ring-premium-gold/20 focus:outline-none" value={splitAmounts.upi} onChange={e => setSplitAmounts({...splitAmounts, upi: e.target.value})} />
                         </div>
-                        <div className="col-span-2 text-right pt-1">
-                          <span className={`text-[10px] font-black tracking-widest uppercase ${(Number(splitAmounts.cash)||0) + (Number(splitAmounts.upi)||0) === total ? 'text-emerald-500' : 'text-red-500'}`}>
-                            Balance Pending: ₹{(total - ((Number(splitAmounts.cash)||0) + (Number(splitAmounts.upi)||0))).toLocaleString()}
+                        <div className="col-span-2 text-right pt-0.5">
+                          <span className={`text-[8px] font-black tracking-widest uppercase ${(Number(splitAmounts.cash)||0) + (Number(splitAmounts.upi)||0) === total ? 'text-emerald-600' : 'text-red-500 animate-pulse'}`}>
+                            Unsettled: ₹{(total - ((Number(splitAmounts.cash)||0) + (Number(splitAmounts.upi)||0))).toLocaleString()}
                           </span>
                         </div>
                       </div>
                     )}
                   </div>
-
-                  <button 
-                    onClick={handleCheckout}
-                    disabled={createBillMutation.isLoading}
-                    className="w-full bg-charcoal hover:bg-black text-white font-black py-5 rounded-2xl flex items-center justify-center gap-3 shadow-xl transition-all group disabled:opacity-50"
-                  >
-                    {createBillMutation.isLoading ? <Loader2 className="animate-spin" size={20} /> : 'CONFIRM & GENERATE INVOICE'}
-                    <CheckCircle2 className="w-5 h-5 text-premium-gold" />
-                  </button>
                 </div>
+
+                <button 
+                  onClick={handleCheckout}
+                  disabled={createBillMutation.isLoading}
+                  className="w-full bg-charcoal hover:bg-black text-white font-black py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-lg transition-all text-xs uppercase tracking-widest relative mt-5 shrink-0 group"
+                >
+                  {createBillMutation.isLoading ? <Loader2 className="animate-spin text-premium-gold" size={16} /> : 'Process Settlement & Generate Receipt'}
+                  <CheckCircle2 className="w-4 h-4 text-premium-gold" />
+                </button>
               </div>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
 
-      {/* ─── Held Bills Modal ─── */}
+      {/* ─── Parked Sales Recovery List Modal ─── */}
       <AnimatePresence>
         {showHeldBills && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowHeldBills(false)} className="absolute inset-0 bg-charcoal/80 backdrop-blur-md" />
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative w-full max-w-lg bg-white rounded-[2rem] overflow-hidden shadow-2xl flex flex-col max-h-[80vh]">
-              <div className="p-6 border-b border-border-light flex items-center justify-between bg-light-bg">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowHeldBills(false)} className="absolute inset-0 bg-charcoal/70 backdrop-blur-sm" />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.98 }} 
+              animate={{ opacity: 1, scale: 1 }} 
+              exit={{ opacity: 0, scale: 0.98 }} 
+              className="relative w-full max-w-md bg-white rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[80vh] border border-border-light"
+            >
+              <div className="p-5 border-b border-border-light flex items-center justify-between bg-[#F9F9FA]">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-orange-100 text-orange-500 rounded-xl flex items-center justify-center">
-                    <History size={20} />
+                  <div className="w-9 h-9 bg-orange-100 text-orange-600 rounded-xl flex items-center justify-center border border-orange-200">
+                    <History size={16} />
                   </div>
                   <div>
-                    <h3 className="font-black text-charcoal tracking-tight text-lg">Parked Sales</h3>
-                    <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mt-0.5">{heldBills.length} Bills on Hold</p>
+                    <h3 className="font-black text-charcoal tracking-tight text-sm">Parked Cart Sales</h3>
+                    <p className="text-[8px] font-black text-text-muted uppercase tracking-widest mt-0.5">{heldBills.length} Inactive Invoices</p>
                   </div>
                 </div>
-                <button onClick={() => setShowHeldBills(false)} className="p-2 bg-white rounded-xl hover:bg-border-light transition-colors"><X size={20} /></button>
+                <button onClick={() => setShowHeldBills(false)} className="p-1.5 bg-white rounded-xl hover:bg-border-light text-text-muted transition-colors border border-border-light"><X size={16} /></button>
               </div>
-              <div className="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-3">
+              
+              <div className="flex-1 overflow-y-auto p-4 space-y-2.5 no-scrollbar">
                 {heldBills.length === 0 ? (
-                  <div className="py-12 text-center text-text-muted opacity-50">
-                    <History size={48} className="mx-auto mb-4" />
-                    <p className="font-bold">No parked sales found</p>
+                  <div className="py-10 text-center text-text-muted opacity-40">
+                    <History size={36} className="mx-auto mb-3" />
+                    <p className="font-bold text-xs uppercase tracking-wider">No parked bills found</p>
                   </div>
                 ) : (
                   heldBills.map(bill => (
-                    <div key={bill.id} className="bg-light-bg border border-border-light p-4 rounded-[1.5rem] flex items-center justify-between group hover:border-premium-gold transition-colors">
+                    <div key={bill.id} className="bg-[#F9F9FA] border border-border-light/60 p-3.5 rounded-xl flex items-center justify-between group hover:border-premium-gold transition-all">
                       <div>
-                        <p className="text-xs font-black text-charcoal">{bill.customer?.name || 'Walk-in Customer'}</p>
-                        <p className="text-[10px] font-bold text-text-muted mt-1">{new Date(bill.timestamp).toLocaleTimeString()} • {bill.items.length} items</p>
+                        <p className="text-xs font-black text-charcoal">{bill.customer?.name || 'Standard Walk-In'}</p>
+                        <p className="text-[8px] font-bold text-text-muted uppercase tracking-wide mt-1">
+                          Parked: {new Date(bill.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {bill.items.length} items listed
+                        </p>
                       </div>
-                      <button onClick={() => resumeBill(bill.id)} className="bg-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest shadow-sm hover:shadow-md hover:bg-premium-gold transition-all text-charcoal">
-                        Resume
+                      <button 
+                        onClick={() => resumeBill(bill.id)} 
+                        className="bg-white border border-border-light/60 px-3.5 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider shadow-sm hover:border-premium-gold hover:bg-premium-gold hover:text-charcoal transition-all"
+                      >
+                        Restore
                       </button>
                     </div>
                   ))
                 )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* ─── Add Custom Bespoke Item Modal (SaaS Premium) ─── */}
+      <AnimatePresence>
+        {showCustomItemModal && (
+          <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowCustomItemModal(false)} className="absolute inset-0 bg-charcoal/80 backdrop-blur-md" />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.98, y: 20 }} 
+              animate={{ opacity: 1, scale: 1, y: 0 }} 
+              exit={{ opacity: 0, scale: 0.98, y: 20 }} 
+              className="relative w-full max-w-md bg-white rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col border border-border-light p-8 gap-6"
+            >
+              <div className="flex items-center justify-between border-b border-border-light pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-premium-gold/15 text-premium-gold rounded-2xl flex items-center justify-center border border-premium-gold/20 shadow-inner">
+                    <Sparkles size={18} />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-charcoal tracking-tight text-base uppercase">Bespoke Custom Item</h3>
+                    <p className="text-[8px] font-black text-text-muted uppercase tracking-widest mt-0.5">Charge for Non-Standard Patrons</p>
+                  </div>
+                </div>
+                <button onClick={() => setShowCustomItemModal(false)} className="p-1.5 bg-light-bg rounded-xl hover:bg-border-light text-text-muted transition-colors"><X size={16} /></button>
+              </div>
+
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Custom Item Name</label>
+                  <input 
+                    className="w-full bg-light-bg border-none rounded-2xl px-6 py-5 font-black text-xs placeholder-text-muted/60" 
+                    placeholder="e.g. Silk Saree Alteration & Stone Work" 
+                    value={customItemDetails.name} 
+                    onChange={e => setCustomItemDetails({...customItemDetails, name: e.target.value})} 
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Unit Charge Price (₹)</label>
+                  <input 
+                    type="number" 
+                    className="w-full bg-light-bg border-none rounded-2xl px-6 py-5 font-black text-xs" 
+                    placeholder="e.g. 1500" 
+                    value={customItemDetails.price} 
+                    onChange={e => setCustomItemDetails({...customItemDetails, price: e.target.value})} 
+                  />
+                </div>
+              </div>
+
+              <button 
+                onClick={() => {
+                  const priceNum = Number(customItemDetails.price);
+                  if (!customItemDetails.name || !customItemDetails.price) {
+                    return toast.error('Both name and price are required');
+                  }
+                  if (isNaN(priceNum) || priceNum <= 0) {
+                    return toast.error('Price must be a valid positive number');
+                  }
+                  addCustomService(customItemDetails.name, priceNum);
+                  setShowCustomItemModal(false);
+                  setCustomItemDetails({ name: '', price: '' });
+                }}
+                className="w-full bg-charcoal text-white py-5 rounded-[1.5rem] font-black text-xs uppercase tracking-[0.2em] shadow-2xl hover:bg-premium-gold hover:text-charcoal transition-all flex items-center justify-center gap-2"
+              >
+                <Plus size={16} /> Add Custom Charge
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* ─── Platform Operator Guide Modal (SaaS Premium) ─── */}
+      <AnimatePresence>
+        {showShortcutsHelp && (
+          <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowShortcutsHelp(false)} className="absolute inset-0 bg-charcoal/80 backdrop-blur-md" />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.98, y: 20 }} 
+              animate={{ opacity: 1, scale: 1, y: 0 }} 
+              exit={{ opacity: 0, scale: 0.98, y: 20 }} 
+              className="relative w-full max-w-lg bg-white rounded-[2rem] overflow-hidden shadow-2xl flex flex-col border border-border-light p-8 gap-6"
+            >
+              <div className="flex items-center justify-between border-b border-border-light pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-premium-gold/15 text-premium-gold rounded-2xl flex items-center justify-center border border-premium-gold/20 shadow-inner">
+                    <Command size={18} />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-charcoal tracking-tight text-base uppercase">Operator Manual</h3>
+                    <p className="text-[8px] font-black text-text-muted uppercase tracking-widest mt-0.5">Magizhchi POS Intelligent Core</p>
+                  </div>
+                </div>
+                <button onClick={() => setShowShortcutsHelp(false)} className="p-1.5 bg-light-bg rounded-xl hover:bg-border-light text-text-muted transition-colors"><X size={16} /></button>
+              </div>
+
+              <div className="space-y-4 text-xs font-semibold text-text-primary overflow-y-auto no-scrollbar max-h-[50vh] pr-1">
+                {/* Section 1 */}
+                <div className="space-y-2.5">
+                  <span className="text-[8px] font-black uppercase tracking-[0.2em] text-text-muted">Master Hotkeys</span>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="flex items-center justify-between p-2.5 bg-light-bg/50 border border-border-light/40 rounded-xl">
+                      <span className="text-[10px] font-bold">Focus Search Field</span>
+                      <kbd className="bg-white border border-border-light px-2 py-0.5 rounded text-[8px] font-black text-charcoal shadow-sm">F2</kbd>
+                    </div>
+                    <div className="flex items-center justify-between p-2.5 bg-light-bg/50 border border-border-light/40 rounded-xl">
+                      <span className="text-[10px] font-bold">Toggle Catalog Layout</span>
+                      <kbd className="bg-white border border-border-light px-2 py-0.5 rounded text-[8px] font-black text-charcoal shadow-sm">F4</kbd>
+                    </div>
+                    <div className="flex items-center justify-between p-2.5 bg-light-bg/50 border border-border-light/40 rounded-xl col-span-2">
+                      <span className="text-[10px] font-bold">Initiate Complete Transaction</span>
+                      <kbd className="bg-white border border-border-light px-2 py-0.5 rounded text-[8px] font-black text-charcoal shadow-sm">F9</kbd>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 2 */}
+                <div className="space-y-2.5 pt-2 border-t border-border-light/60">
+                  <span className="text-[8px] font-black uppercase tracking-[0.2em] text-text-muted">SaaS Pro Features</span>
+                  <div className="space-y-2">
+                    <div className="p-3 bg-premium-gold/5 border border-premium-gold/15 rounded-xl">
+                      <p className="text-[10px] font-black text-premium-gold uppercase tracking-wider mb-1">Multi-Session Billing Tabs</p>
+                      <p className="text-[9px] text-charcoal/70 leading-normal">Operators can work with up to 3 separate patrons concurrently. Tap Patron Tabs above the cart to switch instantly without losing draft invoice line items.</p>
+                    </div>
+                    <div className="p-3 bg-blue-500/5 border border-blue-500/15 rounded-xl">
+                      <p className="text-[10px] font-black text-blue-500 uppercase tracking-wider mb-1">AI Smart Recommendations</p>
+                      <p className="text-[9px] text-charcoal/70 leading-normal">Dynamic pairings appear at the bottom of the catalog. Click the + icon on recommendations to add matches with an automatic styling validation score.</p>
+                    </div>
+                    <div className="p-3 bg-emerald-500/5 border border-emerald-500/15 rounded-xl">
+                      <p className="text-[10px] font-black text-emerald-500 uppercase tracking-wider mb-1">Bespoke Custom Services</p>
+                      <p className="text-[9px] text-charcoal/70 leading-normal">Easily add Alterations, Custom Tailoring, or Designer Gift Boxes directly to any active cart session via single-click service buttons below the catalog items.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-charcoal text-white/50 text-[8px] font-black uppercase tracking-[0.25em] text-center p-3 rounded-2xl border border-white/5 mt-2">
+                Magizhchi Security · Command Node: POS-GUIDE
               </div>
             </motion.div>
           </div>

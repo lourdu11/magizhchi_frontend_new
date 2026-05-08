@@ -88,7 +88,7 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
 
-  const handleLogout = async () => {
+  const handleLogout = () => {
     logout();
     navigate('/');
     setShowUserMenu(false);

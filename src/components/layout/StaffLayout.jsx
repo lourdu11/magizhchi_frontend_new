@@ -36,7 +36,13 @@ export default function StaffLayout() {
         <div className="border-t border-white/10 p-4">
           <p className="text-white text-sm font-medium">{user?.name}</p>
           <p className="text-white/40 text-xs mb-3">Staff</p>
-          <button onClick={() => { logout(); navigate('/staff/login'); }} className="flex items-center gap-2 text-white/40 hover:text-stock-out text-sm">
+          <button 
+            onClick={() => { 
+              logout(); 
+              navigate('/staff/login'); 
+            }} 
+            className="flex items-center gap-2 text-white/40 hover:text-stock-out text-sm"
+          >
             <LogOut size={14} /> Logout
           </button>
         </div>

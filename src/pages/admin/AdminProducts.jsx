@@ -16,7 +16,9 @@ import { resolveAssetURL } from '../../utils/assetResolver';
 const STANDARD_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
 export default function AdminProducts() {
-  const [showForm, setShowForm] = useState(false);
+  const [showForm, setShowForm] = useState(() => {
+    return localStorage.getItem('open_product_form') === 'true';
+  });
   const [editingId, setEditingId] = useState(null);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -92,11 +94,31 @@ export default function AdminProducts() {
   }, [debouncedSearch, filterCategory, sortOrder]);
 
   // --- State for the "Display Profile" ---
-  const [formData, setFormData] = useState({
-    name: '', sku: '', category: '', brand: 'Magizhchi', description: '',
-    sellingPrice: '', discountPercentage: 0,
-    images: [], isFeatured: false, isBestSeller: false, isNewArrival: true, isActive: true
+  const [formData, setFormData] = useState(() => {
+    try {
+      const saved = localStorage.getItem('draft_product_formData');
+      return saved ? JSON.parse(saved) : {
+        name: '', sku: '', category: '', brand: 'Magizhchi', description: '',
+        sellingPrice: '', discountPercentage: 0,
+        images: [], isFeatured: false, isBestSeller: false, isNewArrival: true, isActive: true
+      };
+    } catch {
+      return {
+        name: '', sku: '', category: '', brand: 'Magizhchi', description: '',
+        sellingPrice: '', discountPercentage: 0,
+        images: [], isFeatured: false, isBestSeller: false, isNewArrival: true, isActive: true
+      };
+    }
   });
+
+  // --- Sync Draft to LocalStorage ---
+  useEffect(() => {
+    localStorage.setItem('draft_product_formData', JSON.stringify(formData));
+  }, [formData]);
+
+  useEffect(() => {
+    localStorage.setItem('open_product_form', showForm);
+  }, [showForm]);
 
   // --- Mutations ---
   const upsertMutation = useMutation({
@@ -635,12 +657,22 @@ function VariantManagement({ productName, category, productId, sellingPrice }) {
 
   const deleteMutation = useMutation({
     mutationFn: (id) => inventoryService.deleteItem(id),
-    onSuccess: () => {
+    onSuccess: (res) => {
       queryClient.invalidateQueries(['product-variants', productName]);
       queryClient.invalidateQueries(['admin-inventory']);
+      queryClient.invalidateQueries(['admin-products']);
       queryClient.invalidateQueries(['product']);
-      toast.success('Variant deleted');
-    }
+      queryClient.invalidateQueries(['admin-health']);
+      queryClient.invalidateQueries(['dashboard-stats']);
+      // Show contextual message: archived (has history) or permanently deleted
+      const archived = res?.data?.data?.archived;
+      if (archived) {
+        toast.success('Variant archived — sales history preserved for audit', { icon: '🗃️' });
+      } else {
+        toast.success('Variant permanently removed');
+      }
+    },
+    onError: (err) => toast.error(err.response?.data?.message || 'Failed to remove variant')
   });
 
   const [editingVariant, setEditingVariant] = useState(null);

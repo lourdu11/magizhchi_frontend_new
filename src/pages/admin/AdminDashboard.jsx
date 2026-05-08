@@ -56,6 +56,7 @@ export default function AdminDashboard() {
   const { data: analytics, isLoading: isLoadingAnalytics } = useQuery({
     queryKey: ['admin-analytics-v2'],
     queryFn: () => adminService.getSalesAnalytics({ period: 'daily' }).then(r => r.data.data),
+    refetchInterval: 30000,
   });
 
   useEffect(() => {
@@ -102,8 +103,13 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         <StatCard icon={TrendingUp} label="Today's Revenue" value={formatCurrency(d.revenue?.today)} trend="up" trendValue="+12%" sub="Across all channels" color="text-charcoal" />
         <StatCard icon={Sparkles} label="Today's Profit" value={formatCurrency(d.revenue?.todayProfit)} trend="up" trendValue="+8%" sub="Net margin calculated" color="text-emerald-600" />
-        <StatCard icon={Users} label="Supplier Payables" value={formatCurrency(d.erp?.totalPayables)} trend="down" trendValue="-3%" sub="Net outstanding" color="text-red-600" />
-        <StatCard icon={ShoppingBag} label="Active Users" value={d.users || 0} sub="Members + Guests" color="text-indigo-600" />
+        <StatCard icon={CreditCard} label="Settled Value" value={formatCurrency(d.erp?.settledValue)} sub="Total payments made" color="text-indigo-600" />
+        <StatCard icon={Users} label="Active Partners" value={d.erp?.activePartners || 0} sub="Managed Trade Partners" color="text-amber-600" />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+         <StatCard icon={Package} label="Procurement Volume" value={formatCurrency(d.erp?.procurementVolume)} sub="Gross purchase history" bg="bg-charcoal" color="text-white" />
+         <StatCard icon={AlertTriangle} label="Net Payables" value={formatCurrency(d.erp?.totalPayables)} sub="Current outstanding" color="text-red-600" />
       </div>
 
       {/* ─── Primary Analytics Section ─── */}
@@ -124,7 +130,7 @@ export default function AdminDashboard() {
            
            <div className="w-full block">
               {isChartReady && salesTrend.length > 0 ? (
-                <ResponsiveContainer width="99%" height={350} debounce={100}>
+                <ResponsiveContainer width="99%" height={350} minWidth={0} minHeight={0} debounce={100}>
                   <AreaChart data={salesTrend}>
                     <defs>
                       <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
@@ -155,7 +161,7 @@ export default function AdminDashboard() {
            <h3 className="text-xl font-black text-charcoal uppercase tracking-tighter mb-8">Category Mix</h3>
            <div className="w-full block">
               {isChartReady && a.categoryData?.length > 0 ? (
-                <ResponsiveContainer width="99%" height={250} debounce={100}>
+                <ResponsiveContainer width="99%" height={250} minWidth={0} minHeight={0} debounce={100}>
                   <PieChart>
                     <Pie
                       data={a.categoryData?.slice(0, 5) || []}
@@ -241,31 +247,30 @@ export default function AdminDashboard() {
            </div>
         </div>
 
-        {/* Intelligence Widgets */}
         <div className="space-y-8">
-           {/* Low Stock Pulse */}
-           <div className="bg-charcoal rounded-[3.5rem] p-10 shadow-2xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-2xl" />
+           {/* Low Stock Pulse (Google Red Material Card) */}
+           <div className="bg-[#fce8e6]/60 border border-[#FAD2CF] rounded-[3.5rem] p-10 shadow-sm relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-[#EA4335]/5 rounded-full -mr-16 -mt-16 blur-2xl" />
               <div className="relative z-10">
                  <div className="flex items-center justify-between mb-8">
-                    <h3 className="text-lg font-black text-white uppercase tracking-tighter">Stock Fragility</h3>
-                    <div className="w-8 h-8 bg-red-500/20 text-red-500 rounded-lg flex items-center justify-center animate-pulse">
+                    <h3 className="text-lg font-black text-[#C5221F] uppercase tracking-tighter">Stock Fragility</h3>
+                    <div className="w-8 h-8 bg-[#EA4335]/15 text-[#C5221F] rounded-lg flex items-center justify-center animate-pulse">
                        <AlertTriangle size={18} />
                     </div>
                  </div>
                  <div className="space-y-4">
                     {d.lowStockProducts?.slice(0, 4).map((p, i) => (
-                      <div key={i} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10">
+                      <div key={i} className="flex items-center justify-between p-4 bg-white/90 rounded-2xl border border-[#FAD2CF]/60 shadow-sm">
                          <div className="min-w-0">
-                            <p className="text-[11px] font-black text-white truncate">{p.productName || p.name}</p>
-                            <p className="text-[9px] text-white/40 font-bold uppercase tracking-widest">{p.size} · {p.color}</p>
+                            <p className="text-[11px] font-black text-[#202124] truncate">{p.productName || p.name}</p>
+                            <p className="text-[9px] text-[#5F6368] font-bold uppercase tracking-widest">{p.size} · {p.color}</p>
                          </div>
                          <div className="text-right shrink-0">
-                            <p className="text-xs font-black text-red-400">{p.avail || p.totalStock} left</p>
+                            <p className="text-xs font-black text-[#D93025]">{p.avail || p.totalStock} left</p>
                          </div>
                       </div>
                     ))}
-                    <button onClick={() => navigate('/admin/catalog')} className="w-full py-4 mt-2 bg-white/10 hover:bg-white text-white hover:text-charcoal rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all border border-white/5">
+                    <button onClick={() => navigate('/admin/catalog')} className="w-full py-4 mt-2 bg-[#C5221F] hover:bg-[#B0120A] text-white rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all shadow-md shadow-[#EA4335]/10">
                        Refill Catalog
                     </button>
                  </div>

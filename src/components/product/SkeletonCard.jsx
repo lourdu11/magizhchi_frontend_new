@@ -21,7 +21,7 @@ export default function SkeletonCard() {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes shimmer {
           0% { transform: translateX(-100%) skewX(-20deg); }
           100% { transform: translateX(200%) skewX(-20deg); }

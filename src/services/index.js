@@ -5,6 +5,7 @@ export const authService = {
   verifyOTP: (identifier, otp, purpose) => api.post('/auth/verify-otp', { identifier, otp, purpose }),
   register: (data) => api.post('/auth/register', data),
   login: (identifier, password) => api.post('/auth/login', { identifier, password }),
+  verifyAdmin2FA: (data) => api.post('/auth/verify-admin-2fa', data),
   logout: () => api.post('/auth/logout'),
   forgotPassword: (identifier) => api.post('/auth/forgot-password', { identifier }),
   resetPassword: (data) => api.post('/auth/reset-password', data),
@@ -64,8 +65,10 @@ export const adminService = {
   getSalesAnalytics: (params) => api.get('/admin/analytics/sales', { params }),
   getAdminProducts: (params) => api.get('/admin/products', { params }),
   getAdminProductById: (id) => api.get(`/products/admin/detail/${id}`),
+  getHealth: () => api.get('/admin/health'),
   getAllOrders: (params) => api.get('/orders/all', { params }),
   updateOrderStatus: (id, data) => api.put(`/orders/${id}/status`, data),
+  resendOrderReceipt: (id) => api.post(`/orders/${id}/resend-receipt`),
   getAllUsers: (params) => api.get('/admin/users', { params }),
   toggleBlockUser: (id) => api.put(`/admin/users/${id}/toggle-block`),
   createStaff: (data) => api.post('/admin/staff', data),
@@ -75,6 +78,7 @@ export const adminService = {
   updateReturnStatus: (id, data) => api.put(`/orders/${id}/return-status`, data),
   getSettings: () => api.get('/admin/settings'),
   updateSettings: (data) => api.put('/admin/settings', data),
+  resetSystemData: (selections) => api.post('/admin/reset-system-data', { selections }),
   getPublicSettings: () => api.get('/public/settings'),
   uploadImage: (formData) => api.post('/upload', formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
@@ -86,7 +90,7 @@ export const adminService = {
   getWastageHistory: () => api.get('/admin/wastage'),
   createWastage: (data) => api.post('/admin/wastage', data),
   reconcileStock: (data) => api.post('/admin/inventory/reconcile', data),
-  testNotifications: (type) => api.post('/test-force', { type }),
+  testNotifications: (type) => api.post('/admin/test-notifications-v2', { type }),
 };
 
 export const reviewService = {
@@ -107,9 +111,12 @@ export const billService = {
   createBill: (data) => api.post('/bills/create', data),
   getBills: (params) => api.get('/bills', { params }),
   getBill: (id) => api.get(`/bills/${id}`),
+  deleteBill: (id, reason) => api.delete(`/bills/${id}`, { data: { reason } }),
   getDailyReport: (date) => api.get('/bills/daily-report', { params: { date } }),
   lookupCustomer: (phone) => api.get(`/bills/customer/${phone}`),
   getByBarcode: (barcode) => api.get(`/bills/barcode/${barcode}`),
+  updateBill: (id, data) => api.put(`/bills/${id}`, data),
+  resendReceipt: (id) => api.post(`/bills/${id}/resend-receipt`),
 };
 
 export const bannerService = {
@@ -124,6 +131,7 @@ export const publicService = {
   trackOrder: (data) => api.post('/public/track-order', data),
   getOrderDetails: (id) => api.get(`/public/order/${id}`),
   submitContact: (data) => api.post('/contact', data),
+  getStaffList: () => api.get('/public/staff-list'),
 };
 
 export const purchaseService = {

@@ -4,7 +4,7 @@ import {
   TrendingUp, ShoppingBag, Download, Calendar, Filter, Loader2, 
   IndianRupee, PieChart as PieChartIcon, Layers, Sparkles, Users, 
   MapPin, ArrowUpRight, ArrowDownRight, Package, Printer, Calculator, 
-  ScrollText, Clock, Shield, CheckCircle2, FileSpreadsheet, Cloud, Mail, X, Lock, Star
+  ScrollText, Clock, Shield, CheckCircle2, FileSpreadsheet, Cloud, Mail, X, Lock, Star, AlertTriangle
 } from 'lucide-react';
 import { adminService, billService } from '../../services';
 import { Helmet } from 'react-helmet-async';
@@ -62,12 +62,14 @@ export default function AdminAnalytics() {
   const { data: analytics, isLoading: analyticsLoading } = useQuery({
     queryKey: ['admin-analytics', period],
     queryFn: () => adminService.getSalesAnalytics({ period }).then(r => r.data.data),
+    refetchInterval: 60000,
   });
 
   // 2. Fetch Daily Z-Report Data (Live Ledger, Cash Reconciliation)
   const { data: dailyData, isLoading: dailyLoading } = useQuery({
     queryKey: ['daily-report'],
     queryFn: () => billService.getDailyReport().then(r => r.data.data),
+    refetchInterval: 60000,
   });
 
   const isLoading = analyticsLoading || dailyLoading;
@@ -136,10 +138,10 @@ export default function AdminAnalytics() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 no-print">
         {[
           { label: 'Total Revenue', value: `₹${fmt(summary.totalRevenue)}`, growth: `${summary.growth}%`, icon: IndianRupee, color: 'text-premium-gold', bg: 'bg-premium-gold/5' },
-          { label: 'Avg Ticket', value: `₹${fmt(summary.avgTicket)}`, growth: 'AOV', icon: Star, color: 'text-blue-600', bg: 'bg-blue-50' },
+          { label: 'Net Payables', value: `₹${fmt(analytics?.erp?.totalPayables)}`, growth: 'ERP', icon: AlertTriangle, color: 'text-red-600', bg: 'bg-red-50' },
+          { label: 'Asset Value', value: `₹${fmt(analytics?.erp?.inventoryValue)}`, growth: 'Stock', icon: Package, color: 'text-indigo-600', bg: 'bg-indigo-50' },
           { label: 'Total Orders', value: summary.totalOrders, growth: 'Live', icon: Layers, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-          { label: 'Staff Leader', value: analytics?.staffPerformance?.[0]?.name || 'N/A', growth: 'Sales', icon: Users, color: 'text-purple-600', bg: 'bg-purple-50' },
-          { label: 'Cash Balance', value: `₹${fmt(dailySummary.cashTotal)}`, growth: 'Drawer', icon: Calculator, color: 'text-orange-600', bg: 'bg-orange-50' }
+          { label: 'Active Partners', value: analytics?.erp?.activePartners || 0, growth: 'Trade', icon: Users, color: 'text-purple-600', bg: 'bg-purple-50' }
         ].map((stat, i) => (
           <div key={i} className="bg-white p-6 rounded-[2rem] border border-border-light shadow-sm hover:shadow-xl transition-all group relative overflow-hidden">
              <div className="absolute top-0 right-0 w-16 h-16 bg-light-bg/50 rounded-bl-full -z-0 group-hover:scale-150 transition-transform duration-700" />

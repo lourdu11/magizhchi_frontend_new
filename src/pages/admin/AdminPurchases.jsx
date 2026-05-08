@@ -204,16 +204,24 @@ export default function AdminPurchases() {
               ) : purchases.length === 0 ? (
                 <tr><td colSpan="7" className="py-20 text-center text-xs font-bold text-text-muted uppercase tracking-widest">No purchase bills yet. Add your first supplier bill!</td></tr>
               ) : purchases.map(p => (
-                <tr key={p._id} className="hover:bg-light-bg/20 transition-all">
+                <tr key={p._id} className={`hover:bg-light-bg/20 transition-all ${p.isDeleted ? 'opacity-50 grayscale-[0.3]' : ''}`}>
                   <td className="px-6 py-5">
-                    <div className="font-black text-charcoal text-sm">{p.purchaseNumber}</div>
+                    <div className={`font-black text-charcoal text-sm ${p.isDeleted ? 'line-through text-text-muted' : ''}`}>{p.purchaseNumber}</div>
                     {p.billNumber && <div className="text-[10px] text-text-muted font-bold mt-0.5">Supplier Bill: {p.billNumber}</div>}
+                    {p.isDeleted && <span className="mt-1 inline-block px-2 py-0.5 bg-red-100 text-red-600 text-[8px] font-black uppercase rounded-md tracking-tighter">Archived / Stock Reverted</span>}
                   </td>
                   <td className="px-6 py-5 text-xs font-bold text-text-muted">{formatDate(p.purchaseDate || p.createdAt)}</td>
                   <td className="px-6 py-5">
                     <div className="flex items-center gap-2 group/s">
-                      <div className="font-bold text-charcoal text-sm">{p.supplierId?.name || p.supplierName || '—'}</div>
-                      {p.supplierId?._id && (
+                      <div>
+                        <div className={`font-bold text-charcoal text-sm ${p.isDeleted || p.supplierId?.isDeleted ? 'text-text-muted' : ''}`}>
+                          {p.supplierId?.name || p.supplierName || '—'}
+                        </div>
+                        {p.supplierId?.isDeleted && (
+                          <span className="inline-block mt-1 px-1.5 py-0.5 bg-red-50 text-red-600 text-[7px] font-black uppercase tracking-wider rounded border border-red-100">Archived Partner</span>
+                        )}
+                      </div>
+                      {p.supplierId?._id && !p.supplierId?.isDeleted && (
                         <button onClick={() => navigate(`/admin/suppliers?search=${p.supplierId.name}`)} className="p-1.5 bg-light-bg rounded-lg text-text-muted hover:text-premium-gold transition-all opacity-0 group-hover/s:opacity-100" title="View Supplier Hub">
                           <ExternalLink size={12} />
                         </button>
@@ -223,7 +231,7 @@ export default function AdminPurchases() {
                   <td className="px-6 py-5">
                     <div className="space-y-1">
                       {(p.items || []).slice(0, 2).map((item, i) => (
-                        <div key={i} className="text-[11px] font-bold text-charcoal">
+                        <div key={i} className={`text-[11px] font-bold text-charcoal ${p.isDeleted ? 'text-text-muted' : ''}`}>
                           {item.productName} <span className="text-text-muted font-medium">× {item.quantity}</span>
                           {item.color && item.color !== 'Default' && <span className="text-text-muted"> • {item.color}</span>}
                           {item.size && item.size !== 'Free Size' && <span className="text-text-muted"> • {item.size}</span>}
@@ -233,14 +241,26 @@ export default function AdminPurchases() {
                     </div>
                   </td>
                   <td className="px-6 py-5">
-                    <div className="font-black text-charcoal">{formatCurrency(p.pricing?.totalAmount)}</div>
+                    <div className={`font-black text-charcoal ${p.isDeleted ? 'line-through text-text-muted' : ''}`}>{formatCurrency(p.pricing?.totalAmount)}</div>
                     <div className="text-[10px] text-text-muted font-bold mt-0.5">{p.items?.reduce((s, i) => s + i.quantity, 0)} pcs total</div>
                   </td>
-                  <td className="px-6 py-5">{statusBadge(p.paymentStatus)}</td>
                   <td className="px-6 py-5">
-                    <span className="flex items-center gap-1.5 text-[10px] font-black text-green-700 bg-green-50 px-3 py-1.5 rounded-full w-fit">
-                      <CheckCircle size={12} /> Stock Added
-                    </span>
+                    {p.isDeleted ? (
+                      <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-gray-100 text-gray-500">Cancelled</span>
+                    ) : (
+                      statusBadge(p.paymentStatus)
+                    )}
+                  </td>
+                  <td className="px-6 py-5">
+                    {p.isDeleted ? (
+                      <span className="flex items-center gap-1.5 text-[10px] font-black text-red-600 bg-red-50 px-3 py-1.5 rounded-full w-fit">
+                        <X size={12} /> Stock Reverted
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1.5 text-[10px] font-black text-green-700 bg-green-50 px-3 py-1.5 rounded-full w-fit">
+                        <CheckCircle size={12} /> Stock Added
+                      </span>
+                    )}
                   </td>
                 </tr>
               ))}

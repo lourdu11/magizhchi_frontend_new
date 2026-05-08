@@ -14,7 +14,7 @@ const api = axios.create({
 // ─── Request Interceptor: attach token ───────────────
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('accessToken');
+    const token = sessionStorage.getItem('accessToken');
     if (token && token !== 'null' && token !== 'undefined') {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -53,13 +53,13 @@ api.interceptors.response.use(
       try {
         const { data } = await axios.post(`${API_URL}/auth/refresh-token`, {}, { withCredentials: true });
         const newToken = data.data.accessToken;
-        localStorage.setItem('accessToken', newToken);
+        sessionStorage.setItem('accessToken', newToken);
         processQueue(null, newToken);
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return api(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);
-        localStorage.removeItem('accessToken');
+        sessionStorage.removeItem('accessToken');
         // Clear auth store state
         try {
           const { useAuthStore } = await import('../store');

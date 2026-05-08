@@ -15,8 +15,6 @@ export default function SafeImage({ src, alt, className, width, quality, ...prop
       src={resolvedSrc}
       alt={alt || 'Magizhchi Garments Asset'}
       className={className}
-      width={width}
-      height={props.height}
       effect="blur"
       threshold={300}
       wrapperClassName={className}

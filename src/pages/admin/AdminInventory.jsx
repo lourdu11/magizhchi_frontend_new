@@ -27,6 +27,8 @@ export default function AdminInventory() {
   const [newPrice, setNewPrice] = useState('');
   const [linkItem, setLinkItem] = useState(null);
   const [productSearch, setProductSearch] = useState('');
+  const [historyItem, setHistoryItem] = useState(null);
+  const [viewBillImage, setViewBillImage] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: statsData } = useQuery({
@@ -55,6 +57,12 @@ export default function AdminInventory() {
     queryKey: ['product-search-link', productSearch],
     queryFn: () => productService.getProducts({ search: productSearch }).then(r => r.data.data),
     enabled: productSearch.length > 2
+  });
+
+  const { data: historyData, isLoading: isLoadingHistory } = useQuery({
+    queryKey: ['inventory-history', historyItem?._id],
+    queryFn: () => inventoryService.getHistory(historyItem._id).then(r => r.data.data),
+    enabled: !!historyItem
   });
 
   const rawItems = inventoryData?.data || [];
@@ -126,15 +134,21 @@ export default function AdminInventory() {
             <AlertTriangle size={20} className="text-red-600" />
             <span className="text-sm font-black text-red-800 uppercase tracking-tight">Low / Out of Stock — {lowStockItems.length} items need restocking!</span>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-2">
-            {lowStockItems.slice(0, 6).map(i => (
-              <div key={i._id} className="bg-white rounded-2xl px-4 py-3 flex items-center justify-between">
-                <div>
-                  <div className="text-xs font-black text-charcoal">{i.productName}</div>
-                  <div className="text-[10px] text-text-muted font-bold">{i.color} • {i.size}</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {lowStockItems.slice(0, 8).map(i => (
+              <div key={i._id} className="bg-white rounded-[2rem] p-5 flex flex-col justify-between border border-transparent hover:border-red-200 transition-all group shadow-sm">
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <div className="text-xs font-black text-charcoal line-clamp-1">{i.productName}</div>
+                    <div className="text-[10px] text-text-muted font-bold uppercase tracking-widest">{i.color} • {i.size}</div>
+                  </div>
+                  <div className={`text-sm font-black ${i.availableStock === 0 ? 'text-red-600' : 'text-orange-600'}`}>
+                    {i.availableStock === 0 ? 'OUT' : i.availableStock}
+                  </div>
                 </div>
-                <div className={`text-sm font-black ${i.availableStock === 0 ? 'text-red-600' : 'text-orange-600'}`}>
-                  {i.availableStock === 0 ? 'OUT' : `${i.availableStock} left`}
+                <div className="flex gap-2">
+                   <button onClick={() => setAdjustItem(i)} className="flex-1 py-2 bg-red-50 text-red-600 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all">Adjust</button>
+                   <button onClick={() => setHistoryItem(i)} className="p-2 bg-light-bg text-text-muted rounded-xl hover:bg-charcoal hover:text-white transition-all"><History size={12} /></button>
                 </div>
               </div>
             ))}
@@ -174,8 +188,15 @@ export default function AdminInventory() {
               ) : filtered.map(item => (
                 <tr key={item._id} className="hover:bg-light-bg/20 transition-all">
                   <td className="px-5 py-4">
-                    <div className="font-black text-charcoal text-sm">{item.productName}</div>
-                    <div className="text-[10px] text-text-muted font-bold mt-0.5">{item.category}</div>
+                    <div className="flex items-center gap-4">
+                       <div className="w-12 h-14 bg-light-bg rounded-xl overflow-hidden flex-shrink-0 border border-border-light">
+                          <SafeImage src={item.productImages?.[0] || item.productRef?.images?.[0]} className="w-full h-full object-cover" />
+                       </div>
+                       <div>
+                          <div className="font-black text-charcoal text-sm">{item.productName}</div>
+                          <div className="text-[10px] text-text-muted font-bold mt-0.5">{item.category}</div>
+                       </div>
+                    </div>
                     {!item.productRef && (
                       <div className="mt-2 flex items-center gap-1.5 text-[9px] font-black text-orange-600 bg-orange-50 px-3 py-1 rounded-full w-fit">
                         <AlertTriangle size={10} /> ORPHAN STOCK (NOT LINKED)
@@ -374,6 +395,85 @@ export default function AdminInventory() {
                    {productSearch.length <= 2 && (
                      <div className="py-10 text-center text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">Type at least 3 characters to search</div>
                    )}
+                </div>
+             </motion.div>
+          </div>
+        )}
+        {historyItem && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-charcoal/50 backdrop-blur-sm" onClick={() => setHistoryItem(null)} />
+             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative bg-white w-full max-w-2xl rounded-[3rem] shadow-2xl border border-border-light p-8 flex flex-col max-h-[85vh]">
+                <div className="flex-none flex items-center justify-between mb-8">
+                   <div>
+                      <h3 className="text-xl font-black text-charcoal uppercase tracking-tight">Stock Movement Ledger</h3>
+                      <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest mt-1">{historyItem.productName} • {historyItem.color} • {historyItem.size}</p>
+                   </div>
+                   <button onClick={() => setHistoryItem(null)} className="p-3 hover:bg-light-bg rounded-full text-text-muted transition-colors"><X size={24} /></button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                   {isLoadingHistory ? (
+                     <div className="py-20 text-center"><Loader2 className="animate-spin text-premium-gold mx-auto" size={32} /></div>
+                   ) : !historyData?.length ? (
+                     <div className="py-20 text-center text-xs font-bold text-text-muted uppercase tracking-widest opacity-50 italic">No movement records found.</div>
+                   ) : (
+                     <div className="space-y-4">
+                        {historyData.map((h, i) => (
+                          <div key={i} className="bg-light-bg/30 rounded-2xl p-5 border border-border-light flex items-center justify-between group hover:border-premium-gold transition-all">
+                             <div className="flex items-center gap-4">
+                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm ${h.type === 'purchase' || h.type === 'return' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
+                                   {h.quantity > 0 ? '+' : ''}{h.quantity}
+                                </div>
+                                <div>
+                                   <div className="text-xs font-black text-charcoal uppercase tracking-tight">{h.type.replace(/_/g, ' ')}</div>
+                                   <div className="text-[10px] text-text-muted font-bold mt-0.5">{new Date(h.timestamp).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</div>
+                                </div>
+                             </div>
+                             <div className="text-right flex items-center gap-4">
+                                <div className="max-w-[180px]">
+                                   <div className="text-[10px] font-black text-charcoal uppercase tracking-widest truncate">{h.reason || 'No description provided'}</div>
+                                   <div className="text-[9px] text-text-muted font-bold mt-0.5 italic">By: {h.performedBy?.name || 'System'}</div>
+                                </div>
+                                {h.referenceId?.billImage && (
+                                  <button onClick={() => setViewBillImage(h.referenceId.billImage)} className="p-2 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-600 hover:text-white transition-all shadow-sm" title="View Bill Proof">
+                                     <Smartphone size={14} />
+                                  </button>
+                                )}
+                             </div>
+                          </div>
+                        ))}
+                     </div>
+                   )}
+                </div>
+
+                <div className="flex-none pt-8 mt-4 border-t border-border-light">
+                   <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-light-bg rounded-2xl p-4 text-center">
+                         <p className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em] mb-1">Total Procured</p>
+                         <p className="text-xl font-black text-charcoal">{historyItem.totalStock}</p>
+                      </div>
+                      <div className="bg-light-bg rounded-2xl p-4 text-center">
+                         <p className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em] mb-1">Currently Avail</p>
+                         <p className="text-xl font-black text-premium-gold">{historyItem.availableStock}</p>
+                      </div>
+                   </div>
+                </div>
+             </motion.div>
+          </div>
+        )}
+        {viewBillImage && (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-charcoal/90 backdrop-blur-md" onClick={() => setViewBillImage(null)} />
+             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative bg-white w-full max-w-4xl rounded-[3rem] shadow-2xl overflow-hidden border border-white/10 flex flex-col max-h-[90vh]">
+                <div className="flex-none p-6 flex items-center justify-between border-b border-border-light">
+                   <h3 className="text-sm font-black text-charcoal uppercase tracking-widest">Linked Purchase Invoice</h3>
+                   <button onClick={() => setViewBillImage(null)} className="p-3 hover:bg-light-bg rounded-full text-text-muted transition-colors"><X size={20} /></button>
+                </div>
+                <div className="flex-1 overflow-auto bg-light-bg p-4 flex justify-center items-start">
+                   <img src={viewBillImage} className="max-w-full rounded-2xl shadow-lg border border-border-light" alt="Bill" />
+                </div>
+                <div className="flex-none p-4 bg-white border-t border-border-light flex justify-center gap-4">
+                   <a href={viewBillImage} download className="btn-primary py-3 px-8 text-[10px] rounded-2xl">Download Proof</a>
                 </div>
              </motion.div>
           </div>

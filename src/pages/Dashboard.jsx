@@ -220,7 +220,10 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const activeSegment = location.pathname.split('/dashboard/')?.[1] || '';
 
-  const handleLogout = () => { logout(); navigate('/login'); };
+  const handleLogout = () => { 
+    logout(); 
+    navigate('/login'); 
+  };
 
   return (
     <div className="container-custom py-8">

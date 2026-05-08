@@ -163,6 +163,19 @@
 }
 
 
+/* ─── Lazy Load Image Wrapper Fix ──────────────────── */
+.lazy-load-image-wrapper {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+.lazy-load-image-wrapper img {
+  object-fit: cover !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+
 /* ─── Print Optimization (80mm Thermal POS) ────────────────────────── */
 @media print {
   /* Hide everything by default */

@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { useNavigate, Navigate } from 'react-router-dom';
+import { useNavigate, Navigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
-import { ShieldCheck, Lock, Mail, ArrowRight, Loader2, KeyRound, Smartphone, CheckCircle2, ChevronLeft } from 'lucide-react';
+import { ShieldCheck, Lock, Mail, ArrowRight, Loader2, KeyRound, Smartphone, CheckCircle2, ChevronLeft, Fingerprint, Zap, Globe, Cpu, Sparkles } from 'lucide-react';
 import { useAuthStore } from '../../store';
 import { authService } from '../../services';
 import { toast } from 'react-hot-toast';
@@ -32,18 +32,45 @@ export default function AdminLogin() {
     setLoading(true);
     try {
       const { data } = await authService.login(identifier, password);
+      
+      // Check for 2FA requirement
+      if (data.data?.status === 'OTP_REQUIRED') {
+        toast.success(data.message || 'Security Code Required');
+        setStep('verify-2fa');
+        setLoading(false);
+        return;
+      }
+
       if (data.data.user.role !== 'admin' && data.data.user.role !== 'staff') {
         toast.error('Unauthorized access. Admin/Staff only.');
         return;
       }
       setAuth(data.data.user, data.data.accessToken);
-      toast.success(`Welcome back, ${data.data.user.role === 'admin' ? 'Admin' : 'Staff'}!`);
+      toast.success(`Access Granted: ${data.data.user.role === 'admin' ? 'Administrator' : 'Staff'} Session Active`);
       
       if (data.data.user.role === 'admin') navigate('/admin');
       else if (data.data.user.role === 'staff') navigate('/staff');
       else navigate('/');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Login failed');
+      toast.error(err.response?.data?.message || 'Authentication failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyAdminOTP = async (e) => {
+    e.preventDefault();
+    if (!otp) return toast.error('Please enter the security code');
+    setLoading(true);
+    try {
+      const { data } = await authService.verifyAdmin2FA({ identifier, otp });
+      setAuth(data.data.user, data.data.accessToken);
+      toast.success(`Identity Confirmed. Session Active.`);
+      
+      if (data.data.user.role === 'admin') navigate('/admin');
+      else if (data.data.user.role === 'staff') navigate('/staff');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Invalid Security Code');
     } finally {
       setLoading(false);
     }
@@ -54,10 +81,10 @@ export default function AdminLogin() {
     setLoading(true);
     try {
       await authService.forgotPassword(identifier);
-      toast.success('OTP sent successfully!');
+      toast.success('Security Code dispatched.');
       setStep('otp');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to send OTP');
+      toast.error(err.response?.data?.message || 'Recovery failed');
     } finally {
       setLoading(false);
     }
@@ -68,10 +95,10 @@ export default function AdminLogin() {
     setLoading(true);
     try {
       await authService.verifyOTP(identifier, otp, 'password_reset');
-      toast.success('OTP Verified!');
+      toast.success('Identity Verified');
       setStep('reset');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Invalid OTP');
+      toast.error(err.response?.data?.message || 'Invalid Security Code');
     } finally {
       setLoading(false);
     }
@@ -84,7 +111,7 @@ export default function AdminLogin() {
     try {
       const { data } = await authService.resetPassword({ identifier, otp, newPassword });
       setAuth(data.data.user, data.data.accessToken);
-      toast.success('Password reset successful!');
+      toast.success('Credential Update Successful');
       navigate('/admin');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Reset failed');
@@ -94,210 +121,256 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f172a] flex items-center justify-center p-4 relative overflow-hidden font-sans">
-      <Helmet><title>Admin Portal — Magizhchi</title></Helmet>
+    <div className="min-h-screen bg-[#F8F9FA] flex items-center justify-center p-6 relative overflow-hidden font-sans">
+      <Helmet><title>Security Portal — Magizhchi Garments</title></Helmet>
 
-      {/* Background Orbs */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-gold-primary/10 rounded-full blur-[120px]" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/10 rounded-full blur-[120px]" />
+      {/* ── Google Material Design Dynamic Background ── */}
+      <div className="absolute inset-0 pointer-events-none z-0">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#4285F4]/10 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#34A853]/10 rounded-full blur-[120px]" />
+        <div className="absolute top-[40%] right-[-5%] w-[35%] h-[35%] bg-[#FBBC05]/10 rounded-full blur-[100px]" />
+        <div className="absolute bottom-[30%] left-[-5%] w-[35%] h-[35%] bg-[#EA4335]/10 rounded-full blur-[100px]" />
+        
+        {/* Subtle dot grid pattern */}
+        <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] opacity-40" />
+      </div>
 
+      {/* ── Secure Container ── */}
       <motion.div 
         layout
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-md bg-slate-900/50 backdrop-blur-3xl border border-slate-800 p-8 rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.3)] relative z-10"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-[480px] relative z-10"
       >
-        <AnimatePresence mode="wait">
-          {step === 'login' && (
-            <motion.div key="login" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-              <div className="text-center mb-10">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gold-primary/20 rounded-2xl mb-4 border border-gold-primary/30 shadow-lg shadow-gold-primary/10">
-                  <ShieldCheck className="w-8 h-8 text-gold-primary" />
-                </div>
-                <h1 className="text-3xl font-black text-white mb-2 tracking-tight">Admin Portal</h1>
-                <p className="text-slate-400 font-medium">Magizhchi Secure Management</p>
-              </div>
-
-              <form onSubmit={handleLogin} className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Identity</label>
-                  <div className="relative group">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-gold-primary transition-colors" />
-                    <input
-                      type="text"
-                      required
-                      value={identifier}
-                      onChange={(e) => setIdentifier(e.target.value)}
-                      placeholder="Email or Phone Number"
-                      className="w-full bg-slate-800/40 border border-slate-700 text-white pl-12 pr-4 py-4 rounded-2xl focus:outline-none focus:ring-2 focus:ring-gold-primary/50 focus:border-gold-primary transition-all font-bold placeholder:text-slate-600"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex justify-between items-end px-1">
-                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Password</label>
-                    <button 
-                      type="button" 
-                      onClick={() => setStep('forgot')} 
-                      className="text-xs font-black uppercase tracking-[0.05em] text-gold-primary hover:text-white hover:underline underline-offset-4 transition-all duration-300"
-                    >
-                      Forgot Password?
-                    </button>
-                  </div>
-                  <div className="relative group">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-gold-primary transition-colors" />
-                    <input
-                      type="password"
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="w-full bg-slate-800/40 border border-slate-700 text-white pl-12 pr-4 py-4 rounded-2xl focus:outline-none focus:ring-2 focus:ring-gold-primary/50 focus:border-gold-primary transition-all font-bold placeholder:text-slate-600 shadow-inner"
-                    />
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-gold-primary hover:bg-white text-slate-900 font-black py-5 rounded-2xl shadow-2xl shadow-gold-primary/20 flex items-center justify-center gap-3 group transition-all duration-500 disabled:opacity-50 active:scale-[0.98]"
-                >
-                  {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <><CheckCircle2 size={22} className="group-hover:scale-110 transition-transform" /> <span className="text-base tracking-tight">Access Dashboard</span></>}
-                </button>
-              </form>
+        {/* Brand Header */}
+        <div className="flex flex-col items-center mb-8">
+          <Link to="/" className="flex flex-col items-center group mb-4">
+            <motion.div 
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.2 }}
+              className="w-16 h-16 bg-white rounded-3xl flex items-center justify-center shadow-[0_10px_30px_rgba(32,33,36,0.06)] border border-[#DADCE0] mb-3 relative overflow-hidden"
+            >
+              {/* Google colorful top bar accent */}
+              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#4285F4] via-[#EA4335] to-[#34A853]" />
+              <Fingerprint className="w-8 h-8 text-[#4285F4]" />
             </motion.div>
-          )}
+            <h1 className="font-sans text-xl font-black text-[#202124] tracking-[0.2em] uppercase leading-none">MAGIZHCHI</h1>
+            <p className="text-[9px] text-[#5F6368] font-black tracking-[0.4em] mt-2 uppercase">Google Workspace Console</p>
+          </Link>
+        </div>
 
-          {step === 'forgot' && (
-            <motion.div key="forgot" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-              <div className="mb-8">
-                <button onClick={() => setStep('login')} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors mb-6 text-sm font-bold">
-                  <ChevronLeft size={18} /> Back to Login
-                </button>
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-500/20 rounded-2xl mb-4 border border-blue-500/30">
-                  <KeyRound className="w-8 h-8 text-blue-400" />
-                </div>
-                <h2 className="text-2xl font-black text-white mb-2">Password Recovery</h2>
-                <p className="text-slate-400">Enter your registered email or phone to receive a recovery code.</p>
-              </div>
-
-              <form onSubmit={handleForgotPassword} className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Registered Identifier</label>
-                  <div className="relative group">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
-                    <input
-                      type="text"
-                      required
-                      value={identifier}
-                      onChange={(e) => setIdentifier(e.target.value)}
-                      placeholder="admin@magizhchi.com / 934488..."
-                      className="w-full bg-slate-800/40 border border-slate-700 text-white pl-12 pr-4 py-4 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all font-bold"
-                    />
+        <div className="bg-white border border-[#DADCE0] p-8 md:p-10 rounded-[2.5rem] shadow-[0_20px_60px_rgba(32,33,36,0.08)] relative overflow-hidden">
+          <AnimatePresence mode="wait">
+            {step === 'login' && (
+              <motion.div key="login" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.05 }}>
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="w-11 h-11 rounded-2xl bg-[#E8F0FE] flex items-center justify-center text-[#1a73e8]">
+                    <ShieldCheck size={20} />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-black text-[#202124] tracking-tight">Identity Verification</h2>
+                    <p className="text-[9px] font-black text-[#5F6368] uppercase tracking-wider">Secure Administrator Portal</p>
                   </div>
                 </div>
 
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-5 rounded-2xl shadow-xl shadow-blue-600/20 flex items-center justify-center gap-3 transition-all disabled:opacity-50"
-                >
-                  {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Send Verification Code <ArrowRight size={20} /></>}
-                </button>
-              </form>
-            </motion.div>
-          )}
-
-          {step === 'otp' && (
-            <motion.div key="otp" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-              <div className="mb-8">
-                <button onClick={() => setStep('forgot')} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors mb-6 text-sm font-bold">
-                  <ChevronLeft size={18} /> Wrong Number?
-                </button>
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-500/20 rounded-2xl mb-4 border border-purple-500/30">
-                  <Smartphone className="w-8 h-8 text-purple-400" />
-                </div>
-                <h2 className="text-2xl font-black text-white mb-2">Verify Account</h2>
-                <p className="text-slate-400">Enter the 6-digit code sent to your device.</p>
-              </div>
-
-              <form onSubmit={handleVerifyOTP} className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Security Code</label>
-                  <input
-                    type="text"
-                    required
-                    maxLength={6}
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                    placeholder="0 0 0 0 0 0"
-                    className="w-full bg-slate-800/40 border border-slate-700 text-white text-center text-3xl tracking-[0.5em] py-5 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all font-black"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading || otp.length < 6}
-                  className="w-full bg-purple-600 hover:bg-purple-500 text-white font-black py-5 rounded-2xl shadow-xl shadow-purple-600/20 flex items-center justify-center gap-3 transition-all disabled:opacity-50"
-                >
-                  {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Verify Code <CheckCircle2 size={20} /></>}
-                </button>
-              </form>
-            </motion.div>
-          )}
-
-          {step === 'reset' && (
-            <motion.div key="reset" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-              <div className="mb-8">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-green-500/20 rounded-2xl mb-4 border border-green-500/30">
-                  <ShieldCheck className="w-8 h-8 text-green-400" />
-                </div>
-                <h2 className="text-2xl font-black text-white mb-2">Secure Reset</h2>
-                <p className="text-slate-400">Set a strong new password for your admin account.</p>
-              </div>
-
-              <form onSubmit={handleResetPassword} className="space-y-6">
-                <div className="space-y-4">
+                <form onSubmit={handleLogin} className="space-y-6">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">New Password</label>
-                    <input
-                      type="password"
-                      required
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="w-full bg-slate-800/40 border border-slate-700 text-white px-5 py-4 rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500 transition-all font-bold"
-                    />
+                    <label className="text-[9px] font-black uppercase tracking-wider text-[#5F6368] ml-1">Terminal ID</label>
+                    <div className="relative group">
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#5F6368] group-focus-within:text-[#1a73e8] transition-colors" />
+                      <input
+                        type="text" required value={identifier} onChange={(e) => setIdentifier(e.target.value)}
+                        placeholder="admin@magizhchi.com"
+                        className="w-full bg-[#F8F9FA] border border-[#DADCE0] text-[#202124] pl-11 pr-5 py-3.5 rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#1a73e8]/10 focus:border-[#1a73e8] focus:bg-white transition-all font-bold placeholder:text-gray-400 text-xs tracking-wide shadow-inner"
+                      />
+                    </div>
                   </div>
+
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Confirm New Password</label>
-                    <input
-                      type="password"
-                      required
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="w-full bg-slate-800/40 border border-slate-700 text-white px-5 py-4 rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500 transition-all font-bold"
-                    />
+                    <div className="flex justify-between items-end px-1">
+                      <label className="text-[9px] font-black uppercase tracking-wider text-[#5F6368]">Access Code</label>
+                    </div>
+                    <div className="relative group">
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#5F6368] group-focus-within:text-[#1a73e8] transition-colors" />
+                      <input
+                        type="password" required value={password} onChange={(e) => setPassword(e.target.value)}
+                        placeholder="••••••••••••"
+                        className="w-full bg-[#F8F9FA] border border-[#DADCE0] text-[#202124] pl-11 pr-5 py-3.5 rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#1a73e8]/10 focus:border-[#1a73e8] focus:bg-white transition-all font-bold placeholder:text-gray-400 text-xs tracking-widest shadow-inner"
+                      />
+                    </div>
+                    <div className="flex justify-end pt-1">
+                      <button type="button" onClick={() => setStep('forgot')} className="text-[9px] font-black uppercase tracking-widest text-[#1a73e8] hover:text-[#1557b0] transition-all">Forgot Credentials?</button>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit" disabled={loading}
+                    className="w-full bg-[#1a73e8] hover:bg-[#1557b0] text-white font-black py-4 rounded-2xl flex items-center justify-center gap-2 group transition-all shadow-md shadow-[#1a73e8]/10 hover:shadow-[#1a73e8]/25 disabled:opacity-50 text-xs uppercase tracking-[0.15em] relative overflow-hidden"
+                  >
+                    {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Zap size={14} className="group-hover:scale-110 transition-transform" /> <span>Verify & Continue</span></>}
+                  </button>
+                </form>
+              </motion.div>
+            )}
+
+            {step === 'verify-2fa' && (
+              <motion.div key="verify-2fa" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.1 }}>
+                <button onClick={() => setStep('login')} className="flex items-center gap-1.5 text-[#5F6368] hover:text-[#1a73e8] transition-colors mb-8 text-[9px] font-black uppercase tracking-widest">
+                  <ChevronLeft size={14} /> Return to Login
+                </button>
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="w-11 h-11 rounded-2xl bg-[#E8F0FE] flex items-center justify-center text-[#1a73e8]">
+                    <ShieldCheck size={20} />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-black text-[#202124] tracking-tight">2FA Security Challenge</h2>
+                    <p className="text-[9px] font-black text-[#5F6368] uppercase tracking-wider">Verification required to proceed</p>
                   </div>
                 </div>
+                <form onSubmit={handleVerifyAdminOTP} className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-[9px] font-black uppercase tracking-wider text-[#5F6368] ml-1">Secure OTP Code</label>
+                    <input
+                      type="text" required maxLength={6} value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                      placeholder="0 0 0 0 0 0"
+                      className="w-full bg-[#F8F9FA] border border-[#DADCE0] text-[#1a73e8] text-center text-3xl tracking-[0.4em] py-4 rounded-2xl focus:border-[#1a73e8] focus:bg-white focus:outline-none transition-all font-black placeholder:text-gray-300"
+                    />
+                  </div>
+                  <button type="submit" disabled={loading || otp.length < 6} className="w-full bg-[#1a73e8] hover:bg-[#1557b0] text-white font-black py-4 rounded-2xl shadow-lg shadow-[#1a73e8]/10 flex items-center justify-center gap-2 transition-all disabled:opacity-50 uppercase text-xs tracking-widest">
+                    {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Access Console <CheckCircle2 size={16} /></>}
+                  </button>
+                </form>
+              </motion.div>
+            )}
 
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-green-600 hover:bg-green-500 text-white font-black py-5 rounded-2xl shadow-xl shadow-green-600/20 flex items-center justify-center gap-3 transition-all disabled:opacity-50"
-                >
-                  {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Complete Secure Reset <ArrowRight size={20} /></>}
+            {step === 'forgot' && (
+              <motion.div key="forgot" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}>
+                <button onClick={() => setStep('login')} className="flex items-center gap-1.5 text-[#5F6368] hover:text-[#1a73e8] transition-colors mb-8 text-[9px] font-black uppercase tracking-widest">
+                  <ChevronLeft size={14} /> Return to Portal
                 </button>
-              </form>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="w-11 h-11 rounded-2xl bg-[#E8F0FE] flex items-center justify-center text-[#1a73e8]">
+                    <KeyRound size={20} />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-black text-[#202124] tracking-tight">Identity Recovery</h2>
+                    <p className="text-[9px] font-black text-[#5F6368] uppercase tracking-wider">Authorized credential dispatch</p>
+                  </div>
+                </div>
+                <form onSubmit={handleForgotPassword} className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-[9px] font-black uppercase tracking-wider text-[#5F6368] ml-1">Account Identifier</label>
+                    <div className="relative group">
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#5F6368]" />
+                      <input
+                        type="text" required value={identifier} onChange={(e) => setIdentifier(e.target.value)}
+                        placeholder="admin@magizhchi.com"
+                        className="w-full bg-[#F8F9FA] border border-[#DADCE0] text-[#202124] pl-11 pr-5 py-3.5 rounded-2xl focus:border-[#1a73e8] focus:bg-white focus:outline-none transition-all font-bold placeholder:text-gray-400 text-xs"
+                      />
+                    </div>
+                  </div>
+                  <button type="submit" disabled={loading} className="w-full bg-[#1a73e8] hover:bg-[#1557b0] text-white font-black py-4 rounded-2xl shadow-lg shadow-[#1a73e8]/10 flex items-center justify-center gap-2 transition-all disabled:opacity-50 uppercase text-xs tracking-widest">
+                    {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Dispatch Security Key <ArrowRight size={16} /></>}
+                  </button>
+                </form>
+              </motion.div>
+            )}
 
-        <div className="mt-10 text-center">
-          <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">
-            System Authenticated & Encrypted
+            {step === 'otp' && (
+              <motion.div key="otp" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.1 }}>
+                <button onClick={() => setStep('forgot')} className="flex items-center gap-1.5 text-[#5F6368] hover:text-[#1a73e8] transition-colors mb-8 text-[9px] font-black uppercase tracking-widest">
+                  <ChevronLeft size={14} /> Re-enter Identity
+                </button>
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="w-11 h-11 rounded-2xl bg-[#E8F0FE] flex items-center justify-center text-[#1a73e8]">
+                    <Smartphone size={20} />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-black text-[#202124] tracking-tight">Signal Verification</h2>
+                    <p className="text-[9px] font-black text-[#5F6368] uppercase tracking-wider">6-Digit encrypted validation</p>
+                  </div>
+                </div>
+                <form onSubmit={handleVerifyOTP} className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-[9px] font-black uppercase tracking-wider text-[#5F6368] ml-1">Secure Code</label>
+                    <input
+                      type="text" required maxLength={6} value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                      placeholder="0 0 0 0 0 0"
+                      className="w-full bg-[#F8F9FA] border border-[#DADCE0] text-[#1a73e8] text-center text-3xl tracking-[0.4em] py-4 rounded-2xl focus:border-[#1a73e8] focus:bg-white focus:outline-none transition-all font-black placeholder:text-gray-300"
+                    />
+                  </div>
+                  <button type="submit" disabled={loading || otp.length < 6} className="w-full bg-[#1a73e8] hover:bg-[#1557b0] text-white font-black py-4 rounded-2xl shadow-lg shadow-[#1a73e8]/10 flex items-center justify-center gap-2 transition-all disabled:opacity-50 uppercase text-xs tracking-widest">
+                    {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Verify Identity <CheckCircle2 size={16} /></>}
+                  </button>
+                </form>
+              </motion.div>
+            )}
+
+            {step === 'reset' && (
+              <motion.div key="reset" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="w-11 h-11 rounded-2xl bg-[#E8F0FE] flex items-center justify-center text-[#1a73e8]">
+                    <ShieldCheck size={20} />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-black text-[#202124] tracking-tight">Access Key Reset</h2>
+                    <p className="text-[9px] font-black text-[#5F6368] uppercase tracking-wider">Establish new authorization credentials</p>
+                  </div>
+                </div>
+                <form onSubmit={handleResetPassword} className="space-y-6">
+                  <div className="space-y-4">
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-black uppercase tracking-wider text-[#5F6368] ml-1">New Access Key</label>
+                      <input
+                        type="password" required value={newPassword} onChange={(e) => setNewPassword(e.target.value)}
+                        placeholder="••••••••••••"
+                        className="w-full bg-[#F8F9FA] border border-[#DADCE0] text-[#202124] px-5 py-3.5 rounded-2xl focus:border-[#1a73e8] focus:bg-white focus:outline-none transition-all font-bold text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-black uppercase tracking-wider text-[#5F6368] ml-1">Confirm Access Key</label>
+                      <input
+                        type="password" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="••••••••••••"
+                        className="w-full bg-[#F8F9FA] border border-[#DADCE0] text-[#202124] px-5 py-3.5 rounded-2xl focus:border-[#1a73e8] focus:bg-white focus:outline-none transition-all font-bold text-xs"
+                      />
+                    </div>
+                  </div>
+                  <button type="submit" disabled={loading} className="w-full bg-[#1a73e8] hover:bg-[#1557b0] text-white font-black py-4 rounded-2xl shadow-lg shadow-[#1a73e8]/10 flex items-center justify-center gap-2 transition-all disabled:opacity-50 uppercase text-xs tracking-widest">
+                    {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Update Credentials <ArrowRight size={16} /></>}
+                  </button>
+                </form>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Footer Security Badges */}
+          <div className="mt-8 pt-6 border-t border-[#F1F3F4] flex flex-col items-center gap-3">
+            <div className="flex gap-6">
+              <div className="flex items-center gap-1 opacity-70">
+                <Globe size={12} className="text-[#4285F4]" />
+                <span className="text-[7.5px] font-black text-[#5F6368] uppercase tracking-wider">Cloud Engine</span>
+              </div>
+              <div className="flex items-center gap-1 opacity-70">
+                <Cpu size={12} className="text-[#34A853]" />
+                <span className="text-[7.5px] font-black text-[#5F6368] uppercase tracking-wider">Secure Node</span>
+              </div>
+              <div className="flex items-center gap-1 opacity-70">
+                <ShieldCheck size={12} className="text-[#FBBC05]" />
+                <span className="text-[7.5px] font-black text-[#5F6368] uppercase tracking-wider">AES-256</span>
+              </div>
+            </div>
+            <p className="text-[#5F6368]/40 text-[7px] font-black uppercase tracking-[0.3em] text-center">
+              SYSTEM IDENTIFIER: MG-WORKSPACE-ACTIVE
+            </p>
+          </div>
+        </div>
+
+        {/* Support Link */}
+        <div className="mt-8 text-center">
+          <p className="text-[#5F6368]/70 text-[8.5px] font-bold uppercase tracking-wider leading-relaxed">
+            Trouble logging in? Get support from <br />
+            <span className="text-[#1a73e8] hover:text-[#1557b0] cursor-pointer transition-colors font-black">admin-support@magizhchi.com</span>
           </p>
         </div>
       </motion.div>
