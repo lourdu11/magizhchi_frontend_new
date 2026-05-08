@@ -43,8 +43,10 @@ export default function AdminCategories() {
     fd.append('image', file);
     try {
       const res = await adminService.uploadImage(fd);
-      setForm(prev => ({ ...prev, [field]: res.data.url }));
-      toast.success('Image uploaded');
+      if (res.data.url) {
+        setForm(prev => ({ ...prev, [field]: res.data.url }));
+        toast.success('Image uploaded');
+      }
     } catch (err) {
       toast.error('Upload failed');
     } finally {
@@ -144,8 +146,8 @@ export default function AdminCategories() {
               </div>
 
               <div className="flex gap-4 pt-6">
-                <button type="submit" disabled={saveMutation.isLoading || isUploading} className="bg-charcoal text-white px-12 py-5 rounded-[2rem] font-black text-[11px] uppercase tracking-[0.2em] shadow-2xl shadow-charcoal/20 hover:bg-premium-gold hover:text-charcoal transition-all flex items-center gap-3">
-                  {saveMutation.isLoading ? <Loader2 className="animate-spin" size={20} /> : <><Save size={20} /> {editing ? 'Publish Updates' : 'Publish Taxonomy'}</>}
+                <button type="submit" disabled={saveMutation.isPending || isUploading} className="bg-charcoal text-white px-12 py-5 rounded-[2rem] font-black text-[11px] uppercase tracking-[0.2em] shadow-2xl shadow-charcoal/20 hover:bg-premium-gold hover:text-charcoal transition-all flex items-center gap-3">
+                  {saveMutation.isPending ? <Loader2 className="animate-spin" size={20} /> : <><Save size={20} /> {editing ? 'Publish Updates' : 'Publish Taxonomy'}</>}
                 </button>
                 <button type="button" onClick={resetForm} className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] hover:text-charcoal transition-colors px-8">Discard</button>
               </div>

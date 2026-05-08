@@ -39,6 +39,13 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+
+    // Retry logic for transient network errors (e.g. ERR_CONNECTION_CLOSED)
+    if (!error.response && !originalRequest._retryCount && originalRequest.method === 'get') {
+      originalRequest._retryCount = 1;
+      return new Promise(resolve => setTimeout(() => resolve(api(originalRequest)), 1000));
+    }
+
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {

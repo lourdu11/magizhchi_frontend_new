@@ -22,7 +22,7 @@ function WhatsAppStatus({ collapsed }) {
       }
     };
     checkStatus();
-    const interval = setInterval(checkStatus, 10000); // Check every 10s
+    const interval = setInterval(checkStatus, 60000); // Check every 60s
     return () => clearInterval(interval);
   }, []);
 

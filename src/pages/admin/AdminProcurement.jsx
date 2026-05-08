@@ -386,7 +386,7 @@ export default function AdminProcurement() {
    };
    
    const grandTotal = purchaseRows.reduce((sum, r) => sum + calculateRowTotal(r), 0);
-   const finalTotalAmount = grandTotal; 
+   const finalTotalAmount = purchaseBill.totalAmount !== '' && purchaseBill.totalAmount !== undefined ? Number(purchaseBill.totalAmount) : grandTotal;
    const subtotal = grandTotal;
    const totalGST = 0;
 
@@ -1205,10 +1205,25 @@ export default function AdminProcurement() {
                               <p className="text-xl font-black text-charcoal">{purchaseRows.reduce((s, r) => s + (Number(r.quantity) || 0), 0)} Units</p>
                            </div>
                            <div className="flex flex-col">
-                              <p className="text-[9px] font-black text-text-muted uppercase tracking-widest mb-1">Total Impact ₹</p>
-                              <div className="text-xl font-black text-charcoal tracking-tighter">
-                                 {formatCurrency(grandTotal)}
+                              <p className="text-[9px] font-black text-text-muted uppercase tracking-widest mb-1">Financial Impact ₹ *</p>
+                              <div className="relative flex items-center">
+                                 <span className="absolute left-4 text-xs font-bold text-text-muted/60">₹</span>
+                                 <input 
+                                    type="number" 
+                                    className="w-36 bg-light-bg border border-border-light/60 rounded-xl pl-8 pr-3 py-2 text-xs font-black text-charcoal focus:outline-none focus:ring-2 focus:ring-premium-gold/40 focus:border-premium-gold transition-all" 
+                                    placeholder={grandTotal}
+                                    value={purchaseBill.totalAmount}
+                                    onChange={e => {
+                                       const val = e.target.value;
+                                       setPurchaseBill(prev => ({
+                                          ...prev,
+                                          totalAmount: val,
+                                          paidAmount: prev.paymentStatus === 'paid' ? (val !== '' ? Number(val) : grandTotal) : prev.paidAmount
+                                       }));
+                                    }}
+                                 />
                               </div>
+                              <p className="text-[7px] font-bold text-text-muted/60 uppercase tracking-widest mt-1">Calculated: {formatCurrency(grandTotal)}</p>
                            </div>
                         </div>
                         <div className="flex gap-4">

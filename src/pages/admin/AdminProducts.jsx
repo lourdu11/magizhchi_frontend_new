@@ -125,6 +125,7 @@ export default function AdminProducts() {
     mutationFn: ({ id, data }) => id ? productService.updateProduct(id, data) : productService.createProduct(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-products'] });
+      queryClient.invalidateQueries({ queryKey: ['pos-products'] });
       queryClient.invalidateQueries({ queryKey: ['product'] });
       queryClient.invalidateQueries({ queryKey: ['admin-inventory'] });
       queryClient.invalidateQueries({ queryKey: ['product-variants'] });
@@ -159,6 +160,8 @@ export default function AdminProducts() {
   };
 
   const resetForm = () => {
+    localStorage.removeItem('draft_product_formData');
+    localStorage.removeItem('open_product_form');
     setFormData({
       name: '', sku: '', category: '', brand: 'Magizhchi', description: '',
       sellingPrice: '', discountPercentage: 0,
@@ -217,7 +220,7 @@ export default function AdminProducts() {
           <p className="text-xs text-text-muted font-bold uppercase tracking-widest">Website Listing & Aesthetics Control</p>
         </div>
         <div className="flex gap-3">
-           <button onClick={() => setShowForm(true)} className="px-6 py-3 bg-charcoal text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-premium-gold hover:text-charcoal transition-all flex items-center gap-2 shadow-xl shadow-charcoal/10">
+           <button onClick={() => { resetForm(); setShowForm(true); }} className="px-6 py-3 bg-charcoal text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-premium-gold hover:text-charcoal transition-all flex items-center gap-2 shadow-xl shadow-charcoal/10">
               <Plus size={14} /> Create Display Profile
            </button>
         </div>
