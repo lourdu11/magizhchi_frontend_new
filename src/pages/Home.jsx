@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Truck, RefreshCw, Shield, ShoppingBag, Sparkles, Loader2 } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
-import { productService, bannerService } from '../services';
+import { productService, bannerService, categoryService } from '../services';
 import ProductCard from '../components/product/ProductCard';
 import SkeletonCard from '../components/product/SkeletonCard';
 import SafeImage from '../components/common/SafeImage';
@@ -47,7 +47,7 @@ export default function Home() {
   });
 
   const featured = (featuredData?.length > 0) ? featuredData : (allProductsData || []);
-  const homeCategories = catsData?.slice(0, 4) || [];
+  const homeCategories = (catsData && catsData.length > 0) ? catsData.slice(0, 4) : CATEGORIES;
   
   // Transform dynamic banners to match Hero layout
   const dynamicSlides = bannersData?.map(b => ({

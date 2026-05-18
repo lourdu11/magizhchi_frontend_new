@@ -125,7 +125,11 @@ export default function Header() {
                 <SafeImage
                   src="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0043.jpg?updatedAt=1772379265473"
                   alt="Magizhchi"
-                  width={150}
+                  width={80}
+                  quality={80}
+                  priority={true}
+                  fetchPriority="high"
+                  loading="eager"
                   className={`w-auto aspect-square object-cover rounded-full transition-all duration-500 flex-shrink-0 ${scrolled ? 'h-7' : 'h-9'}`}
                 />
                 <div className="flex flex-col leading-none">
@@ -189,7 +193,16 @@ export default function Header() {
                   style={{ transformStyle: "preserve-3d" }}
                   className="perspective-1000"
                 >
-                  <SafeImage src="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0043.jpg?updatedAt=1772379265473" width={200} alt="Magizhchi" className={`transition-all duration-500 w-auto aspect-square object-cover rounded-full ${scrolled ? 'h-8 md:h-12' : 'h-10 md:h-14'}`} />
+                  <SafeImage 
+                    src="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0043.jpg?updatedAt=1772379265473" 
+                    width={100} 
+                    quality={80}
+                    priority={true}
+                    fetchPriority="high"
+                    loading="eager"
+                    alt="Magizhchi" 
+                    className={`transition-all duration-500 w-auto aspect-square object-cover rounded-full ${scrolled ? 'h-8 md:h-12' : 'h-10 md:h-14'}`} 
+                  />
                 </motion.div>
                 <div className="flex flex-col transition-all duration-500 overflow-hidden">
                   <motion.span
