@@ -201,7 +201,7 @@ export default function Home() {
       )}
 
       {/* ── Category Spotlight ── */}
-      <section className="py-24 bg-white cls-stable-section">
+      <section className="py-24 bg-white cls-stable-section" style={{ minHeight: '420px', contain: 'layout' }}>
         <div className="container-custom">
           <motion.div 
             initial={{ opacity: 0, y: 40 }}

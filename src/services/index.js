@@ -1,4 +1,4 @@
-import api from './api';
+import api, { cachedGet } from './api';
 
 export const authService = {
   sendOTP: (identifier, purpose) => api.post('/auth/send-otp', { identifier, purpose }),
@@ -88,7 +88,7 @@ export const adminService = {
   getSystemBackups: () => api.get('/admin/system-backups'),
   restoreSystemData: (data) => api.post('/admin/restore-system-data', data),
   getSyncIntegrityStats: () => api.get('/admin/sync-integrity'),
-  getPublicSettings: () => api.get('/public/settings'),
+  getPublicSettings: () => cachedGet('/public/settings'),
   uploadImage: (formData) => api.post('/upload', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
     timeout: 120000
@@ -132,7 +132,7 @@ export const billService = {
 };
 
 export const bannerService = {
-  getActiveBanners: () => api.get('/banners/active'),
+  getActiveBanners: () => cachedGet('/banners/active'),
   getAllBanners: () => api.get('/banners/all'),
   createBanner: (data) => api.post('/banners/create', data),
   updateBanner: (id, data) => api.put(`/banners/${id}`, data),

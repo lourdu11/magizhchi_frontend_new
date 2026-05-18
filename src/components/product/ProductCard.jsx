@@ -105,8 +105,9 @@ export default function ProductCard({ product }) {
           <SafeImage
             src={product.images?.[0] || product.thumbnail || product.laptopImage || product.tabletImage || product.mobileImage}
             alt={product.name}
-            width={400}
+            width={375}
             height={500}
+            quality={65}
             className="w-full h-full relative z-10 transition-all duration-500"
             style={{
               objectFit: product.cardFit || 'cover',

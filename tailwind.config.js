@@ -1,6 +1,10 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  safelist: [
+    { pattern: /^(bg|text|border|from|via|to)-/ },
+    { pattern: /^(w|h|p|m|gap|grid|col|row)-/ },
+  ],
   theme: {
     extend: {
       fontSize: {

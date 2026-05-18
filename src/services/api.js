@@ -92,4 +92,18 @@ api.interceptors.response.use(
   }
 );
 
+// ✅ In-memory cache for static data to optimize free tier Render cold starts and avoid duplicate loads
+const cache = new Map();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+export const cachedGet = async (url, ttl = CACHE_TTL) => {
+  const cached = cache.get(url);
+  if (cached && Date.now() - cached.time < ttl) {
+    return cached.data;
+  }
+  const res = await api.get(url);
+  cache.set(url, { data: res, time: Date.now() });
+  return res;
+};
+
 export default api;

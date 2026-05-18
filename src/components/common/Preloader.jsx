@@ -55,9 +55,18 @@ export default function Preloader() {
           {/* Inner solid circular black container featuring the Tamil logo */}
           <div className="absolute w-24 h-24 bg-black rounded-full border border-premium-gold/35 flex items-center justify-center shadow-xl overflow-hidden">
             <img 
-              src="/receipt_logo.jpg" 
+              src="/receipt_logo.webp" 
               alt="Magizhchi Logo" 
+              width={96}
+              height={96}
+              loading="eager"
+              decoding="async"
               className="w-full h-full object-cover scale-[1.02]" 
+              onError={(e) => {
+                if (e.target.src !== '/receipt_logo.jpg') {
+                  e.target.src = '/receipt_logo.jpg';
+                }
+              }}
             />
           </div>
         </div>
@@ -77,8 +86,14 @@ export default function Preloader() {
         {/* Premium Progress Bar */}
         <div className="relative w-48 h-1 bg-charcoal/10 rounded-full overflow-hidden mb-2">
           <div
-            className="h-full bg-gradient-to-r from-premium-gold via-gold-light to-gold-dark transition-all duration-300 ease-out"
-            style={{ width: `${progress}%` }}
+            className="h-full bg-gradient-to-r from-premium-gold via-gold-light to-gold-dark"
+            style={{ 
+              width: '100%',
+              transformOrigin: 'left',
+              transform: `scaleX(${progress / 100})`,
+              transition: 'transform 300ms ease-out',
+              willChange: 'transform'
+            }}
           />
         </div>
         

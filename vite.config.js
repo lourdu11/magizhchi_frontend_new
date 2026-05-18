@@ -25,7 +25,7 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    include: ['date-fns'],
+    include: ['react', 'react-dom', 'react-router-dom', 'date-fns'],
   },
   server: {
     port: 5173,
@@ -46,26 +46,29 @@ export default defineConfig({
   },
 
   build: {
-    target: 'esnext',
+    target: 'es2022',
     minify: 'esbuild',
     cssMinify: true,
     cssCodeSplit: true,
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 150,
     sourcemap: false,
     rollupOptions: {
       output: {
         manualChunks(id) {
-          if (id.includes('node_modules/react') || id.includes('node_modules/react-dom') || id.includes('node_modules/react-router-dom')) {
-            return 'vendor';
+          if (id.includes('node_modules/recharts') || id.includes('node_modules/chart.js') || id.includes('node_modules/d3') || id.includes('node_modules/victory')) {
+            return 'charts';
           }
-          if (id.includes('node_modules/@tanstack')) {
-            return 'query';
-          }
-          if (id.includes('node_modules/framer-motion') || id.includes('node_modules/lucide-react') || id.includes('node_modules/axios')) {
+          if (id.includes('node_modules/@radix-ui') || id.includes('node_modules/headlessui') || id.includes('node_modules/framer-motion')) {
             return 'ui-lib';
           }
-          if (id.includes('node_modules/recharts')) {
-            return 'charts';
+          if (id.includes('node_modules')) {
+            if (id.includes('node_modules/react') || id.includes('node_modules/react-dom') || id.includes('node_modules/react-router-dom')) {
+              return 'react-core';
+            }
+            if (id.includes('node_modules/axios') || id.includes('node_modules/@tanstack') || id.includes('node_modules/react-query')) {
+              return 'data-layer';
+            }
+            return 'vendor';
           }
         },
       },
