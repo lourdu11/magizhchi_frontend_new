@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Truck, RefreshCw, Shield, ShoppingBag, Sparkles, Loader2 } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
-import { productService, bannerService } from '../services';
+import { productService, bannerService, categoryService } from '../services';
 import ProductCard from '../components/product/ProductCard';
 import SkeletonCard from '../components/product/SkeletonCard';
 import SafeImage from '../components/common/SafeImage';
@@ -21,6 +21,16 @@ const CATEGORIES = [
 export default function Home() {
   const [heroIdx, setHeroIdx] = useState(0);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const { data: featuredData, isLoading: loadingFeatured } = useQuery({
     queryKey: ['products', 'featured'],
@@ -70,7 +80,28 @@ export default function Home() {
     accent: b.type === 'hero' ? 'New Arrival' : 'Special Offer'
   })) || [];
 
-  const slides = dynamicSlides;
+  const DEFAULT_SLIDES = [
+    {
+      id: 'default-hero-1',
+      title: "PREMIUM CASUAL\nPANTS COLLECTION",
+      subtitle: "Experience unmatched luxury with 100% fine cotton materials designed for style and comfort.",
+      accent: "New Arrival",
+      img: "https://ik.imagekit.io/Lourdu/magizhchi_garments/banner1.jpg",
+      mobileImg: "https://ik.imagekit.io/Lourdu/magizhchi_garments/banner1.jpg",
+      cta: 'Shop Now',
+      ctaLink: '/collections',
+      fit: 'cover',
+      pos: 'center',
+      scale: 1,
+      gravity: 'auto',
+      mobileFit: 'cover',
+      mobilePos: 'center',
+      mobileScale: 1,
+      mobileGravity: 'auto'
+    }
+  ];
+
+  const slides = dynamicSlides.length > 0 ? dynamicSlides : DEFAULT_SLIDES;
 
   useEffect(() => {
     const handleMouseMove = (e) => setMousePos({ x: e.clientX, y: e.clientY });
@@ -80,12 +111,12 @@ export default function Home() {
 
   // Auto-play carousel (Disabled on mobile to reduce main-thread tasks)
   useEffect(() => {
-    if (window.innerWidth < 768) return;
+    if (isMobile) return;
     const timer = setInterval(() => {
       setHeroIdx(prev => (prev + 1) % slides.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, [slides.length]);
+  }, [slides.length, isMobile]);
 
   // Reset index if slides count changes (e.g. from 4 demo to 1 real)
   useEffect(() => {
@@ -120,26 +151,26 @@ export default function Home() {
             className="absolute inset-0 w-full h-full p-0 m-0"
           >
             <SafeImage 
-              src={window.innerWidth < 768 ? (slides[heroIdx]?.mobileImg || slides[heroIdx]?.img) : slides[heroIdx]?.img} 
+              src={isMobile ? (slides[heroIdx]?.mobileImg || slides[heroIdx]?.img) : slides[heroIdx]?.img} 
               alt="" 
-              width={window.innerWidth < 768 ? 400 : 1200} 
-              height={window.innerWidth < 768 ? 600 : 800}
-              quality={heroIdx === 0 ? (window.innerWidth < 768 ? 45 : 60) : 40}
+              width={isMobile ? 400 : 1200} 
+              height={isMobile ? 600 : 800}
+              quality={heroIdx === 0 ? (isMobile ? 45 : 60) : 40}
               fetchPriority="high"
               loading="eager"
               style={{ 
-                objectFit: window.innerWidth < 768 ? (slides[heroIdx]?.mobileFit || 'cover') : (slides[heroIdx]?.fit || 'cover'),
-                objectPosition: window.innerWidth < 768 ? (slides[heroIdx]?.mobilePos || 'center') : (slides[heroIdx]?.pos || 'center'),
-                transform: `scale(${window.innerWidth < 768 ? (slides[heroIdx]?.mobileScale || 1) : (slides[heroIdx]?.scale || 1)})`
+                objectFit: isMobile ? (slides[heroIdx]?.mobileFit || 'cover') : (slides[heroIdx]?.fit || 'cover'),
+                objectPosition: isMobile ? (slides[heroIdx]?.mobilePos || 'center') : (slides[heroIdx]?.pos || 'center'),
+                transform: `scale(${isMobile ? (slides[heroIdx]?.mobileScale || 1) : (slides[heroIdx]?.scale || 1)})`
               }}
               crop="fill"
-              gravity={window.innerWidth < 768 ? slides[heroIdx]?.mobileGravity : slides[heroIdx]?.gravity}
-              aspect={window.innerWidth < 768 ? '4:5' : '21:9'}
+              gravity={isMobile ? slides[heroIdx]?.mobileGravity : slides[heroIdx]?.gravity}
+              aspect={isMobile ? '4:5' : '21:9'}
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent" />
           </motion.div>
         </AnimatePresence>
-
+ 
         <div className="relative z-10 container-custom h-full flex flex-col justify-center pt-20">
           <motion.div
             initial={{ opacity: 0, x: -50 }}
@@ -160,7 +191,7 @@ export default function Home() {
             }}
             transition={{ 
               duration: 0.8,
-              y: window.innerWidth < 768 ? { duration: 0 } : { duration: 4, repeat: Infinity, ease: "easeInOut" }
+              y: isMobile ? { duration: 0 } : { duration: 4, repeat: Infinity, ease: "easeInOut" }
             }}
             className="max-w-3xl"
           >
@@ -225,45 +256,57 @@ export default function Home() {
             </Link>
           </motion.div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-            {homeCategories.map((cat, i) => (
-              <motion.div 
-                key={cat.slug || cat._id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                viewport={{ once: true }}
-              >
-                <Link to={`/collections/${cat.slug}`} className="group relative block aspect-[4/5] rounded-[3rem] overflow-hidden bg-light-bg perspective-2000">
-                  <motion.div 
-                    whileHover={{ 
-                      rotateY: 12, 
-                      rotateX: -8,
-                      scale: 1.08,
-                      z: 30,
-                      transition: { duration: 0.3 }
-                    }}
-                    style={{ transformStyle: "preserve-3d" }}
-                    className="w-full h-full"
-                  >
-                    <SafeImage 
-                      src={cat.image || cat.img} 
-                      alt={cat.name} 
-                      width={400} 
-                      height={500} 
-                      className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" 
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80" />
-                    <div className="absolute bottom-10 left-8" style={{ transform: "translateZ(50px)" }}>
-                      <p className="text-white font-black text-3xl tracking-tighter mb-1 uppercase">{cat.name}</p>
-                      <div className="inline-block px-4 py-1.5 bg-premium-gold rounded-full">
-                        <p className="text-charcoal text-[8px] font-black uppercase tracking-[0.2em]">{cat.items || 'Explore'}</p>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 min-h-[280px] sm:min-h-[350px]">
+            {homeCategories.length > 0 ? (
+              homeCategories.map((cat, i) => (
+                <motion.div 
+                  key={cat.slug || cat._id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  viewport={{ once: true }}
+                >
+                  <Link to={`/collections/${cat.slug}`} className="group relative block aspect-[4/5] rounded-[3rem] overflow-hidden bg-light-bg perspective-2000">
+                    <motion.div 
+                      whileHover={{ 
+                        rotateY: 12, 
+                        rotateX: -8,
+                        scale: 1.08,
+                        z: 30,
+                        transition: { duration: 0.3 }
+                      }}
+                      style={{ transformStyle: "preserve-3d" }}
+                      className="w-full h-full"
+                    >
+                      <SafeImage 
+                        src={cat.image || cat.img} 
+                        alt={cat.name} 
+                        width={400} 
+                        height={500} 
+                        className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" 
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80" />
+                      <div className="absolute bottom-10 left-8" style={{ transform: "translateZ(50px)" }}>
+                        <p className="text-white font-black text-3xl tracking-tighter mb-1 uppercase">{cat.name}</p>
+                        <div className="inline-block px-4 py-1.5 bg-premium-gold rounded-full">
+                          <p className="text-charcoal text-[8px] font-black uppercase tracking-[0.2em]">{cat.items || 'Explore'}</p>
+                        </div>
                       </div>
-                    </div>
-                  </motion.div>
-                </Link>
-              </motion.div>
-            ))}
+                    </motion.div>
+                  </Link>
+                </motion.div>
+              ))
+            ) : (
+              // Stable 4-column placeholder skeletons preserving exact structural bounds
+              Array(4).fill(0).map((_, i) => (
+                <div key={i} className="aspect-[4/5] rounded-[3rem] bg-gray-100 animate-pulse relative overflow-hidden flex items-end p-8">
+                  <div className="space-y-3 w-full">
+                    <div className="h-8 bg-gray-200 rounded-xl w-3/4 animate-pulse" />
+                    <div className="h-6 bg-gray-200 rounded-full w-1/3 animate-pulse" />
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </section>
