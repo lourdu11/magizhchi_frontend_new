@@ -327,24 +327,11 @@ export default function Collections() {
 
               {/* Products Grid */}
               {isLoading ? (
-                <div className="flex flex-col items-center justify-center py-20 w-full col-span-full">
-                  {/* Luxury Gold Spinner */}
-                  <div className="relative w-20 h-20 mb-6 flex items-center justify-center">
-                    <div className="absolute inset-0 rounded-full border-4 border-charcoal/5" />
-                    <div className="absolute inset-0 rounded-full border-4 border-t-premium-gold border-r-premium-gold animate-spin" style={{ animationDuration: '0.8s' }} />
-                    <div className="absolute w-12 h-12 bg-black rounded-full border border-premium-gold/20 flex items-center justify-center shadow-lg overflow-hidden animate-pulse">
-                      <img 
-                        src="/receipt_logo.jpg" 
-                        alt="Magizhchi" 
-                        className="w-full h-full object-cover scale-[1.02]" 
-                      />
-                    </div>
-                  </div>
-                  <h3 className="text-lg font-bold text-charcoal tracking-wide mb-1 animate-pulse">
-                    Connecting to Magizhchi Wardrobe...
-                  </h3>
-                  <p className="text-xs text-text-muted font-bold tracking-widest uppercase animate-pulse">
-                    Fetching premium collections
+                <div className="flex flex-col items-center justify-center py-24 w-full col-span-full">
+                  {/* Sleek, minimal gold spinner */}
+                  <div className="w-12 h-12 rounded-full border-4 border-charcoal/5 border-t-premium-gold border-r-premium-gold animate-spin" style={{ animationDuration: '0.7s' }} />
+                  <p className="text-xs text-text-muted font-bold tracking-widest uppercase mt-4 animate-pulse">
+                    Loading...
                   </p>
                   
                   {/* Subtle skeletons below the spinner */}
