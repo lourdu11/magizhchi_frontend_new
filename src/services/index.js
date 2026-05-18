@@ -83,7 +83,10 @@ export const adminService = {
   updateReturnStatus: (id, data) => api.put(`/orders/${id}/return-status`, data),
   getSettings: () => api.get('/admin/settings'),
   updateSettings: (data) => api.put('/admin/settings', data),
-  resetSystemData: (selections) => api.post('/admin/reset-system-data', { selections }),
+  resetSystemData: (data) => api.post('/admin/reset-system-data', data),
+  getSystemBackups: () => api.get('/admin/system-backups'),
+  restoreSystemData: (data) => api.post('/admin/restore-system-data', data),
+  getSyncIntegrityStats: () => api.get('/admin/sync-integrity'),
   getPublicSettings: () => api.get('/public/settings'),
   uploadImage: (formData) => api.post('/upload', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },

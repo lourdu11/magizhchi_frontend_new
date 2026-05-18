@@ -62,7 +62,16 @@ const ThermalReceipt = memo(() => {
   });
 
   return (
-    <div id="thermal-receipt" className="w-[80mm] p-2 font-mono text-black bg-white select-none leading-tight">
+    <div 
+      id="thermal-receipt" 
+      className="p-3 font-mono text-black bg-white select-none leading-relaxed tracking-tight mx-auto"
+      style={{
+        width: '100%',
+        maxWidth: '80mm',
+        boxSizing: 'border-box',
+        fontSize: '12px'
+      }}
+    >
       <style>{`
         @media print {
           @page {
@@ -72,23 +81,29 @@ const ThermalReceipt = memo(() => {
           body {
             background: white;
             color: black;
-            font-family: monospace;
+            font-family: monospace !important;
+          }
+          #thermal-receipt {
+            width: 100% !important;
+            max-width: 100% !important;
+            padding: 4px !important;
+            margin: 0 !important;
           }
         }
       `}</style>
       
       {/* Header Info */}
-      <div className="text-center space-y-0.5">
+      <div className="text-center flex flex-col items-center">
         {/* Official Crop-fitted Logo with high-contrast sharp scaling & bold brand header */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '4px' }}>
+        <div className="flex flex-col items-center mb-3">
           <img 
             src="/receipt_logo.png" 
             alt="MAGIZHCHI" 
+            className="block"
             style={{ 
-              width: '75px',
-              height: '75px',
+              width: '85px',
+              height: '85px',
               objectFit: 'contain',
-              display: 'block',
               imageRendering: 'pixelated',
               imageRendering: 'crisp-edges',
               WebkitImageRendering: 'optimize-contrast',
@@ -96,50 +111,84 @@ const ThermalReceipt = memo(() => {
               WebkitPrintColorAdjust: 'exact'
             }}
           />
-          <h1 className="text-[18px] font-black uppercase tracking-wider mt-1.5 font-mono text-black">மகிழ்ச்சி GARMENTS</h1>
+          <h1 className="text-[17px] font-black uppercase tracking-wider mt-2 font-mono text-black text-center w-full">
+            மகிழ்ச்சி GARMENTS
+          </h1>
         </div>
         
-        <p className="text-[13px] font-bold uppercase leading-none mt-1">Old Bus Stand,Thanjavur - 613006</p>
-        <p className="text-[12px] leading-none mt-0.5">Ph :73588 85452,Cell :</p>
-        <p className="text-[12px] font-bold leading-none mt-0.5">GST: 33EZWPD8703E1Z8</p>
+        <p className="text-[12px] font-bold uppercase leading-tight text-center w-full">
+          Old Bus Stand, Thanjavur - 613006
+        </p>
+        <p className="text-[11px] leading-tight mt-1 text-center w-full">
+          Ph: 73588 85452, Cell:
+        </p>
+        <p className="text-[11px] font-bold leading-tight mt-0.5 text-center w-full">
+          GST: 33EZWPD8703E1Z8
+        </p>
         
-        <div className="text-[14px] border-t border-b border-dashed border-black py-0.5 my-1.5 uppercase font-bold tracking-widest">
-          Cash Bill
+        <div className="text-[13px] border-t border-b border-dashed border-black w-full py-1 my-2 uppercase font-black tracking-widest text-center">
+          CASH BILL
         </div>
       </div>
 
       {/* Bill Meta Data */}
-      <div className="text-[12.5px] space-y-0.5">
-        <div className="flex justify-between">
-          <span className="font-bold">To: {customerDetails?.name || 'Cash Sales'}</span>
-          <span>Date : {formattedDate}/{formattedTime}</span>
+      <div className="text-[11px] space-y-1 my-2">
+        <div className="flex justify-between w-full">
+          <span className="font-bold">
+            Bill No: {billNumber || '875282'}
+          </span>
+          <span>Date: {formattedDate}</span>
         </div>
-        <div className="text-center font-bold text-[14px] py-1">
-          Bill : {billNumber ? (billNumber.split('-').pop()?.replace('MAG', '') || billNumber) : String(Math.floor(1000 + Math.random() * 9000))}
+        <div className="flex justify-between w-full">
+          <span>Time: {formattedTime}</span>
+          <span className="font-bold uppercase">POS TERMINAL</span>
         </div>
+        
+        <div className="border-t border-dotted border-black/40 my-1 w-full"></div>
+        
+        {customerDetails?.name ? (
+          <div className="w-full">
+            <div className="flex justify-between w-full">
+              <span className="font-bold">Customer: {customerDetails.name}</span>
+            </div>
+            {customerDetails.phone && (
+              <div className="flex justify-between w-full mt-0.5">
+                <span>Phone: {customerDetails.phone}</span>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="flex justify-between w-full">
+            <span className="font-bold">Customer: Cash Sales</span>
+          </div>
+        )}
       </div>
 
       {/* Items Table */}
-      <div className="text-[12.5px] mt-1.5">
-        <div className="border-t border-b border-dashed border-black py-1 flex justify-between font-bold">
-          <span className="w-1/2 text-left">Item(s)</span>
-          <span className="w-12 text-center">Qty</span>
-          <span className="w-16 text-right">Rate</span>
-          <span className="w-16 text-right">Total</span>
+      <div className="text-[11px] mt-3">
+        {/* Table Header */}
+        <div className="border-t border-b border-dashed border-black py-1 flex justify-between font-bold w-full">
+          <span className="w-[45%] text-left">Item(s)</span>
+          <span className="w-[15%] text-center">Qty</span>
+          <span className="w-[20%] text-right">Rate</span>
+          <span className="w-[20%] text-right">Total</span>
         </div>
         
-        <div className="pt-1 space-y-0.5">
+        {/* Table Body */}
+        <div className="pt-1.5 space-y-1.5 w-full">
           {items?.map((item, idx) => {
             const itemTotal = item.price * item.quantity;
             const sizeStr = item.size && item.size !== 'Free Size' ? ` (${item.size})` : '';
             const colorStr = item.color && item.color !== 'Default' ? ` - ${item.color}` : '';
             const displayName = `${item.productName || item.name}${sizeStr}${colorStr}`;
             return (
-              <div key={idx} className="flex justify-between text-[12px] leading-tight font-mono py-0.5">
-                <span className="w-1/2 text-left truncate uppercase font-bold">{displayName}</span>
-                <span className="w-12 text-center font-bold">{item.quantity}</span>
-                <span className="w-16 text-right">{Number(item.price).toFixed(2)}</span>
-                <span className="w-16 text-right font-bold">{itemTotal.toFixed(2)}</span>
+              <div key={idx} className="flex justify-between leading-snug w-full items-start font-mono">
+                <span className="w-[45%] text-left uppercase font-bold text-[11px] break-words pr-1">
+                  {displayName}
+                </span>
+                <span className="w-[15%] text-center font-bold">{item.quantity}</span>
+                <span className="w-[20%] text-right">{Number(item.price).toFixed(2)}</span>
+                <span className="w-[20%] text-right font-bold">{itemTotal.toFixed(2)}</span>
               </div>
             );
           })}
@@ -147,47 +196,57 @@ const ThermalReceipt = memo(() => {
       </div>
 
       {/* Totals Section */}
-      <div className="border-t border-dashed border-black mt-1.5 pt-1 text-[12.5px] space-y-0.5 font-bold">
-        {/* Quantity Total summary row */}
-        <div className="flex justify-between">
-          <span>{totalQty}  Item(s)     Total   {totalQty}   :</span>
+      <div className="border-t border-dashed border-black mt-3 pt-1 text-[11px] space-y-1 font-bold w-full">
+        {/* Total Summary Row */}
+        <div className="flex justify-between w-full">
+          <span>Total Qty: {totalQty} Item(s)</span>
           <span>{subtotal.toFixed(2)}</span>
         </div>
 
         {/* Discount Row (If active) */}
         {discount > 0 && (
-          <div className="flex justify-between text-gray-800">
-            <span>                 Discount {((discount / subtotal) * 100).toFixed(0)} % :</span>
-            <span>{discount.toFixed(2)}</span>
+          <div className="flex justify-between w-full text-black">
+            <span>Discount ({((discount / subtotal) * 100).toFixed(0)}%):</span>
+            <span>-{discount.toFixed(2)}</span>
           </div>
         )}
 
         {/* Round Off Row */}
-        <div className="flex justify-between text-gray-700 font-normal">
-          <span>R.Off</span>
+        <div className="flex justify-between w-full font-normal">
+          <span>R.Off:</span>
           <span>0.00</span>
         </div>
 
-        {/* Net Amount Row with dashed borders */}
-        <div className="border-t border-b border-dashed border-black py-0.5 flex justify-between items-center my-1 text-[15.5px] font-black uppercase tracking-wider">
-          <span>Amount</span>
-          <span>{total.toFixed(2)}</span>
+        {/* Net Amount Row with extra spacing and bold display */}
+        <div className="border-t-2 border-b-2 border-double border-black py-2 mt-2 mb-2 flex justify-between items-center w-full text-[15px] font-black uppercase tracking-wider">
+          <span>GRAND TOTAL</span>
+          <span>Rs. {total.toFixed(2)}</span>
         </div>
       </div>
 
+      {/* Instagram Profile Addition */}
+      <div className="text-center text-[11px] font-bold my-3 py-1 bg-black/5 rounded border border-dashed border-black/20 w-full flex flex-col items-center justify-center">
+        <span className="tracking-wide">📸 Instagram: @magizhchi_garments_official</span>
+        <span className="text-[8px] text-gray-500 font-normal mt-0.5 select-all">
+          https://www.instagram.com/magizhchi_garments_official/
+        </span>
+      </div>
+
       {/* Composition Scheme / Legal Declarations */}
-      <div className="text-center text-[11.5px] space-y-0.5 mt-2.5 pt-1 leading-tight font-mono">
-        <p className="font-black text-[12.5px] uppercase tracking-wider">Composition Supplier</p>
-        <p>Goods Once Sold, Can't Be Taken Back</p>
-        <p className="font-bold">No Exchange And Refund</p>
-        <p className="font-bold">*Composition Scheme Under GST Act</p>
-        <p className="text-[13px] font-black italic mt-2 uppercase tracking-wide">
-          Thank You ! Visit Again
+      <div className="text-center text-[10.5px] space-y-1 mt-3 leading-tight w-full flex flex-col items-center">
+        <p className="font-black text-[11.5px] uppercase tracking-wider">
+          COMPOSITION SUPPLIER
+        </p>
+        <p className="w-full text-center">Goods Once Sold, Can't Be Taken Back</p>
+        <p className="font-bold w-full text-center">No Exchange And Refund</p>
+        <p className="font-bold w-full text-center">*Composition Scheme Under GST Act</p>
+        <p className="text-[12.5px] font-black italic mt-3 uppercase tracking-wider w-full text-center">
+          THANK YOU ! VISIT AGAIN
         </p>
       </div>
 
       {/* SaaS POS Branding (Tiny) */}
-      <div className="text-center text-[9px] text-gray-400 mt-4 leading-none">
+      <div className="text-center text-[8px] text-gray-400 mt-5 leading-none w-full">
         Powered by Magizhchi SaaS ERP
       </div>
     </div>

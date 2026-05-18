@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Save, X, Loader2, ImageIcon, Plus, ChevronLeft, Info, Eye, EyeOff } from 'lucide-react';
+import { Save, X, Loader2, ImageIcon, Plus, ChevronLeft, Info, Eye, EyeOff, Upload, Link2, Copy, ExternalLink, Check } from 'lucide-react';
 import { categoryService, adminService } from '../../services';
 import { toast } from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
@@ -75,6 +75,9 @@ export default function AdminCategoryForm() {
   });
   const [isUploading, setIsUploading] = useState(false);
   const [previewMode, setPreviewMode] = useState('laptop');
+  const [catUploadTab, setCatUploadTab] = useState('file');
+  const [catUrlInput, setCatUrlInput] = useState('');
+  const [catLastUrl, setCatLastUrl] = useState('');
 
   const getField = (mode) => {
     if (mode === 'mobile') return 'mobileImage';
@@ -125,8 +128,7 @@ export default function AdminCategoryForm() {
     onError: (err) => toast.error(err.response?.data?.message || 'Failed'),
   });
 
-  const handleUpload = async (e, field) => {
-    const file = e.target.files?.[0];
+  const handleUpload = async (file, field = 'all') => {
     if (!file) return;
     setIsUploading(true);
     const fd = new FormData();
@@ -135,14 +137,28 @@ export default function AdminCategoryForm() {
       const res = await adminService.uploadImage(fd);
       const url = res.data?.url || res.data?.data?.url;
       if (url) {
-        setForm(prev => ({ ...prev, [field]: url }));
-        toast.success('Asset uploaded successfully');
+        setCatLastUrl(url);
+        if (field === 'all') {
+          setForm(prev => ({ ...prev, image: url, tabletImage: url, mobileImage: url }));
+          toast.success('✅ Image applied to all device sizes!');
+        } else {
+          setForm(prev => ({ ...prev, [field]: url }));
+          toast.success('Asset uploaded!');
+        }
       }
     } catch (err) {
       toast.error('Upload failed');
     } finally {
       setIsUploading(false);
     }
+  };
+
+  const applyUrl = (url) => {
+    if (!url.trim()) return toast.error('Please enter a URL');
+    setForm(prev => ({ ...prev, image: url.trim(), tabletImage: url.trim(), mobileImage: url.trim() }));
+    setCatLastUrl(url.trim());
+    setCatUrlInput('');
+    toast.success('✅ URL applied to all devices!');
   };
 
   if (id && isFetching) {
@@ -237,6 +253,16 @@ export default function AdminCategoryForm() {
               </div>
 
               <div className="space-y-4">
+                {/* Upload tabs */}
+                <div className="flex gap-1 p-1 bg-light-bg rounded-2xl border border-border-light">
+                  {[{id:'file',label:'📁 Upload'},{id:'url',label:'🔗 URL'}].map(t => (
+                    <button key={t.id} type="button" onClick={() => setCatUploadTab(t.id)}
+                      className={`flex-1 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${catUploadTab === t.id ? 'bg-charcoal text-white' : 'text-text-muted'}`}>
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+
                 <div className="relative group">
                   <BannerPreview 
                     src={form[getField(previewMode)]} 
@@ -246,11 +272,41 @@ export default function AdminCategoryForm() {
                     scale={form.scale}
                     label={previewMode.toUpperCase()}
                   />
-                  <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer rounded-[2rem] z-20">
-                    <input type="file" className="hidden" accept="image/*" onChange={e => handleUpload(e, getField(previewMode))} disabled={isUploading} />
-                    {isUploading ? <Loader2 className="animate-spin text-white" /> : <Plus className="text-white" />}
-                  </label>
+                  {catUploadTab === 'file' && (
+                    <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer rounded-[2rem] z-20 gap-2">
+                      <input type="file" className="hidden" accept="image/*" onChange={e => handleUpload(e.target.files[0], 'all')} disabled={isUploading} />
+                      {isUploading ? <Loader2 className="animate-spin text-white" /> : <Upload className="text-white" size={24} />}
+                      <span className="text-white text-[9px] font-black uppercase tracking-wider">{isUploading ? 'Uploading...' : 'Upload — fills all sizes'}</span>
+                    </label>
+                  )}
                 </div>
+
+                {/* URL input */}
+                {catUploadTab === 'url' && (
+                  <div className="flex gap-2">
+                    <input type="url" value={catUrlInput} onChange={e => setCatUrlInput(e.target.value)}
+                      placeholder="Paste image URL (Cloudinary, S3, etc)..."
+                      className="flex-1 bg-light-bg border border-border-light rounded-2xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-premium-gold transition-all" />
+                    <button type="button" onClick={() => applyUrl(catUrlInput)}
+                      className="px-4 py-2.5 bg-charcoal text-white rounded-2xl text-[9px] font-black uppercase hover:bg-premium-gold hover:text-charcoal transition-all">
+                      Apply
+                    </button>
+                  </div>
+                )}
+
+                {/* Cloudinary URL display */}
+                {catLastUrl && (
+                  <div className="p-3 bg-emerald-50 border border-emerald-100 rounded-2xl space-y-1.5">
+                    <p className="text-[8px] font-black text-emerald-700 uppercase tracking-widest flex items-center gap-1"><Check size={9} /> Uploaded URL</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-[8px] font-mono text-emerald-700 truncate flex-1">{catLastUrl}</p>
+                      <button type="button" onClick={() => { navigator.clipboard.writeText(catLastUrl); toast.success('Copied!'); }}
+                        className="p-1.5 bg-white border border-emerald-100 rounded-lg hover:bg-emerald-100 transition-all">
+                        <Copy size={10} className="text-emerald-600" />
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
                   <select className="bg-light-bg border-none rounded-xl px-3 py-2 text-[9px] font-black uppercase tracking-widest outline-none cursor-pointer" value={form.fit} onChange={e => setForm({...form, fit: e.target.value})}>

@@ -16,6 +16,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useDebounce } from '../../hooks/useDebounce';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import SafeImage from '../../components/common/SafeImage';
+import SyncIntegrityPanel from '../../components/admin/SyncIntegrityPanel';
 
 export default function ProductProfileCenter() {
    const [viewMode, setViewMode] = useState('gallery'); // 'gallery' or 'list'
@@ -181,25 +182,8 @@ export default function ProductProfileCenter() {
              )}
           </div>
 
-          <div className="flex items-center justify-between">
-             <div className="flex items-center gap-4">
-                <button 
-                  onClick={() => {
-                    toast.promise(
-                      adminService.getAdminProducts({ repair: 'true' }),
-                      {
-                        loading: 'Running Integrity Audit...',
-                        success: 'Stock Parity Restored!',
-                        error: 'Audit Failed'
-                      }
-                    );
-                    queryClient.invalidateQueries(['admin-products']);
-                  }}
-                  className="px-6 py-3 bg-white border border-border-light text-text-muted rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-charcoal hover:text-white transition-all flex items-center gap-2 shadow-sm"
-                >
-                  <Wrench size={14} className="text-premium-gold" /> Sync Integrity
-                </button>
-             </div>
+          <div className="mb-6">
+             <SyncIntegrityPanel />
           </div>
 
          {/* Search & Global Filters */}
@@ -418,7 +402,7 @@ function ProductCard({ product, onEdit, onDelete, onRestore, onPurge, onQuickSto
    return (
       <motion.div 
          layout
-         className={`group bg-white rounded-[3rem] border border-border-light overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-charcoal/5 transition-all duration-500 flex flex-col h-full ${product.isDeleted ? 'opacity-75 grayscale-[0.5]' : ''}`}
+         className={`group bg-white rounded-[3rem] border border-border-light overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-charcoal/5 transition-all duration-500 flex flex-col h-full ${(product.isDeleted || product.isArchived) ? 'opacity-75 grayscale-[0.5]' : ''}`}
       >
          <div className="aspect-[4/5] relative overflow-hidden bg-light-bg">
             <SafeImage src={product.images?.[0] || product.thumbnail} alt="" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
@@ -444,7 +428,7 @@ function ProductCard({ product, onEdit, onDelete, onRestore, onPurge, onQuickSto
 
             {/* Quick Actions */}
             <div className="absolute top-6 right-6 flex gap-2 translate-x-10 group-hover:translate-x-0 opacity-0 group-hover:opacity-100 transition-all duration-500">
-               {product.isDeleted ? (
+               {(product.isDeleted || product.isArchived) ? (
                   <>
                      <button onClick={onRestore} className="p-4 bg-green-500 text-white rounded-2xl hover:bg-green-600 transition-all shadow-xl" title="Restore Product">
                         <RotateCcw size={18} />
@@ -482,9 +466,15 @@ function ProductCard({ product, onEdit, onDelete, onRestore, onPurge, onQuickSto
                   <h3 className="text-lg font-black text-charcoal tracking-tight leading-tight group-hover:text-premium-gold transition-colors">{product.name}</h3>
                   <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest mt-1">{product.sku || 'REF-N/A'}</p>
                </div>
-               <div className="text-right">
-                  <span className="text-xl font-black text-charcoal">₹{product.sellingPrice}</span>
-                  {product.discountPercentage > 0 && <p className="text-[9px] text-red-500 font-black uppercase">-{product.discountPercentage}% OFF</p>}
+               <div className="text-right flex flex-col items-end justify-center">
+                  <p className="text-[8px] font-black text-text-muted uppercase tracking-widest mb-0.5">Net Amount</p>
+                  <span className="text-xl font-black text-charcoal leading-none">₹{product.discountPercentage > 0 ? product.discountedPrice : product.sellingPrice}</span>
+                  {product.discountPercentage > 0 && (
+                     <div className="flex items-center gap-1 mt-1.5">
+                        <span className="text-[9px] text-text-muted font-bold line-through">₹{product.sellingPrice}</span>
+                        <span className="text-[7px] text-red-500 font-black uppercase tracking-widest bg-red-50 px-1 py-0.5 rounded">-{product.discountPercentage}% OFF</span>
+                     </div>
+                  )}
                </div>
             </div>
 
@@ -536,7 +526,7 @@ function ProductTable({ products, onEdit, onDelete, onRestore, onPurge }) {
                         </div>
                      </td>
                      <td className="px-8 py-8">
-                        {p.isDeleted ? (
+                        {(p.isDeleted || p.isArchived) ? (
                            <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-[9px] font-black uppercase tracking-widest">Archived</span>
                         ) : (
                            <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${p.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
@@ -556,7 +546,7 @@ function ProductTable({ products, onEdit, onDelete, onRestore, onPurge }) {
                      </td>
                      <td className="px-8 py-8 text-right">
                         <div className="flex items-center justify-end gap-2">
-                           {p.isDeleted ? (
+                           {(p.isDeleted || p.isArchived) ? (
                               <>
                                  <button onClick={() => onRestore(p)} className="p-4 bg-green-50 text-green-600 rounded-2xl hover:bg-green-600 hover:text-white transition-all shadow-sm"><RotateCcw size={18} /></button>
                                  <button onClick={() => onPurge(p)} className="p-4 bg-red-50 text-red-600 rounded-2xl hover:bg-red-600 hover:text-white transition-all shadow-sm"><Trash2 size={18} /></button>

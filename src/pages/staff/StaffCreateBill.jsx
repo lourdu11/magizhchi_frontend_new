@@ -172,6 +172,7 @@ export default function StaffCreateBill() {
        socket.on('INVENTORY_SYNCED', handleSync);
        socket.on('PRODUCT_CREATED', handleSync);
        socket.on('PRODUCT_ARCHIVED', handleSync);
+       socket.on('PRODUCT_PURGED', handleSync);
        
        return () => {
           clearInterval(timer);
@@ -179,6 +180,7 @@ export default function StaffCreateBill() {
           socket.off('INVENTORY_SYNCED', handleSync);
           socket.off('PRODUCT_CREATED', handleSync);
           socket.off('PRODUCT_ARCHIVED', handleSync);
+          socket.off('PRODUCT_PURGED', handleSync);
        };
     }
 
@@ -199,7 +201,7 @@ export default function StaffCreateBill() {
       const params = { limit: 50, isPOS: 'true' };
       if (selectedCategory !== 'All') params.category = selectedCategory;
       if (search) params.search = search;
-      return productService.getProducts(params).then(r => r.data.data?.products || r.data.data || []);
+      return productService.getProducts(params).then(r => r.data.data?.data || r.data.data?.products || r.data.data || []);
     },
     placeholderData: (prev) => prev,
   });
@@ -311,16 +313,18 @@ export default function StaffCreateBill() {
 
   // ─── Actions ─────────────────────────────────────────
   const addToCart = (product, variant) => {
-    if (variant.stock <= 0) return toast.error('Out of stock');
+    // SaaS flexibility: allow adding to cart even if stock is 0 (negative billing allowed)
+    // if (variant.stock <= 0) return toast.error('Out of stock');
     
     const key = `${product._id}-${variant.size}-${variant.color}`;
     setItems(prev => {
       const existing = prev.find(i => i.key === key);
       if (existing) {
-        if (existing.quantity >= variant.stock) {
-          toast.error('Insufficient stock');
-          return prev;
-        }
+        // SaaS flexibility: remove maxStock constraint
+        // if (existing.quantity >= variant.stock) {
+        //   toast.error('Insufficient stock');
+        //   return prev;
+        // }
         return prev.map(i => i.key === key ? { ...i, quantity: i.quantity + 1 } : i);
       }
       return [...prev, {
@@ -381,7 +385,11 @@ export default function StaffCreateBill() {
   };
 
   const handleProductClick = (product) => {
-    if (product.productNature !== 'combo' && (!product.variants || product.variants.length === 0)) return toast.error('No variants available');
+    if (product.productNature !== 'combo' && (!product.variants || product.variants.length === 0)) {
+      // Fallback: allow billing even if variants are not fully set up
+      addToCart(product, { size: 'N/A', color: 'Default', stock: 9999 });
+      return;
+    }
     if (product.variants.length === 1) {
       addToCart(product, product.variants[0]);
     } else {
@@ -394,10 +402,11 @@ export default function StaffCreateBill() {
     setItems(prev => prev.map(i => {
       if (i.key !== key) return i;
       const newQty = Math.max(0, i.quantity + delta);
-      if (newQty > i.maxStock) {
-        toast.error('Insufficient stock');
-        return i;
-      }
+      // Removed maxStock check for flexibility
+      // if (newQty > i.maxStock) {
+      //   toast.error('Insufficient stock');
+      //   return i;
+      // }
       return { ...i, quantity: newQty };
     }).filter(i => i.quantity > 0));
   };

@@ -138,33 +138,22 @@ function PosContent() {
   const { data: inventoryData, isLoading } = useQuery({
     queryKey: ['pos-inventory', selectedCategory, search],
     queryFn: () => {
-      const params = { limit: 1000, offlineEnabled: 'true' };
+      const params = { limit: 1000, isPOS: 'true' };
       if (selectedCategory !== 'All') params.category = selectedCategory;
       if (search) params.search = search;
-      return inventoryService.getInventory(params).then(r => {
-        const rawItems = r.data?.data || r.data?.data?.data || [];
+      return productService.getProducts(params).then(r => {
+        const rawItems = r.data?.data?.data || r.data?.data?.products || r.data?.data || [];
         
         // --- BARCODE AUTO-ADD SECURITY FEATURE ---
         // If search exactly matches a SKU, add instantly
         if (search && rawItems.length === 1 && rawItems[0].sku?.toLowerCase() === search.toLowerCase()) {
            const match = rawItems[0];
-           if (match.availableStock > 0) {
-              dispatch({ type: 'SELECT_PRODUCT', payload: match });
-              dispatch({ type: 'SET_SEARCH', payload: '' });
-              toast.success(`Scanned: ${match.productName}`);
-           }
+           dispatch({ type: 'SELECT_PRODUCT', payload: match });
+           dispatch({ type: 'SET_SEARCH', payload: '' });
+           toast.success(`Scanned: ${match.name}`);
         }
 
-        const grouped = rawItems.reduce((acc, item) => {
-          const key = item.productRef?._id || item.productRef || item.productName;
-          if (!acc[key]) acc[key] = { ...item, variants: [item], totalStock: item.availableStock || 0 };
-          else {
-            acc[key].variants.push(item);
-            acc[key].totalStock += (item.availableStock || 0);
-          }
-          return acc;
-        }, {});
-        return Object.values(grouped).map(p => ({ ...p, availableStock: p.totalStock }));
+        return rawItems;
       });
     },
     keepPreviousData: true
@@ -290,19 +279,31 @@ function PosContent() {
 
           setShowSuccessModal(true);
 
+          // Setup after-print lifecycle listener (logical stock reduction completion)
+          let hasCleared = false;
+          const handleAfterPrint = () => {
+             if (hasCleared) return;
+             hasCleared = true;
+             dispatch({ type: 'SET_ITEMS', payload: [] });
+             dispatch({ type: 'UPDATE_SESSION', payload: { customer: { name: '', phone: '', email: '' }, discount: 0, paymentSplit: { cash: 0, upi: 0, card: 0 } } });
+             if (state.isCheckoutOpen) dispatch({ type: 'TOGGLE_CHECKOUT' });
+             queryClient.invalidateQueries({ queryKey: ['pos-inventory'] });
+             window.removeEventListener('afterprint', handleAfterPrint);
+          };
+          window.addEventListener('afterprint', handleAfterPrint);
+
+          // Fallback auto-clear after 10s if the print dialog doesn't trigger the event
+          setTimeout(handleAfterPrint, 10000);
+
           // AUTO-PRINT TRIGGER
           setTimeout(() => {
              try {
                window.print();
              } catch (err) {
                console.error('Silent print failed, manual retry ready:', err);
+               handleAfterPrint();
              }
           }, 300);
-
-          dispatch({ type: 'SET_ITEMS', payload: [] });
-          dispatch({ type: 'UPDATE_SESSION', payload: { customer: { name: '', phone: '', email: '' }, discount: 0, paymentSplit: { cash: 0, upi: 0, card: 0 } } });
-          if (state.isCheckoutOpen) dispatch({ type: 'TOGGLE_CHECKOUT' });
-          queryClient.invalidateQueries({ queryKey: ['pos-inventory'] });
         }
       } catch (err) {
         // Fallback to offline if server is unreachable or responds with network/500/timeout error
@@ -335,20 +336,31 @@ function PosContent() {
 
       setShowSuccessModal(true);
 
+      // Setup after-print lifecycle listener for offline flow
+      let hasClearedOffline = false;
+      const handleAfterPrintOffline = () => {
+         if (hasClearedOffline) return;
+         hasClearedOffline = true;
+         dispatch({ type: 'SET_ITEMS', payload: [] });
+         dispatch({ type: 'UPDATE_SESSION', payload: { customer: { name: '', phone: '', email: '' }, discount: 0, paymentSplit: { cash: 0, upi: 0, card: 0 } } });
+         if (state.isCheckoutOpen) dispatch({ type: 'TOGGLE_CHECKOUT' });
+         toast.success('Offline Bill stored successfully!');
+         window.removeEventListener('afterprint', handleAfterPrintOffline);
+      };
+      window.addEventListener('afterprint', handleAfterPrintOffline);
+
+      // Fallback auto-clear after 10s
+      setTimeout(handleAfterPrintOffline, 10000);
+
       // AUTO-PRINT TRIGGER
       setTimeout(() => {
          try {
            window.print();
          } catch (err) {
            console.error('Silent print failed, manual retry ready:', err);
+           handleAfterPrintOffline();
          }
       }, 300);
-
-      dispatch({ type: 'SET_ITEMS', payload: [] });
-      dispatch({ type: 'UPDATE_SESSION', payload: { customer: { name: '', phone: '', email: '' }, discount: 0, paymentSplit: { cash: 0, upi: 0, card: 0 } } });
-      if (state.isCheckoutOpen) dispatch({ type: 'TOGGLE_CHECKOUT' });
-      
-      toast.success('Offline Bill stored successfully & print triggered!');
     } catch (dbErr) {
       toast.error('Failed to store transaction locally: ' + dbErr.message);
     }

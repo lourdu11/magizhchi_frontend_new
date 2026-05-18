@@ -138,7 +138,7 @@ const ProductBrowser = memo(({ products, categories, isLoading }) => {
                     </div>
                     <div>
                        <h2 className="text-xl font-black text-charcoal uppercase leading-none">{selectedProduct.productName}</h2>
-                       <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mt-1.5">{selectedProduct.category || 'Collection'}</p>
+                       <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mt-1.5">{selectedProduct.category?.name || selectedProduct.category || 'Collection'}</p>
                     </div>
                  </div>
                  <button onClick={() => setSelectedProduct(null)} className="p-3 bg-light-bg rounded-xl hover:bg-red-50 hover:text-red-500 transition-all">
@@ -158,16 +158,12 @@ const ProductBrowser = memo(({ products, categories, isLoading }) => {
                       variantData?.variants?.map((v, idx) => (
                         <button 
                           key={v._id || idx} 
-                          disabled={v.availableStock <= 0}
                           onClick={() => {
-                            if (v.availableStock > 0) {
-                              dispatch({ type: 'SELECT_PRODUCT', payload: v });
-                              setSelectedProduct(null);
-                            } else {
-                              toast.error('Item is out of stock');
-                            }
+                            // Allow variant selection even if stock is 0
+                            dispatch({ type: 'SELECT_PRODUCT', payload: v });
+                            setSelectedProduct(null);
                           }}
-                          className={`flex items-center justify-between p-6 bg-light-bg/50 rounded-2xl border-2 border-transparent hover:border-premium-gold hover:bg-white transition-all group ${v.availableStock <= 0 ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
+                          className={`flex items-center justify-between p-6 bg-light-bg/50 rounded-2xl border-2 border-transparent hover:border-premium-gold hover:bg-white transition-all group ${v.availableStock <= 0 ? 'opacity-70' : ''}`}
                         >
                         <div className="flex items-center gap-4">
                            <div className="w-12 h-12 bg-white rounded-xl overflow-hidden flex items-center justify-center text-xs font-black text-charcoal border border-border-light uppercase shrink-0">
@@ -210,9 +206,10 @@ const ProductCard = memo(({ product, onSelect }) => {
     <button 
       onClick={() => {
         const available = product.liveStock?.availableStock ?? product.availableStock;
-        if (available <= 0) {
-          return toast.error('Product is out of stock');
-        }
+        // SaaS flexibility: Allow negative/zero stock billing for manual reconciliations
+        // if (available <= 0) {
+        //   return toast.error('Product is out of stock');
+        // }
         if (product.variants?.length > 1 || product.productNature === 'combo') {
           onSelect();
         } else {

@@ -47,8 +47,9 @@ export default function ProductDetails() {
        const handleProductSync = (data) => {
           if (data.id === product._id || data.productId === product._id) {
              queryClient.invalidateQueries({ queryKey: ['product', slug] });
-             if (data.type === 'PRODUCT_ARCHIVED' || !product.isActive) {
+             if (data.type === 'PRODUCT_ARCHIVED' || data.type === 'PRODUCT_PURGED' || !product.isActive) {
                 toast.error('This product is no longer available', { id: 'product-archive-alert' });
+                navigate('/');
              } else {
                 toast('Product information updated', { icon: '✨', id: 'product-update-alert' });
              }
@@ -57,11 +58,13 @@ export default function ProductDetails() {
        socket.on('STOCK_UPDATED', handleProductSync);
        socket.on('INVENTORY_SYNCED', handleProductSync);
        socket.on('PRODUCT_ARCHIVED', handleProductSync);
+       socket.on('PRODUCT_PURGED', handleProductSync);
        
        return () => {
           socket.off('STOCK_UPDATED', handleProductSync);
           socket.off('INVENTORY_SYNCED', handleProductSync);
           socket.off('PRODUCT_ARCHIVED', handleProductSync);
+          socket.off('PRODUCT_PURGED', handleProductSync);
        };
     }
   }, [sizes, colors, product, queryClient, slug]);
@@ -221,17 +224,17 @@ export default function ProductDetails() {
           
           {/* ── Image Gallery ── */}
           <div className="space-y-6 min-w-0">
-            <div className={`relative aspect-[4/5] rounded-[2.5rem] md:rounded-[3.5rem] overflow-hidden ${product.bgStyle === 'solid' ? 'bg-white' : 'bg-light-bg'} border border-border-light group shadow-xl shadow-black/5`}>
+            <div className={`relative aspect-[4/5] rounded-[2.5rem] md:rounded-[3.5rem] overflow-hidden border border-border-light group shadow-xl shadow-black/5 ${product.bgStyle === 'solid' ? 'bg-white' : 'bg-[#F8F8F8]'}`}>
               <motion.div
                 key={selectedImage}
                 initial={{ opacity: 0, scale: 1.05 }}
                 animate={{ opacity: 1, scale: 1 }}
                 className="w-full h-full relative"
               >
-                {/* 🌌 Dynamic Glassmorphic Ambient Glow */}
+                {/* Subtle ambient glow — only for non-solid BG, reduced to 40% so it doesn't bleed over image */}
                 {product.bgStyle !== 'solid' && (
                   <div 
-                    className="absolute inset-0 filter blur-3xl opacity-95 scale-115 pointer-events-none select-none transition-all duration-700"
+                    className="absolute inset-0 filter blur-2xl opacity-40 scale-110 pointer-events-none select-none"
                     style={{
                       backgroundImage: `url(${images[selectedImage]})`,
                       backgroundSize: 'cover',
@@ -240,7 +243,7 @@ export default function ProductDetails() {
                   />
                 )}
 
-                {/* 🖼️ Main Active Product Image */}
+                {/* Main Product Image — contain by default so full image always shows */}
                 <SafeImage 
                   src={images[selectedImage]} 
                   width={800}
@@ -248,9 +251,10 @@ export default function ProductDetails() {
                   alt="" 
                   className="w-full h-full relative z-10 transition-all duration-700" 
                   style={{
-                    objectFit: product.detailFit || product.fit || 'contain',
+                    objectFit: product.bgStyle === 'solid' ? 'contain' : (product.detailFit || 'contain'),
                     objectPosition: product.position || 'center',
-                    transform: `scale(${product.scale || 1})`
+                    transform: `scale(${product.scale || 1})`,
+                    padding: product.bgStyle === 'solid' ? '12px' : '0'
                   }}
                 />
               </motion.div>

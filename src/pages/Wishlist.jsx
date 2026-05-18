@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Heart, ShoppingCart, Trash2, Loader2, ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { wishlistService, cartService } from '../services';
 import { useWishlistStore } from '../store';
 import { toast } from 'react-hot-toast';
@@ -10,6 +10,7 @@ import { Helmet } from 'react-helmet-async';
 export default function Wishlist() {
   const qc = useQueryClient();
 
+  const navigate = useNavigate();
   const { setWishlist } = useWishlistStore();
   
   const { data: wishlist, isLoading } = useQuery({
@@ -30,7 +31,11 @@ export default function Wishlist() {
 
   const addToCartMutation = useMutation({
     mutationFn: ({ productId, variant }) => cartService.addToCart({ productId, variant, quantity: 1 }),
-    onSuccess: () => { qc.invalidateQueries(['cart']); toast.success('Added to cart!'); },
+    onSuccess: () => { 
+      qc.invalidateQueries(['cart']); 
+      toast.success('Added to cart!'); 
+      navigate('/cart');
+    },
     onError: () => toast.error('Could not add to cart'),
   });
 

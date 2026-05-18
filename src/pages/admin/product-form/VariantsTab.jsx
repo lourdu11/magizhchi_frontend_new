@@ -35,9 +35,9 @@ function VariantManagerSection({ productName, variants, basePrice, onUpdate }) {
   const [sizes, setSizes] = useState([]);
   const [initialQty, setInitialQty] = useState(0);
   const [colorInput, setColorInput] = useState('');
-  const [newV, setNewV] = useState({ size: '', color: '', sku: '', available: 0 });
+  const [newV, setNewV] = useState({ size: '', color: '', sku: '', available: 0, image: '' });
   const [editingId, setEditingId] = useState(null);
-  const [editValues, setEditValues] = useState({ size: '', color: '', sku: '', available: 0 });
+  const [editValues, setEditValues] = useState({ size: '', color: '', sku: '', available: 0, image: '' });
   const [activeVariants, setActiveVariants] = useState([]);
   const [uploadingVariantId, setUploadingVariantId] = useState(null);
 
@@ -54,14 +54,24 @@ function VariantManagerSection({ productName, variants, basePrice, onUpdate }) {
       return;
     }
 
-    onUpdate(variants.map(v => v._id === variantId ? {
-      ...v,
-      color: editValues.color,
-      size: editValues.size,
-      sku: editValues.sku,
-      available: editValues.available,
-      totalStock: editValues.available
-    } : v));
+    onUpdate(variants.map(v => {
+      if (v._id === variantId) {
+        const update = {
+          ...v,
+          color: editValues.color,
+          size: editValues.size,
+          sku: editValues.sku,
+          available: editValues.available,
+          totalStock: editValues.available
+        };
+        if (editValues.image) {
+          update.thumbnail = editValues.image;
+          update.images = [editValues.image];
+        }
+        return update;
+      }
+      return v;
+    }));
     
     setEditingId(null);
     toast.success('Variant specifications updated');
@@ -319,6 +329,17 @@ function VariantManagerSection({ productName, variants, basePrice, onUpdate }) {
                         onChange={e => setEditValues({ ...editValues, available: Number(e.target.value) })}
                       />
                     </div>
+                    
+                    <div className="space-y-1 col-span-2">
+                      <span className="text-[7px] font-black text-text-muted uppercase tracking-widest ml-1">Image URL (Optional)</span>
+                      <input 
+                        type="url" 
+                        placeholder="Paste Cloudinary/S3 URL..."
+                        className="w-full bg-light-bg border border-transparent focus:border-premium-gold rounded-xl px-3 py-2 text-[10px] font-black outline-none transition-all placeholder:text-text-muted/30"
+                        value={editValues.image}
+                        onChange={e => setEditValues({ ...editValues, image: e.target.value })}
+                      />
+                    </div>
                   </div>
                 </div>
               ) : (
@@ -361,7 +382,8 @@ function VariantManagerSection({ productName, variants, basePrice, onUpdate }) {
                             size: v.size || '',
                             color: v.color || '',
                             sku: v.sku || '',
-                            available: v.available || 0
+                            available: v.available || 0,
+                            image: v.thumbnail || v.images?.[0] || ''
                           });
                         }} 
                         className="p-2 text-text-muted hover:text-premium-gold transition-colors opacity-0 group-hover:opacity-100 flex items-center justify-center"

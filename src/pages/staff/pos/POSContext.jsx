@@ -51,11 +51,11 @@ function posReducer(state, action) {
       const invItem = action.payload; 
       const existingItem = currentSession.items.find(i => i.inventoryId === invItem._id);
       
-      // SECURITY: Stock Ceiling Check
-      const requestedQty = (existingItem?.quantity || 0) + 1;
-      if (requestedQty > invItem.availableStock) {
-        return state; // Silently prevent or I could toast but reducer is pure
-      }
+      // SECURITY: Stock Ceiling Check (Removed to support zero-stock/negative billing for manual reconciliations)
+      // const requestedQty = (existingItem?.quantity || 0) + 1;
+      // if (requestedQty > invItem.availableStock) {
+      //   return state; // Silently prevent or I could toast but reducer is pure
+      // }
 
       const newItemsList = [...currentSession.items];
       if (existingItem) {

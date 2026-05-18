@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Save, Loader2, ShieldCheck, Truck, Globe, Share2, CreditCard, Wallet, Percent, BellRing, Mail, Smartphone, User, KeyRound, CheckCircle2, Trash2 } from 'lucide-react';
+import { Save, Loader2, ShieldCheck, Truck, Globe, Share2, CreditCard, Wallet, Percent, BellRing, Mail, Smartphone, User, KeyRound, CheckCircle2, Trash2, RotateCcw } from 'lucide-react';
 import { adminService, userService } from '../../services';
 import { toast } from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
@@ -222,24 +222,82 @@ export default function AdminSettings() {
     });
   };
 
+  const [systemBackups, setSystemBackups] = useState([]);
+  const [expiredBackups, setExpiredBackups] = useState([]);
+  const [resetStep, setResetStep] = useState(1); // 1: Confirm, 2: OTP
+  const [resetOtpInput, setResetOtpInput] = useState('');
+  
+  const fetchSystemBackups = async () => {
+    try {
+      const res = await adminService.getSystemBackups();
+      setSystemBackups(res.data?.data?.active || []);
+      setExpiredBackups(res.data?.data?.expired || []);
+    } catch (error) {
+      console.error('Failed to fetch system backups', error);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'maintenance') {
+      fetchSystemBackups();
+    }
+  }, [activeTab]);
+
+  const handleRestoreBackup = async (backupId) => {
+    if (!window.confirm('Are you sure you want to restore this backup? This will overwrite the current live database collections.')) return;
+    
+    toast.promise(
+      adminService.restoreSystemData({ logId: backupId }).then(() => {
+        fetchSystemBackups();
+        queryClient.clear();
+        queryClient.invalidateQueries();
+      }),
+      {
+        loading: 'Restoring backup from shadow collections...',
+        success: '🎉 System Data successfully restored to its previous state!',
+        error: (err) => `Restore failed: ${err.response?.data?.message || err.message}`
+      }
+    );
+  };
+
   const handleSystemResetTrigger = () => {
     const selectedKeys = Object.keys(resetSelections).filter(k => resetSelections[k]);
     if (selectedKeys.length === 0) {
       return toast.error("Please select at least one system data module to reset.", { icon: '⚠️' });
     }
     setResetConfirmInput('');
+    setResetOtpInput('');
+    setResetStep(1);
     setShowResetModal(true);
   };
 
-  const executeSystemReset = () => {
-    const confirmPhrase = "Xavi2006";
+  const requestResetOTP = async () => {
+    const confirmPhrase = "DELETE";
     if (resetConfirmInput !== confirmPhrase) {
       return toast.error('Reset aborted: Confirmation text did not match.', { icon: '🛡️' });
     }
+    
+    const toastId = toast.loading('Initiating secure reset protocol...');
+    try {
+      const res = await adminService.resetSystemData({ selections: resetSelections });
+      if (res.data?.data?.status === 'OTP_REQUIRED') {
+        toast.success(`OTP Sent! Check your ${res.data.data.method}.`, { id: toastId });
+        setResetStep(2); // Move to OTP entry
+      } else {
+        toast.dismiss(toastId);
+      }
+    } catch (error) {
+      toast.error(`Failed to initiate reset: ${error.response?.data?.message || error.message}`, { id: toastId });
+    }
+  };
 
-    setShowResetModal(false);
+  const executeSystemReset = () => {
+    if (!resetOtpInput || resetOtpInput.length < 6) {
+      return toast.error('Please enter the 6-digit OTP sent to your admin contact.');
+    }
+
     toast.promise(
-      adminService.resetSystemData(resetSelections).then(r => {
+      adminService.resetSystemData({ selections: resetSelections, otp: resetOtpInput }).then(r => {
         // 🚨 CRITICAL: Clear POS Local Cache to prevent logical mismatching
         if (resetSelections.offlineBills || resetSelections.catalog || resetSelections.procurement || resetSelections.createBill) {
           localStorage.removeItem('pos_cart_sessions');
@@ -253,11 +311,13 @@ export default function AdminSettings() {
         // Force completely purging and clearing React Query cache to guarantee immediate reload of all stats
         queryClient.clear();
         queryClient.invalidateQueries();
+        setShowResetModal(false);
+        fetchSystemBackups(); // Refresh the available backups
         return r;
       }),
       {
         loading: 'Processing granular system data reset...',
-        success: '🎉 Selected system modules successfully reset and cleaned!',
+        success: '🎉 Selected system modules safely backed up and reset! You have 30 minutes to undo.',
         error: (err) => `Failed to reset system: ${err.response?.data?.message || err.message}`
       }
     );
@@ -911,6 +971,68 @@ export default function AdminSettings() {
                       <p className="text-xs text-text-muted font-bold uppercase tracking-widest mt-1">Select exactly which data modules you wish to reset</p>
                     </div>
 
+                    {/* Data Restore Safety Panel */}
+                    <div className="space-y-4 mb-8">
+                      {/* Active Restorable Backups */}
+                      <div className="p-6 bg-blue-50/50 rounded-[2rem] border border-blue-100">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="p-2 bg-blue-100 text-blue-600 rounded-xl"><RotateCcw size={20} /></div>
+                          <div>
+                            <h3 className="font-black text-charcoal uppercase tracking-tighter">Available Shadow Backups (30-Min Grace)</h3>
+                            <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest">Restore data wiped accidentally during a recent reset</p>
+                          </div>
+                        </div>
+                        
+                        {systemBackups.length === 0 ? (
+                          <div className="p-4 bg-white/50 rounded-xl border border-blue-100/50 text-center text-xs font-bold text-blue-800/60 uppercase tracking-widest">
+                            No active backups available in the grace period.
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            {systemBackups.map(b => (
+                              <div key={b._id} className="p-4 bg-white rounded-2xl border border-blue-100 shadow-sm flex items-center justify-between">
+                                <div>
+                                  <p className="text-xs font-black text-charcoal">Backup created at: {new Date(b.createdAt).toLocaleTimeString()} ({new Date(b.createdAt).toLocaleDateString()})</p>
+                                  <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mt-1">Expires at: {new Date(b.canRestoreUntil).toLocaleTimeString()}</p>
+                                  <p className="text-[9px] font-bold text-blue-600 uppercase mt-1">Modules: {b.modulesReset.join(', ')}</p>
+                                </div>
+                                <button onClick={() => handleRestoreBackup(b._id)} className="px-4 py-2 bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all flex items-center gap-2">
+                                  <RotateCcw size={14} /> Restore
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Expired / Permanently Deleted History */}
+                      {expiredBackups.length > 0 && (
+                        <div className="p-6 bg-gray-50/50 rounded-[2rem] border border-gray-100">
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2 bg-gray-200 text-gray-500 rounded-xl"><Trash2 size={20} /></div>
+                            <div>
+                              <h3 className="font-black text-charcoal uppercase tracking-tighter">Historical Data Wipes (Permanently Deleted)</h3>
+                              <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest">Audit log of system resets that have passed the grace period</p>
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-3">
+                            {expiredBackups.map(b => (
+                              <div key={b._id} className="p-4 bg-white/40 rounded-2xl border border-gray-200 flex items-center justify-between opacity-80">
+                                <div>
+                                  <p className="text-xs font-black text-gray-500 line-through decoration-red-500/30">Wiped at: {new Date(b.createdAt).toLocaleTimeString()} ({new Date(b.createdAt).toLocaleDateString()})</p>
+                                  <p className="text-[9px] font-bold text-gray-400 uppercase mt-1">Modules: {b.modulesReset.join(', ')}</p>
+                                </div>
+                                <span className="px-3 py-1 bg-red-50 text-red-600 rounded-lg text-[9px] font-black uppercase tracking-widest border border-red-100">
+                                  {b.status === 'restored' ? 'RESTORED' : 'DATA DESTROYED'}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
                     {/* Bulk Select Toggles */}
                     <div className="flex gap-3">
                       <button
@@ -945,8 +1067,12 @@ export default function AdminSettings() {
                         { key: 'broadcast', label: 'Broadcast Center', desc: 'Wipes out WhatsApp campaign broadcast queues, template lists, and delivery logs' },
                         { key: 'staff', label: 'Staff Accounts', desc: 'Removes billing operators, assistants, and clerk log-ins' },
                         { key: 'banners', label: 'Slider Banners', desc: 'Clears e-commerce homepage hero sliders and advertising images' },
+                        { key: 'coupons', label: 'Discount Coupons', desc: 'Permanently deletes all promotional codes and discount coupons' },
+                        { key: 'support', label: 'Customer Support', desc: 'Wipes all contact form submissions and chatbot queries' },
+                        { key: 'templates', label: 'Message Templates', desc: 'Deletes all saved WhatsApp and Email broadcast templates' },
+                        { key: 'counters', label: 'System Counters', desc: 'Resets all auto-incrementing invoice and order numbers back to zero' },
                       ].map(module => {
-                        const isChecked = resetSelections[module.key];
+                        const isChecked = resetSelections[module.key] || false;
                         return (
                           <div
                             key={module.key}
@@ -1023,74 +1149,105 @@ export default function AdminSettings() {
                 </div>
               </div>
 
-              {/* Modules warning list */}
-              <div className="p-5 bg-red-50/50 rounded-2xl border border-red-50 space-y-2">
-                <p className="text-[11px] font-black text-charcoal/80 uppercase tracking-wider">
-                  ⚠️ This will permanently delete selected data modules:
-                </p>
-                <div className="flex flex-wrap gap-2 pt-1">
-                  {Object.keys(resetSelections).filter(k => resetSelections[k]).map(k => {
-                    const labels = {
-                      dashboard: 'Dashboard',
-                      category: 'Category',
-                      procurement: 'Procurement Hub',
-                      catalog: 'Product Profiles',
-                      orders: 'Orders',
-                      customer: 'Customers',
-                      createBill: 'Create Bill',
-                      offlineBills: 'Offline Bills',
-                      reviews: 'Reviews',
-                      analysis: 'Analysis',
-                      broadcast: 'Broadcast Center',
-                      staff: 'Staff',
-                      banners: 'Banners'
-                    };
-                    return (
-                      <span key={k} className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-[10px] font-black uppercase tracking-wider">
-                        {labels[k] || k}
-                      </span>
-                    );
-                  })}
-                </div>
-                <p className="text-[10px] text-text-muted font-semibold mt-2 leading-relaxed">
-                  Deleting these modules will erase all associated records, configurations, and logs from the cloud database. This action is final and CANNOT be reversed.
-                </p>
-              </div>
+              {resetStep === 1 ? (
+                <>
+                  {/* Modules warning list */}
+                  <div className="p-5 bg-red-50/50 rounded-2xl border border-red-50 space-y-2">
+                    <p className="text-[11px] font-black text-charcoal/80 uppercase tracking-wider">
+                      ⚠️ This will permanently delete selected data modules:
+                    </p>
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      {Object.keys(resetSelections).filter(k => resetSelections[k]).map(k => {
+                        const labels = {
+                          dashboard: 'Dashboard', category: 'Category', procurement: 'Procurement Hub',
+                          catalog: 'Product Profiles', orders: 'Orders', customer: 'Customers',
+                          createBill: 'Create Bill', offlineBills: 'Offline Bills', reviews: 'Reviews',
+                          analysis: 'Analysis', broadcast: 'Broadcast Center', staff: 'Staff', banners: 'Banners'
+                        };
+                        return (
+                          <span key={k} className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-[10px] font-black uppercase tracking-wider">
+                            {labels[k] || k}
+                          </span>
+                        );
+                      })}
+                    </div>
+                    <p className="text-[10px] text-text-muted font-semibold mt-2 leading-relaxed">
+                      Deleting these modules will erase all associated records, configurations, and logs from the cloud database. This action is final and CANNOT be reversed.
+                    </p>
+                  </div>
 
-              {/* Confirmation Prompt Input */}
-              <div className="space-y-3 bg-red-50/30 p-5 rounded-3xl border border-red-100/50">
-                <label className="block text-[10px] font-black text-charcoal/70 uppercase tracking-[0.15em]">
-                  To confirm permanent deletion, enter the administrator passkey:
-                </label>
-                <div className="relative">
-                  <input
-                    type="password"
-                    placeholder="Enter security passkey..."
-                    value={resetConfirmInput}
-                    onChange={(e) => setResetConfirmInput(e.target.value)}
-                    className="w-full px-5 py-4 rounded-2xl border border-border-light bg-white focus:border-red-500 focus:ring-4 focus:ring-red-100/50 outline-none font-sans font-bold text-sm tracking-widest text-charcoal transition-all placeholder:text-charcoal/30 placeholder:tracking-normal text-center shadow-inner"
-                  />
-                </div>
-              </div>
+                  {/* Confirmation Prompt Input */}
+                  <div className="space-y-3 bg-red-50/30 p-5 rounded-3xl border border-red-100/50">
+                    <label className="block text-[10px] font-black text-charcoal/70 uppercase tracking-[0.15em] text-center">
+                      To confirm permanent deletion, type <span className="text-red-600 font-extrabold font-mono">DELETE</span> below:
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="Type DELETE..."
+                        value={resetConfirmInput}
+                        onChange={(e) => setResetConfirmInput(e.target.value)}
+                        className="w-full px-5 py-4 rounded-2xl border border-border-light bg-white focus:border-red-500 focus:ring-4 focus:ring-red-100/50 outline-none font-sans font-black text-sm tracking-widest text-charcoal transition-all placeholder:text-charcoal/30 placeholder:tracking-normal text-center shadow-inner"
+                      />
+                    </div>
+                  </div>
 
-              {/* Actions buttons */}
-              <div className="flex gap-4 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowResetModal(false)}
-                  className="flex-1 bg-light-bg hover:bg-gray-200 text-charcoal font-black text-xs uppercase tracking-widest py-4 rounded-2xl transition-all"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  disabled={resetConfirmInput !== 'Xavi2006'}
-                  onClick={executeSystemReset}
-                  className={`flex-1 flex items-center justify-center gap-2 font-black text-xs uppercase tracking-widest py-4 rounded-2xl transition-all ${resetConfirmInput === 'Xavi2006' ? 'bg-red-600 text-white hover:bg-red-700 hover:scale-[1.02] active:scale-95 shadow-lg shadow-red-200' : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'}`}
-                >
-                  <Trash2 size={16} /> Delete Forever
-                </button>
-              </div>
+                  {/* Actions buttons */}
+                  <div className="flex gap-4 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowResetModal(false)}
+                      className="flex-1 bg-light-bg hover:bg-gray-200 text-charcoal font-black text-xs uppercase tracking-widest py-4 rounded-2xl transition-all"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      disabled={resetConfirmInput !== 'DELETE'}
+                      onClick={requestResetOTP}
+                      className={`flex-1 flex items-center justify-center gap-2 font-black text-xs uppercase tracking-widest py-4 rounded-2xl transition-all ${resetConfirmInput === 'DELETE' ? 'bg-red-600 text-white hover:bg-red-700 hover:scale-[1.02] active:scale-95 shadow-lg shadow-red-200' : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'}`}
+                    >
+                      <ShieldCheck size={16} /> Request OTP
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* OTP Step */}
+                  <div className="space-y-3 bg-red-50/30 p-5 rounded-3xl border border-red-100/50">
+                    <label className="block text-[10px] font-black text-charcoal/70 uppercase tracking-[0.15em] text-center">
+                      Enter the 6-digit OTP sent to your admin contact:
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        maxLength={6}
+                        placeholder="Enter OTP..."
+                        value={resetOtpInput}
+                        onChange={(e) => setResetOtpInput(e.target.value)}
+                        className="w-full px-5 py-4 rounded-2xl border border-border-light bg-white focus:border-red-500 focus:ring-4 focus:ring-red-100/50 outline-none font-sans font-black text-2xl tracking-[0.5em] text-charcoal transition-all text-center shadow-inner"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-4 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowResetModal(false)}
+                      className="flex-1 bg-light-bg hover:bg-gray-200 text-charcoal font-black text-xs uppercase tracking-widest py-4 rounded-2xl transition-all"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      disabled={resetOtpInput.length < 6}
+                      onClick={executeSystemReset}
+                      className={`flex-1 flex items-center justify-center gap-2 font-black text-xs uppercase tracking-widest py-4 rounded-2xl transition-all ${resetOtpInput.length >= 6 ? 'bg-red-600 text-white hover:bg-red-700 hover:scale-[1.02] active:scale-95 shadow-lg shadow-red-200' : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'}`}
+                    >
+                      <Trash2 size={16} /> Confirm Reset
+                    </button>
+                  </div>
+                </>
+              )}
             </motion.div>
           </div>
         )}
@@ -1141,12 +1298,12 @@ export default function AdminSettings() {
               {/* Confirmation Prompt Input */}
               <div className="space-y-3 bg-light-bg p-5 rounded-3xl border border-border-light">
                 <label className="block text-[10px] font-black text-charcoal/70 uppercase tracking-[0.15em] text-center">
-                  Enter the administrator passkey to save settings:
+                  Enter the security key <span className="text-premium-gold font-extrabold font-mono">Xavi2006</span> to save settings:
                 </label>
                 <div className="relative">
                   <input
-                    type="password"
-                    placeholder="Enter security passkey..."
+                    type="text"
+                    placeholder="Type Xavi2006..."
                     value={saveConfirmInput}
                     onChange={(e) => setSaveConfirmInput(e.target.value)}
                     className="w-full px-5 py-4 rounded-2xl border border-border-light bg-white focus:border-premium-gold focus:ring-4 focus:ring-premium-gold/10 outline-none font-sans font-bold text-sm tracking-widest text-charcoal transition-all placeholder:text-charcoal/30 placeholder:tracking-normal text-center shadow-inner"

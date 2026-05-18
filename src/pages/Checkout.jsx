@@ -16,22 +16,59 @@ export default function Checkout() {
   const navigate = useNavigate();
   
   // Checkout Steps: 1 = Shipping, 2 = Review & Payment
-  const [step, setStep] = useState(1);
-  const [paymentMethod, setPaymentMethod] = useState('cod');
-  const [address, setAddress] = useState({ 
-    name: user?.name || '', 
-    phone: user?.phone || '', 
-    addressLine1: '', 
-    addressLine2: '', 
-    city: '', 
-    state: 'Tamil Nadu', 
-    pincode: '' 
+  const [step, setStep] = useState(() => {
+    const saved = sessionStorage.getItem('magizhchi-checkout-step');
+    return saved ? Number(saved) : 1;
   });
-  const [guestDetails, setGuestDetails] = useState({ email: '' });
+  const [paymentMethod, setPaymentMethod] = useState(() => {
+    return sessionStorage.getItem('magizhchi-checkout-payment') || 'cod';
+  });
+  const [address, setAddress] = useState(() => {
+    const saved = sessionStorage.getItem('magizhchi-checkout-address');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return { 
+      name: user?.name || '', 
+      phone: user?.phone || '', 
+      addressLine1: '', 
+      addressLine2: '', 
+      city: '', 
+      state: 'Tamil Nadu', 
+      pincode: '' 
+    };
+  });
+  const [guestDetails, setGuestDetails] = useState(() => {
+    const saved = sessionStorage.getItem('magizhchi-checkout-guest');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return { email: '' };
+  });
   const [loading, setLoading] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [localCartItems, setLocalCartItems] = useState([]);
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    sessionStorage.setItem('magizhchi-checkout-step', step);
+  }, [step]);
+
+  useEffect(() => {
+    sessionStorage.setItem('magizhchi-checkout-payment', paymentMethod);
+  }, [paymentMethod]);
+
+  useEffect(() => {
+    sessionStorage.setItem('magizhchi-checkout-address', JSON.stringify(address));
+  }, [address]);
+
+  useEffect(() => {
+    sessionStorage.setItem('magizhchi-checkout-guest', JSON.stringify(guestDetails));
+  }, [guestDetails]);
 
   // Fetch data
   const { data: userProfile } = useQuery({
@@ -201,6 +238,12 @@ export default function Checkout() {
         setLocalCartItems([]);
         setItemCount(0);
       }
+
+      // Clear checkout persistence on successful order
+      sessionStorage.removeItem('magizhchi-checkout-step');
+      sessionStorage.removeItem('magizhchi-checkout-address');
+      sessionStorage.removeItem('magizhchi-checkout-guest');
+      sessionStorage.removeItem('magizhchi-checkout-payment');
 
       if (paymentMethod === 'cod') {
         toast.success('Order placed!');

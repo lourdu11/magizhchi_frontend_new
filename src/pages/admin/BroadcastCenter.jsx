@@ -44,6 +44,7 @@ const BroadcastCenter = () => {
   const [broadcastDetails, setBroadcastDetails] = useState(null);
   const [historySearch, setHistorySearch] = useState('');
   const [loadingDetails, setLoadingDetails] = useState(false);
+  const [broadcastUrlInput, setBroadcastUrlInput] = useState('');
 
   // Auto-refresh history if campaigns are processing
   useEffect(() => {
@@ -244,10 +245,16 @@ const BroadcastCenter = () => {
     };
     
     setSelectedRecipients([...selectedRecipients, newRecipient]);
+    
+    // Inject into the main customer table so the user can see/toggle it from below
+    if (!registeredCustomer) {
+      setCustomers(prev => [newRecipient, ...prev]);
+    }
+    
     setCustomPhone('');
     setCustomName('');
     setSaveToDb(false); // Reset checkbox
-    toast.success(`Direct number +${fullPhone} added to recipients list!`);
+    toast.success(`Direct number +${fullPhone} added to recipients list and table!`);
   };
 
   const segments = [
@@ -554,23 +561,50 @@ const BroadcastCenter = () => {
                           />
                       </div>
 
-                      <div className="p-8 bg-[#F8F9FA] rounded-[2rem] border-2 border-dashed border-[#DADCE0]">
-                          <div className="flex items-center justify-between">
+                      <div className="p-8 bg-[#F8F9FA] rounded-[2rem] border-2 border-dashed border-[#DADCE0] space-y-6">
+                          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                               <div className="flex items-center gap-4">
                                   <ImageIcon size={24} className="text-[#1A73E8]" />
-                                  <span className="text-[10px] font-black uppercase tracking-widest text-[#202124]">Add Promotional Image</span>
+                                  <span className="text-[10px] font-black uppercase tracking-widest text-[#202124]">Promotional Image</span>
                               </div>
-                              <input type="file" className="hidden" ref={fileInputRef} onChange={handleImageUpload} />
-                              <button onClick={() => fileInputRef.current.click()} className="bg-white px-6 py-2.5 rounded-xl border border-[#DADCE0] text-[9px] font-black uppercase tracking-widest">
-                                  {uploading ? <Loader2 size={14} className="animate-spin" /> : 'Upload'}
-                              </button>
+                              <div className="flex gap-2 w-full md:w-auto">
+                                  <input type="file" className="hidden" ref={fileInputRef} onChange={handleImageUpload} />
+                                  <button onClick={() => fileInputRef.current.click()} className="bg-white px-6 py-2.5 rounded-xl border border-[#DADCE0] text-[9px] font-black uppercase tracking-widest flex-1 md:flex-none">
+                                      {uploading ? <Loader2 size={14} className="animate-spin inline" /> : 'Upload File'}
+                                  </button>
+                              </div>
                           </div>
+                          
+                          <div className="flex gap-2">
+                             <input 
+                                type="url" 
+                                placeholder="Or paste Cloudinary / S3 URL..."
+                                className="flex-1 bg-white border border-[#DADCE0] rounded-xl px-4 py-2.5 text-[10px] font-bold focus:outline-none focus:border-[#1A73E8]"
+                                value={broadcastUrlInput}
+                                onChange={e => setBroadcastUrlInput(e.target.value)}
+                             />
+                             <button 
+                                onClick={() => {
+                                   if(!broadcastUrlInput.trim()) return;
+                                   setBroadcastData(prev => ({ ...prev, mediaUrl: broadcastUrlInput.trim(), mediaType: 'image' }));
+                                   setBroadcastUrlInput('');
+                                   toast.success('URL applied!');
+                                }}
+                                className="bg-[#202124] text-white px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest"
+                             >
+                                Apply
+                             </button>
+                          </div>
+
                           {broadcastData.mediaUrl && (
-                              <div className="mt-6 relative">
+                              <div className="relative">
                                   <img src={broadcastData.mediaUrl} className="w-full h-48 object-cover rounded-2xl border border-[#DADCE0]" />
-                                  <button onClick={() => setBroadcastData({...broadcastData, mediaUrl: '', mediaType: 'none'})} className="absolute top-3 right-3 bg-white/80 p-2 rounded-full text-red-500">
+                                  <button onClick={() => setBroadcastData({...broadcastData, mediaUrl: '', mediaType: 'none'})} className="absolute top-3 right-3 bg-white/80 p-2 rounded-full text-red-500 shadow-md">
                                       <Trash2 size={16} />
                                   </button>
+                                  <div className="absolute bottom-3 left-3 bg-white/90 px-3 py-1.5 rounded-lg border border-[#DADCE0] text-[8px] font-mono text-gray-700 truncate max-w-[80%]">
+                                      {broadcastData.mediaUrl}
+                                  </div>
                               </div>
                           )}
                       </div>

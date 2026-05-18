@@ -295,7 +295,8 @@ export default function AdminProducts() {
                           className="w-16 h-20 rounded-2xl object-cover bg-light-bg shadow-sm" 
                           onError={(e) => { e.target.src = '/placeholder.jpg'; }}
                         />
-                        {!p.isActive && <div className="absolute inset-0 bg-charcoal/60 rounded-2xl flex items-center justify-center text-[8px] text-white font-black uppercase">Hidden</div>}
+                        {p.isArchived && <div className="absolute inset-0 bg-orange-600/85 rounded-2xl flex items-center justify-center text-[8px] text-white font-black uppercase tracking-widest font-black">Archived</div>}
+                        {!p.isArchived && !p.isActive && <div className="absolute inset-0 bg-charcoal/60 rounded-2xl flex items-center justify-center text-[8px] text-white font-black uppercase">Hidden</div>}
                       </div>
                       <div className="flex flex-col">
                         <span className="font-black text-charcoal text-sm tracking-tight">{p.name}</span>
@@ -363,7 +364,7 @@ export default function AdminProducts() {
                         <Settings2 size={18} />
                       </button>
                       <button 
-                        onClick={() => { if(window.confirm('Delete display profile?')) deleteMutation.mutate(p._id); }} 
+                        onClick={() => { if(window.confirm('Delete this product? If it has historical sales, it will be safely archived (soft-deleted) to protect accounting integrity.')) deleteMutation.mutate(p._id); }} 
                         className="p-3 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all"
                       >
                         <Trash2 size={18} />
