@@ -70,6 +70,7 @@ const StaffDailyReport = lazy(() => import('./pages/staff/StaffDailyReport'));
 
 import ScrollToTop from './components/layout/ScrollToTop';
 import { useAuthStore } from './store';
+import Preloader from './components/common/Preloader';
 
 export default function App() {
   const logout = useAuthStore((state) => state.logout);
@@ -81,6 +82,7 @@ export default function App() {
 
   return (
     <Suspense fallback={<PageLoader />}>
+      <Preloader />
       <ScrollToTop />
       <Routes>
 

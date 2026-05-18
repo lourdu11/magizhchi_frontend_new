@@ -1,43 +1,65 @@
-import { memo } from 'react';
+import { memo, forwardRef } from 'react';
 import { usePOS } from './POSContext';
 
-const ThermalReceipt = memo(() => {
-  const { state } = usePOS();
-  const { lastBill } = state;
+const ThermalReceipt = memo(forwardRef(({ bill: propBill }, ref) => {
+  let state = null;
+  try {
+    const posContext = usePOS();
+    state = posContext?.state;
+  } catch (e) {
+    // POS Context not active, ignore
+  }
+  const lastBill = state?.lastBill;
 
-  const billObj = lastBill ? (lastBill.bill || lastBill) : {
+  const billObj = propBill || lastBill ? (propBill || lastBill.bill || lastBill) : {
     billNumber: 'MAG-TEST-0001',
     createdAt: new Date().toISOString(),
-    date: new Date().toISOString(),
     customerDetails: { name: 'Test Patron', phone: '9876543210' },
     paymentMethod: 'cash',
     items: [
-      { productName: 'Classic Fit Cotton Denim', price: 999, quantity: 1, variantName: '32 / Blue', size: '32', color: 'Blue' },
-      { productName: 'Premium Linen White Shirt', price: 1200, quantity: 2, variantName: 'L / White', size: 'L', color: 'White' }
+      { productName: 'Classic Fit Cotton Denim', price: 999, quantity: 1, size: '32', color: 'Blue' },
+      { productName: 'Premium Linen White Shirt', price: 1200, quantity: 2, size: 'L', color: 'White' }
     ],
     discount: 0
   };
   
-  // Detect if prices are in paise (saved database bills store prices in paise/cents)
-  const isPaise = !!billObj.pricing || (billObj.items && billObj.items.some(i => Number(i.price) > 5000));
-  
+  // Normalize items
   const rawItems = billObj.items || [];
-  const items = isPaise 
-    ? rawItems.map(i => ({ ...i, price: Number(i.price) / 100 }))
-    : rawItems;
-    
-  const discount = isPaise
-    ? (Number(billObj.discount || billObj.pricing?.discount || 0) / 100)
-    : Number(billObj.discount || 0);
+  
+  // Detect if prices are in paise (saved database POS bills store prices in paise/cents)
+  const isSavedBill = !!billObj.billNumber && (
+    (billObj.pricing?.subtotal > 5000) || 
+    (rawItems.length > 0 && Number(rawItems[0].price) > 5000)
+  );
 
-  const { 
-    billNumber, 
-    createdAt, 
-    date, 
-    customerDetails, 
-    paymentMethod,
-    paymentSplit
-  } = billObj;
+  const items = rawItems.map(i => {
+    const rawPrice = Number(i.price || 0);
+    const rawTotal = Number(i.total || (i.price * i.quantity));
+    
+    return {
+      ...i,
+      size: i.size || i.variant?.size,
+      color: i.color || i.variant?.color,
+      price: isSavedBill ? rawPrice / 100 : rawPrice,
+      total: isSavedBill ? rawTotal / 100 : rawTotal
+    };
+  });
+     
+  const discount = isSavedBill
+    ? (Number(billObj.discount || billObj.pricing?.discount || billObj.pricing?.couponDiscount || 0) / 100)
+    : Number(billObj.discount || billObj.pricing?.discount || billObj.pricing?.couponDiscount || 0);
+
+  const billNumber = billObj.billNumber || billObj.orderNumber || '875282';
+  const createdAt = billObj.createdAt || billObj.date;
+  const date = billObj.date || billObj.createdAt;
+  const paymentMethod = billObj.paymentMethod;
+
+  const customerDetails = (billObj.customerDetails && billObj.customerDetails.name) 
+    ? billObj.customerDetails 
+    : {
+        name: billObj.shippingAddress?.name || billObj.guestDetails?.name || billObj.customerDetails?.name || 'Cash Sales',
+        phone: billObj.shippingAddress?.phone || billObj.guestDetails?.phone || billObj.customerDetails?.phone || ''
+      };
 
   // Calculate prices
   const subtotal = items?.reduce((sum, item) => sum + (item.price * item.quantity), 0) || 0;
@@ -63,6 +85,7 @@ const ThermalReceipt = memo(() => {
 
   return (
     <div 
+      ref={ref}
       id="thermal-receipt" 
       className="p-3 font-mono text-black bg-white select-none leading-relaxed tracking-tight mx-auto"
       style={{
@@ -84,10 +107,23 @@ const ThermalReceipt = memo(() => {
             font-family: monospace !important;
           }
           #thermal-receipt {
+            visibility: visible !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
             width: 100% !important;
             max-width: 100% !important;
-            padding: 4px !important;
+            padding: 8px !important;
             margin: 0 !important;
+            background: white !important;
+            box-sizing: border-box !important;
+          }
+          #thermal-receipt * {
+            visibility: visible !important;
+          }
+          .no-print {
+            display: none !important;
+            visibility: hidden !important;
           }
         }
       `}</style>
@@ -251,7 +287,7 @@ const ThermalReceipt = memo(() => {
       </div>
     </div>
   );
-});
+}));
 
 ThermalReceipt.displayName = 'ThermalReceipt';
 

@@ -6,7 +6,7 @@ import { adminService } from '../../services';
 import { toast } from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
-import InvoiceTemplate from '../../components/admin/InvoiceTemplate';
+import ThermalReceipt from '../staff/pos/ThermalReceipt';
 
 const STATUS_OPTIONS = ['placed', 'confirmed', 'shipped', 'out_for_delivery', 'delivered', 'cancelled'];
 const STATUS_COLORS = {
@@ -119,15 +119,15 @@ export default function AdminOrders() {
       {/* Hidden Invoice for Printing using Portal */}
       {createPortal(
         <div 
-          id="bill-print" 
+          id="thermal-print-wrapper" 
           className={`fixed inset-0 z-[9999] bg-white overflow-auto ${isPrinting ? 'block' : 'hidden'}`}
         >
           {isPrinting && (
             <div className="no-print fixed top-4 right-4 bg-charcoal text-white px-4 py-2 rounded-full text-xs font-bold animate-pulse shadow-2xl">
-              Preparing Premium Invoice...
+              Preparing Thermal Receipt...
             </div>
           )}
-          <InvoiceTemplate ref={invoiceRef} order={printOrder} />
+          <ThermalReceipt ref={invoiceRef} bill={printOrder} />
         </div>,
         document.body
       )}
@@ -227,7 +227,7 @@ export default function AdminOrders() {
                   </td>
                   <td className="px-5 py-4">
                     <span className="text-xs text-text-muted capitalize">{o.paymentMethod}</span>
-                    <span className={`ml-1 text-[10px] font-bold ${o.paymentStatus === 'completed' ? 'text-green-600' : 'text-amber-600'}`}>
+                    <span className={`ml-1 text-[10px] font-bold ${o.paymentStatus === 'completed' ? 'text-green-600' : o.paymentStatus === 'failed' ? 'text-red-600 font-extrabold uppercase' : 'text-amber-600'}`}>
                       · {o.paymentStatus}
                     </span>
                   </td>
@@ -504,8 +504,20 @@ function OrderDetailsModal({ order, onClose, onUpdateStatus, onPrint, isUpdating
                     <div className="text-right">
                       <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted opacity-60">Status</p>
                       <div className="flex items-center gap-1 justify-end">
-                        {order.paymentStatus === 'completed' ? <CheckCircle2 size={12} className="text-green-500" /> : <Clock size={12} className="text-amber-500" />}
-                        <p className={`text-xs font-black uppercase ${order.paymentStatus === 'completed' ? 'text-green-600' : 'text-amber-600'}`}>{order.paymentStatus}</p>
+                        {order.paymentStatus === 'completed' ? (
+                          <CheckCircle2 size={12} className="text-green-500" />
+                        ) : order.paymentStatus === 'failed' ? (
+                          <AlertCircle size={12} className="text-red-500" />
+                        ) : (
+                          <Clock size={12} className="text-amber-500" />
+                        )}
+                        <p className={`text-xs font-black uppercase ${
+                          order.paymentStatus === 'completed' 
+                            ? 'text-green-600' 
+                            : order.paymentStatus === 'failed' 
+                              ? 'text-red-600 font-extrabold' 
+                              : 'text-amber-600'
+                        }`}>{order.paymentStatus}</p>
                       </div>
                     </div>
                   </div>

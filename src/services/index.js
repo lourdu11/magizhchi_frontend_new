@@ -52,6 +52,7 @@ export const orderService = {
   getOrder: (id) => api.get(`/orders/${id}`),
   cancelOrder: (id, reason) => api.post(`/orders/${id}/cancel`, { reason }),
   requestReturn: (id, data) => api.post(`/orders/${id}/return`, data),
+  handlePaymentFailed: (id) => api.post(`/orders/${id}/payment-failed`),
 };
 
 export const couponService = {

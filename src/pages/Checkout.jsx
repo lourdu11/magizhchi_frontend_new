@@ -274,6 +274,17 @@ export default function Checkout() {
             toast.success('Payment successful!');
             navigate(`/order-confirmation/${order._id}`);
           } catch { toast.error('Payment verification failed'); }
+        },
+        modal: {
+          ondismiss: async () => {
+            try {
+              console.log('Payment modal closed by user');
+              await orderService.handlePaymentFailed(order._id);
+              toast.error('Payment cancelled or failed.');
+            } catch (err) {
+              console.error('Failed to handle payment failure:', err);
+            }
+          }
         }
       });
       rzp.open();
