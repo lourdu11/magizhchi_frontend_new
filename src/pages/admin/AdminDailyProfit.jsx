@@ -37,9 +37,9 @@ export default function AdminDailyProfit() {
   if (isLoading) return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-premium-gold" size={40} /></div>;
 
   const stats = [
-    { label: 'Revenue', value: `₹${report?.totalRevenue?.toLocaleString()}`, icon: ShoppingBag, color: 'text-blue-600', bg: 'bg-blue-50' },
-    { label: 'Total Cost', value: `₹${report?.totalCost?.toLocaleString()}`, icon: IndianRupee, color: 'text-red-500', bg: 'bg-red-50' },
-    { label: 'Gross Profit', value: `₹${report?.grossProfit?.toLocaleString()}`, icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+    { label: 'Revenue', value: `₹${(report?.totalRevenue / 100)?.toLocaleString()}`, icon: ShoppingBag, color: 'text-blue-600', bg: 'bg-blue-50' },
+    { label: 'Total Cost', value: `₹${(report?.totalCost / 100)?.toLocaleString()}`, icon: IndianRupee, color: 'text-red-500', bg: 'bg-red-50' },
+    { label: 'Gross Profit', value: `₹${(report?.grossProfit / 100)?.toLocaleString()}`, icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-50' },
     { label: 'Margin', value: `${report?.marginPercent?.toFixed(1)}%`, icon: BarChart2, color: 'text-premium-gold', bg: 'bg-gold-soft/30' },
   ];
 
@@ -88,7 +88,7 @@ export default function AdminDailyProfit() {
             <Layers size={18} className="text-premium-gold" /> Profit by Category
           </h3>
           <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} debounce={1}>
               <BarChart data={report?.byCategory || []}>
                 <XAxis dataKey="category" tick={{ fontSize: 10, fontWeight: 900 }} axisLine={false} tickLine={false} />
                 <Tooltip cursor={{ fill: '#F8F9FA' }} contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)', fontWeight: 900 }} />
@@ -104,7 +104,7 @@ export default function AdminDailyProfit() {
             {report?.byCategory?.map((cat, i) => (
               <div key={i} className="p-4 bg-light-bg rounded-2xl">
                 <p className="text-[9px] font-black text-text-muted uppercase tracking-widest">{cat.category}</p>
-                <p className="text-sm font-black text-charcoal">₹{cat.profit.toLocaleString()}</p>
+                <p className="text-sm font-black text-charcoal">₹{(cat.profit / 100).toLocaleString()}</p>
                 <div className="text-[9px] font-bold text-emerald-600 mt-1">{((cat.profit / cat.revenue) * 100).toFixed(1)}% Margin</div>
               </div>
             ))}
@@ -131,8 +131,8 @@ export default function AdminDailyProfit() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-black text-emerald-600">+₹{p.profit.toLocaleString()}</p>
-                  <p className="text-[9px] font-black text-text-muted uppercase tracking-widest mt-1">Revenue: ₹{p.revenue.toLocaleString()}</p>
+                  <p className="text-sm font-black text-emerald-600">+₹{(p.profit / 100).toLocaleString()}</p>
+                  <p className="text-[9px] font-black text-text-muted uppercase tracking-widest mt-1">Revenue: ₹{(p.revenue / 100).toLocaleString()}</p>
                 </div>
               </div>
             ))}

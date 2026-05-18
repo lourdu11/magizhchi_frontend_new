@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
-import { User, Package, Heart, Star, Wallet, MapPin, ChevronRight, LogOut, Edit, Lock, Plus, Trash2, Check, Loader2, Phone, Mail } from 'lucide-react';
+import { User, Package, Heart, Star, Wallet, MapPin, ChevronRight, LogOut, Edit, Lock, Plus, Trash2, Check, Loader2, Phone, Mail, ShoppingCart } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuthStore } from '../store';
+import { useAuthStore, useWishlistStore } from '../store';
 import { orderService } from '../services';
 
 import { toast } from 'react-hot-toast';
@@ -211,7 +211,104 @@ function Addresses() {
   );
 }
 
+// ── Wishlist Tab
+function MyWishlist() {
+  const qc = useQueryClient();
+  const { setWishlist } = useWishlistStore();
 
+  const { data: wishlist, isLoading } = useQuery({
+    queryKey: ['wishlist'],
+    queryFn: () => api.get('/wishlist').then(r => r.data.data),
+  });
+
+  const removeMutation = useMutation({
+    mutationFn: (productId) => api.delete(`/wishlist/${productId}`),
+    onSuccess: () => { qc.invalidateQueries(['wishlist']); toast.success('Removed from wishlist'); },
+  });
+
+  const addToCartMutation = useMutation({
+    mutationFn: ({ productId, variant }) => api.post('/cart', { productId, variant, quantity: 1 }),
+    onSuccess: () => { qc.invalidateQueries(['cart']); toast.success('Added to cart!'); },
+    onError: () => toast.error('Could not add to cart'),
+  });
+
+  if (isLoading) return <div className="py-20 flex justify-center"><Loader2 className="animate-spin text-premium-gold" size={36} /></div>;
+
+  const items = wishlist?.wishlist?.products || [];
+
+  if (!items.length) {
+    return (
+      <div className="py-20 text-center">
+        <Heart size={48} className="text-border-light mx-auto mb-3" />
+        <p className="text-text-muted">Your wishlist is empty.</p>
+        <Link to="/collections" className="btn-primary mt-4 inline-block">Browse Products</Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {items.map((item) => {
+        const product = item.productId || item;
+        if (!product?._id) return null;
+        const price = product.discountedPrice || product.sellingPrice;
+        const firstVariant = product.variants?.[0];
+
+        return (
+          <div key={product._id} className="bg-white rounded-2xl border border-border-light overflow-hidden shadow-sm group hover:shadow-md transition-all relative flex flex-col h-full">
+            {/* Image */}
+            <div className="relative aspect-[4/5] bg-light-bg overflow-hidden">
+              <Link to={`/product/${product.slug}`}>
+                <img
+                  src={product.images?.[0] || '/placeholder.jpg'}
+                  alt={product.name}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  loading="lazy"
+                />
+              </Link>
+              {product.discountPercentage > 0 && (
+                <span className="absolute top-3 left-3 bg-premium-gold text-charcoal text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full shadow-lg shadow-premium-gold/10">
+                  -{product.discountPercentage}%
+                </span>
+              )}
+              <button
+                onClick={() => removeMutation.mutate(product._id)}
+                className="absolute top-3 right-3 p-2 bg-white/80 hover:bg-white rounded-full shadow-md text-red-500 hover:scale-110 transition-all backdrop-blur-sm"
+                title="Remove from wishlist"
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
+
+            {/* Info */}
+            <div className="p-4 flex-1 flex flex-col justify-between">
+              <div>
+                <Link to={`/product/${product.slug}`}>
+                  <h4 className="font-bold text-text-primary text-sm hover:text-premium-gold transition-colors line-clamp-1">{product.name}</h4>
+                </Link>
+                <div className="flex items-baseline gap-2 mt-2">
+                  <span className="font-bold text-charcoal text-sm">Rs.{price?.toLocaleString('en-IN')}</span>
+                  {product.discountPercentage > 0 && (
+                    <span className="text-xs text-text-muted line-through font-medium">Rs.{product.sellingPrice?.toLocaleString('en-IN')}</span>
+                  )}
+                </div>
+              </div>
+
+              <button
+                onClick={() => addToCartMutation.mutate({ productId: product._id, variant: { size: firstVariant?.size, color: firstVariant?.color } })}
+                disabled={addToCartMutation.isPending || !firstVariant}
+                className="mt-4 w-full flex items-center justify-center gap-2 bg-gradient-to-r from-premium-gold to-amber-500 text-charcoal py-2.5 rounded-xl text-xs font-black uppercase tracking-wider hover:from-charcoal hover:to-charcoal hover:text-white transition-all disabled:opacity-50"
+              >
+                <ShoppingCart size={14} />
+                {!firstVariant ? 'Out of Stock' : 'Move to Cart'}
+              </button>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 // ── Main Dashboard
 export default function Dashboard() {
@@ -221,8 +318,10 @@ export default function Dashboard() {
   const activeSegment = location.pathname.split('/dashboard/')?.[1] || '';
 
   const handleLogout = () => { 
-    logout(); 
-    navigate('/login'); 
+    navigate('/'); 
+    setTimeout(() => {
+      logout();
+    }, 50);
   };
 
   return (
@@ -259,7 +358,7 @@ export default function Dashboard() {
             <Route index element={<MyOrders />} />
             <Route path="profile" element={<Profile />} />
             <Route path="addresses" element={<Addresses />} />
-            <Route path="wishlist" element={<div className="py-12 text-center text-text-muted">Visit the <Link to="/wishlist" className="text-premium-gold font-bold underline">Wishlist page</Link> to manage saved items.</div>} />
+            <Route path="wishlist" element={<MyWishlist />} />
             <Route path="reviews" element={<div className="py-12 text-center text-text-muted">Reviews you have written will appear here.</div>} />
           </Routes>
         </main>

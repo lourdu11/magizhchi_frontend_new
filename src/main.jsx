@@ -42,12 +42,27 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { HelmetProvider } from 'react-helmet-async';
 import App from './App';
+import ErrorBoundary from './components/common/ErrorBoundary';
 import './index.css';
+import 'react-lazy-load-image-component/src/effects/blur.css';
+import * as Sentry from "@sentry/react";
+
+// ─── Sentry Frontend Initialization ─────────────────────────────
+Sentry.init({
+  dsn: import.meta.env.VITE_SENTRY_DSN || "https://placeholder@sentry.io/placeholder",
+  integrations: [
+    Sentry.browserTracingIntegration(),
+    Sentry.replayIntegration(),
+  ],
+  tracesSampleRate: 1.0,
+  replaysSessionSampleRate: 0.1,
+  replaysOnErrorSampleRate: 1.0,
+});
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 30 * 1000, // 30 seconds
       gcTime: 10 * 60 * 1000,
       retry: 1,
       refetchOnWindowFocus: false,
@@ -60,7 +75,9 @@ createRoot(document.getElementById('root')).render(
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
-          <App />
+          <ErrorBoundary>
+            <App />
+          </ErrorBoundary>
           <Toaster
             position="top-right"
             gutter={8}

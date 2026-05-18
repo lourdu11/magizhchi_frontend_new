@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, Truck, RefreshCw, Shield, Heart, ShoppingBag, ChevronLeft, ChevronRight, Check, Loader2, MessageCircle, ThumbsUp, ThumbsDown, CheckCircle, Camera } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { toast } from 'react-hot-toast';
-import { productService, cartService, wishlistService, reviewService, authService } from '../services';
+import { productService, cartService, wishlistService, reviewService, authService, adminService } from '../services';
 import api from '../services/api';
 import { useAuthStore, useWishlistStore } from '../store';
 import SafeImage from '../components/common/SafeImage';
@@ -19,6 +19,7 @@ export default function ProductDetails() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState(null);
   const [selectedColor, setSelectedColor] = useState(null);
+  const [selectedComboItems, setSelectedComboItems] = useState({}); // { slotId: { product, variant } }
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('details');
   const [isAddingWishlist, setIsAddingWishlist] = useState(false);
@@ -30,49 +31,80 @@ export default function ProductDetails() {
   });
 
   const product = data;
+  const variants = useMemo(() => product?.variants || [], [product]);
 
-  const sizes = product ? [...new Set(product.variants.map(v => v.size).filter(Boolean))] : [];
-  const colors = product ? [...new Set(product.variants.map(v => v.color).filter(Boolean))] : [];
+  const sizes = useMemo(() => product ? [...new Set(variants.map(v => v.size).filter(Boolean))] : [], [product, variants]);
+  const colors = useMemo(() => product ? [...new Set(variants.map(v => v.color).filter(Boolean))] : [], [product, variants]);
 
   // Auto-select if only one option
   useEffect(() => {
     if (sizes.length === 1 && !selectedSize) setSelectedSize(sizes[0]);
     if (colors.length === 1 && !selectedColor) setSelectedColor(colors[0]);
-  }, [sizes, colors]);
 
-  const currentVariant = product?.variants.find(
+    // ─── REAL-TIME SYNC ENGINE (Customer Alert) ───────
+    const socket = adminService.getSocket?.() || null;
+    if (socket && product) {
+       const handleProductSync = (data) => {
+          if (data.id === product._id || data.productId === product._id) {
+             queryClient.invalidateQueries({ queryKey: ['product', slug] });
+             if (data.type === 'PRODUCT_ARCHIVED' || !product.isActive) {
+                toast.error('This product is no longer available', { id: 'product-archive-alert' });
+             } else {
+                toast('Product information updated', { icon: '✨', id: 'product-update-alert' });
+             }
+          }
+       };
+       socket.on('STOCK_UPDATED', handleProductSync);
+       socket.on('INVENTORY_SYNCED', handleProductSync);
+       socket.on('PRODUCT_ARCHIVED', handleProductSync);
+       
+       return () => {
+          socket.off('STOCK_UPDATED', handleProductSync);
+          socket.off('INVENTORY_SYNCED', handleProductSync);
+          socket.off('PRODUCT_ARCHIVED', handleProductSync);
+       };
+    }
+  }, [sizes, colors, product, queryClient, slug]);
+
+  const currentVariant = useMemo(() => variants.find(
     v => v.size === selectedSize && v.color === selectedColor
-  );
+  ), [variants, selectedSize, selectedColor]);
 
   // variant.stock from API is already: totalStock - onlineSold - offlineSold - reservedStock + returned - damaged
-  const availableStock = currentVariant ? Math.max(0, currentVariant.stock || 0) : 0;
+  const availableStock = useMemo(() => currentVariant ? Math.max(0, currentVariant.availableStock ?? currentVariant.available ?? currentVariant.qty ?? currentVariant.stock ?? 0) : 0, [currentVariant]);
   const isOutOfStock = selectedSize && selectedColor && availableStock <= 0;
 
   // Sync image with color selection
-  const handleColorSelect = (color) => {
+  const handleColorSelect = useCallback((color) => {
     setSelectedColor(color);
-    const variantWithImage = product.variants.find(v => v.color === color && v.images?.length > 0);
+    const variantWithImage = variants.find(v => v.color === color && v.images?.length > 0);
     if (variantWithImage) {
-      const imgIdx = product.images.findIndex(img => img === variantWithImage.images[0]);
+      const imgIdx = (product.images || []).findIndex(img => img === variantWithImage.images[0]);
       if (imgIdx > -1) setSelectedImage(imgIdx);
     }
-  };
+  }, [variants, product?.images]);
 
   // Sync size with color (reset color if not available in new size)
-  const handleSizeSelect = (size) => {
+  const handleSizeSelect = useCallback((size) => {
     setSelectedSize(size);
     if (selectedColor) {
-      const exists = product.variants.some(v => v.size === size && v.color === selectedColor);
+      const exists = variants.some(v => v.size === size && v.color === selectedColor);
       if (!exists) setSelectedColor(null);
     }
-  };
+  }, [selectedColor, variants]);
 
   const isWishlisted = product ? productIds.includes(product._id) : false;
 
-  const handleAddToCart = async () => {
-    if (!selectedSize) return toast.error('Please select a size');
-    if (!selectedColor) return toast.error('Please select a color');
-    if (isOutOfStock) return toast.error('This variant is out of stock');
+  const handleAddToCart = useCallback(async () => {
+    if (product.productNature === 'combo') {
+       const slotsCount = product.comboSlots?.length || 0;
+       const selectedCount = Object.keys(selectedComboItems).length;
+       if (selectedCount < slotsCount) return toast.error('Please configure your bundle selections');
+    } else {
+       if (!selectedSize) return toast.error('Please select a size');
+       if (!selectedColor) return toast.error('Please select a color');
+       if (isOutOfStock) return toast.error('This variant is out of stock');
+    }
 
     setIsAddingCart(true);
     try {
@@ -80,7 +112,12 @@ export default function ProductDetails() {
         const res = await authService.quickGuest();
         setAuth(res.data.data.user, res.data.data.accessToken);
       }
-      await cartService.addToCart({ productId: product._id, size: selectedSize, color: selectedColor, quantity });
+      
+      const cartData = product.productNature === 'combo' 
+        ? { productId: product._id, quantity, comboSelections: Object.values(selectedComboItems) }
+        : { productId: product._id, size: selectedSize, color: selectedColor, quantity };
+
+      await cartService.addToCart(cartData);
       queryClient.invalidateQueries({ queryKey: ['cart'] });
       toast.success('Added to cart!');
       navigate('/cart');
@@ -90,9 +127,9 @@ export default function ProductDetails() {
     } finally {
       setIsAddingCart(false);
     }
-  };
+  }, [product, selectedSize, selectedColor, selectedComboItems, quantity, isOutOfStock, isAuthenticated, setAuth, queryClient, navigate]);
 
-  const handleWishlist = async () => {
+  const handleWishlist = useCallback(async () => {
     setIsAddingWishlist(true);
     try {
       if (!isAuthenticated) {
@@ -116,17 +153,56 @@ export default function ProductDetails() {
     } finally {
       setIsAddingWishlist(false);
     }
-  };
+  }, [isAuthenticated, isWishlisted, product?._id, setAuth, toggleId, queryClient]);
 
-  if (isLoading) return <div className="container-custom py-24 flex justify-center"><div className="w-12 h-12 border-4 border-premium-gold/20 border-t-premium-gold rounded-full animate-spin" /></div>;
-  if (!product) return <div className="container-custom py-24 text-center"><h2 className="text-4xl font-black mb-8">Product Not Found</h2><Link to="/collections" className="btn-primary">Continue Shopping</Link></div>;
+  if (isLoading) {
+    return (
+      <div className="min-h-dvh flex items-center justify-center bg-white">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-12 h-12 text-charcoal animate-spin" />
+          <p className="text-sm font-black uppercase tracking-widest text-text-muted">Loading Masterpiece...</p>
+        </div>
+      </div>
+    );
+  }
 
-  const images = product.images?.length > 0 ? product.images : ['https://images.unsplash.com/photo-1596755094514-f87e34085b2c?q=80&w=800&auto=format&fit=crop'];
+  if (!product) {
+    return (
+      <div className="min-h-dvh flex flex-col items-center justify-center bg-white p-6 text-center">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="max-w-md space-y-8"
+        >
+          <div className="w-24 h-24 bg-light-bg rounded-full flex items-center justify-center mx-auto">
+            <ShoppingBag className="text-text-muted" size={48} />
+          </div>
+          <div className="space-y-4">
+            <h1 className="text-4xl font-black text-charcoal uppercase tracking-tighter">Product Not Found</h1>
+            <p className="text-text-muted font-bold">This item may have been moved, deleted, or archived. Explore our other premium collections.</p>
+          </div>
+          <Link 
+            to="/"
+            className="inline-flex items-center gap-3 bg-charcoal text-white px-10 py-5 rounded-[2rem] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-2xl"
+          >
+            <ChevronLeft size={20} />
+            Back to Collection
+          </Link>
+        </motion.div>
+      </div>
+    );
+  }
+
+  const images = product.images?.length > 0 
+    ? product.images 
+    : [product.laptopImage, product.tabletImage, product.mobileImage].filter(Boolean).length > 0
+      ? [product.laptopImage, product.tabletImage, product.mobileImage].filter(Boolean)
+      : ['https://images.unsplash.com/photo-1596755094514-f87e34085b2c?q=80&w=800&auto=format&fit=crop'];
   const price = product.discountedPrice || product.sellingPrice;
   const hasDiscount = product.discountPercentage > 0;
 
   return (
-    <div className="bg-white min-h-screen pb-24 md:pb-0">
+    <div className="bg-white min-h-dvh pb-24 md:pb-0">
       <Helmet><title>{product.name} — Magizhchi</title></Helmet>
 
       {/* Breadcrumb */}
@@ -144,18 +220,38 @@ export default function ProductDetails() {
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-24 items-start">
           
           {/* ── Image Gallery ── */}
-          <div className="space-y-6">
-            <div className="relative aspect-[4/5] rounded-[2.5rem] md:rounded-[3.5rem] overflow-hidden bg-light-bg border border-border-light group shadow-xl shadow-black/5">
+          <div className="space-y-6 min-w-0">
+            <div className={`relative aspect-[4/5] rounded-[2.5rem] md:rounded-[3.5rem] overflow-hidden ${product.bgStyle === 'solid' ? 'bg-white' : 'bg-light-bg'} border border-border-light group shadow-xl shadow-black/5`}>
               <motion.div
                 key={selectedImage}
                 initial={{ opacity: 0, scale: 1.05 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="w-full h-full"
+                className="w-full h-full relative"
               >
+                {/* 🌌 Dynamic Glassmorphic Ambient Glow */}
+                {product.bgStyle !== 'solid' && (
+                  <div 
+                    className="absolute inset-0 filter blur-3xl opacity-95 scale-115 pointer-events-none select-none transition-all duration-700"
+                    style={{
+                      backgroundImage: `url(${images[selectedImage]})`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: product.position || 'center'
+                    }}
+                  />
+                )}
+
+                {/* 🖼️ Main Active Product Image */}
                 <SafeImage 
                   src={images[selectedImage]} 
+                  width={800}
+                  quality={90}
                   alt="" 
-                  className="w-full h-full object-cover" 
+                  className="w-full h-full relative z-10 transition-all duration-700" 
+                  style={{
+                    objectFit: product.detailFit || product.fit || 'contain',
+                    objectPosition: product.position || 'center',
+                    transform: `scale(${product.scale || 1})`
+                  }}
                 />
               </motion.div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
@@ -173,7 +269,7 @@ export default function ProductDetails() {
               </div>
             </div>
             
-            <div className="hidden md:flex gap-4">
+            <div className="hidden md:flex gap-4 overflow-x-auto pb-2 no-scrollbar">
               {images.map((img, i) => (
                 <button 
                   key={i} 
@@ -181,14 +277,14 @@ export default function ProductDetails() {
                   aria-label={`Switch to product image ${i + 1}`}
                   className={`w-24 aspect-square rounded-2xl overflow-hidden border-2 transition-all ${selectedImage === i ? 'border-premium-gold scale-95 shadow-lg shadow-premium-gold/20' : 'border-transparent hover:border-border-light'}`}
                 >
-                  <SafeImage src={img} alt="" className="w-full h-full object-cover" />
+                  <SafeImage src={img} width={150} quality={70} alt="" className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>
           </div>
 
           {/* ── Product Details ── */}
-          <div className="space-y-8">
+          <div className="space-y-8 min-w-0">
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <span className="px-3 py-1 bg-charcoal text-white text-[9px] font-black uppercase tracking-[0.2em] rounded-full">{product.brand || 'Magizhchi'}</span>
@@ -223,70 +319,93 @@ export default function ProductDetails() {
               </div>
             </div>
 
-            {/* Colors */}
-            {colors.length > 0 && (
-              <div className="space-y-3">
-                <p className="text-[10px] font-black uppercase tracking-widest text-text-muted flex items-center justify-between">
-                  Select Color <span>{selectedColor || 'Required'}</span>
-                </p>
-                <div className="flex gap-3 flex-wrap">
-                  {colors.map(color => {
-                    // Check if this color is available at all
-                    const totalColorStock = product.variants
-                      .filter(v => v.color === color)
-                      .reduce((sum, v) => sum + v.stock, 0);
-                    
-                    // Check if available for the SPECIFIC selected size
-                    const variant = product.variants.find(v => v.color === color && v.size === selectedSize);
-                    const isAvailableForSize = selectedSize ? (variant && variant.stock > 0) : totalColorStock > 0;
-
-                    return (
-                      <button 
-                        key={color} 
-                        type="button"
-                        onClick={() => handleColorSelect(color)} 
-                        className={`px-6 py-3 rounded-2xl text-[10px] font-black tracking-widest border-2 transition-all flex flex-col items-center ${selectedColor === color ? 'bg-charcoal text-white border-charcoal shadow-xl' : !isAvailableForSize ? 'bg-light-bg text-text-muted border-transparent opacity-50' : 'bg-white text-charcoal border-border-light hover:border-premium-gold'}`}
-                      >
-                        <span>{color.toUpperCase()}</span>
-                        <span className="text-[8px] opacity-60 uppercase">{!isAvailableForSize ? 'Sold Out' : 'In Stock'}</span>
-                      </button>
-                    );
-                  })}
+            {/* Colors & Sizes (Standard) or Combo Selector */}
+            {product.productNature === 'combo' ? (
+              <div className="space-y-8">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-premium-gold">Bundle Architecture</p>
+                <div className="space-y-6">
+                  {product.comboSlots?.map((slot, sIdx) => (
+                    <div key={slot.id || sIdx} className="p-6 bg-light-bg/30 rounded-[2rem] border border-border-light space-y-4">
+                      <p className="text-[9px] font-black text-charcoal uppercase tracking-widest">{slot.name}</p>
+                      {slot.products?.map(p => (
+                        <div key={p._id} className="space-y-3">
+                          <p className="text-[11px] font-bold text-text-muted uppercase">{p.name}</p>
+                          <div className="flex flex-wrap gap-2">
+                            {p.syncedVariants?.map(v => (
+                              <button
+                                key={v.id}
+                                onClick={() => v.qty > 0 && setSelectedComboItems({ ...selectedComboItems, [slot.id]: { productName: p.name, productRef: p._id, ...v } })}
+                                disabled={v.qty <= 0}
+                                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all border-2 ${selectedComboItems[slot.id]?.id === v.id ? 'bg-charcoal text-white border-charcoal shadow-lg scale-105' : v.qty > 0 ? 'bg-white text-text-muted border-border-light hover:border-premium-gold' : 'bg-light-bg text-text-muted/30 border-border-light opacity-50 cursor-not-allowed'}`}
+                              >
+                                {v.size} / {v.color} {v.qty <= 0 && '(Sold Out)'}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
                 </div>
               </div>
-            )}
+            ) : (
+              <>
+                {/* Colors */}
+                {colors.length > 0 && (
+                  <div className="space-y-3">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-text-muted flex items-center justify-between">
+                      Select Color <span>{selectedColor || 'Required'}</span>
+                    </p>
+                    <div className="flex gap-3 flex-wrap">
+                      {colors.map(color => {
+                        const totalColorStock = variants
+                          .filter(v => v.color === color)
+                          .reduce((sum, v) => sum + (v.availableStock ?? v.available ?? v.qty ?? v.stock ?? 0), 0);
+                        const variant = variants.find(v => v.color === color && v.size === selectedSize);
+                        const isAvailable = selectedSize ? ((variant?.availableStock ?? variant?.available ?? variant?.qty ?? variant?.stock ?? 0) > 0) : (totalColorStock > 0);
 
-            {/* Sizes */}
-            {sizes.length > 0 && (
-              <div className="space-y-3">
-                <p className="text-[10px] font-black uppercase tracking-widest text-text-muted flex items-center justify-between">
-                  Select Size <span>{selectedSize || 'Required'}</span>
-                </p>
-                <div className="flex flex-wrap gap-3">
-                  {sizes.map(size => {
-                    // Check total size stock
-                    const totalSizeStock = product.variants
-                      .filter(v => v.size === size)
-                      .reduce((sum, v) => sum + v.stock, 0);
+                        return (
+                          <button
+                            key={color}
+                            onClick={() => handleColorSelect(color)}
+                            className={`px-5 py-3 rounded-2xl text-[10px] font-black uppercase transition-all border-2 ${selectedColor === color ? 'bg-charcoal text-white border-charcoal shadow-xl scale-105' : isAvailable ? 'bg-white text-charcoal border-border-light hover:border-premium-gold' : 'bg-light-bg text-text-muted border-border-light opacity-30 cursor-not-allowed'}`}
+                          >
+                            {color}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
 
-                    // Check if available for the SPECIFIC selected color
-                    const variant = product.variants.find(v => v.size === size && v.color === selectedColor);
-                    const isAvailableForColor = selectedColor ? (variant && variant.stock > 0) : totalSizeStock > 0;
-                    
-                    return (
-                      <button 
-                        key={size} 
-                        type="button"
-                        onClick={() => handleSizeSelect(size)} 
-                        className={`min-w-[80px] h-12 px-4 rounded-2xl text-sm font-black border-2 transition-all flex flex-col items-center justify-center relative ${selectedSize === size ? 'bg-charcoal text-white border-charcoal shadow-lg' : !isAvailableForColor ? 'bg-light-bg text-text-muted border-transparent opacity-50' : 'bg-white text-charcoal border-border-light hover:border-premium-gold'}`}
-                      >
-                        <span>{size}</span>
-                        <span className="text-[8px] opacity-60">{!isAvailableForColor ? 'OUT' : 'AVAILABLE'}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+                {/* Sizes */}
+                {sizes.length > 0 && (
+                  <div className="space-y-3">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-text-muted flex items-center justify-between">
+                      Select Size <span>{selectedSize || 'Required'}</span>
+                    </p>
+                    <div className="flex gap-3 flex-wrap">
+                      {sizes.map(size => {
+                        const totalSizeStock = variants
+                          .filter(v => v.size === size)
+                          .reduce((sum, v) => sum + (v.availableStock ?? v.available ?? v.qty ?? v.stock ?? 0), 0);
+                        const variant = variants.find(v => v.size === size && v.color === selectedColor);
+                        const isAvailable = selectedColor ? ((variant?.availableStock ?? variant?.available ?? variant?.qty ?? variant?.stock ?? 0) > 0) : (totalSizeStock > 0);
+
+                        return (
+                          <button
+                            key={size}
+                            onClick={() => handleSizeSelect(size)}
+                            className={`px-5 py-3 rounded-2xl text-[10px] font-black uppercase transition-all border-2 ${selectedSize === size ? 'bg-charcoal text-white border-charcoal shadow-xl scale-105' : isAvailable ? 'bg-white text-charcoal border-border-light hover:border-premium-gold' : 'bg-light-bg text-text-muted border-border-light opacity-30 cursor-not-allowed'}`}
+                          >
+                            {size}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
 
             {/* Actions */}
@@ -485,7 +604,7 @@ function ReviewSection({ productId, slug, averageRating = 0, totalCount = 0 }) {
             <h4 className="text-sm font-black text-charcoal uppercase tracking-[0.2em]">Images from Customers ({allCustomerImages.length})</h4>
             <div className="flex gap-4 overflow-x-auto no-scrollbar pb-4">
               {allCustomerImages.map((img, i) => (
-                <SafeImage key={i} src={img} alt="customer" className="w-32 h-32 md:w-40 md:h-40 object-cover rounded-[2rem] border-2 border-border-light flex-shrink-0 hover:border-premium-gold transition-all cursor-pointer shadow-lg" />
+                <SafeImage key={i} src={img} width={200} quality={70} alt="customer" className="w-32 h-32 md:w-40 md:h-40 object-cover rounded-[2rem] border-2 border-border-light flex-shrink-0 hover:border-premium-gold transition-all cursor-pointer shadow-lg" />
               ))}
             </div>
           </div>
@@ -588,7 +707,7 @@ function ReviewSection({ productId, slug, averageRating = 0, totalCount = 0 }) {
               {review.images?.length > 0 && (
                 <div className="flex gap-3 pt-2">
                   {review.images.map((img, i) => (
-                    <SafeImage key={i} src={img} alt="review" className="w-20 h-20 object-cover rounded-2xl border border-border-light shadow-md" />
+                    <SafeImage key={i} src={img} width={100} quality={70} alt="review" className="w-20 h-20 object-cover rounded-2xl border border-border-light shadow-md" />
                   ))}
                 </div>
               )}

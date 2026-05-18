@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
-import { Eye, EyeOff, ArrowLeft, Phone, Mail, Sparkles, ShieldCheck, Zap, Info, ArrowRight, Star, CheckCircle2, Lock } from 'lucide-react';
+import { Eye, EyeOff, ArrowLeft, Phone, Mail, Sparkles, ShieldCheck, Zap, Info, ArrowRight, Star, CheckCircle2, Lock, Key } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { toast } from 'react-hot-toast';
 import { authService } from '../../services';
@@ -16,6 +16,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [activeGuideTab, setActiveGuideTab] = useState('smart');
 
   const { setAuth, logout, isAuthenticated, user } = useAuthStore();
   const [isHydrated, setIsHydrated] = useState(false);
@@ -46,7 +47,7 @@ export default function Login() {
       return;
     }
 
-    const dashboardPath = (from === '/' || from === '/login' || from.includes('/admin') || from.includes('/staff')) ? '/dashboard' : from;
+    const dashboardPath = (from === '/' || from === '/login' || from.includes('/admin') || from.includes('/staff')) ? '/' : from;
     navigate(dashboardPath, { replace: true });
   };
 
@@ -133,41 +134,61 @@ export default function Login() {
         <meta name="description" content="Login to Magizhchi Garments to shop premium men's fashion." />
       </Helmet>
 
-      <div className="min-h-screen bg-[#FDFBF7] flex flex-col lg:flex-row overflow-x-hidden">
-        {/* ── Left Side ── */}
-        <div className="hidden lg:flex lg:w-1/2 bg-charcoal relative overflow-hidden flex-col justify-between p-16">
+      <div className="min-h-dvh bg-gradient-to-tr from-[#FAF8F5] via-[#FFFDFB] to-[#F7F4EF] flex flex-col lg:flex-row overflow-x-hidden relative">
+        {/* Decorative Background Elements */}
+        <div className="absolute top-1/4 right-0 w-[400px] h-[400px] bg-premium-gold/5 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute bottom-10 left-1/3 w-[300px] h-[300px] bg-premium-gold/3 rounded-full blur-[80px] pointer-events-none" />
+
+        {/* ── Left Side (Premium Brand Sidebar) ── */}
+        <div className="hidden lg:flex lg:w-[45%] bg-[#0B0B0C] relative overflow-hidden flex-col justify-between p-16 border-r border-white/[0.05]">
+          {/* Animated Background Mesh */}
           <div className="absolute inset-0 pointer-events-none">
-            <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3], x: [0, 50, 0] }} transition={{ duration: 10, repeat: Infinity }} className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] bg-premium-gold/10 rounded-full blur-[120px]" />
+            <motion.div 
+              animate={{ scale: [1, 1.15, 1], opacity: [0.15, 0.25, 0.15], x: [0, 40, 0], y: [0, -30, 0] }} 
+              transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }} 
+              className="absolute top-[-15%] left-[-15%] w-[700px] h-[700px] bg-gradient-to-br from-premium-gold/20 to-transparent rounded-full blur-[130px]" 
+            />
+            <motion.div 
+              animate={{ scale: [1, 1.1, 1], opacity: [0.1, 0.2, 0.1], x: [0, -30, 0], y: [0, 50, 0] }} 
+              transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 2 }} 
+              className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-premium-gold/15 rounded-full blur-[110px]" 
+            />
           </div>
 
+          {/* Logo Section */}
           <div className="relative z-10">
-            <Link to="/" className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-premium-gold rounded-2xl flex items-center justify-center rotate-12 shadow-[0_0_30px_rgba(212,175,55,0.3)]">
-                <span className="text-charcoal font-black text-xl">M</span>
-              </div>
-              <div>
+            <Link to="/" className="flex items-center gap-3 group">
+              <img
+                src="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0043.jpg?updatedAt=1772379265473"
+                alt="Magizhchi Logo"
+                className="w-12 h-12 object-cover rounded-full shadow-[0_0_30px_rgba(212,175,55,0.3)] transition-transform duration-500 group-hover:scale-105"
+              />
+              <div className="flex flex-col leading-none">
                 <h1 className="font-display text-2xl font-black text-white tracking-widest leading-none">MAGIZHCHI</h1>
-                <p className="text-[10px] text-premium-gold/60 font-black tracking-[0.5em] mt-1.5 uppercase">Premium Garments</p>
+                <p className="text-[8px] text-premium-gold/70 font-black tracking-[0.25em] mt-1.5 uppercase leading-none">Premium Garments</p>
               </div>
             </Link>
           </div>
 
-          <div className="relative z-10 mt-12">
-            <motion.div initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }}>
-              <h2 className="text-5xl xl:text-6xl font-black text-white leading-[1.1] mb-6">
+          {/* Core Content */}
+          <div className="relative z-10 mt-12 my-auto">
+            <motion.div initial={{ opacity: 0, x: -40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, ease: "easeOut" }}>
+              <span className="inline-block px-3 py-1 bg-premium-gold/10 border border-premium-gold/20 text-premium-gold rounded-full text-[9px] font-black uppercase tracking-[0.25em] mb-6">CUSTOMER PORTAL</span>
+              <h2 className="text-5xl xl:text-6xl font-black text-white leading-[1.1] mb-8 tracking-tight">
                 Elegance in <br />
-                <span className="text-premium-gold italic font-serif">Every Thread.</span>
+                <span className="bg-gradient-to-r from-premium-gold via-amber-400 to-premium-gold bg-clip-text text-transparent italic font-serif">Every Thread.</span>
               </h2>
-              <div className="space-y-6 max-w-sm">
+              
+              <div className="space-y-4 max-w-md">
                 {[
-                  { icon: ShieldCheck, title: 'Customer Security', desc: 'Protected by secure encryption and multi-step verification.' },
-                  { icon: Zap, title: 'Smart Login', desc: 'No complex forms. Your credentials create your account.' },
+                  { icon: ShieldCheck, title: 'Frosted Security Shield', desc: 'Enterprise-grade end-to-end encryption keeping your purchases and details completely secure.' },
+                  { icon: Zap, title: 'Zero Friction Login', desc: 'No lengthy sign-up forms. Enter phone or email with a password to instantly create or access your profile.' },
                 ].map((item) => (
-                  <div key={item.title} className="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/5">
-                    <div className="w-10 h-10 rounded-xl bg-premium-gold/10 flex items-center justify-center text-premium-gold"><item.icon size={20} /></div>
+                  <div key={item.title} className="flex items-start gap-4 p-5 rounded-2xl bg-white/[0.03] border border-white/[0.06] backdrop-blur-md hover:bg-white/[0.05] transition-all">
+                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-premium-gold/20 to-amber-500/10 flex items-center justify-center text-premium-gold border border-premium-gold/20 shrink-0"><item.icon size={20} /></div>
                     <div>
-                      <h4 className="text-white text-sm font-bold uppercase tracking-widest mb-1">{item.title}</h4>
-                      <p className="text-white/30 text-xs leading-relaxed">{item.desc}</p>
+                      <h4 className="text-white text-xs font-bold uppercase tracking-widest mb-1.5">{item.title}</h4>
+                      <p className="text-white/40 text-xs leading-relaxed">{item.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -175,112 +196,181 @@ export default function Login() {
             </motion.div>
           </div>
 
-          <div className="relative z-10"><p className="text-white/20 text-[10px] font-bold tracking-widest uppercase">Est. 2024 · Tamil Nadu</p></div>
+          {/* Footer Section */}
+          <div className="relative z-10 flex justify-between items-center border-t border-white/[0.05] pt-6">
+            <p className="text-white/20 text-[10px] font-bold tracking-widest uppercase">Est. 2024 · Tamil Nadu</p>
+            <p className="text-premium-gold/40 text-[9px] font-bold tracking-[0.2em] uppercase">Handcrafted for You</p>
+          </div>
         </div>
 
-        {/* ── Right Side ── */}
-        <div className="flex-1 flex flex-col min-h-screen">
-          <div className="flex items-center justify-between px-8 py-8 lg:px-12">
-            <Link to="/" className="lg:hidden flex items-center gap-3">
-               <div className="w-10 h-10 bg-charcoal text-premium-gold rounded-xl flex items-center justify-center font-black">M</div>
-               <span className="font-black text-charcoal tracking-widest text-sm">MAGIZHCHI</span>
+        {/* ── Right Side (Interactive Glassmorphic Form) ── */}
+        <div className="flex-1 flex flex-col min-h-dvh relative z-10">
+          {/* Top Header Navigation */}
+          <div className="flex items-center justify-between px-8 py-8 lg:px-16">
+            <Link to="/" className="lg:hidden flex items-center gap-3 group">
+               <img
+                 src="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0043.jpg?updatedAt=1772379265473"
+                 alt="Magizhchi Logo"
+                 className="w-10 h-10 object-cover rounded-full shadow-[0_0_15px_rgba(212,175,55,0.2)]"
+               />
+               <div className="flex flex-col leading-none">
+                 <span className="font-black text-charcoal text-sm tracking-widest leading-none">MAGIZHCHI</span>
+                 <span className="font-black text-premium-gold text-[8px] tracking-[0.25em] mt-1 uppercase leading-none">Garments</span>
+               </div>
             </Link>
-            <Link to="/" className="text-[10px] font-black text-charcoal/40 hover:text-charcoal uppercase tracking-[0.2em] transition-all flex items-center gap-2">
-              <ArrowLeft size={14} /> Back to Store
+            <Link to="/" className="text-[10px] font-black text-charcoal/40 hover:text-premium-gold uppercase tracking-[0.2em] transition-all flex items-center gap-2 px-4 py-2 bg-white border border-charcoal/5 rounded-full shadow-sm hover:shadow-md">
+              <ArrowLeft size={13} /> Back to Store
             </Link>
           </div>
 
           <div className="flex-1 flex flex-col justify-center items-center px-6 pb-20">
-            <div className="w-full max-w-[440px]">
-              <div className="text-center mb-8">
-                <motion.h3 className="text-4xl font-black text-charcoal mb-3">Customer Login</motion.h3>
-                <p className="text-charcoal/50 text-sm font-medium">Access your orders, wishlist and profile</p>
+            <div className="w-full max-w-[450px]">
+              
+              {/* Heading */}
+              <div className="text-center mb-6">
+                <motion.h3 initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-4xl font-black text-charcoal tracking-tight mb-2">Customer Login</motion.h3>
+                <p className="text-charcoal/50 text-sm font-medium">Access your premium wardrobe, active orders and wishlist</p>
               </div>
 
-              {/* ── IMPORTANT PORTAL NOTICE ── */}
-              <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-8 flex items-start gap-3">
-                <Lock size={18} className="text-amber-600 shrink-0 mt-0.5" />
-                <p className="text-[11px] font-bold text-amber-700 leading-relaxed uppercase tracking-wider">
-                  Important: This page is for <span className="underline">Customers Only</span>. Admins and Staff must use their dedicated login portals.
-                </p>
-              </div>
 
-              {/* ── HOW IT WORKS ── */}
-              <div className="bg-white border border-charcoal/5 shadow-xl shadow-charcoal/5 rounded-[2rem] overflow-hidden mb-8">
-                <div className="bg-premium-gold/5 px-6 py-4 border-b border-charcoal/5 flex items-center gap-3">
-                  <Sparkles size={16} className="text-premium-gold" />
-                  <h4 className="text-[11px] font-black text-charcoal uppercase tracking-[0.15em]">Smart Login Guide</h4>
+
+              {/* ── ULTRA-HIGH LEVEL INTERACTIVE PORTAL GUIDE ── */}
+              <div className="bg-white border border-charcoal/5 shadow-xl shadow-charcoal/5 rounded-[2rem] overflow-hidden mb-6">
+                <div className="bg-premium-gold/5 px-6 py-3 border-b border-charcoal/5 flex items-center gap-2">
+                  <Sparkles size={15} className="text-premium-gold" />
+                  <h4 className="text-[10px] font-black text-charcoal uppercase tracking-[0.2em]">Magizhchi Interactive Smart Guide</h4>
                 </div>
-                <div className="p-6 space-y-4">
-                  <div className="flex gap-4">
-                    <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />
-                    <p className="text-[10px] leading-relaxed text-charcoal/50 font-bold uppercase tracking-widest">First time? Enter details to create account instantly.</p>
-                  </div>
-                  <div className="flex gap-4">
-                    <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />
-                    <p className="text-[10px] leading-relaxed text-charcoal/50 font-bold uppercase tracking-widest">Returning? Use same password to log in.</p>
-                  </div>
+                
+                {/* Guide Segmented Tabs Selector */}
+                <div className="flex border-b border-charcoal/5 bg-[#FAF8F5]/50 p-1.5 gap-1">
+                  {[
+                    { id: 'smart', label: '⚡ Smart Login', icon: Zap },
+                    { id: 'forgot', label: '🔑 Recovery', icon: Key },
+                    { id: 'guest', label: '👤 Guest Access', icon: Star }
+                  ].map((tab) => (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setActiveGuideTab(tab.id)}
+                      className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all duration-300 ${
+                        activeGuideTab === tab.id 
+                          ? 'bg-charcoal text-white shadow-md shadow-charcoal/15' 
+                          : 'text-charcoal/50 hover:bg-charcoal/5'
+                      }`}
+                    >
+                      <tab.icon size={12} className={activeGuideTab === tab.id ? 'text-premium-gold' : 'text-charcoal/40'} />
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Tab Content Display */}
+                <div className="p-5 min-h-[95px] flex items-center bg-[#FFFDFB]">
+                  <AnimatePresence mode="wait">
+                    {activeGuideTab === 'smart' && (
+                      <motion.div 
+                        key="smart" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}
+                        className="space-y-2 w-full"
+                      >
+                        <p className="text-[10px] font-bold text-premium-gold uppercase tracking-[0.15em] flex items-center gap-1">⚡ 2-in-1 Seamless Auto Portal</p>
+                        <p className="text-[11px] leading-relaxed text-charcoal/60 font-medium">
+                          No separate sign-up pages or activation links! Enter your Email or 10-digit Phone, type an 8-character password, and click <strong className="text-charcoal">Unlock</strong>. If you are <strong className="text-charcoal font-black">New</strong>, our system creates your profile and password instantly in 0.1s. If you are a <strong className="text-charcoal font-black">Returning Customer</strong>, we simply verify your password and log you in. Your active cart, shipping addresses, and wishlist load automatically!
+                        </p>
+                      </motion.div>
+                    )}
+
+                    {activeGuideTab === 'forgot' && (
+                      <motion.div 
+                        key="forgot" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}
+                        className="space-y-2 w-full"
+                      >
+                        <p className="text-[10px] font-bold text-premium-gold uppercase tracking-[0.15em] flex items-center gap-1">🔑 2-Step Secure OTP Password Reset</p>
+                        <p className="text-[11px] leading-relaxed text-charcoal/60 font-medium">
+                          Forgot your password? Click <strong className="text-charcoal">Forgot?</strong> above the password field. Enter your email or phone to receive a secure 6-digit OTP instantly via <strong className="text-emerald-600">WhatsApp</strong> or <strong className="text-amber-600">Email</strong>. Enter it to set your new password!
+                        </p>
+                      </motion.div>
+                    )}
+
+                    {activeGuideTab === 'guest' && (
+                      <motion.div 
+                        key="guest" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}
+                        className="space-y-2 w-full"
+                      >
+                        <p className="text-[10px] font-bold text-premium-gold uppercase tracking-[0.15em] flex items-center gap-1">👤 One-Click Instant Guest Mode</p>
+                        <p className="text-[11px] leading-relaxed text-charcoal/60 font-medium">
+                          In a rush? Click <strong className="text-charcoal">Continue as Guest</strong> at the bottom. A temporary account is generated in 1 second, allowing you to checkout and build your wishlist immediately without any password!
+                        </p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-charcoal/40 uppercase tracking-[0.15em] px-1">Phone or Email</label>
+              {/* Login Form */}
+              <form onSubmit={handleSubmit} className="space-y-5">
+                
+                {/* Identifier Box */}
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-black text-charcoal/40 uppercase tracking-[0.2em] px-1">Phone or Email</label>
                   <div className="relative group">
-                    <div className="absolute left-5 top-1/2 -translate-y-1/2 text-charcoal/30 group-focus-within:text-premium-gold transition-colors">
-                      {inputType === 'email' ? <Mail size={18} /> : <Phone size={18} />}
+                    <div className="absolute left-5 top-1/2 -translate-y-1/2 text-charcoal/30 group-focus-within:text-premium-gold transition-colors duration-300">
+                      {inputType === 'email' ? <Mail size={16} /> : <Phone size={16} />}
                     </div>
                     <input
                       type="text" value={identifier} onChange={(e) => setIdentifier(e.target.value)}
                       placeholder="9876543210 or your@email.com"
-                      className="w-full pl-14 pr-6 py-4 bg-white border-2 border-charcoal/5 rounded-[1.5rem] text-sm font-bold focus:border-premium-gold outline-none transition-all"
+                      className="w-full pl-12 pr-6 py-3.5 bg-white border-2 border-charcoal/[0.06] rounded-2xl text-sm font-bold focus:border-premium-gold focus:ring-[4px] focus:ring-premium-gold/15 outline-none transition-all duration-300 shadow-sm"
                     />
                   </div>
                 </div>
 
-                <div className="space-y-2">
+                {/* Password Box */}
+                <div className="space-y-1.5">
                   <div className="flex justify-between items-end px-1">
-                    <label className="text-[10px] font-black text-charcoal/40 uppercase tracking-[0.15em]">Password</label>
-                    <Link to="/forgot-password" size="sm" className="text-[10px] font-black text-premium-gold hover:underline uppercase tracking-widest">Forgot?</Link>
+                    <label className="text-[9px] font-black text-charcoal/40 uppercase tracking-[0.2em]">Password</label>
+                    <Link to="/forgot-password" className="text-[9px] font-black text-premium-gold hover:text-amber-600 transition-colors uppercase tracking-[0.15em]">Forgot?</Link>
                   </div>
                   <div className="relative group">
-                    <div className="absolute left-5 top-1/2 -translate-y-1/2 text-charcoal/30 group-focus-within:text-premium-gold transition-colors">
-                      <Zap size={18} />
+                    <div className="absolute left-5 top-1/2 -translate-y-1/2 text-charcoal/30 group-focus-within:text-premium-gold transition-colors duration-300">
+                      <Zap size={16} />
                     </div>
                     <input
                       type={showPass ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)}
                       placeholder="Min. 8 characters"
-                      className="w-full pl-14 pr-14 py-4 bg-white border-2 border-charcoal/5 rounded-[1.5rem] text-sm font-bold focus:border-premium-gold outline-none transition-all"
+                      className="w-full pl-12 pr-12 py-3.5 bg-white border-2 border-charcoal/[0.06] rounded-2xl text-sm font-bold focus:border-premium-gold focus:ring-[4px] focus:ring-premium-gold/15 outline-none transition-all duration-300 shadow-sm"
                     />
                     <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-5 top-1/2 -translate-y-1/2 text-charcoal/20 hover:text-charcoal transition-colors">
-                      {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
+                      {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
                   </div>
                 </div>
 
+                {/* Submit Button */}
                 <motion.button
-                  type="submit" disabled={loading} whileHover={{ scale: 1.01, y: -2 }} whileTap={{ scale: 0.98 }}
-                  className="w-full py-5 bg-charcoal text-white rounded-[1.5rem] font-black uppercase tracking-[0.3em] text-xs shadow-xl shadow-charcoal/20 hover:bg-premium-gold hover:text-charcoal transition-all disabled:opacity-50"
+                  type="submit" disabled={loading} whileHover={{ scale: 1.01, y: -1 }} whileTap={{ scale: 0.99 }}
+                  className="w-full py-6 bg-gradient-to-r from-charcoal via-[#1C1C1E] to-charcoal text-white rounded-2xl font-black uppercase tracking-[0.3em] text-sm shadow-2xl shadow-charcoal/25 hover:shadow-premium-gold/15 hover:from-premium-gold hover:to-amber-500 hover:text-charcoal transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 border border-white/[0.05]"
                 >
-                  {loading ? 'Verifying...' : 'Customer Unlock →'}
+                  {loading ? 'Verifying Credentials...' : 'Customer Unlock →'}
                 </motion.button>
               </form>
 
-              <div className="relative my-12">
-                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-charcoal/5"></div></div>
-                <div className="relative flex justify-center"><span className="bg-[#FDFBF7] px-4 text-[9px] font-black text-charcoal/20 uppercase tracking-[0.4em]">Alternative</span></div>
+              {/* Alternative Divider */}
+              <div className="relative my-10">
+                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-charcoal/[0.05]"></div></div>
+                <div className="relative flex justify-center"><span className="bg-[#FFFDFB] px-4 text-[9px] font-black text-charcoal/20 uppercase tracking-[0.4em]">Alternative</span></div>
               </div>
 
+              {/* Guest Access Button */}
               <motion.button
-                type="button" onClick={handleQuickGuest} disabled={loading} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-                className="w-full p-6 rounded-[2rem] bg-white border-2 border-dashed border-premium-gold/20 hover:border-premium-gold hover:bg-premium-gold/5 transition-all flex items-center gap-5"
+                type="button" onClick={handleQuickGuest} disabled={loading} whileHover={{ scale: 1.01, y: -1 }} whileTap={{ scale: 0.99 }}
+                className="w-full p-5 rounded-2xl bg-white border-2 border-dashed border-premium-gold/30 hover:border-premium-gold hover:bg-premium-gold/[0.03] transition-all duration-300 flex items-center gap-4 shadow-sm"
               >
-                <div className="w-12 h-12 rounded-2xl bg-premium-gold/10 flex items-center justify-center text-premium-gold group-hover:bg-premium-gold group-hover:text-white transition-all"><Star size={20} /></div>
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-premium-gold/15 to-amber-500/10 flex items-center justify-center text-premium-gold border border-premium-gold/20 shrink-0"><Star size={18} /></div>
                 <div className="text-left">
-                  <p className="text-[10px] font-black text-premium-gold uppercase tracking-[0.2em] mb-1">Continue as Guest</p>
+                  <p className="text-[10px] font-black text-premium-gold uppercase tracking-[0.25em] mb-1">Continue as Guest</p>
                   <p className="text-[9px] text-charcoal/40 font-bold uppercase tracking-widest">No password needed · 1-Click Access</p>
                 </div>
-                <ArrowRight size={14} className="ml-auto text-premium-gold opacity-40" />
+                <ArrowRight size={13} className="ml-auto text-premium-gold opacity-50" />
               </motion.button>
             </div>
           </div>

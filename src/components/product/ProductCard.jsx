@@ -18,7 +18,19 @@ export default function ProductCard({ product }) {
 
   const price = product.discountedPrice || product.sellingPrice;
   const hasDiscount = product.discountPercentage > 0;
-  const isOutOfStock = product.variants?.every(v => (v.stock || 0) - (v.reservedStock || 0) <= 0);
+  
+  const getVariantStock = (v) => {
+    if (v.availableStock !== undefined) return v.availableStock;
+    if (v.available !== undefined) return v.available;
+    if (v.qty !== undefined) return v.qty;
+    if (v.stock !== undefined) return v.stock;
+    return 0;
+  };
+
+  // Combo products are available if they have slots, standalone products depend on variants stock
+  const isOutOfStock = product.productNature === 'combo' 
+    ? (!product.comboSlots || product.comboSlots.length === 0)
+    : (product.variants || []).length === 0 || product.variants.every(v => getVariantStock(v) - (v.reservedStock || 0) <= 0);
 
   const isWishlisted = productIds.includes(product._id);
 
@@ -75,15 +87,32 @@ export default function ProductCard({ product }) {
             transition: { type: "spring", stiffness: 300, damping: 20 }
           }}
           style={{ transformStyle: "preserve-3d" }}
-          className="relative aspect-[4/5] max-w-xs mx-auto rounded-[2rem] md:rounded-[2.5rem] overflow-hidden bg-light-bg mb-4 border border-border-light group-hover:border-premium-gold/30 transition-all duration-500 shadow-sm group-hover:shadow-2xl group-hover:shadow-premium-gold/10"
+          className={`relative aspect-[4/5] max-w-xs mx-auto rounded-[2rem] md:rounded-[2.5rem] overflow-hidden ${product.bgStyle === 'solid' ? 'bg-white' : 'bg-light-bg'} mb-4 border border-border-light group-hover:border-premium-gold/30 transition-all duration-500 shadow-sm group-hover:shadow-2xl group-hover:shadow-premium-gold/10`}
         >
 
+          {/* 🌌 Dynamic Glassmorphic Ambient Glow */}
+          {product.bgStyle !== 'solid' && (
+            <div 
+              className="absolute inset-0 filter blur-2xl opacity-95 scale-115 pointer-events-none select-none transition-all duration-700"
+              style={{
+                backgroundImage: `url(${product.images?.[0] || product.thumbnail || product.laptopImage || product.tabletImage || product.mobileImage})`,
+                backgroundSize: 'cover',
+                backgroundPosition: product.position || 'center'
+              }}
+            />
+          )}
+
           <SafeImage
-            src={product.images?.[0]}
+            src={product.images?.[0] || product.thumbnail || product.laptopImage || product.tabletImage || product.mobileImage}
             alt={product.name}
             width={400}
             height={500}
-            className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+            className="w-full h-full relative z-10 transition-all duration-500"
+            style={{
+              objectFit: product.cardFit || product.fit || 'cover',
+              objectPosition: product.position || 'center',
+              transform: `scale(${product.scale || 1})`
+            }}
             loading="lazy"
           />
 
@@ -113,16 +142,16 @@ export default function ProductCard({ product }) {
           </div>
 
 
-          {/* Add to Cart Overlay (Desktop) */}
+          {/* Buy Now Overlay (Desktop) */}
           {!isOutOfStock && (
             <div className="hidden md:block absolute bottom-6 left-6 right-6 translate-y-12 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 z-30">
               <button 
                 onClick={handleCart} 
                 disabled={isAddingCart}
-                aria-label={`Quick add ${product.name} to cart`}
-                className="w-full py-4 bg-charcoal text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-premium-gold transition-all shadow-xl"
+                aria-label={`Buy ${product.name} now`}
+                className="w-full py-4 bg-gradient-to-r from-premium-gold to-amber-500 text-charcoal hover:from-charcoal hover:to-charcoal hover:text-white rounded-2xl font-black text-xs uppercase tracking-[0.15em] flex items-center justify-center gap-2 transition-all shadow-xl shadow-premium-gold/10"
               >
-                {isAddingCart ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <><ShoppingBag size={16} /> Quick Add</>}
+                {isAddingCart ? <div className="w-4 h-4 border-2 border-charcoal/30 border-t-charcoal rounded-full animate-spin" /> : <><ShoppingBag size={15} /> Buy Now</>}
               </button>
             </div>
           )}
@@ -133,10 +162,10 @@ export default function ProductCard({ product }) {
               <button 
                 onClick={handleCart} 
                 disabled={isAddingCart}
-                aria-label={`Add ${product.name} to cart`}
-                className="w-10 h-10 bg-charcoal text-white rounded-xl flex items-center justify-center shadow-lg active:scale-90 transition-transform"
+                aria-label={`Buy ${product.name} now`}
+                className="w-10 h-10 bg-premium-gold text-charcoal rounded-xl flex items-center justify-center shadow-lg active:scale-90 transition-transform"
               >
-                {isAddingCart ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Plus size={20} />}
+                {isAddingCart ? <div className="w-4 h-4 border-2 border-charcoal/30 border-t-charcoal rounded-full animate-spin" /> : <Plus size={20} />}
               </button>
             </div>
           )}
@@ -146,7 +175,7 @@ export default function ProductCard({ product }) {
         {/* Product Details */}
         <div className="px-2">
           <div className="flex justify-between items-start gap-2 mb-1">
-            <h3 className="text-sm md:text-lg font-black text-charcoal truncate flex-1 tracking-tight">{product.name}</h3>
+            <h3 className="text-sm md:text-lg font-black text-charcoal line-clamp-2 flex-1 tracking-tight leading-snug">{product.name}</h3>
             <div className="flex items-center gap-1 shrink-0 pt-1">
               <Star size={10} className="fill-premium-gold text-premium-gold" />
               <span className="text-[10px] font-bold text-text-muted">{product.ratings?.average || '4.8'}</span>

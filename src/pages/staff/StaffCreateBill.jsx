@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { 
   Search, Plus, Minus, Trash2, ShoppingCart, Receipt, Printer, 
   Loader2, User, X, CreditCard, Wallet, Banknote, Smartphone,
@@ -8,11 +8,12 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
-import { billService, productService, categoryService, publicService, adminService } from '../../services';
+import { billService, productService, categoryService, publicService, adminService, inventoryService } from '../../services';
 import { useAuthStore } from '../../store';
 import { resolveAssetURL } from '../../utils/assetResolver';
 import SafeImage from '../../components/common/SafeImage';
-
+import { dbService } from '../../utils/db';
+import { usePosLock } from '../../hooks/usePosLock';
 // ─── Constants ─────────────────────────────────────────
 const SHORTCUTS = [
   { key: 'F2', action: 'Focus Search' },
@@ -22,6 +23,8 @@ const SHORTCUTS = [
 ];
 
 export default function StaffCreateBill() {
+  const { isLocked } = usePosLock();
+  const queryClient = useQueryClient();
   const { user } = useAuthStore();
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -126,60 +129,69 @@ export default function StaffCreateBill() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedColor, setSelectedColor] = useState('');
   const [viewMode, setViewMode] = useState('grid');
-  const [heldBills, setHeldBills] = useState(() => JSON.parse(localStorage.getItem('magizhchi_held_bills') || '[]'));
+  const [heldBills, setHeldBills] = useState([]);
   const [showHeldBills, setShowHeldBills] = useState(false);
   const [splitAmounts, setSplitAmounts] = useState({ cash: '', upi: '' });
   const [currentTime, setCurrentTime] = useState(new Date());
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
   const [showCustomItemModal, setShowCustomItemModal] = useState(false);
   const [customItemDetails, setCustomItemDetails] = useState({ name: '', price: '' });
-  const [editingBillId, setEditingBillId] = useState(() => {
-    return localStorage.getItem('pos_editing_bill_id') || null;
-  });
+  const [editingBillId, setEditingBillId] = useState(null);
+  const [selectedComboItems, setSelectedComboItems] = useState({}); // { slotId: { product, variant } }
 
+  // ─── IndexedDB Hydration ───────────
   useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
+    const loadFromDB = async () => {
+      const savedSessions = await dbService.get('posState', 'cartSessions');
+      if (savedSessions) setCartSessions(savedSessions);
+      
+      const savedActiveTab = await dbService.get('posState', 'activeTab');
+      if (savedActiveTab !== undefined) setActiveTab(savedActiveTab);
+      
+      const savedHeldBills = await dbService.getAll('heldBills');
+      if (savedHeldBills) setHeldBills(savedHeldBills);
+
+      const savedEditingId = await dbService.get('posState', 'editingBillId');
+      if (savedEditingId) setEditingBillId(savedEditingId);
+    };
+    loadFromDB();
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('pos_active_tab', activeTab);
-  }, [activeTab]);
-
-  useEffect(() => {
-    localStorage.setItem('pos_cart_sessions', JSON.stringify(cartSessions));
-  }, [cartSessions]);
-
-  useEffect(() => {
-    if (completedBill) {
-      localStorage.setItem('pos_completed_bill', JSON.stringify(completedBill));
-    } else {
-      localStorage.removeItem('pos_completed_bill');
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    
+    // ─── REAL-TIME SYNC ENGINE (Socket.io) ───────────
+    const socket = adminService.getSocket?.() || null;
+    if (socket) {
+       const handleSync = () => {
+          queryClient.invalidateQueries({ queryKey: ['pos-products'] });
+          queryClient.invalidateQueries({ queryKey: ['pos-categories'] });
+          queryClient.invalidateQueries({ queryKey: ['staff-session-stats'] });
+       };
+       socket.on('STOCK_UPDATED', handleSync);
+       socket.on('INVENTORY_SYNCED', handleSync);
+       socket.on('PRODUCT_CREATED', handleSync);
+       socket.on('PRODUCT_ARCHIVED', handleSync);
+       
+       return () => {
+          clearInterval(timer);
+          socket.off('STOCK_UPDATED', handleSync);
+          socket.off('INVENTORY_SYNCED', handleSync);
+          socket.off('PRODUCT_CREATED', handleSync);
+          socket.off('PRODUCT_ARCHIVED', handleSync);
+       };
     }
-  }, [completedBill]);
 
-  useEffect(() => {
-    if (editingBillId) {
-      localStorage.setItem('pos_editing_bill_id', editingBillId);
-    } else {
-      localStorage.removeItem('pos_editing_bill_id');
-    }
-  }, [editingBillId]);
+    return () => clearInterval(timer);
+  }, [queryClient]);
 
-  const searchInputRef = useRef(null);
-  const debounceTimer = useRef(null);
-
-  // ─── Data Fetching ───────────────────────────────────
+  // ─── Data Queries (must be declared before the useEffects that depend on them) ───
   const { data: categories } = useQuery({
     queryKey: ['pos-categories'],
     queryFn: () => categoryService.getCategories().then(r => r.data.data?.categories || r.data.data || []),
+    staleTime: 0,
+    refetchOnMount: true,
   });
-
-  const { data: staffList } = useQuery({
-    queryKey: ['pos-staff-list'],
-    queryFn: () => publicService.getStaffList().then(r => r.data.data || []),
-  });
-
 
   const { data: productsData, isLoading: isLoadingProducts } = useQuery({
     queryKey: ['pos-products', selectedCategory, search],
@@ -190,6 +202,81 @@ export default function StaffCreateBill() {
       return productService.getProducts(params).then(r => r.data.data?.products || r.data.data || []);
     },
     placeholderData: (prev) => prev,
+  });
+
+  // ─── STALE CACHE HYGIENE (SaaS Audit Fix) ───────────
+  useEffect(() => {
+    // If we have products (system is alive) but no categories OR 
+    // if categories/products are fetched and found to be completely empty after a previous session had data
+    if (categories?.length === 0 && productsData?.length === 0 && cartSessions.some(s => s.items.length > 0)) {
+      console.log('POS: System reset detected. Clearing stale session cache.');
+      const emptySessions = [
+        { items: [], customer: { name: '', phone: '', email: '' }, discount: 0, salesStaffId: '', paymentMethod: 'cash', activeCoupon: '' },
+        { items: [], customer: { name: '', phone: '', email: '' }, discount: 0, salesStaffId: '', paymentMethod: 'cash', activeCoupon: '' },
+        { items: [], customer: { name: '', phone: '', email: '' }, discount: 0, salesStaffId: '', paymentMethod: 'cash', activeCoupon: '' },
+      ];
+      setCartSessions(emptySessions);
+      localStorage.setItem('pos_cart_sessions', JSON.stringify(emptySessions));
+      setHeldBills([]);
+      localStorage.removeItem('magizhchi_held_bills');
+    }
+  }, [categories, productsData]);
+
+  useEffect(() => {
+    dbService.put('posState', { id: 'activeTab', value: activeTab });
+  }, [activeTab]);
+
+  useEffect(() => {
+    dbService.put('posState', { id: 'cartSessions', value: cartSessions });
+    localStorage.setItem('pos_cart_sessions', JSON.stringify(cartSessions));
+    // Instantly sync across tabs
+    const channel = new BroadcastChannel('magizhchi_pos_sync');
+    channel.postMessage({ type: 'SYNC_CART', payload: cartSessions });
+    channel.close();
+  }, [cartSessions]);
+
+  useEffect(() => {
+    const channel = new BroadcastChannel('magizhchi_pos_sync');
+    channel.onmessage = (e) => {
+      if (e.data.type === 'SYNC_CART') {
+        setCartSessions(e.data.payload);
+      }
+    };
+    return () => channel.close();
+  }, []);
+
+  useEffect(() => {
+    if (editingBillId) {
+      dbService.put('posState', { id: 'editingBillId', value: editingBillId });
+    } else {
+      dbService.delete('posState', 'editingBillId');
+    }
+  }, [editingBillId]);
+
+  const searchInputRef = useRef(null);
+  const debounceTimer = useRef(null);
+
+  // ─── DEFENSIVE CATEGORY SYNC (SaaS Audit Fix) ──────
+  useEffect(() => {
+    if (categories && selectedCategory !== 'All') {
+      const exists = categories.some(c => c.slug === selectedCategory || c._id === selectedCategory);
+      if (!exists) {
+        console.log('POS: Selected category not found in current catalog. Resetting to All.');
+        setSelectedCategory('All');
+      }
+    }
+  }, [categories, selectedCategory]);
+
+  const { data: staffList } = useQuery({
+    queryKey: ['pos-staff-list'],
+    queryFn: () => publicService.getStaffList().then(r => r.data.data || []),
+  });
+
+
+  const { data: sessionStats, refetch: refetchStats } = useQuery({
+    queryKey: ['staff-session-stats'],
+    queryFn: () => billService.getStaffStats().then(r => r.data.data),
+    refetchInterval: 60000, // Refresh every minute
   });
 
   // ─── Keyboard Shortcuts ──────────────────────────────
@@ -294,7 +381,7 @@ export default function StaffCreateBill() {
   };
 
   const handleProductClick = (product) => {
-    if (!product.variants || product.variants.length === 0) return toast.error('No variants available');
+    if (product.productNature !== 'combo' && (!product.variants || product.variants.length === 0)) return toast.error('No variants available');
     if (product.variants.length === 1) {
       addToCart(product, product.variants[0]);
     } else {
@@ -335,19 +422,18 @@ export default function StaffCreateBill() {
     }
   };
 
-  const holdBill = () => {
+  const holdBill = async () => {
     if (items.length === 0) return toast.error('Cart is empty');
     const newHold = { id: Date.now(), customer, items, discount, timestamp: new Date() };
-    const updated = [...heldBills, newHold];
-    setHeldBills(updated);
-    localStorage.setItem('magizhchi_held_bills', JSON.stringify(updated));
+    await dbService.put('heldBills', newHold);
+    setHeldBills(prev => [...prev, newHold]);
     setItems([]);
     setCustomer({ name: '', phone: '', email: '' });
     setDiscount(0);
     toast.success('Bill parked successfully');
   };
 
-  const resumeBill = (id) => {
+  const resumeBill = async (id) => {
     if (items.length > 0) return toast.error('Please clear or hold current bill first');
     const bill = heldBills.find(b => b.id === id);
     if (!bill) return;
@@ -355,9 +441,8 @@ export default function StaffCreateBill() {
     setCustomer(bill.customer);
     setDiscount(bill.discount || 0);
     setSalesStaffId(bill.salesStaffId || '');
-    const updated = heldBills.filter(b => b.id !== id);
-    setHeldBills(updated);
-    localStorage.setItem('magizhchi_held_bills', JSON.stringify(updated));
+    await dbService.delete('heldBills', id);
+    setHeldBills(prev => prev.filter(b => b.id !== id));
     setShowHeldBills(false);
     toast.success('Bill resumed');
   };
@@ -410,7 +495,11 @@ export default function StaffCreateBill() {
     const taxableValue = itemTotal / (1 + rate);
     return sum + (itemTotal - taxableValue);
   }, 0);
-  const total = subtotal - discount;
+  
+  // DEFENSIVE CALCULATIONS (Fix for negative totals)
+  const safeSubtotal = Math.max(0, subtotal);
+  const safeDiscount = Math.max(0, Math.min(safeSubtotal, discount));
+  const total = Math.max(0, safeSubtotal - safeDiscount);
 
   // ─── Mutation ────────────────────────────────────────
   const createBillMutation = useMutation({
@@ -424,6 +513,7 @@ export default function StaffCreateBill() {
       setDiscount(0);
       setSplitAmounts({ cash: '', upi: '' });
       setSalesStaffId('');
+      refetchStats(); // Update real-time session total
       toast.success('Transaction Completed!');
     },
     onError: (err) => toast.error(err.response?.data?.message || 'Transaction failed'),
@@ -440,41 +530,68 @@ export default function StaffCreateBill() {
       setSplitAmounts({ cash: '', upi: '' });
       setSalesStaffId('');
       setEditingBillId(null);
+      refetchStats(); // Update real-time session total
       toast.success('Invoice Revised Successfully!');
     },
     onError: (err) => toast.error(err.response?.data?.message || 'Revision failed'),
   });
 
-  const handleEditBill = () => {
+  const handleEditBill = async () => {
     if (!completedBill) return;
-    setEditingBillId(completedBill._id);
+    
+    setLoadingCustomer(true); // Re-use loader for transition
+    try {
+      const cartItems = await Promise.all(completedBill.items.map(async (item) => {
+        const sizeVal = item.variant?.size || item.size || 'Free Size';
+        const colorVal = item.variant?.color || item.color || 'Default';
+        
+        // Fetch current stock for this variant to prevent over-selling during edit
+        let currentStock = 9999;
+        try {
+          const invRes = await inventoryService.getInventory({ 
+            search: item.productName, 
+            size: sizeVal, 
+            color: colorVal 
+          });
+          const invData = invRes.data.data?.inventory || invRes.data.data || [];
+          const match = invData.find(i => i.size === sizeVal && i.color === colorVal);
+          if (match) {
+            // Enterprise Calculation: (Raw Total - All Sales/Reserves) + The quantity from the bill being edited
+            currentStock = (match.availableStock || 0) + item.quantity;
+          }
+        } catch (e) {
+          console.error('Stock fetch failed for edit:', e);
+        }
 
-    const cartItems = completedBill.items.map(item => {
-      const sizeVal = item.variant?.size || item.size || 'Free Size';
-      const colorVal = item.variant?.color || item.color || 'Default';
-      return {
-        key: `${item.productId?._id || 'manual'}-${sizeVal}-${colorVal}`,
-        productId: item.productId?._id || null,
-        productName: item.productName,
-        sku: item.sku || 'MANUAL',
-        size: sizeVal,
-        color: colorVal,
-        price: item.price,
-        mrp: item.price,
-        quantity: item.quantity,
-        image: item.productId?.images?.[0] ? resolveAssetURL(item.productId.images[0]) : null,
-        maxStock: 9999,
-        gstPercentage: item.gstPercentage || 5
-      };
-    });
+        return {
+          key: `${item.productId?._id || 'manual'}-${sizeVal}-${colorVal}`,
+          productId: item.productId?._id || null,
+          productName: item.productName,
+          sku: item.sku || 'MANUAL',
+          size: sizeVal,
+          color: colorVal,
+          price: item.price,
+          mrp: item.price,
+          quantity: item.quantity,
+          image: item.productId?.images?.[0] ? resolveAssetURL(item.productId.images[0]) : null,
+          maxStock: currentStock,
+          gstPercentage: item.gstPercentage || 5
+        };
+      }));
 
-    setItems(cartItems);
-    setCustomer(completedBill.customerDetails || { name: '', phone: '', email: '' });
-    setDiscount(completedBill.pricing?.discount || 0);
-    setSalesStaffId(completedBill.salesStaffId || '');
-    setPaymentMethod(completedBill.paymentMethod || 'cash');
-    setCompletedBill(null);
-    toast.success('Invoice loaded into editor! Make changes and checkout.', { icon: '✍️' });
+      setEditingBillId(completedBill._id);
+      setItems(cartItems);
+      setCustomer(completedBill.customerDetails || { name: '', phone: '', email: '' });
+      setDiscount(completedBill.pricing?.discount || 0);
+      setSalesStaffId(completedBill.salesStaffId || '');
+      setPaymentMethod(completedBill.paymentMethod || 'cash');
+      setCompletedBill(null);
+      toast.success('Invoice loaded into editor! Stock limits applied.', { icon: '✍️' });
+    } catch (err) {
+      toast.error('Failed to initialize editor');
+    } finally {
+      setLoadingCustomer(false);
+    }
   };
 
   const { data: healthData } = useQuery({
@@ -532,6 +649,7 @@ export default function StaffCreateBill() {
           price: i.price,
           quantity: i.quantity,
           total: i.price * i.quantity,
+          comboSelections: i.comboSelections
         };
       }),
       customerDetails: customer,
@@ -540,6 +658,7 @@ export default function StaffCreateBill() {
       discount,
       salesStaffId: salesStaffId || undefined,
       notes: editingBillId ? `POS Sale Revised (Original ID: ${editingBillId})` : `POS Sale by ${user?.name}`,
+      idempotencyKey: crypto.randomUUID ? crypto.randomUUID() : `pos-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     };
 
     if (editingBillId) {
@@ -549,10 +668,29 @@ export default function StaffCreateBill() {
     }
   };
 
+  // ─── Render: Locked POS Tab ────────────────────────────
+  if (isLocked) {
+    return (
+      <div className="fixed inset-0 bg-charcoal z-[999] flex flex-col items-center justify-center p-6 text-center">
+        <Helmet><title>POS Locked — Magizhchi</title></Helmet>
+        <div className="bg-red-500/10 border border-red-500/30 p-8 rounded-3xl max-w-lg shadow-2xl backdrop-blur-xl">
+          <Shield size={64} className="text-red-500 mx-auto mb-6" />
+          <h1 className="text-3xl font-black text-white uppercase tracking-tight mb-4">POS Terminal Locked</h1>
+          <p className="text-red-200/80 font-medium mb-8 leading-relaxed">
+            The Point of Sale terminal is already active in another browser tab. To prevent database corruption and critical inventory desynchronization, multiple active checkout tabs are not allowed.
+          </p>
+          <button onClick={() => window.close()} className="px-8 py-4 bg-red-600 hover:bg-red-500 text-white rounded-2xl font-black uppercase tracking-widest transition-all shadow-xl">
+            Close This Tab
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // ─── Render: Receipt ─────────────────────────────────
   if (completedBill) {
     return (
-      <div className="min-h-screen bg-[#F9F9FA] py-12 px-4 flex flex-col items-center select-none relative overflow-hidden">
+      <div className="min-h-dvh bg-[#F9F9FA] py-12 px-4 flex flex-col items-center select-none relative overflow-hidden">
         <Helmet><title>Tax Invoice #{completedBill.billNumber} — Magizhchi</title></Helmet>
 
         {/* Backdrop Decorative Glows */}
@@ -637,13 +775,23 @@ export default function StaffCreateBill() {
                   <div key={i} className="flex items-center justify-between py-2 border-b border-border-light last:border-0 group">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-12 bg-light-bg rounded-lg overflow-hidden border border-border-light group-hover:scale-105 transition-transform">
-                        <SafeImage src={item.productId?.images?.[0]} alt="" className="w-full h-full object-cover" />
+                        <SafeImage src={item.productId?.images?.[0]} width={200} quality={70} alt="" className="w-full h-full object-cover" />
                       </div>
                       <div className="text-left">
                         <p className="text-xs font-black text-charcoal tracking-tight">{item.productName}</p>
-                        <p className="text-[8px] text-text-muted uppercase font-black tracking-widest mt-0.5">
-                          {item.size} / {item.color} • ₹{item.price.toLocaleString()}
-                        </p>
+                        {!item.comboSelections || item.comboSelections.length === 0 ? (
+                          <p className="text-[8px] text-text-muted uppercase font-black tracking-widest mt-0.5">
+                            {item.size} / {item.color} • ₹{item.price.toLocaleString()}
+                          </p>
+                        ) : (
+                          <div className="mt-1 space-y-0.5">
+                            {item.comboSelections.map((sel, idx) => (
+                              <p key={idx} className="text-[7px] font-black text-text-muted uppercase tracking-wider">
+                                • {sel.productName}: {sel.size} / {sel.color}
+                              </p>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div className="text-right">
@@ -801,7 +949,7 @@ export default function StaffCreateBill() {
 
   // ─── Render: POS ─────────────────────────────────────
   return (
-    <div className="h-screen bg-[#F9F9FA] flex flex-col overflow-hidden p-6 gap-6 relative select-none">
+    <div className="h-[100dvh] bg-[#F9F9FA] flex flex-col lg:overflow-hidden overflow-auto p-4 lg:p-6 pb-36 lg:pb-6 gap-6 relative select-none">
       <Helmet><title>Magizhchi POS Pro — Intelligent Billing Suite</title></Helmet>
       
       {/* Dynamic Aesthetic Background Gradients */}
@@ -843,11 +991,11 @@ export default function StaffCreateBill() {
               </div>
             </div>
 
-            {/* Sales Stats Summary */}
+            {/* Sales Stats Summary (REAL TIME) */}
             <div className="text-left">
               <p className="text-[9px] font-black text-text-muted uppercase tracking-widest mb-0.5">Session Total</p>
               <div className="flex items-center gap-2">
-                <p className="text-base font-black text-charcoal tracking-tight">₹42,500</p>
+                <p className="text-base font-black text-charcoal tracking-tight">₹{(sessionStats?.sessionTotal || 0).toLocaleString()}</p>
                 <div className="w-5 h-5 bg-emerald-50 text-emerald-600 rounded-md flex items-center justify-center border border-emerald-100">
                   <CheckCircle2 size={10} />
                 </div>
@@ -889,10 +1037,10 @@ export default function StaffCreateBill() {
       </div>
 
       {/* ─── Main Content Workspace ─── */}
-      <div className="flex-1 flex gap-6 min-h-0 overflow-hidden relative z-10">
+      <div className="flex-1 flex flex-col lg:flex-row gap-6 min-h-0 lg:overflow-hidden overflow-visible relative z-10">
         
         {/* ─── Left Panel: Catalog Master (65%) ─── */}
-        <div className="flex-1 flex flex-col gap-5 min-h-0 bg-white rounded-[2rem] border border-border-light/50 p-6 shadow-sm overflow-hidden">
+        <div className="flex-1 flex flex-col gap-5 min-h-[500px] lg:min-h-0 bg-white rounded-[2rem] border border-border-light/50 p-4 lg:p-6 shadow-sm lg:overflow-hidden">
           
           {/* Header Actions */}
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between shrink-0">
@@ -942,7 +1090,7 @@ export default function StaffCreateBill() {
               <div className="flex gap-1.5 overflow-x-auto pb-0.5 max-w-[320px] md:max-w-[400px] no-scrollbar">
                 <button 
                   onClick={() => setSelectedCategory('All')}
-                  className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shrink-0 border ${selectedCategory === 'All' ? 'bg-charcoal text-white border-charcoal shadow-lg shadow-charcoal/5' : 'bg-light-bg text-text-muted border-border-light hover:bg-white hover:border-text-muted/30'}`}
+                  className={`h-12 px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shrink-0 border ${selectedCategory === 'All' ? 'bg-charcoal text-white border-charcoal shadow-lg shadow-charcoal/5' : 'bg-light-bg text-text-muted border-border-light hover:bg-white hover:border-text-muted/30'}`}
                 >
                   All
                 </button>
@@ -950,7 +1098,7 @@ export default function StaffCreateBill() {
                   <button 
                     key={cat._id}
                     onClick={() => setSelectedCategory(cat.slug)}
-                    className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shrink-0 border ${selectedCategory === cat.slug ? 'bg-charcoal text-white border-charcoal shadow-lg shadow-charcoal/5' : 'bg-light-bg text-text-muted border-border-light hover:bg-white hover:border-text-muted/30'}`}
+                    className={`h-12 px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shrink-0 border ${selectedCategory === cat.slug ? 'bg-charcoal text-white border-charcoal shadow-lg shadow-charcoal/5' : 'bg-light-bg text-text-muted border-border-light hover:bg-white hover:border-text-muted/30'}`}
                   >
                     {cat.name}
                   </button>
@@ -975,7 +1123,7 @@ export default function StaffCreateBill() {
               </div>
             ) : viewMode === 'grid' ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                {productsData.filter(p => p.variants?.some(v => v.stock > 0)).map(product => {
+                {productsData.map(product => {
                   const hasStockAlert = product.variants?.some(v => v.stock > 0 && v.stock < 5);
                   const isOutOfStock = product.variants?.every(v => v.stock <= 0);
                   
@@ -988,6 +1136,7 @@ export default function StaffCreateBill() {
                       <div className="relative aspect-[4/5] overflow-hidden bg-[#F5F5F7] shrink-0">
                         <SafeImage 
                           src={product.images?.[0]} 
+                          width={200} quality={70}
                           alt="" 
                           className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                         />
@@ -1017,7 +1166,7 @@ export default function StaffCreateBill() {
                         <div>
                           <h3 className="text-xs font-black text-charcoal line-clamp-1 leading-tight group-hover:text-premium-gold transition-colors">{product.name}</h3>
                           <p className="text-[8px] font-black text-text-muted uppercase tracking-widest mt-1">
-                            {product.variants?.length} Options Available
+                            {product.availableStock || 0} Pcs • {product.variants?.length || 0} Options
                           </p>
                         </div>
                         
@@ -1035,7 +1184,7 @@ export default function StaffCreateBill() {
             ) : (
               // List View Mode
               <div className="flex flex-col gap-2.5">
-                {productsData.filter(p => p.variants?.some(v => v.stock > 0)).map(product => {
+                {productsData.map(product => {
                   const isOutOfStock = product.variants?.every(v => v.stock <= 0);
                   return (
                     <div 
@@ -1044,13 +1193,13 @@ export default function StaffCreateBill() {
                       className="flex items-center gap-4 bg-white p-3 rounded-2xl border border-border-light/50 hover:border-premium-gold hover:shadow-md transition-all cursor-pointer group"
                     >
                       <div className="w-12 h-14 rounded-xl overflow-hidden shrink-0 border border-border-light/50 bg-[#F5F5F7] relative">
-                        <SafeImage src={product.images?.[0]} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                        <SafeImage src={product.images?.[0]} width={200} quality={70} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                         {isOutOfStock && <div className="absolute inset-0 bg-charcoal/60 flex items-center justify-center"><span className="text-[6px] font-black text-white uppercase tracking-widest">OUT</span></div>}
                       </div>
                       <div className="flex-1 min-w-0 text-left">
                         <h3 className="text-xs font-black text-charcoal truncate group-hover:text-premium-gold transition-colors">{product.name}</h3>
                         <p className="text-[8px] font-black text-text-muted uppercase tracking-widest mt-1">
-                          SKU: {product.sku} • {product.variants?.length} Variant Option{product.variants?.length !== 1 && 's'}
+                          SKU: {product.sku} • {product.availableStock || 0} Pcs • {product.variants?.length} Variants
                         </p>
                       </div>
                       <div className="text-right">
@@ -1150,14 +1299,24 @@ export default function StaffCreateBill() {
                     className="flex gap-3 bg-white p-3 rounded-2xl border border-[#EBE8DF] hover:bg-[#FDFDFB] hover:shadow-md hover:scale-[1.01] transition-all group relative overflow-hidden shadow-sm"
                   >
                     <div className="w-12 h-14 rounded-lg bg-[#FAF9F6] shrink-0 overflow-hidden border border-[#ECEAE2] relative">
-                      <SafeImage src={item.image} alt="" className="w-full h-full object-cover rounded-md" />
+                      <SafeImage src={item.image} width={150} quality={70} alt="" className="w-full h-full object-cover rounded-md" />
                     </div>
                     <div className="flex-1 min-w-0 flex flex-col justify-between">
                       <div>
                         <p className="text-charcoal font-black text-xs truncate leading-tight">{item.productName}</p>
-                        <p className="text-charcoal/50 text-[8px] uppercase font-black tracking-widest mt-1">
-                          {item.size} / {item.color} • ₹{item.price}
-                        </p>
+                        {!item.comboSelections || item.comboSelections.length === 0 ? (
+                          <p className="text-charcoal/50 text-[8px] uppercase font-black tracking-widest mt-1">
+                            {item.size} / {item.color} • ₹{item.price}
+                          </p>
+                        ) : (
+                          <div className="mt-1 space-y-0.5 bg-premium-gold/5 p-1.5 rounded-lg border border-premium-gold/10">
+                            {item.comboSelections.map((sel, idx) => (
+                              <p key={idx} className="text-[7px] font-black text-charcoal/70 uppercase leading-tight">
+                                <span className="text-premium-gold">•</span> {sel.productName}: {sel.size}/{sel.color}
+                              </p>
+                            ))}
+                          </div>
+                        )}
                       </div>
                       
                       <div className="flex items-center justify-between mt-2.5">
@@ -1165,16 +1324,16 @@ export default function StaffCreateBill() {
                         <div className="flex items-center gap-1.5 bg-[#F3EFE6] p-0.5 rounded-lg border border-[#ECEAE2] shadow-inner">
                           <button 
                             onClick={() => updateQty(item.key, -1)} 
-                            className="w-5 h-5 flex items-center justify-center text-charcoal/40 hover:text-charcoal hover:bg-[#E5DFD0] rounded transition-all"
+                            className="w-12 h-12 flex items-center justify-center text-charcoal/40 hover:text-charcoal hover:bg-[#E5DFD0] rounded-lg transition-all active:scale-95"
                           >
-                            <Minus size={10} />
+                            <Minus size={18} />
                           </button>
-                          <span className="w-5 text-center text-[9px] font-black text-charcoal">{item.quantity}</span>
+                          <span className="w-8 text-center text-xs font-black text-charcoal">{item.quantity}</span>
                           <button 
                             onClick={() => updateQty(item.key, 1)} 
-                            className="w-5 h-5 flex items-center justify-center text-charcoal/40 hover:text-charcoal hover:bg-[#E5DFD0] rounded transition-all"
+                            className="w-12 h-12 flex items-center justify-center text-charcoal/40 hover:text-charcoal hover:bg-[#E5DFD0] rounded-lg transition-all active:scale-95"
                           >
-                            <Plus size={10} />
+                            <Plus size={18} />
                           </button>
                         </div>
                         
@@ -1187,9 +1346,9 @@ export default function StaffCreateBill() {
                     {/* Delete trigger */}
                     <button 
                       onClick={() => removeItem(item.key)} 
-                      className="absolute top-2.5 right-2.5 opacity-0 group-hover:opacity-100 p-1 text-charcoal/30 hover:text-red-500 transition-opacity"
+                      className="absolute top-1 right-1 p-3 text-charcoal/30 hover:text-red-500 transition-opacity min-w-[44px] min-h-[44px] flex items-center justify-center"
                     >
-                      <X size={12} />
+                      <X size={16} />
                     </button>
                   </motion.div>
                 ))}
@@ -1226,7 +1385,7 @@ export default function StaffCreateBill() {
             <button 
               disabled={items.length === 0}
               onClick={() => setIsCheckoutOpen(true)}
-              className="w-full bg-charcoal hover:bg-black text-white font-black py-4 rounded-2xl flex items-center justify-center gap-2 shadow-xl hover:scale-[1.01] transition-all group disabled:opacity-20 disabled:grayscale disabled:scale-100 text-xs uppercase tracking-[0.15em] relative overflow-hidden"
+              className="w-full h-14 bg-charcoal hover:bg-black text-white font-black rounded-2xl flex items-center justify-center gap-2 shadow-xl hover:scale-[1.01] transition-all group disabled:opacity-20 disabled:grayscale disabled:scale-100 text-xs uppercase tracking-[0.15em] relative overflow-hidden"
             >
               <span className="absolute top-0 left-[-100%] w-[50%] h-full bg-white/20 skew-x-[-20deg] group-hover:left-[120%] transition-all duration-1000" />
               Process Checkout [F9]
@@ -1254,7 +1413,7 @@ export default function StaffCreateBill() {
             >
               {/* Product preview artwork */}
               <div className="w-full md:w-5/12 bg-[#F5F5F7] relative hidden md:block">
-                <SafeImage src={selectedProduct.images?.[0]} alt="" className="w-full h-full object-cover" />
+                <SafeImage src={selectedProduct.images?.[0]} width={300} quality={80} alt="" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
                 <div className="absolute bottom-5 left-5 right-5">
                    <h3 className="text-white font-black text-base leading-tight line-clamp-2">{selectedProduct.name}</h3>
@@ -1264,44 +1423,95 @@ export default function StaffCreateBill() {
               
               {/* Selector details form */}
               <div className="w-full md:w-7/12 p-6 flex flex-col h-full bg-white relative">
-                <button onClick={() => setSelectedProduct(null)} className="absolute top-5 right-5 p-1.5 bg-light-bg rounded-xl hover:bg-border-light text-text-muted transition-colors"><X size={16} /></button>
+                <button onClick={() => { setSelectedProduct(null); setSelectedComboItems({}); }} className="absolute top-5 right-5 p-1.5 bg-light-bg rounded-xl hover:bg-border-light text-text-muted transition-colors"><X size={16} /></button>
                 
-                <h4 className="text-charcoal font-black text-xs uppercase tracking-widest text-text-muted mb-4">Aesthetic Configurations</h4>
+                <h4 className="text-charcoal font-black text-xs uppercase tracking-widest text-text-muted mb-4">
+                  {selectedProduct.productNature === 'combo' ? 'Bundle Configuration' : 'Aesthetic Configurations'}
+                </h4>
                 
                 <div className="flex-1 overflow-y-auto pr-1 no-scrollbar space-y-5">
-                  {/* Colors selectors */}
-                  <div>
-                    <p className="text-[8px] font-black text-text-muted uppercase tracking-[0.2em] mb-2.5">Colorways</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {[...new Set(selectedProduct.variants.map(v => v.color))].map(c => (
-                        <button 
-                          key={c}
-                          onClick={() => setSelectedColor(c)}
-                          className={`px-3.5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border ${selectedColor === c ? 'bg-charcoal text-white border-charcoal shadow-md shadow-charcoal/15' : 'bg-light-bg text-text-muted border-border-light hover:bg-white hover:border-text-muted/30'}`}
-                        >
-                          {c}
-                        </button>
+                  {selectedProduct.productNature === 'combo' ? (
+                    <div className="space-y-6">
+                      {selectedProduct.comboSlots?.map((slot, sIdx) => (
+                        <div key={slot.id || sIdx} className="p-4 bg-light-bg/30 rounded-2xl border border-border-light">
+                          <p className="text-[10px] font-black text-premium-gold uppercase tracking-widest mb-3">{slot.name}</p>
+                          <div className="space-y-3">
+                            {slot.products?.map(p => (
+                              <div key={p._id} className="space-y-2">
+                                <p className="text-[9px] font-bold text-charcoal">{p.name}</p>
+                                <div className="flex flex-wrap gap-2">
+                                  {p.syncedVariants?.map(v => (
+                                    <button
+                                      key={v.id}
+                                      onClick={() => setSelectedComboItems({ ...selectedComboItems, [slot.id]: { productName: p.name, ...v } })}
+                                      className={`h-12 px-5 rounded-xl text-[9px] font-black uppercase transition-all border ${selectedComboItems[slot.id]?.id === v.id ? 'bg-charcoal text-white border-charcoal shadow-md' : 'bg-white text-text-muted border-border-light hover:bg-light-bg'}`}
+                                    >
+                                      {v.size} / {v.color}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       ))}
-                    </div>
-                  </div>
-                  
-                  {/* Sizes selectors */}
-                  <div>
-                    <p className="text-[8px] font-black text-text-muted uppercase tracking-[0.2em] mb-2.5">Fitted Sizes</p>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                      {selectedProduct.variants.filter(v => v.color === selectedColor).map((v, i) => (
+                      
                         <button 
-                          key={i}
-                          disabled={v.stock <= 0}
-                          onClick={() => addToCart(selectedProduct, v)}
-                          className={`relative p-2.5 rounded-xl flex flex-col items-center justify-center gap-0.5 border-2 transition-all ${v.stock > 0 ? 'border-border-light hover:border-premium-gold bg-white hover:shadow-sm' : 'border-border-light bg-light-bg opacity-30 cursor-not-allowed'}`}
+                          onClick={() => {
+                            const slotsCount = selectedProduct.comboSlots?.length || 0;
+                            const selectedCount = Object.keys(selectedComboItems).length;
+                            if (selectedCount < slotsCount) return toast.error('Please configure all bundle tiers');
+                            
+                            addToCart(selectedProduct, { 
+                              size: 'Bundle', 
+                              color: 'Mixed', 
+                              stock: 999,
+                              comboSelections: Object.values(selectedComboItems)
+                            });
+                            setSelectedComboItems({});
+                          }}
+                          className="w-full h-14 bg-charcoal text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl hover:bg-premium-gold hover:text-charcoal transition-all"
                         >
-                          <span className="text-sm font-black text-charcoal">{v.size}</span>
-                          <span className="text-[7px] font-bold text-text-muted uppercase tracking-wide">{v.stock > 0 ? `${v.stock} pcs` : 'Out of Stock'}</span>
-                        </button>
-                      ))}
+                        Confirm Bundle Selection
+                      </button>
                     </div>
-                  </div>
+                  ) : (
+                    <>
+                      {/* Colors selectors */}
+                      <div>
+                        <p className="text-[8px] font-black text-text-muted uppercase tracking-[0.2em] mb-2.5">Colorways</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {[...new Set(selectedProduct.variants.map(v => v.color))].map(c => (
+                            <button 
+                              key={c}
+                              onClick={() => setSelectedColor(c)}
+                              className={`h-12 px-5 rounded-2xl text-[10px] font-black uppercase tracking-wider transition-all border ${selectedColor === c ? 'bg-charcoal text-white border-charcoal shadow-md shadow-charcoal/15' : 'bg-light-bg text-text-muted border-border-light hover:bg-white hover:border-text-muted/30'}`}
+                            >
+                              {c}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      {/* Sizes selectors */}
+                      <div>
+                        <p className="text-[8px] font-black text-text-muted uppercase tracking-[0.2em] mb-2.5">Fitted Sizes</p>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                          {selectedProduct.variants.filter(v => v.color === selectedColor).map((v, i) => (
+                              <button 
+                                key={i}
+                                disabled={v.stock <= 0}
+                                onClick={() => addToCart(selectedProduct, v)}
+                                className={`relative h-14 rounded-2xl flex flex-col items-center justify-center gap-0.5 border-2 transition-all ${v.stock > 0 ? 'border-border-light hover:border-premium-gold bg-white hover:shadow-sm' : 'border-border-light bg-light-bg opacity-30 cursor-not-allowed'}`}
+                              >
+                              <span className="text-sm font-black text-charcoal">{v.size}</span>
+                              <span className="text-[7px] font-bold text-text-muted uppercase tracking-wide">{v.stock > 0 ? `${v.stock} pcs` : 'Out of Stock'}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </motion.div>
@@ -1396,7 +1606,9 @@ export default function StaffCreateBill() {
                           </div>
                           <div>
                             <span className="text-[8px] font-black uppercase tracking-widest text-premium-gold">PATRON REWARDS</span>
-                            <p className="text-[9px] font-black text-charcoal/80 leading-none mt-0.5">Gold Tier Member • 420 pts</p>
+                            <p className="text-[9px] font-black text-charcoal/80 leading-none mt-0.5">
+                              {customer.wallet?.balance > 0 ? `Credit Balance: ₹${customer.wallet.balance}` : 'Standard Tier Member'}
+                            </p>
                           </div>
                         </div>
                         <span className="text-[7px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100 uppercase tracking-widest">Active Partner Link</span>
@@ -1497,7 +1709,7 @@ export default function StaffCreateBill() {
                 <button 
                   onClick={handleCheckout}
                   disabled={createBillMutation.isLoading}
-                  className="w-full bg-charcoal hover:bg-black text-white font-black py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-lg transition-all text-xs uppercase tracking-widest relative mt-5 shrink-0 group"
+                  className="w-full h-14 bg-charcoal hover:bg-black text-white font-black rounded-2xl flex items-center justify-center gap-2 shadow-lg transition-all text-xs uppercase tracking-widest relative mt-5 shrink-0 group"
                 >
                   {createBillMutation.isLoading ? <Loader2 className="animate-spin text-premium-gold" size={16} /> : 'Process Settlement & Generate Receipt'}
                   <CheckCircle2 className="w-4 h-4 text-premium-gold" />
@@ -1621,7 +1833,7 @@ export default function StaffCreateBill() {
                   setShowCustomItemModal(false);
                   setCustomItemDetails({ name: '', price: '' });
                 }}
-                className="w-full bg-charcoal text-white py-5 rounded-[1.5rem] font-black text-xs uppercase tracking-[0.2em] shadow-2xl hover:bg-premium-gold hover:text-charcoal transition-all flex items-center justify-center gap-2"
+                className="w-full h-14 bg-charcoal text-white rounded-[1.5rem] font-black text-xs uppercase tracking-[0.2em] shadow-2xl hover:bg-premium-gold hover:text-charcoal transition-all flex items-center justify-center gap-2"
               >
                 <Plus size={16} /> Add Custom Charge
               </button>
@@ -1629,6 +1841,29 @@ export default function StaffCreateBill() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* ─── Mobile Sticky Floating Action Button ─── */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 p-4 bg-charcoal z-[45] rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.2)]">
+        <div className="flex justify-between items-center mb-3 px-2">
+           <div className="flex flex-col text-white">
+             <span className="text-[10px] font-black text-white/50 uppercase tracking-widest">{items.length} Items Listed</span>
+             <span className="text-xl font-black text-premium-gold font-mono">₹{total.toLocaleString()}</span>
+           </div>
+           <div className="flex flex-col text-white/60 text-[10px] uppercase font-black tracking-widest text-right">
+              <span>{user?.name || 'Staff'}</span>
+              <span>Pos Active</span>
+           </div>
+        </div>
+        <button 
+          onClick={() => {
+            if (items.length === 0) return toast.error('Cart is empty. Add items first.');
+            setIsCheckoutOpen(true);
+          }}
+          className="w-full h-14 btn-gold rounded-2xl font-black tracking-[0.2em] shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-transform"
+        >
+          PROCESS CHECKOUT <ArrowRight size={18} />
+        </button>
+      </div>
 
       {/* ─── Platform Operator Guide Modal (SaaS Premium) ─── */}
       <AnimatePresence>

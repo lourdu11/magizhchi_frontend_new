@@ -42,15 +42,17 @@ export default function AdminProducts() {
       sort: sortOrder,
       page,
       limit: 10
-    }).then(r => r.data),
+    }).then(r => r.data.data),
   });
   
-  const products = productsData?.data || [];
+  const products = Array.isArray(productsData?.data) ? productsData.data : (Array.isArray(productsData) ? productsData : []);
   const pagination = productsData?.pagination;
 
   const { data: categoriesData } = useQuery({
     queryKey: ['categories'],
     queryFn: () => categoryService.getCategories().then(r => r.data.data || r.data),
+    staleTime: 0,
+    refetchOnMount: true,
   });
   const categories = categoriesData?.categories || categoriesData || [];
 
@@ -306,7 +308,12 @@ export default function AdminProducts() {
                   </td>
                   <td className="px-8 py-6">
                     <div className="flex flex-col">
-                      <span className="font-black text-charcoal text-base tracking-tighter">₹{p.sellingPrice}</span>
+                    <div className="flex flex-col items-end">
+                      {(p.discountedPrice || 0) < p.sellingPrice && (
+                        <span className="text-[10px] text-text-muted line-through opacity-60 leading-none mb-1">₹{p.sellingPrice}</span>
+                      )}
+                      <span className="font-black text-premium-gold text-base tracking-tighter leading-none">₹{p.discountedPrice || p.sellingPrice}</span>
+                    </div>
                       {p.discountPercentage > 0 && <span className="text-[10px] text-stock-out font-black uppercase tracking-widest">-{p.discountPercentage}% OFF</span>}
                     </div>
                   </td>
@@ -414,7 +421,7 @@ export default function AdminProducts() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }} 
               animate={{ opacity: 1, scale: 1, y: 0 }} 
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative bg-white w-full max-w-5xl max-h-[90vh] rounded-[3rem] shadow-2xl flex flex-col overflow-hidden border border-border-light"
+              className="relative bg-white w-full admin-modal-container max-w-5xl max-h-[90vh] rounded-[3rem] shadow-2xl flex flex-col overflow-hidden border border-border-light"
             >
               <div className="flex-none p-10 flex items-center justify-between border-b border-border-light bg-light-bg/50">
                 <div>

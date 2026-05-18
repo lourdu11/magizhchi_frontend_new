@@ -88,7 +88,7 @@ export default function Cart() {
   return (
     <>
       <Helmet><title>Cart — Magizhchi Garments</title></Helmet>
-      <div className="min-h-screen bg-cream-bg py-8">
+      <div className="min-h-dvh bg-cream-bg py-8">
         <div className="container-custom">
           <div className="flex items-center justify-between mb-8">
             <h1 className="section-title">Shopping Cart <span className="text-text-muted text-xl font-sans font-normal">({items.length} items)</span></h1>
@@ -125,9 +125,24 @@ export default function Cart() {
                         <Link to={`/product/${product.slug}`} className="font-semibold text-text-primary text-sm hover:text-premium-gold transition-colors line-clamp-2">
                           {product.name}
                         </Link>
-                        <div className="flex gap-2 mt-1">
-                          <span className="text-xs text-text-muted border border-border-light rounded px-2 py-0.5">{item.variant?.size}</span>
-                          <span className="text-xs text-text-muted border border-border-light rounded px-2 py-0.5">{item.variant?.color}</span>
+                        <div className="flex flex-col gap-1.5 mt-2">
+                          {!item.comboSelections || item.comboSelections.length === 0 ? (
+                            <div className="flex gap-2">
+                              <span className="text-[9px] font-black uppercase tracking-widest text-text-muted border border-border-light rounded-lg px-2.5 py-1">{item.variant?.size}</span>
+                              <span className="text-[9px] font-black uppercase tracking-widest text-text-muted border border-border-light rounded-lg px-2.5 py-1">{item.variant?.color}</span>
+                            </div>
+                          ) : (
+                            <div className="space-y-1.5 bg-light-bg/50 p-2.5 rounded-xl border border-border-light/40">
+                              <p className="text-[8px] font-black text-premium-gold uppercase tracking-[0.2em]">Bundle Contents</p>
+                              <div className="grid gap-1">
+                                {item.comboSelections.map((sel, idx) => (
+                                  <p key={idx} className="text-[10px] font-bold text-charcoal leading-none">
+                                    <span className="text-text-muted">{sel.productName}:</span> {sel.size} / {sel.color}
+                                  </p>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
                         <div className="flex items-center justify-between mt-3">
                           <div className="flex items-center border border-border-dark rounded-lg overflow-hidden">

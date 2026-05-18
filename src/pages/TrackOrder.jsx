@@ -46,7 +46,7 @@ export default function TrackOrder() {
   const currentIdx = statusSteps.findIndex(s => s.id === order?.orderStatus);
 
   return (
-    <div className="min-h-screen bg-cream-bg py-12">
+    <div className="min-h-dvh bg-cream-bg py-12">
       <Helmet><title>Track Your Order — Magizhchi Garments</title></Helmet>
       
       <div className="container-custom max-w-4xl">
@@ -157,7 +157,17 @@ export default function TrackOrder() {
                         <img src={item.productImage || '/placeholder.jpg'} className="w-12 h-12 rounded-xl object-cover" />
                         <div className="flex-1">
                           <p className="text-xs font-black text-charcoal leading-tight">{item.productName}</p>
-                          <p className="text-[10px] text-text-muted font-bold">{item.variant.size} / {item.variant.color} × {item.quantity}</p>
+                          {item.isCombo ? (
+                             <div className="mt-1">
+                               {item.comboSelections?.map((sel, sIdx) => (
+                                 <p key={sIdx} className="text-[9px] text-text-muted font-bold leading-tight">
+                                   • {sel.productName} ({sel.size})
+                                 </p>
+                               ))}
+                             </div>
+                          ) : (
+                             <p className="text-[10px] text-text-muted font-bold">{item.variant?.size} / {item.variant?.color} × {item.quantity}</p>
+                          )}
                         </div>
                         <p className="font-black text-premium-gold text-sm">₹{item.total.toLocaleString('en-IN')}</p>
                       </div>

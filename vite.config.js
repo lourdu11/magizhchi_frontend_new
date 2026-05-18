@@ -24,6 +24,9 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  optimizeDeps: {
+    include: ['date-fns'],
+  },
   server: {
     port: 5173,
     strictPort: false,   // auto-use 5174, 5175... if 5173 is busy

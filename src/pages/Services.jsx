@@ -36,7 +36,7 @@ export default function Services() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F8F8F6] overflow-hidden">
+    <div className="min-h-dvh bg-[#F8F8F6] overflow-hidden">
       <Helmet>
         <title>Bespoke Services — Magizhchi Garments</title>
         <meta name="description" content="Explore our high-level services including next-gen fashion curation, master tailoring, and express delivery in Thanjavur." />

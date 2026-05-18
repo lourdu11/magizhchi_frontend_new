@@ -1,5 +1,4 @@
 import { LazyLoadImage } from 'react-lazy-load-image-component';
-import 'react-lazy-load-image-component/src/effects/blur.css';
 import { resolveAssetURL, getPlaceholder } from '../../utils/assetResolver';
 
 /**
@@ -7,8 +6,8 @@ import { resolveAssetURL, getPlaceholder } from '../../utils/assetResolver';
  * Automatically resolves asset URLs, handles HTTPS upgrades,
  * and provides a fallback placeholder if the image fails to load.
  */
-export default function SafeImage({ src, alt, className, width, quality, ...props }) {
-  const resolvedSrc = resolveAssetURL(src, width, quality);
+export default function SafeImage({ src, alt, className, width, quality, gravity, crop, aspect, ...props }) {
+  const resolvedSrc = resolveAssetURL(src, width, quality, { gravity, crop, aspect });
 
   return (
     <LazyLoadImage
@@ -18,6 +17,7 @@ export default function SafeImage({ src, alt, className, width, quality, ...prop
       effect="blur"
       threshold={300}
       wrapperClassName={className}
+      style={{ display: 'block' }}
       onError={(e) => {
         if (e.target.src !== getPlaceholder()) {
           e.target.src = getPlaceholder();

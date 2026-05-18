@@ -39,7 +39,7 @@ export default function StaffLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-charcoal flex items-center justify-center px-4">
+    <div className="min-h-dvh bg-charcoal flex items-center justify-center px-4">
       <div className="bg-white rounded-2xl p-8 w-full max-w-sm shadow-xl">
         <div className="text-center mb-6">
           <div className="font-display text-2xl font-bold tracking-[0.2em]">MAGIZHCHI</div>

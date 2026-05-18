@@ -48,7 +48,7 @@ export default function AdminPurchases() {
     queryKey: ['admin-purchases', search],
     queryFn: () => purchaseService.getPurchases({ search }).then(r => r.data),
   });
-  const purchases = purchasesData?.data || [];
+  const purchases = Array.isArray(purchasesData?.data) ? purchasesData.data : (Array.isArray(purchasesData) ? purchasesData : []);
 
   const { data: suppliersData } = useQuery({
     queryKey: ['admin-suppliers'],
@@ -276,7 +276,7 @@ export default function AdminPurchases() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-charcoal/50 backdrop-blur-sm" onClick={resetForm} />
             <motion.div
               initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}
-              className="relative bg-white w-full max-w-6xl rounded-[3rem] shadow-2xl border border-border-light mb-8"
+              className="relative bg-white w-full admin-modal-container max-w-6xl rounded-[3rem] shadow-2xl border border-border-light mb-8"
             >
               {/* Modal Header */}
               <div className="flex items-center justify-between p-8 border-b border-border-light bg-light-bg/50 rounded-t-[3rem]">

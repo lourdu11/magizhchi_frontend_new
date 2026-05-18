@@ -148,7 +148,7 @@ export default function ForgotPassword() {
         <title>Forgot Password — Magizhchi Garments</title>
       </Helmet>
 
-      <div className="min-h-screen bg-cream-bg flex items-center justify-center px-4 py-12">
+      <div className="min-h-dvh bg-cream-bg flex items-center justify-center px-4 py-12">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}

@@ -749,119 +749,6 @@ export default function AdminProcurement() {
          </div>
       </div>
 
-      {/* ─── Integrated Procurement Ledger ─── */}
-      <div className="space-y-6">
-         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-2">
-            <h2 className="text-[11px] font-black text-charcoal uppercase tracking-[0.4em] flex items-center gap-3">
-               <Truck size={16} className="text-premium-gold" /> Procurement Ledger
-            </h2>
-            <div className="relative w-full md:max-w-md">
-               <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
-               <input 
-                 className="w-full bg-white border border-border-light rounded-2xl pl-14 pr-6 py-3 focus:outline-none focus:ring-4 focus:ring-premium-gold/10 font-bold text-xs shadow-sm"
-                 placeholder="Search bills, items or partners..."
-                 value={search}
-                 onChange={e => setSearch(e.target.value)}
-               />
-            </div>
-         </div>
-         <div className="bg-white rounded-[3.5rem] border border-border-light overflow-hidden shadow-sm">
-            <div className="overflow-x-auto">
-               <table className="w-full text-left">
-                  <thead>
-                     <tr className="bg-light-bg/50 border-b border-border-light">
-                        {['Bill Ref', 'Supplier Partner', 'Purchased Items', 'Bill Image', 'Value', 'Action'].map(h => (
-                        <th key={h} className="px-10 py-8 text-[10px] font-black text-text-muted uppercase tracking-[0.2em] whitespace-nowrap">{h}</th>
-                        ))}
-                     </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border-light/40">
-                     {isLoadingPurchases ? (
-                        <tr><td colSpan="6" className="py-24 text-center"><Loader2 className="animate-spin text-premium-gold mx-auto" size={48} /></td></tr>
-                     ) : purchases.length === 0 ? (
-                        <tr><td colSpan="6" className="py-24 text-center font-bold text-text-muted uppercase text-xs opacity-50">No purchases matching search.</td></tr>
-                     ) : purchases.filter(p => !search || p.purchaseNumber.includes(search) || p.supplierId?.name?.toLowerCase().includes(search.toLowerCase())).map(p => (
-                        <tr key={p._id} className={`hover:bg-light-bg/20 transition-all group ${p.isDeleted ? 'opacity-40 grayscale-[0.2]' : ''}`}>
-                           <td className="px-10 py-8">
-                              <div className={`font-black text-charcoal text-base ${p.isDeleted ? 'line-through text-text-muted' : ''}`}>{p.purchaseNumber}</div>
-                              <div className="text-[10px] text-text-muted font-bold mt-1 uppercase tracking-widest">{formatDate(p.purchaseDate || p.createdAt)}</div>
-                              {p.isDeleted ? (
-                                 <span className="inline-block mt-1.5 px-2 py-0.5 bg-red-100 text-red-600 text-[8px] font-black rounded uppercase tracking-wider border border-red-200">Bill Deleted / Stock Restored</span>
-                              ) : p.billNumber && (
-                                 <span className="inline-block mt-1.5 px-2 py-0.5 bg-light-bg text-text-muted text-[8px] font-black rounded uppercase tracking-wider border border-border-light">Bill #{p.billNumber}</span>
-                              )}
-                           </td>
-                           <td className="px-10 py-8">
-                              <div className="flex items-center gap-3">
-                                 <div className="w-8 h-8 bg-light-bg rounded-lg flex items-center justify-center text-text-muted group-hover:bg-premium-gold transition-colors"><User size={14} /></div>
-                                 <div>
-                                    <div className={`font-black text-charcoal text-sm ${p.isDeleted || p.supplierId?.isDeleted ? 'text-text-muted' : ''}`}>
-                                       {p.supplierId?.name || p.supplierName || '—'}
-                                    </div>
-                                    {(p.supplierId?.isDeleted) && (
-                                       <span className="inline-block mt-1 px-1.5 py-0.5 bg-red-50 text-red-600 text-[7px] font-black uppercase tracking-wider rounded border border-red-100">Archived Partner</span>
-                                    )}
-                                 </div>
-                              </div>
-                           </td>
-                           <td className="px-10 py-8">
-                              <div className="space-y-1.5">
-                                 {p.items?.slice(0, 2).map((item, i) => (
-                                 <div key={i} className={`text-[11px] font-bold text-charcoal flex items-center gap-2 ${p.isDeleted ? 'text-text-muted' : ''}`}>
-                                    <span className={`w-1.5 h-1.5 rounded-full ${p.isDeleted ? 'bg-red-300' : 'bg-border-dark'}`} />
-                                    {item.productName} (x{item.quantity})
-                                 </div>
-                                 ))}
-                                 {p.items?.length > 2 && <div className="text-[9px] font-black text-text-muted pl-3.5 uppercase">+{p.items.length - 2} more items</div>}
-                              </div>
-                           </td>
-                           <td className="px-10 py-8">
-                              {p.billImage ? (
-                                 <div className="flex items-center gap-2">
-                                    <button 
-                                       onClick={() => setViewBillImage(p.billImage)} 
-                                       className="p-2 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-600 hover:text-white transition-all shadow-sm"
-                                       title="Quick View Attachment"
-                                    >
-                                       <ImageIcon size={14} />
-                                    </button>
-                                    <a 
-                                       href={p.billImage} 
-                                       target="_blank" 
-                                       rel="noopener noreferrer" 
-                                       className="p-2 bg-light-bg text-text-muted rounded-xl hover:bg-charcoal hover:text-white transition-all shadow-sm"
-                                       title="Open in New Tab"
-                                    >
-                                       <ExternalLink size={14} />
-                                    </a>
-                                 </div>
-                              ) : (
-                                 <span className="text-[10px] font-black text-text-muted/30 uppercase tracking-widest">No File</span>
-                              )}
-                           </td>
-                           <td className="px-10 py-8 font-black text-charcoal text-base tracking-tight">
-                              <span className={p.isDeleted ? 'line-through text-text-muted' : ''}>₹{p.pricing.totalAmount.toLocaleString()}</span>
-                           </td>
-                           <td className="px-10 py-8">
-                              <div className="flex items-center gap-3">
-                                 {!p.isDeleted ? (
-                                    <>
-                                       <button onClick={() => handleEditPurchase(p)} className="p-4 bg-light-bg text-text-muted rounded-2xl hover:bg-premium-gold hover:text-charcoal transition-all shadow-sm" title="Edit Bill"><FileText size={18} /></button>
-                                       <button onClick={() => { setPurchaseToDelete(p); setShowPurchaseDeleteModal(true); }} className="p-4 bg-red-50 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all shadow-sm" title="Delete Bill"><Trash2 size={18} /></button>
-                                    </>
-                                 ) : (
-                                    <span className="px-4 py-2 bg-gray-100 text-gray-400 rounded-xl text-[9px] font-black uppercase tracking-widest border border-gray-200">Archived</span>
-                                 )}
-                              </div>
-                           </td>
-                        </tr>
-                     ))}
-                  </tbody>
-               </table>
-            </div>
-         </div>
-      </div>
-
       {/* ─── MODALS ─── */}
       
       {/* 1. Record Purchase Bill Modal */}
@@ -869,7 +756,7 @@ export default function AdminProcurement() {
          {showPurchaseForm && (
             <div className="fixed inset-0 z-[100] flex items-start justify-center p-4 pt-8 overflow-y-auto">
                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-charcoal/50 backdrop-blur-sm" onClick={resetPurchaseForm} />
-               <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} className="relative bg-white w-full max-w-6xl rounded-[4rem] shadow-2xl border border-border-light mb-8 p-12">
+               <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} className="relative bg-white w-full admin-modal-container max-w-6xl rounded-[4rem] shadow-2xl border border-border-light mb-8 p-12">
                   <div className="flex items-center justify-between mb-10">
                      <div>
                         <h2 className="text-3xl font-black text-charcoal uppercase tracking-tighter">
@@ -1244,7 +1131,7 @@ export default function AdminProcurement() {
         {showLedgerModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-charcoal/60 backdrop-blur-md" onClick={() => setShowLedgerModal(false)} />
-            <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="relative bg-white w-full max-w-5xl rounded-[4rem] shadow-2xl p-12 border border-border-light max-h-[85vh] overflow-hidden flex flex-col">
+            <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="relative bg-white w-full admin-modal-container max-w-5xl rounded-[4rem] shadow-2xl p-12 border border-border-light max-h-[85vh] overflow-hidden flex flex-col">
                <div className="flex items-center justify-between mb-10 shrink-0">
                   <div>
                     <h2 className="text-3xl font-black text-charcoal uppercase tracking-tighter">Procurement Ledger</h2>
@@ -1365,7 +1252,7 @@ export default function AdminProcurement() {
         {showPaymentModal && (
           <div className="fixed inset-0 z-[100] flex items-start justify-center p-4 pt-20 overflow-y-auto">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-charcoal/40 backdrop-blur-md" onClick={() => setShowPaymentModal(false)} />
-            <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="relative bg-white w-full max-w-lg rounded-[3.5rem] shadow-2xl p-12 border border-border-light">
+            <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="relative bg-white w-full admin-modal-container max-w-lg rounded-[3.5rem] shadow-2xl p-12 border border-border-light">
               <div className="flex items-center justify-between mb-10">
                 <div>
                   <h2 className="text-2xl font-black text-charcoal uppercase tracking-tight">{editingPaymentId ? 'Adjust Settlement' : 'Post Settlement'}</h2>
@@ -1410,7 +1297,7 @@ export default function AdminProcurement() {
         {showSupplierForm && (
           <div className="fixed inset-0 z-[100] flex items-start justify-center p-4 pt-20 overflow-y-auto">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-charcoal/40 backdrop-blur-md" onClick={() => { setShowSupplierForm(false); setEditingSupplierId(null); setNewSupplier({ name: '', phone: '', email: '', gstin: '', address: '', openingBalance: '' }); }} />
-            <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="relative bg-white w-full max-w-4xl rounded-[4rem] shadow-2xl p-12 border border-border-light">
+            <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="relative bg-white w-full admin-modal-container max-w-4xl rounded-[4rem] shadow-2xl p-12 border border-border-light">
                <div className="flex items-center justify-between mb-12">
                   <h2 className="text-3xl font-black text-charcoal uppercase tracking-tighter">{editingSupplierId ? 'Update Trade Partner' : 'Onboard Trade Partner'}</h2>
                   <button onClick={() => { setShowSupplierForm(false); setEditingSupplierId(null); setNewSupplier({ name: '', phone: '', email: '', gstin: '', address: '', openingBalance: '' }); }} className="p-4 hover:bg-light-bg rounded-full"><X size={28} /></button>
@@ -1473,7 +1360,7 @@ export default function AdminProcurement() {
         {showDeleteModal && (
           <div className="fixed inset-0 z-[110] flex items-start justify-center p-4 pt-20 overflow-y-auto">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-charcoal/60 backdrop-blur-md" onClick={() => setShowDeleteModal(false)} />
-            <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative bg-white w-full max-w-md rounded-[3rem] shadow-2xl p-10 border border-red-100 overflow-hidden text-center">
+            <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative bg-white w-full admin-modal-container max-w-md rounded-[3rem] shadow-2xl p-10 border border-red-100 overflow-hidden text-center">
                <div className="w-20 h-20 bg-red-50 text-red-600 rounded-[1.5rem] flex items-center justify-center mx-auto mb-6 shadow-inner">
                   <AlertTriangle size={40} strokeWidth={2.5} className="animate-bounce" />
                </div>
@@ -1511,7 +1398,7 @@ export default function AdminProcurement() {
         {showPurchaseDeleteModal && (
           <div className="fixed inset-0 z-[110] flex items-start justify-center p-4 pt-20 overflow-y-auto">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-charcoal/40 backdrop-blur-md" onClick={() => setShowPurchaseDeleteModal(false)} />
-            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="relative bg-white w-full max-w-sm rounded-[3.5rem] shadow-2xl p-10 border border-border-light text-center">
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="relative bg-white w-full admin-modal-container max-w-sm rounded-[3.5rem] shadow-2xl p-10 border border-border-light text-center">
                <div className="w-20 h-20 bg-red-50 text-red-600 rounded-[2rem] flex items-center justify-center mx-auto mb-8 shadow-inner">
                   <AlertTriangle size={36} />
                </div>
@@ -1546,7 +1433,7 @@ export default function AdminProcurement() {
         {viewBillImage && (
           <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 overflow-y-auto">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-charcoal/60 backdrop-blur-md" onClick={() => setViewBillImage(null)} />
-            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="relative bg-white w-full max-w-4xl rounded-[3rem] shadow-2xl p-8 border border-border-light flex flex-col max-h-[85vh]">
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="relative bg-white w-full admin-modal-container max-w-4xl rounded-[3rem] shadow-2xl p-8 border border-border-light flex flex-col max-h-[85vh]">
                <div className="flex justify-between items-center mb-6">
                   <h3 className="text-xl font-black text-charcoal uppercase tracking-tighter">Attached Document</h3>
                   <button onClick={() => setViewBillImage(null)} className="p-3 hover:bg-light-bg rounded-full text-text-muted transition-all"><X size={20} /></button>

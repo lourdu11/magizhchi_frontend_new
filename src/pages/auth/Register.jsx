@@ -67,7 +67,7 @@ export default function Register() {
   return (
     <>
       <Helmet><title>Create Account — Magizhchi Garments</title></Helmet>
-      <div className="min-h-screen bg-cream-bg flex">
+      <div className="min-h-dvh bg-cream-bg flex">
         {/* Left */}
         <div className="hidden lg:flex flex-col justify-center items-center w-1/2 bg-dark-gradient p-12 relative overflow-hidden">
           <div className="absolute inset-0 pointer-events-none">

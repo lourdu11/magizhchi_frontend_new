@@ -18,12 +18,13 @@ export const productService = {
   getProduct: (slug, params) => api.get(`/products/${slug}`, { params }),
   searchProducts: (q) => api.get('/products/search', { params: { q } }),
   createProduct: (data) => api.post('/products', data),
+  createProductWithProcurement: (data) => api.post('/products/with-procurement', data),
   updateProduct: (id, data) => api.put(`/products/${id}`, data),
   deleteProduct: (id) => api.delete(`/products/${id}`),
 };
 
 export const categoryService = {
-  getCategories: () => api.get('/categories'),
+  getCategories: (params) => api.get('/categories', { params: { ...params } }),
   getCategory: (slug) => api.get(`/categories/${slug}`),
   createCategory: (data) => api.post('/categories', data),
   updateCategory: (id, data) => api.put(`/categories/${id}`, data),
@@ -65,12 +66,16 @@ export const adminService = {
   getSalesAnalytics: (params) => api.get('/admin/analytics/sales', { params }),
   getAdminProducts: (params) => api.get('/admin/products', { params }),
   getAdminProductById: (id) => api.get(`/products/admin/detail/${id}`),
+  restoreProduct: (id) => api.post(`/admin/products/${id}/restore`),
+  purgeProduct: (id) => api.delete(`/products/admin/purge/${id}`),
   getHealth: () => api.get('/admin/health'),
   getAllOrders: (params) => api.get('/orders/all', { params }),
   updateOrderStatus: (id, data) => api.put(`/orders/${id}/status`, data),
   resendOrderReceipt: (id) => api.post(`/orders/${id}/resend-receipt`),
   getAllUsers: (params) => api.get('/admin/users', { params }),
   toggleBlockUser: (id) => api.put(`/admin/users/${id}/toggle-block`),
+  createCustomer: (data) => api.post('/admin/users', data),
+  deleteCustomer: (id) => api.delete(`/admin/users/${id}`),
   createStaff: (data) => api.post('/admin/staff', data),
   getStaff: () => api.get('/admin/staff'),
   updateStaff: (id, data) => api.put(`/admin/staff/${id}`, data),
@@ -81,7 +86,8 @@ export const adminService = {
   resetSystemData: (selections) => api.post('/admin/reset-system-data', { selections }),
   getPublicSettings: () => api.get('/public/settings'),
   uploadImage: (formData) => api.post('/upload', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' }
+    headers: { 'Content-Type': 'multipart/form-data' },
+    timeout: 120000
   }),
   getReturns: () => api.get('/admin/returns'),
   createReturn: (data) => api.post('/admin/returns', data),
@@ -103,7 +109,8 @@ export const reviewService = {
   likeReview: (id) => api.post(`/reviews/${id}/like`),
   dislikeReview: (id) => api.post(`/reviews/${id}/dislike`),
   uploadImages: (formData) => api.post('/reviews/upload', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' }
+    headers: { 'Content-Type': 'multipart/form-data' },
+    timeout: 120000
   }),
 };
 
@@ -117,6 +124,7 @@ export const billService = {
   getByBarcode: (barcode) => api.get(`/bills/barcode/${barcode}`),
   updateBill: (id, data) => api.put(`/bills/${id}`, data),
   resendReceipt: (id) => api.post(`/bills/${id}/resend-receipt`),
+  getStaffStats: () => api.get('/bills/staff-stats'),
 };
 
 export const bannerService = {
@@ -137,11 +145,14 @@ export const publicService = {
 export const purchaseService = {
   createPurchase: (data) => api.post('/admin/purchases', data),
   updatePurchase: (id, data) => api.put(`/admin/purchases/${id}`, data),
+  restorePurchase: (id) => api.post(`/admin/purchases/${id}/restore`),
+  resyncPurchase: (id) => api.post(`/admin/purchases/${id}/resync`),
   deletePurchase: (id) => api.delete(`/admin/purchases/${id}`),
   getPurchases: (params) => api.get('/admin/purchases', { params }),
   getSuppliers: () => api.get('/admin/suppliers'),
   createSupplier: (data) => api.post('/admin/suppliers', data),
   updateSupplier: (id, data) => api.put(`/admin/suppliers/${id}`, data),
+  restoreSupplier: (id) => api.post(`/admin/suppliers/${id}/restore`),
   recordPayment: (id, data) => api.put(`/admin/suppliers/${id}/record-payment`, data),
   updatePayment: (sid, pid, data) => api.put(`/admin/suppliers/${sid}/payments/${pid}`, data),
   deletePayment: (sid, pid) => api.delete(`/admin/suppliers/${sid}/payments/${pid}`),
@@ -150,7 +161,6 @@ export const purchaseService = {
 
 export const inventoryService = {
   getInventory:        (params)   => api.get('/admin/inventory', { params }),
-  getInventoryStats:   ()         => api.get('/admin/inventory/stats'),
   getStats:            ()         => api.get('/admin/inventory/stats'),
   getLowStock:         ()         => api.get('/admin/inventory/low-stock'),
   createItem:          (data)     => api.post('/admin/inventory', data),
@@ -164,10 +174,25 @@ export const inventoryService = {
   deleteItem:          (id)       => api.delete(`/admin/inventory/${id}`),
   getAllHistory:       (params)   => api.get('/admin/inventory/all-history', { params }),
   getHistory:          (id)       => api.get(`/admin/inventory/${id}/history`),
+  restoreChannels:     ()         => api.post('/admin/inventory/restore-channels'),
 };
 
 export const userService = {
   getProfile: () => api.get('/users/profile'),
   updateProfile: (data) => api.put('/users/profile', data),
   changePassword: (data) => api.put('/users/change-password', data),
+};
+
+export const broadcastService = {
+  getCustomers: (params) => api.get('/admin/broadcast/customers', { params }),
+  sendBroadcast: (data) => api.post('/admin/broadcast/send', data),
+  getHistory: () => api.get('/admin/broadcast/history'),
+  getDetails: (id) => api.get(`/admin/broadcast/details/${id}`),
+  disconnectWhatsApp: () => api.post('/admin/broadcast/whatsapp/disconnect'),
+  
+  // Templates
+  getTemplates: () => api.get('/admin/broadcast/templates'),
+  createTemplate: (data) => api.post('/admin/broadcast/templates', data),
+  updateTemplate: (id, data) => api.put(`/admin/broadcast/templates/${id}`, data),
+  deleteTemplate: (id) => api.delete(`/admin/broadcast/templates/${id}`),
 };

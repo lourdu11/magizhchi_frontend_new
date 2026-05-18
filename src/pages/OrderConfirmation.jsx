@@ -28,7 +28,7 @@ export default function OrderConfirmation() {
   });
 
   if (isLoading) return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-dvh flex items-center justify-center">
       <Loader2 className="animate-spin text-premium-gold" size={48} />
     </div>
   );

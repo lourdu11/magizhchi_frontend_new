@@ -12,6 +12,7 @@ import {
 import { adminService } from '../../services';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { DashboardSkeleton } from '../../components/common/Skeletons';
 
 const formatCurrency = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`;
 const COLORS = ['#D4AF37', '#1A1A1A', '#4A4A4A', '#8A8A8A', '#B5B5B5'];
@@ -20,24 +21,24 @@ function StatCard({ icon: Icon, label, value, trend, trendValue, sub, color = 't
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-      className={`${bg} rounded-[3rem] border border-border-light p-8 shadow-sm hover:border-premium-gold transition-all group relative overflow-hidden`}
+      className={`${bg} rounded-[2.5rem] md:rounded-[3rem] border border-border-light p-6 md:p-8 shadow-sm hover:border-premium-gold transition-all group relative overflow-hidden`}
     >
       <div className="absolute top-0 right-0 w-24 h-24 bg-premium-gold/5 rounded-full -mr-10 -mt-10 blur-2xl group-hover:bg-premium-gold/10 transition-colors" />
       <div className="relative z-10">
-        <div className="flex items-center justify-between mb-6">
-          <div className="w-12 h-12 rounded-2xl bg-light-bg flex items-center justify-center text-charcoal shadow-inner group-hover:scale-110 transition-transform">
-            <Icon size={22} />
+        <div className="flex items-center justify-between mb-4 md:mb-6">
+          <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-light-bg flex items-center justify-center text-charcoal shadow-inner group-hover:scale-110 transition-transform">
+            <Icon size={20} className="md:size-[22px]" />
           </div>
           {trend && (
-            <div className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${trend === 'up' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
+            <div className={`flex items-center gap-1 px-2.5 py-1 md:px-3 md:py-1.5 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-widest ${trend === 'up' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
               {trend === 'up' ? <ArrowUpRight size={10} /> : <ArrowDownRight size={10} />}
               {trendValue}
             </div>
           )}
         </div>
-        <p className="text-[10px] text-text-muted font-black uppercase tracking-[0.2em] mb-2">{label}</p>
-        <p className={`text-2xl font-black tracking-tighter ${color}`}>{value}</p>
-        {sub && <p className="text-[9px] text-text-muted font-bold mt-2 uppercase tracking-widest">{sub}</p>}
+        <p className="text-[9px] md:text-[10px] text-text-muted font-black uppercase tracking-[0.2em] mb-1 md:mb-2">{label}</p>
+        <p className={`text-xl md:text-2xl font-black tracking-tighter ${color}`}>{value}</p>
+        {sub && <p className="text-[8px] md:text-[9px] text-text-muted font-bold mt-2 uppercase tracking-widest leading-tight">{sub}</p>}
       </div>
     </motion.div>
   );
@@ -66,43 +67,36 @@ export default function AdminDashboard() {
     }
   }, [isLoadingStats, isLoadingAnalytics]);
 
-  if (isLoadingStats || isLoadingAnalytics) return (
-    <div className="p-10 space-y-10">
-      <div className="grid grid-cols-4 gap-8">
-        {Array(4).fill(0).map((_, i) => <div key={i} className="h-48 bg-white border border-border-light rounded-[2.5rem] animate-pulse" />)}
-      </div>
-      <div className="h-96 bg-white border border-border-light rounded-[3.5rem] animate-pulse" />
-    </div>
-  );
+  if ((isLoadingStats || isLoadingAnalytics) && (!dashboardStats || !analytics)) return <DashboardSkeleton />;
 
   const d = dashboardStats || {};
   const a = analytics || {};
   const salesTrend = a.data || [];
 
   return (
-    <div className="space-y-10 pb-20">
+    <div className="space-y-8 md:space-y-10 pb-20">
       {/* ─── Premium Header ─── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 bg-white p-10 rounded-[3rem] border border-border-light shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-8 bg-white p-6 md:p-10 rounded-[2.5rem] md:rounded-[3rem] border border-border-light shadow-sm">
         <div>
-          <h1 className="text-4xl font-black text-charcoal tracking-tighter uppercase leading-none">Business Pulse</h1>
-          <p className="text-xs text-text-muted font-bold uppercase tracking-[0.4em] mt-3 flex items-center gap-2">
+          <h1 className="text-3xl md:text-4xl font-black text-charcoal tracking-tighter uppercase leading-none">Business Pulse</h1>
+          <p className="text-[10px] md:text-xs text-text-muted font-bold uppercase tracking-[0.3em] md:tracking-[0.4em] mt-3 flex items-center gap-2">
             <Sparkles size={14} className="text-premium-gold" /> Real-time Enterprise Intelligence
           </p>
         </div>
-        <div className="flex gap-4">
-          <button onClick={() => navigate('/admin/catalog')} className="px-8 py-4 bg-light-bg text-charcoal rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-charcoal hover:text-white transition-all flex items-center gap-2">
-            <LayoutGrid size={16} /> Catalog Hub
+        <div className="grid grid-cols-2 md:flex gap-3 md:gap-4">
+          <button onClick={() => navigate('/admin/catalog')} className="px-4 md:px-8 py-3 md:py-4 bg-light-bg text-charcoal rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-widest hover:bg-charcoal hover:text-white transition-all flex items-center justify-center gap-2">
+            <LayoutGrid size={16} /> Catalog
           </button>
-          <button onClick={() => navigate('/admin/create-bill')} className="px-8 py-4 bg-charcoal text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:bg-premium-gold hover:text-charcoal transition-all flex items-center gap-2">
-            <Plus size={16} /> Fast Billing
+          <button onClick={() => navigate('/admin/create-bill')} className="px-4 md:px-8 py-3 md:py-4 bg-charcoal text-white rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-widest shadow-xl hover:bg-premium-gold hover:text-charcoal transition-all flex items-center justify-center gap-2">
+            <Plus size={16} /> Billing
           </button>
         </div>
       </div>
 
       {/* ─── Top Stats Grid ─── */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        <StatCard icon={TrendingUp} label="Today's Revenue" value={formatCurrency(d.revenue?.today)} trend="up" trendValue="+12%" sub="Across all channels" color="text-charcoal" />
-        <StatCard icon={Sparkles} label="Today's Profit" value={formatCurrency(d.revenue?.todayProfit)} trend="up" trendValue="+8%" sub="Net margin calculated" color="text-emerald-600" />
+        <StatCard icon={TrendingUp} label="Today's Revenue" value={formatCurrency(d.revenue?.today)} trend={d.revenue?.today > 0 ? 'up' : 'down'} trendValue={a.summary?.growth ? `${a.summary.growth > 0 ? '+' : ''}${Number(a.summary.growth).toFixed(1)}%` : 'Live'} sub="Across all channels" color="text-charcoal" />
+        <StatCard icon={Sparkles} label="Today's Profit" value={formatCurrency(d.revenue?.todayProfit)} trend={d.revenue?.todayProfit >= 0 ? 'up' : 'down'} trendValue={d.revenue?.todayProfit >= 0 ? 'Positive' : 'Negative'} sub="Net margin calculated" color="text-emerald-600" />
         <StatCard icon={CreditCard} label="Settled Value" value={formatCurrency(d.erp?.settledValue)} sub="Total payments made" color="text-indigo-600" />
         <StatCard icon={Users} label="Active Partners" value={d.erp?.activePartners || 0} sub="Managed Trade Partners" color="text-amber-600" />
       </div>
@@ -214,7 +208,7 @@ export default function AdminDashboard() {
               <button onClick={() => navigate('/admin/orders')} className="text-[10px] font-black text-premium-gold uppercase tracking-widest hover:underline">View All Orders</button>
            </div>
            <div className="flex-1 space-y-6 overflow-y-auto max-h-[400px] pr-4 custom-scrollbar">
-              {d.recentOrders?.map((order, i) => (
+                             {d.recentTransactions?.map((order, i) => (
                 <motion.div 
                   initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.1 }}
                   key={order._id} className="flex items-center justify-between p-6 bg-light-bg/50 rounded-[2rem] border border-border-light/40 group hover:border-premium-gold transition-all"
@@ -266,7 +260,8 @@ export default function AdminDashboard() {
                             <p className="text-[9px] text-[#5F6368] font-bold uppercase tracking-widest">{p.size} · {p.color}</p>
                          </div>
                          <div className="text-right shrink-0">
-                            <p className="text-xs font-black text-[#D93025]">{p.avail || p.totalStock} left</p>
+                            {/* BUG #14 FIX: use availableStock (correct API field) not p.avail (undefined) */}
+                          <p className="text-xs font-black text-[#D93025]">{p.availableStock ?? p.totalStock ?? 0} left</p>
                          </div>
                       </div>
                     ))}

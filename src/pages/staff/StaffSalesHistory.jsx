@@ -10,7 +10,7 @@ export default function StaffSalesHistory() {
 
   const { data, isLoading } = useQuery({
     queryKey: ['bills', dateFilter, search],
-    queryFn: () => billService.getBills({ date: dateFilter, search }).then(r => r.data),
+    queryFn: () => billService.getBills({ date: dateFilter, search }).then(r => r.data.data),
   });
 
   const bills = data?.data || [];

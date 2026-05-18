@@ -1,29 +1,29 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
+import { setToken, clearToken } from '../services/api';
+
 // ─── Auth Store ───────────────────────────────────────
 export const useAuthStore = create(
   persist(
     (set) => ({
       user: null,
-      accessToken: null,
       isAuthenticated: false,
       setAuth: (user, accessToken) => {
-        sessionStorage.setItem('accessToken', accessToken);
-        set({ user, accessToken, isAuthenticated: true });
+        setToken(accessToken);
+        set({ user, isAuthenticated: true });
       },
       logout: () => {
-        sessionStorage.removeItem('accessToken');
+        clearToken();
         sessionStorage.removeItem('admin_settings_verified');
-        
-        set({ user: null, accessToken: null, isAuthenticated: false });
+        set({ user: null, isAuthenticated: false });
       },
       updateUser: (updates) => set((state) => ({ user: { ...state.user, ...updates } })),
     }),
     {
       name: 'magizhchi-auth',
       storage: createJSONStorage(() => sessionStorage),
-      partialize: (state) => ({ user: state.user, accessToken: state.accessToken, isAuthenticated: state.isAuthenticated })
+      partialize: (state) => ({ user: state.user, isAuthenticated: state.isAuthenticated })
     }
   )
 );

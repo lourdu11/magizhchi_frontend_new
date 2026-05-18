@@ -107,7 +107,7 @@ export default function AdminSalesChannels({ item, onClose, onRefresh }) {
         initial={{ opacity: 0, scale: 0.95, y: 20 }} 
         animate={{ opacity: 1, scale: 1, y: 0 }} 
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="relative bg-white w-full max-w-6xl h-[90vh] rounded-[3.5rem] shadow-2xl flex flex-col overflow-hidden border border-border-light"
+        className="relative bg-white w-full admin-modal-container max-w-6xl h-[90vh] rounded-[3.5rem] shadow-2xl flex flex-col overflow-hidden border border-border-light"
       >
         {/* Header Section */}
         <div className="p-8 md:p-12 border-b border-border-light bg-light-bg/50 flex flex-col md:flex-row md:items-center justify-between gap-6">

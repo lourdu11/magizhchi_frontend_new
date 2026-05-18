@@ -38,15 +38,16 @@ const TermsAndConditions = lazy(() => import('./pages/TermsAndConditions'));
 const RefundPolicy = lazy(() => import('./pages/RefundPolicy'));
 const ShippingPolicy = lazy(() => import('./pages/ShippingPolicy'));
 
-const AdminCatalog = lazy(() => import('./pages/admin/AdminCatalog'));
-const AdminProducts = lazy(() => import('./pages/admin/AdminProducts'));
+const ProductProfileCenter = lazy(() => import('./pages/admin/ProductProfileCenter'));
 const AdminCategories = lazy(() => import('./pages/admin/AdminCategories'));
+const AdminCategoryForm = lazy(() => import('./pages/admin/AdminCategoryForm'));
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 const AdminOrders = lazy(() => import('./pages/admin/AdminOrders'));
 const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
 const AdminInventory = lazy(() => import('./pages/admin/AdminInventory'));
 const AdminBills = lazy(() => import('./pages/admin/AdminBills'));
 const AdminStaff = lazy(() => import('./pages/admin/AdminStaff'));
+const AdminProductForm = lazy(() => import('./pages/admin/AdminProductForm'));
 const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'));
 const AdminAnalytics = lazy(() => import('./pages/admin/AdminAnalytics'));
 const AdminCoupons = lazy(() => import('./pages/admin/AdminCoupons'));
@@ -54,13 +55,16 @@ const AdminReviews = lazy(() => import('./pages/admin/AdminReviews'));
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
 const AdminBanners = lazy(() => import('./pages/admin/AdminBanners'));
 const AdminProcurement = lazy(() => import('./pages/admin/AdminProcurement'));
+const AdminPurchaseForm = lazy(() => import('./pages/admin/AdminPurchaseForm'));
+const AdminSupplierForm = lazy(() => import('./pages/admin/AdminSupplierForm'));
 const AdminDailyProfit = lazy(() => import('./pages/admin/AdminDailyProfit'));
 const AdminWastage = lazy(() => import('./pages/admin/AdminWastage'));
 const AdminAudit = lazy(() => import('./pages/admin/AdminAudit'));
+const BroadcastCenter = lazy(() => import('./pages/admin/BroadcastCenter'));
 
 // Staff pages
 const StaffLogin = lazy(() => import('./pages/staff/StaffLogin'));
-const StaffCreateBill = lazy(() => import('./pages/staff/StaffCreateBill'));
+const PosLayout = lazy(() => import('./pages/staff/pos/PosLayout'));
 const StaffSalesHistory = lazy(() => import('./pages/staff/StaffSalesHistory'));
 const StaffDailyReport = lazy(() => import('./pages/staff/StaffDailyReport'));
 
@@ -113,34 +117,46 @@ export default function App() {
         <Route path="/admin" element={<ProtectedRoute role="admin"><AdminLayout /></ProtectedRoute>}>
           <Route index element={<AdminDashboard />} />
           <Route path="staff" element={<AdminStaff />} />
-          <Route path="catalog" element={<AdminCatalog />} />
-          <Route path="products" element={<AdminCatalog />} />
-          <Route path="products/new" element={<AdminProducts />} />
-          <Route path="products/:id" element={<AdminProducts />} />
-          <Route path="inventory" element={<AdminCatalog />} />
+          <Route path="products/new" element={<AdminProductForm />} />
+          <Route path="products/edit/:id" element={<AdminProductForm />} />
+          <Route path="profiles" element={<ProductProfileCenter />} />
+          <Route path="products" element={<Navigate to="/admin/profiles" replace />} />
+          <Route path="catalog" element={<Navigate to="/admin/profiles" replace />} />
+          <Route path="inventory" element={<Navigate to="/admin/profiles" replace />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="users" element={<AdminUsers />} />
           <Route path="bills" element={<AdminBills />} />
           <Route path="categories" element={<AdminCategories />} />
+          <Route path="categories/new" element={<AdminCategoryForm />} />
+          <Route path="categories/edit/:id" element={<AdminCategoryForm />} />
           <Route path="coupons" element={<AdminCoupons />} />
           <Route path="reviews" element={<AdminReviews />} />
           <Route path="analytics" element={<AdminAnalytics />} />
           <Route path="procurement" element={<AdminProcurement />} />
+          <Route path="procurement/purchases/new" element={<AdminPurchaseForm />} />
+          <Route path="procurement/purchases/edit/:id" element={<AdminPurchaseForm />} />
+          <Route path="procurement/suppliers/new" element={<AdminSupplierForm />} />
+          <Route path="procurement/suppliers/edit/:id" element={<AdminSupplierForm />} />
           <Route path="purchases" element={<AdminProcurement />} />
+          <Route path="purchases/new" element={<AdminPurchaseForm />} />
+          <Route path="purchases/edit/:id" element={<AdminPurchaseForm />} />
           <Route path="suppliers" element={<AdminProcurement />} />
+          <Route path="suppliers/new" element={<AdminSupplierForm />} />
+          <Route path="suppliers/edit/:id" element={<AdminSupplierForm />} />
           <Route path="wastage" element={<AdminWastage />} />
           <Route path="audit" element={<AdminAudit />} />
           <Route path="reports/daily" element={<AdminDailyProfit />} />
-          <Route path="create-bill" element={<StaffCreateBill />} />
+          <Route path="create-bill" element={<PosLayout />} />
           <Route path="daily-report" element={<StaffDailyReport />} />
           <Route path="settings" element={<AdminSettings />} />
           <Route path="banners" element={<AdminBanners />} />
+          <Route path="broadcast" element={<BroadcastCenter />} />
         </Route>
 
         {/* ── Staff Routes ── */}
         <Route path="/staff/login" element={<StaffLogin />} />
         <Route path="/staff" element={<ProtectedRoute role="staff"><StaffLayout /></ProtectedRoute>}>
-          <Route index element={<StaffCreateBill />} />
+          <Route index element={<PosLayout />} />
           <Route path="history" element={<StaffSalesHistory />} />
           <Route path="report" element={<StaffDailyReport />} />
         </Route>

@@ -1,5 +1,5 @@
 User-agent: *
+Disallow: /admin/
 Allow: /
 
-# Sitemap
 Sitemap: https://magizhchigarments.vercel.app/sitemap.xml

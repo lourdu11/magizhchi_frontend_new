@@ -14,7 +14,7 @@ export default function StaffLayout() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-light-bg flex">
+    <div className="min-h-dvh bg-light-bg flex">
       <aside className="w-52 shrink-0 bg-charcoal flex flex-col fixed h-full z-30">
         <div className="px-5 py-5 border-b border-white/10">
           <div className="font-display text-lg font-bold text-white tracking-widest">MAGIZHCHI</div>
@@ -38,8 +38,10 @@ export default function StaffLayout() {
           <p className="text-white/40 text-xs mb-3">Staff</p>
           <button 
             onClick={() => { 
-              logout(); 
-              navigate('/staff/login'); 
+              navigate('/'); 
+              setTimeout(() => {
+                logout();
+              }, 50);
             }} 
             className="flex items-center gap-2 text-white/40 hover:text-stock-out text-sm"
           >
@@ -47,7 +49,7 @@ export default function StaffLayout() {
           </button>
         </div>
       </aside>
-      <main className="flex-1 ml-52 p-6 min-h-screen">
+      <main className="flex-1 ml-52 p-6 min-h-dvh">
         <Outlet />
       </main>
     </div>

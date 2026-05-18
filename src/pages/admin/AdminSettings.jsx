@@ -14,12 +14,15 @@ export default function AdminSettings() {
   const [resetSelections, setResetSelections] = useState({
     dashboard: true,
     category: false,
-    catalog: false,
     procurement: false,
+    catalog: false,
+    orders: false,
     customer: false,
+    createBill: false,
     offlineBills: true,
     reviews: true,
     analysis: true,
+    broadcast: false,
     staff: false,
     banners: false
   });
@@ -103,8 +106,8 @@ export default function AdminSettings() {
         shipping: { ...formData.shipping, ...(settings.shipping || {}) },
         notifications: {
           email: {
-            host: '',
-            port: 587,
+            host: settings.notifications?.email?.host || '',
+            port: settings.notifications?.email?.port || 587,
             user: settings.notifications?.email?.user || '',
             password: '',
             alertEmail: settings.notifications?.email?.alertEmail || ''
@@ -142,7 +145,11 @@ export default function AdminSettings() {
 
   const isEmailDirty = formData.notifications?.email?.alertEmail?.trim().toLowerCase() !== (settings?.notifications?.email?.alertEmail || '').trim().toLowerCase();
   const isPhoneDirty = formData.notifications?.whatsapp?.adminPhone?.trim() !== (settings?.notifications?.whatsapp?.adminPhone || '').trim();
-  const isDirty = isEmailDirty || isPhoneDirty;
+  const isSmtpHostDirty = (formData.notifications?.email?.host || '').trim() !== (settings?.notifications?.email?.host || '').trim();
+  const isSmtpPortDirty = Number(formData.notifications?.email?.port || 587) !== Number(settings?.notifications?.email?.port || 587);
+  const isSmtpUserDirty = (formData.notifications?.email?.user || '').trim() !== (settings?.notifications?.email?.user || '').trim();
+  const isSmtpPassDirty = (formData.notifications?.email?.password || '') !== '';
+  const isDirty = isEmailDirty || isPhoneDirty || isSmtpHostDirty || isSmtpPortDirty || isSmtpUserDirty || isSmtpPassDirty;
 
   const settingsMutation = useMutation({
     mutationFn: (data) => adminService.updateSettings(data),
@@ -233,6 +240,18 @@ export default function AdminSettings() {
     setShowResetModal(false);
     toast.promise(
       adminService.resetSystemData(resetSelections).then(r => {
+        // 🚨 CRITICAL: Clear POS Local Cache to prevent logical mismatching
+        if (resetSelections.offlineBills || resetSelections.catalog || resetSelections.procurement || resetSelections.createBill) {
+          localStorage.removeItem('pos_cart_sessions');
+          localStorage.removeItem('pos_active_tab');
+          localStorage.removeItem('pos_completed_bill');
+          localStorage.removeItem('magizhchi_held_bills');
+          localStorage.removeItem('pos_editing_bill_id');
+          console.log('AdminSettings: POS LocalStorage cleared after system reset.');
+        }
+        
+        // Force completely purging and clearing React Query cache to guarantee immediate reload of all stats
+        queryClient.clear();
         queryClient.invalidateQueries();
         return r;
       }),
@@ -638,9 +657,63 @@ export default function AdminSettings() {
                          ) : (
                            <p className="text-[9px] text-text-muted mt-2 font-bold uppercase italic">Receives Email alerts</p>
                          )}
-                      </label>
-                   </div>
-                </div>
+                       </label>
+                    </div>
+
+                    {/* Custom SMTP Configuration (Dynamically Configurable SMTP Server) */}
+                    <div className="mt-8 p-6 bg-light-bg/40 rounded-[2rem] border border-border-light space-y-6">
+                      <div className="flex items-center gap-3">
+                         <div className="w-8 h-8 bg-premium-gold/10 text-premium-gold rounded-lg flex items-center justify-center">
+                            <Mail size={16} />
+                         </div>
+                         <div>
+                            <h4 className="text-xs font-black text-charcoal uppercase tracking-wider">Custom SMTP Mail Server (SMTP மெயில் சர்வர்)</h4>
+                            <p className="text-[9px] text-text-muted font-bold uppercase tracking-widest">Optional: Link any SMTP mail service to bypass default Brevo server</p>
+                         </div>
+                      </div>
+
+                      <div className="grid md:grid-cols-2 gap-6">
+                         <label className="block">
+                            <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-2 block">SMTP Host</span>
+                            <input className="w-full bg-white border border-border-light focus:border-premium-gold rounded-2xl px-5 py-4 focus:ring-4 focus:ring-premium-gold/10 outline-none font-sans font-bold text-sm text-charcoal" 
+                              value={formData.notifications.email.host} 
+                              onChange={e => updateEmail('host', e.target.value)} 
+                              placeholder="smtp.gmail.com" />
+                         </label>
+
+                         <label className="block">
+                            <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-2 block">SMTP Port</span>
+                            <input type="number" className="w-full bg-white border border-border-light focus:border-premium-gold rounded-2xl px-5 py-4 focus:ring-4 focus:ring-premium-gold/10 outline-none font-sans font-bold text-sm text-charcoal" 
+                              value={formData.notifications.email.port} 
+                              onChange={e => updateEmail('port', e.target.value)} 
+                              placeholder="587" />
+                         </label>
+
+                         <label className="block">
+                            <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-2 block">SMTP Username (Email)</span>
+                            <input className="w-full bg-white border border-border-light focus:border-premium-gold rounded-2xl px-5 py-4 focus:ring-4 focus:ring-premium-gold/10 outline-none font-sans font-bold text-sm text-charcoal" 
+                              value={formData.notifications.email.user} 
+                              onChange={e => updateEmail('user', e.target.value)} 
+                              placeholder="your-email@gmail.com" />
+                         </label>
+
+                         <label className="block">
+                            <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-2 block">SMTP Password / App Password</span>
+                            <input type="password" className="w-full bg-white border border-border-light focus:border-premium-gold rounded-2xl px-5 py-4 focus:ring-4 focus:ring-premium-gold/10 outline-none font-sans font-bold text-sm text-charcoal" 
+                              value={formData.notifications.email.password} 
+                              onChange={e => updateEmail('password', e.target.value)} 
+                              placeholder="••••••••••••••••" />
+                         </label>
+                      </div>
+
+                      <div className="p-4 bg-premium-gold/5 rounded-2xl border border-premium-gold/10 flex items-start gap-3">
+                         <ShieldCheck className="text-premium-gold shrink-0 mt-0.5" size={16} />
+                         <p className="text-[9px] font-bold text-[#8C6D1F] leading-normal uppercase">
+                            Security Note: Keep host/port/user empty to fallback to default high-speed Brevo cloud SMTP! If you use Gmail, generate a 16-character "App Password" in Google Settings and paste it above!
+                         </p>
+                      </div>
+                    </div>
+                 </div>
 
                 {/* Order Alerts */}
                 <div className="space-y-6 pt-6 border-t border-border-light">
@@ -861,12 +934,15 @@ export default function AdminSettings() {
                       {[
                         { key: 'dashboard', label: 'Dashboard Stats', desc: 'Wipes cached statistics counters and forces instant dashboard reload' },
                         { key: 'category', label: 'Garment Categories', desc: 'Deletes all catalog category collections and groupings' },
-                        { key: 'catalog', label: 'Product Catalog', desc: 'Deletes all product listings, cost structures, and variants inventory' },
                         { key: 'procurement', label: 'Procurement Hub', desc: 'Wipes all supplier directories, transaction ledgers, and purchases' },
+                        { key: 'catalog', label: 'Product Profiles', desc: 'Deletes all product listings, cost structures, and variants inventory' },
+                        { key: 'orders', label: 'Customer Orders', desc: 'Permanently clears all web sales, online orders, and customer billing histories' },
                         { key: 'customer', label: 'Customer Directory', desc: 'Removes registered retail user profiles (safely retains admin profiles)' },
-                        { key: 'offlineBills', label: 'POS Bills / Invoices', desc: 'Permanently deletes all billing invoices, sales records, and PDF references' },
+                        { key: 'createBill', label: 'Create Bill Session', desc: 'Wipes all active operator cart sessions, POS tabs, and held billing sessions' },
+                        { key: 'offlineBills', label: 'Offline Bills / Invoices', desc: 'Permanently deletes all store billing invoices, physical sales, and local PDF references' },
                         { key: 'reviews', label: 'Customer Reviews', desc: 'Wipes catalog rating stars and feedback posts left by web buyers' },
-                        { key: 'analysis', label: 'Sales Analytics & Logs', desc: 'Resets stock transaction history, recorded damages, and sells counts' },
+                        { key: 'analysis', label: 'Sales Analysis & Logs', desc: 'Resets stock transaction history, recorded damages, and sells counts' },
+                        { key: 'broadcast', label: 'Broadcast Center', desc: 'Wipes out WhatsApp campaign broadcast queues, template lists, and delivery logs' },
                         { key: 'staff', label: 'Staff Accounts', desc: 'Removes billing operators, assistants, and clerk log-ins' },
                         { key: 'banners', label: 'Slider Banners', desc: 'Clears e-commerce homepage hero sliders and advertising images' },
                       ].map(module => {
@@ -953,11 +1029,28 @@ export default function AdminSettings() {
                   ⚠️ This will permanently delete selected data modules:
                 </p>
                 <div className="flex flex-wrap gap-2 pt-1">
-                  {Object.keys(resetSelections).filter(k => resetSelections[k]).map(k => (
-                    <span key={k} className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-[10px] font-black uppercase tracking-wider">
-                      {k === 'offlineBills' ? 'POS Bills' : k === 'customer' ? 'Customers' : k === 'procurement' ? 'Procurement' : k === 'catalog' ? 'Products' : k}
-                    </span>
-                  ))}
+                  {Object.keys(resetSelections).filter(k => resetSelections[k]).map(k => {
+                    const labels = {
+                      dashboard: 'Dashboard',
+                      category: 'Category',
+                      procurement: 'Procurement Hub',
+                      catalog: 'Product Profiles',
+                      orders: 'Orders',
+                      customer: 'Customers',
+                      createBill: 'Create Bill',
+                      offlineBills: 'Offline Bills',
+                      reviews: 'Reviews',
+                      analysis: 'Analysis',
+                      broadcast: 'Broadcast Center',
+                      staff: 'Staff',
+                      banners: 'Banners'
+                    };
+                    return (
+                      <span key={k} className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-[10px] font-black uppercase tracking-wider">
+                        {labels[k] || k}
+                      </span>
+                    );
+                  })}
                 </div>
                 <p className="text-[10px] text-text-muted font-semibold mt-2 leading-relaxed">
                   Deleting these modules will erase all associated records, configurations, and logs from the cloud database. This action is final and CANNOT be reversed.

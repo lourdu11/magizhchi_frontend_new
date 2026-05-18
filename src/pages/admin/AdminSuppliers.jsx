@@ -18,14 +18,15 @@ export default function AdminSuppliers() {
   const [selectedSupplier, setSelectedSupplier] = useState(null);
   const [supplierToDelete, setSupplierToDelete] = useState(null);
   const [search, setSearch] = useState('');
+  const [showArchived, setShowArchived] = useState(false);
   const queryClient = useQueryClient();
 
   const [paymentData, setPaymentData] = useState({ amount: '', method: 'Cash', referenceId: '', note: '', date: new Date().toISOString().slice(0, 10) });
   const [newSupplier, setNewSupplier] = useState({ name: '', phone: '', email: '', gstin: '', address: '', openingBalance: 0 });
 
   const { data: suppliers, isLoading } = useQuery({
-    queryKey: ['admin-suppliers'],
-    queryFn: () => purchaseService.getSuppliers().then(r => r.data.data),
+    queryKey: ['admin-suppliers', showArchived],
+    queryFn: () => purchaseService.getSuppliers({ includeDeleted: showArchived }).then(r => r.data.data),
   });
 
   const recordPaymentMutation = useMutation({
@@ -61,6 +62,15 @@ export default function AdminSuppliers() {
     onError: (err) => toast.error(err.response?.data?.message || 'Failed to remove supplier'),
   });
 
+  const restoreSupplierMutation = useMutation({
+    mutationFn: (id) => purchaseService.restoreSupplier(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-suppliers'] });
+      toast.success('Supplier partner restored');
+    },
+    onError: (err) => toast.error(err.response?.data?.message || 'Failed to restore supplier'),
+  });
+
   const confirmDelete = (supplier) => {
     setSupplierToDelete(supplier);
     setShowDeleteModal(true);
@@ -88,9 +98,20 @@ export default function AdminSuppliers() {
           <h1 className="text-3xl font-black text-charcoal tracking-tight uppercase">Supplier Ledger</h1>
           <p className="text-text-muted text-sm font-medium tracking-tight">Payables tracking & credit management</p>
         </div>
-        <button onClick={() => setShowAddModal(true)} className="bg-charcoal text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all flex items-center gap-2 shadow-xl shadow-charcoal/20">
-          <Plus size={16} /> New Supplier
-        </button>
+        <div className="flex gap-3">
+          <button 
+            onClick={() => setShowArchived(!showArchived)}
+            className={`px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 border ${
+              showArchived ? 'bg-amber-100 text-amber-700 border-amber-200' : 'bg-white text-text-muted border-border-light'
+            }`}
+          >
+            <History size={16} />
+            {showArchived ? 'Archive Vault' : 'Show Archived'}
+          </button>
+          <button onClick={() => setShowAddModal(true)} className="bg-charcoal text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all flex items-center gap-2 shadow-xl shadow-charcoal/20">
+            <Plus size={16} /> New Supplier
+          </button>
+        </div>
       </div>
 
       {/* Summary Cards */}
@@ -159,36 +180,47 @@ export default function AdminSuppliers() {
                   </td>
                   <td className="px-10 py-8">
                     <div className="flex items-center gap-3">
-                      <button 
-                        onClick={() => { setSelectedSupplier(s); setShowPaymentModal(true); }}
-                        className="p-4 bg-charcoal text-white rounded-2xl hover:bg-premium-gold hover:text-charcoal transition-all shadow-lg shadow-charcoal/10"
-                        title="Record Payment"
-                      >
-                        <CreditCard size={18} />
-                      </button>
-                      <button 
-                        onClick={() => { setSelectedSupplier(s); setShowLedgerModal(true); }}
-                        className="p-4 bg-light-bg text-charcoal rounded-2xl hover:bg-charcoal hover:text-white transition-all shadow-sm"
-                        title="View Full Ledger & History"
-                      >
-                        <History size={18} />
-                      </button>
-                      <button 
-                        onClick={() => navigate(`/admin/purchases?new=true&supplier=${s._id}`)}
-                        className="p-4 bg-premium-gold/10 text-premium-gold rounded-2xl hover:bg-premium-gold hover:text-charcoal transition-all shadow-sm"
-                        title="Quick New Purchase"
-                      >
-                        <Truck size={18} />
-                      </button>
-                      <button 
-                        onClick={() => confirmDelete(s)}
-                        disabled={deleteSupplierMutation.isPending}
-                        className="p-4 bg-red-50 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all shadow-sm"
-                        title="Delete Supplier"
-                      >
-                        {deleteSupplierMutation.isPending && supplierToDelete?._id === s._id ? <Loader2 size={18} className="animate-spin" /> : <Trash2 size={18} />}
-                      </button>
-                    </div>
+                       {s.isDeleted ? (
+                         <button 
+                            onClick={() => restoreSupplierMutation.mutate(s._id)}
+                            className="px-6 py-4 bg-charcoal text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-premium-gold transition-all"
+                         >
+                            <Plus size={16} className="inline mr-2" /> Restore Partner
+                         </button>
+                       ) : (
+                         <>
+                           <button 
+                             onClick={() => { setSelectedSupplier(s); setShowPaymentModal(true); }}
+                             className="p-4 bg-charcoal text-white rounded-2xl hover:bg-premium-gold hover:text-charcoal transition-all shadow-lg shadow-charcoal/10"
+                             title="Record Payment"
+                           >
+                             <CreditCard size={18} />
+                           </button>
+                           <button 
+                             onClick={() => { setSelectedSupplier(s); setShowLedgerModal(true); }}
+                             className="p-4 bg-light-bg text-charcoal rounded-2xl hover:bg-charcoal hover:text-white transition-all shadow-sm"
+                             title="View Full Ledger & History"
+                           >
+                             <History size={18} />
+                           </button>
+                           <button 
+                             onClick={() => navigate(`/admin/purchases?new=true&supplier=${s._id}`)}
+                             className="p-4 bg-premium-gold/10 text-premium-gold rounded-2xl hover:bg-premium-gold hover:text-charcoal transition-all shadow-sm"
+                             title="Quick New Purchase"
+                           >
+                             <Truck size={18} />
+                           </button>
+                           <button 
+                             onClick={() => confirmDelete(s)}
+                             disabled={deleteSupplierMutation.isPending}
+                             className="p-4 bg-red-50 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all shadow-sm"
+                             title="Delete Supplier"
+                           >
+                             {deleteSupplierMutation.isPending && supplierToDelete?._id === s._id ? <Loader2 size={18} className="animate-spin" /> : <Trash2 size={18} />}
+                           </button>
+                         </>
+                       )}
+                     </div>
                   </td>
                 </tr>
               ))}
@@ -202,7 +234,7 @@ export default function AdminSuppliers() {
         {showLedgerModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-charcoal/60 backdrop-blur-md" onClick={() => setShowLedgerModal(false)} />
-             <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="relative bg-white w-full max-w-4xl rounded-[4rem] shadow-2xl p-12 border border-border-light max-h-[85vh] overflow-hidden flex flex-col">
+             <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="relative bg-white w-full admin-modal-container max-w-4xl rounded-[4rem] shadow-2xl p-12 border border-border-light max-h-[85vh] overflow-hidden flex flex-col">
                 <div className="flex items-center justify-between mb-10 flex-none">
                    <div>
                       <h2 className="text-3xl font-black text-charcoal uppercase tracking-tighter">Financial Ledger</h2>
@@ -303,7 +335,7 @@ export default function AdminSuppliers() {
         {showPaymentModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-charcoal/40 backdrop-blur-md" onClick={() => setShowPaymentModal(false)} />
-            <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="relative bg-white w-full max-w-lg rounded-[3.5rem] shadow-2xl p-12 border border-border-light">
+            <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="relative bg-white w-full admin-modal-container max-w-lg rounded-[3.5rem] shadow-2xl p-12 border border-border-light">
               <div className="flex items-center justify-between mb-10">
                 <div>
                   <h2 className="text-2xl font-black text-charcoal uppercase tracking-tight">Post Settlement</h2>
@@ -358,7 +390,7 @@ export default function AdminSuppliers() {
         {showAddModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-charcoal/40 backdrop-blur-md" onClick={() => setShowAddModal(false)} />
-            <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="relative bg-white w-full max-w-4xl rounded-[4rem] shadow-2xl p-12 border border-border-light">
+            <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="relative bg-white w-full admin-modal-container max-w-4xl rounded-[4rem] shadow-2xl p-12 border border-border-light">
               <div className="flex items-center justify-between mb-12">
                 <div>
                    <h2 className="text-3xl font-black text-charcoal uppercase tracking-tighter">Onboard Supplier</h2>
@@ -433,7 +465,7 @@ export default function AdminSuppliers() {
         {showDeleteModal && (
           <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-charcoal/60 backdrop-blur-md" onClick={() => setShowDeleteModal(false)} />
-            <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative bg-white w-full max-w-md rounded-[3rem] shadow-2xl p-10 border border-red-100 overflow-hidden text-center">
+            <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative bg-white w-full admin-modal-container max-w-md rounded-[3rem] shadow-2xl p-10 border border-red-100 overflow-hidden text-center">
                <div className="w-20 h-20 bg-red-50 text-red-600 rounded-[1.5rem] flex items-center justify-center mx-auto mb-6 shadow-inner">
                   <AlertTriangle size={40} strokeWidth={2.5} className="animate-bounce" />
                </div>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Navigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -11,7 +11,7 @@ import { Helmet } from 'react-helmet-async';
 
 export default function AdminLogin() {
   const [step, setStep] = useState('login'); // login, forgot, otp, reset
-  const [identifier, setIdentifier] = useState('');
+  const [identifier, setIdentifier] = useState(() => sessionStorage.getItem('admin_login_identifier') || '');
   const [password, setPassword] = useState('');
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -20,6 +20,16 @@ export default function AdminLogin() {
   
   const { setAuth, isAuthenticated, user } = useAuthStore();
   const navigate = useNavigate();
+
+  // Restore 2FA step if identifier was saved (page refresh during OTP wait)
+  useEffect(() => {
+    const saved = sessionStorage.getItem('admin_login_identifier');
+    const savedStep = sessionStorage.getItem('admin_login_step');
+    if (saved && savedStep === 'verify-2fa') {
+      setIdentifier(saved);
+      setStep('verify-2fa');
+    }
+  }, []);
 
   // Redirect if already logged in as admin/staff
   if (isAuthenticated && user?.role) {
@@ -36,6 +46,9 @@ export default function AdminLogin() {
       // Check for 2FA requirement
       if (data.data?.status === 'OTP_REQUIRED') {
         toast.success(data.message || 'Security Code Required');
+        // Persist identifier so 2FA still works after a page refresh
+        sessionStorage.setItem('admin_login_identifier', identifier);
+        sessionStorage.setItem('admin_login_step', 'verify-2fa');
         setStep('verify-2fa');
         setLoading(false);
         return;
@@ -61,9 +74,13 @@ export default function AdminLogin() {
   const handleVerifyAdminOTP = async (e) => {
     e.preventDefault();
     if (!otp) return toast.error('Please enter the security code');
+    if (!identifier) return toast.error('Session expired. Please login again.');
     setLoading(true);
     try {
       const { data } = await authService.verifyAdmin2FA({ identifier, otp });
+      // Clear session storage on successful auth
+      sessionStorage.removeItem('admin_login_identifier');
+      sessionStorage.removeItem('admin_login_step');
       setAuth(data.data.user, data.data.accessToken);
       toast.success(`Identity Confirmed. Session Active.`);
       
@@ -121,7 +138,7 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] flex items-center justify-center p-6 relative overflow-hidden font-sans">
+    <div className="min-h-dvh bg-[#F8F9FA] flex items-center justify-center p-6 relative overflow-hidden font-sans">
       <Helmet><title>Security Portal — Magizhchi Garments</title></Helmet>
 
       {/* ── Google Material Design Dynamic Background ── */}
@@ -215,7 +232,7 @@ export default function AdminLogin() {
 
             {step === 'verify-2fa' && (
               <motion.div key="verify-2fa" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.1 }}>
-                <button onClick={() => setStep('login')} className="flex items-center gap-1.5 text-[#5F6368] hover:text-[#1a73e8] transition-colors mb-8 text-[9px] font-black uppercase tracking-widest">
+                <button onClick={() => { sessionStorage.removeItem('admin_login_identifier'); sessionStorage.removeItem('admin_login_step'); setStep('login'); setOtp(''); }} className="flex items-center gap-1.5 text-[#5F6368] hover:text-[#1a73e8] transition-colors mb-8 text-[9px] font-black uppercase tracking-widest">
                   <ChevronLeft size={14} /> Return to Login
                 </button>
                 <div className="flex items-center gap-4 mb-8">

@@ -1,0 +1,578 @@
+import { useState, useMemo, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { 
+   Plus, Search, Filter, Edit3, Trash2, Package, Tag, IndianRupee, 
+   Layers, Eye, Image as ImageIcon, Loader2, X, Save, Sparkles, 
+   ShoppingBag, Shield, Layout, Settings2, Share2, Info, CheckCircle2, 
+   ChevronDown, Boxes, LayoutGrid, List, TrendingUp, History, Globe, 
+   BarChart3, AlertTriangle, Printer, QrCode, RefreshCw, ShoppingCart, Video, SearchCode, DollarSign, Percent, Calculator, MapPin, Activity, Truck,
+   Archive, RotateCcw, Upload, Wrench
+} from 'lucide-react';
+import { StatCardSkeleton, ProductCardSkeleton, TableRowSkeleton } from '../../components/common/Skeletons';
+import { adminService, productService, categoryService, inventoryService } from '../../services';
+import { toast } from 'react-hot-toast';
+import { Helmet } from 'react-helmet-async';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useDebounce } from '../../hooks/useDebounce';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import SafeImage from '../../components/common/SafeImage';
+
+export default function ProductProfileCenter() {
+   const [viewMode, setViewMode] = useState('gallery'); // 'gallery' or 'list'
+   const [quickStockProduct, setQuickStockProduct] = useState(null);
+   const [search, setSearch] = useState('');
+   const [page, setPage] = useState(1);
+   const [filterCategory, setFilterCategory] = useState('all');
+   const [sortOrder, setSortOrder] = useState('newest');
+   const [showArchived, setShowArchived] = useState(false);
+
+   const debouncedSearch = useDebounce(search, 500);
+   const queryClient = useQueryClient();
+   const navigate = useNavigate();
+
+   // --- Queries ---
+   const { data: productsData, isLoading } = useQuery({
+      queryKey: ['admin-products', debouncedSearch, filterCategory, sortOrder, page, showArchived],
+      queryFn: () => adminService.getAdminProducts({ 
+         search: debouncedSearch, 
+         category: filterCategory === 'all' ? undefined : filterCategory,
+         sort: sortOrder,
+         page,
+         limit: 20,
+         showDeleted: showArchived
+      }).then(r => r.data.data),
+   });
+
+   // ── LIVE STOCK SOCKET LISTENER ──
+   useEffect(() => {
+     const socket = adminService.getSocket?.();
+     if (socket) {
+       socket.on('STOCK_UPDATED', () => {
+         queryClient.invalidateQueries(['admin-products']);
+       });
+       return () => socket.off('STOCK_UPDATED');
+     }
+   }, [queryClient]);
+
+   // getAdminProducts: ApiResponse.success(res, { data:[...], stats, nextCursor, hasMore })
+   // .then(r => r.data.data) gives us the inner payload: { data:[...products], stats, nextCursor }
+   const products = Array.isArray(productsData?.data) ? productsData.data : (Array.isArray(productsData) ? productsData : []);
+   const pagination = { total: productsData?.stats?.totalProfiles, hasMore: productsData?.hasMore };
+   const stats = productsData?.stats || { onlineEnabled: 0, billingEnabled: 0, procuredStock: 0, totalProfiles: 0 };
+
+   const { data: categoriesRaw } = useQuery({
+      queryKey: ['categories'],
+      queryFn: () => categoryService.getCategories().then(r => r.data.data?.categories || r.data.categories || r.data.data || r.data),
+   });
+   const categories = Array.isArray(categoriesRaw) ? categoriesRaw : [];
+
+   // --- Mutations ---
+   const restoreMutation = useMutation({
+      mutationFn: (id) => adminService.restoreProduct(id),
+      onSuccess: () => {
+         queryClient.invalidateQueries(['admin-products']);
+         toast.success('Product Profile Restored');
+      },
+      onError: (err) => toast.error(err.response?.data?.message || 'Restoration failed'),
+   });
+
+   const purgeMutation = useMutation({
+      mutationFn: (id) => adminService.purgeProduct(id),
+      onSuccess: () => {
+         queryClient.invalidateQueries(['admin-products']);
+         toast.success('Product Profile Permanently Purged');
+      },
+      onError: (err) => toast.error(err.response?.data?.message || 'Purge failed'),
+   });
+
+   const deleteMutation = useMutation({
+      mutationFn: (id) => productService.deleteProduct(id),
+      onSuccess: () => {
+         queryClient.invalidateQueries(['admin-products']);
+         toast.success('Product Profile Archived');
+      },
+      onError: (err) => toast.error(err.response?.data?.message || 'Archival failed'),
+   });
+
+   // --- Render Helpers ---
+   const StatCard = ({ label, value, icon: Icon, color }) => (
+      <div className="bg-white p-6 rounded-[2rem] border border-border-light shadow-sm flex items-center gap-4 group hover:border-premium-gold transition-all">
+         <div className={`p-4 rounded-2xl ${color} text-white shadow-lg shadow-black/5 group-hover:scale-110 transition-transform`}>
+            <Icon size={20} />
+         </div>
+         <div>
+            <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">{label}</p>
+            <p className="text-xl font-black text-charcoal">{value}</p>
+         </div>
+      </div>
+   );
+
+   return (
+      <div className="space-y-8 pb-20">
+         <Helmet><title>Product Profile Center | Magizhchi Admin</title></Helmet>
+
+         {/* Header */}
+         <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
+            <div>
+               <div className="flex items-center gap-3 mb-1">
+                  <h1 className="text-4xl font-black text-charcoal tracking-tighter uppercase">
+                     {showArchived ? 'Archived Profiles' : 'Product Profiles'}
+                  </h1>
+                  <span className="px-3 py-1 bg-premium-gold text-charcoal rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-premium-gold/20">
+                     {showArchived ? 'Archive Vault' : 'Master Module'}
+                  </span>
+               </div>
+               <p className="text-xs text-text-muted font-bold uppercase tracking-[0.2em] flex items-center gap-2">
+                  <Activity size={14} className="text-premium-gold" /> 
+                  {showArchived ? 'Restoring records recovers them across all channels' : 'Centralized Inventory, Branding & Channel Control'}
+               </p>
+            </div>
+            
+            <div className="flex flex-wrap items-center gap-3">
+               <button 
+                  onClick={() => setShowArchived(!showArchived)}
+                  className={`px-6 py-4 rounded-[2rem] text-[11px] font-black uppercase tracking-[0.2em] shadow-xl transition-all flex items-center gap-3 active:scale-95 ${
+                     showArchived 
+                     ? 'bg-amber-100 text-amber-700 border-2 border-amber-200' 
+                     : 'bg-white border border-border-light text-text-muted hover:border-premium-gold'
+                  }`}
+               >
+                  {showArchived ? <RotateCcw size={18} /> : <Archive size={18} />}
+                  {showArchived ? 'Show Active' : 'Show Archived'}
+               </button>
+
+               <div className="bg-white border border-border-light rounded-2xl p-1 flex gap-1 shadow-sm">
+                  <button onClick={() => setViewMode('gallery')} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all ${viewMode === 'gallery' ? 'bg-charcoal text-white shadow-lg' : 'text-text-muted hover:bg-light-bg'}`}>
+                     <LayoutGrid size={14} /> Gallery
+                  </button>
+                  <button onClick={() => setViewMode('list')} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all ${viewMode === 'list' ? 'bg-charcoal text-white shadow-lg' : 'text-text-muted hover:bg-light-bg'}`}>
+                     <List size={14} /> Audit List
+                  </button>
+               </div>
+               <button 
+                  onClick={() => navigate('/admin/products/new')} 
+                  className="px-8 py-4 bg-charcoal text-white rounded-[2rem] text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-charcoal/20 hover:bg-premium-gold hover:text-charcoal transition-all flex items-center gap-3 active:scale-95"
+               >
+                  <Plus size={18} /> New Product Profile
+               </button>
+            </div>
+         </div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+             {isLoading && products.length === 0 ? (
+                <>
+                   <StatCardSkeleton />
+                   <StatCardSkeleton />
+                   <StatCardSkeleton />
+                   <StatCardSkeleton />
+                </>
+             ) : (
+                <>
+                   <StatCard label="Total Profiles" value={stats.totalProfiles} icon={Boxes} color="bg-charcoal" />
+                   <StatCard 
+                     label="Enterprise Inventory" 
+                     value={stats.procuredStock} 
+                     icon={Truck} 
+                     color="bg-emerald-600" 
+                   />
+                   <StatCard label="Online Ready" value={stats.onlineEnabled} icon={Globe} color="bg-blue-600" />
+                   <StatCard label="POS Billing" value={stats.billingEnabled} icon={ShoppingCart} color="bg-orange-600" />
+                </>
+             )}
+          </div>
+
+          <div className="flex items-center justify-between">
+             <div className="flex items-center gap-4">
+                <button 
+                  onClick={() => {
+                    toast.promise(
+                      adminService.getAdminProducts({ repair: 'true' }),
+                      {
+                        loading: 'Running Integrity Audit...',
+                        success: 'Stock Parity Restored!',
+                        error: 'Audit Failed'
+                      }
+                    );
+                    queryClient.invalidateQueries(['admin-products']);
+                  }}
+                  className="px-6 py-3 bg-white border border-border-light text-text-muted rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-charcoal hover:text-white transition-all flex items-center gap-2 shadow-sm"
+                >
+                  <Wrench size={14} className="text-premium-gold" /> Sync Integrity
+                </button>
+             </div>
+          </div>
+
+         {/* Search & Global Filters */}
+         <div className="flex flex-col md:flex-row gap-4">
+            <div className="relative flex-1 group">
+               <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-premium-gold transition-colors" size={20} />
+               <input 
+                  className="w-full bg-white border border-border-light rounded-[2rem] pl-16 pr-6 py-5 focus:outline-none focus:ring-4 focus:ring-premium-gold/10 font-bold text-sm shadow-sm transition-all"
+                  placeholder={showArchived ? "Search in archive..." : "Search by name, SKU, or barcode..."}
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+               />
+            </div>
+            <select 
+               className="bg-white border border-border-light rounded-[2rem] px-8 py-5 text-xs font-black uppercase tracking-widest text-charcoal outline-none focus:ring-4 focus:ring-premium-gold/10 shadow-sm"
+               value={filterCategory}
+               onChange={e => setFilterCategory(e.target.value)}
+            >
+               <option value="all">All Categories</option>
+               {categories?.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
+            </select>
+         </div>
+
+         {/* Main Content Area */}
+         <AnimatePresence mode="wait">
+            {isLoading && products.length === 0 ? (
+               <div className={viewMode === 'gallery' ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-8" : "bg-white rounded-[3rem] border border-border-light overflow-hidden shadow-sm"}>
+                  {viewMode === 'gallery' ? (
+                     Array.from({ length: 8 }).map((_, i) => <ProductCardSkeleton key={i} />)
+                  ) : (
+                     <table className="w-full">
+                        <tbody>{Array.from({ length: 5 }).map((_, i) => <TableRowSkeleton key={i} columns={5} />)}</tbody>
+                     </table>
+                  )}
+               </div>
+            ) : products.length === 0 ? (
+               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="py-32 text-center bg-white rounded-[4rem] border-2 border-dashed border-border-light">
+                  <Package size={64} className="mx-auto text-text-muted/20 mb-6" />
+                  <h3 className="text-xl font-black text-charcoal uppercase tracking-tight">
+                     {showArchived ? 'Archive is Empty' : 'Empty Profile Center'}
+                  </h3>
+                  <p className="text-xs text-text-muted font-bold uppercase tracking-widest mt-2">
+                     {showArchived ? 'No archived records found.' : 'No products found matching your search.'}
+                  </p>
+                  {!showArchived && (
+                     <button onClick={() => navigate('/admin/products/new')} className="mt-8 px-10 py-4 bg-light-bg text-charcoal rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-premium-gold transition-all">Create First Profile</button>
+                  )}
+               </motion.div>
+            ) : (
+               <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={viewMode === 'gallery' ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-8" : "bg-white rounded-[3rem] border border-border-light overflow-hidden shadow-sm"}
+               >
+                  {viewMode === 'gallery' ? (
+                     products.map((product) => (
+                        <ProductCard 
+                           key={product._id} 
+                           product={product} 
+                           onEdit={() => navigate(`/admin/products/edit/${product._id}`)}
+                           onDelete={() => {
+                              if (window.confirm('Archive this product? It will be hidden from all channels.')) {
+                                 deleteMutation.mutate(product._id);
+                              }
+                           }}
+                           onRestore={() => restoreMutation.mutate(product._id)}
+                           onPurge={() => {
+                              if (window.confirm('CRITICAL ACTION: Permanently delete this product and ALL its inventory history? This cannot be undone.')) {
+                                 purgeMutation.mutate(product._id);
+                              }
+                           }}
+                           onQuickStock={setQuickStockProduct}
+                        />
+                     ))
+                  ) : (
+                     <ProductTable 
+                        products={products} 
+                        onEdit={(p) => navigate(`/admin/products/edit/${p._id}`)}
+                        onDelete={(p) => {
+                           if (window.confirm('Archive this product?')) {
+                              deleteMutation.mutate(p._id);
+                           }
+                        }}
+                        onRestore={(p) => restoreMutation.mutate(p._id)}
+                        onPurge={(p) => {
+                           if (window.confirm('Permanently purge this record?')) {
+                              purgeMutation.mutate(p._id);
+                           }
+                        }}
+                     />
+                  )}
+               </motion.div>
+            )}
+         </AnimatePresence>
+
+         {/* Pagination */}
+         {pagination && pagination.pages > 1 && (
+            <div className="flex justify-center mt-12 gap-3">
+               <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="w-12 h-12 bg-white border border-border-light rounded-2xl flex items-center justify-center text-text-muted hover:bg-premium-gold hover:text-charcoal transition-all disabled:opacity-30"><ChevronDown className="rotate-90" /></button>
+               {Array.from({ length: pagination.pages }, (_, i) => (
+                  <button key={i} onClick={() => setPage(i+1)} className={`w-12 h-12 rounded-2xl text-[10px] font-black transition-all ${page === i+1 ? 'bg-charcoal text-white shadow-xl' : 'bg-white border border-border-light hover:border-premium-gold'}`}>{i+1}</button>
+               ))}
+               <button onClick={() => setPage(p => Math.min(pagination.pages, p + 1))} disabled={page === pagination.pages} className="w-12 h-12 bg-white border border-border-light rounded-2xl flex items-center justify-center text-text-muted hover:bg-premium-gold hover:text-charcoal transition-all disabled:opacity-30"><ChevronDown className="-rotate-90" /></button>
+            </div>
+         )}
+
+         <AnimatePresence>
+            {quickStockProduct && (
+               <QuickStockModal 
+                  product={quickStockProduct} 
+                  onClose={() => setQuickStockProduct(null)} 
+               />
+            )}
+         </AnimatePresence>
+      </div>
+   );
+}
+
+function QuickStockModal({ product, onClose }) {
+   const [formData, setFormData] = useState({
+      size: '',
+      color: '',
+      stock: 1,
+      sellingPrice: product.sellingPrice || 0,
+      sku: ''
+   });
+   const queryClient = useQueryClient();
+
+   const addStockMutation = useMutation({
+      mutationFn: (data) => inventoryService.createItem({
+         productId: product._id,
+         productName: product.name,
+         category: product.category?.name || 'General',
+         ...data,
+         totalStock: Number(data.stock),
+         sellingPrice: Number(data.sellingPrice)
+      }),
+      onSuccess: () => {
+         queryClient.invalidateQueries(['admin-products']);
+         queryClient.invalidateQueries(['admin-inventory']);
+         toast.success(`Stock profile for ${product.name} created!`);
+         onClose();
+      },
+      onError: (err) => toast.error(err.response?.data?.message || 'Failed to add stock')
+   });
+
+   return (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-charcoal/60 backdrop-blur-md" onClick={onClose} />
+         <motion.div 
+            initial={{ opacity: 0, scale: 0.9, y: 20 }} 
+            animate={{ opacity: 1, scale: 1, y: 0 }} 
+            exit={{ opacity: 0, scale: 0.9, y: 20 }} 
+            className="relative bg-white w-full admin-modal-container max-w-xl rounded-[3.5rem] shadow-2xl border border-white/20 overflow-hidden flex flex-col"
+         >
+            <div className="p-12 pb-0 flex items-center justify-between">
+               <div>
+                  <h3 className="text-2xl font-black text-charcoal uppercase tracking-tighter">Manual Stock Entry</h3>
+                  <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest mt-2">Initialize physical stock for <span className="text-premium-gold">{product.name}</span></p>
+               </div>
+               <button onClick={onClose} className="p-4 hover:bg-light-bg rounded-full transition-colors"><X size={24} /></button>
+            </div>
+
+            <div className="p-12 space-y-8">
+               <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                     <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Size (Required)</label>
+                     <input className="w-full bg-light-bg border-none rounded-2xl px-6 py-4 font-bold text-sm" placeholder="e.g. XL, 32" value={formData.size} onChange={e => setFormData({...formData, size: e.target.value})} />
+                  </div>
+                  <div className="space-y-2">
+                     <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Color (Required)</label>
+                     <input className="w-full bg-light-bg border-none rounded-2xl px-6 py-4 font-bold text-sm" placeholder="e.g. Navy Blue" value={formData.color} onChange={e => setFormData({...formData, color: e.target.value})} />
+                  </div>
+               </div>
+
+               <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                     <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Initial Stock (Pcs)</label>
+                     <input type="number" className="w-full bg-light-bg border-none rounded-2xl px-6 py-4 font-black text-xl" value={formData.stock} onChange={e => setFormData({...formData, stock: e.target.value})} />
+                  </div>
+                  <div className="space-y-2">
+                     <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Selling Price (₹)</label>
+                     <input type="number" className="w-full bg-light-bg border-none rounded-2xl px-6 py-4 font-black text-xl" value={formData.sellingPrice} onChange={e => setFormData({...formData, sellingPrice: e.target.value})} />
+                  </div>
+               </div>
+
+               <div className="space-y-2">
+                  <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Reference SKU (Optional)</label>
+                  <input className="w-full bg-light-bg border-none rounded-2xl px-6 py-4 font-bold text-sm" placeholder="Leave blank for auto-gen" value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value})} />
+               </div>
+
+               <div className="p-6 bg-orange-50 rounded-3xl border border-orange-100">
+                  <p className="text-[10px] font-bold text-orange-700 leading-relaxed">
+                     <span className="font-black uppercase tracking-widest block mb-1">💡 Flexible Workflow</span>
+                     This entry is optional. You can close this window now and add stock later from the Procurement Hub or Inventory Master.
+                  </p>
+               </div>
+
+               <button 
+                  onClick={() => {
+                     if(!formData.size || !formData.color) return toast.error('Size and Color are required');
+                     addStockMutation.mutate(formData);
+                  }}
+                  disabled={addStockMutation.isPending}
+                  className="w-full py-6 bg-charcoal text-white rounded-[2rem] font-black text-xs uppercase tracking-[0.3em] shadow-2xl hover:bg-premium-gold hover:text-charcoal transition-all flex items-center justify-center gap-3"
+               >
+                  {addStockMutation.isPending ? <Loader2 className="animate-spin" size={20} /> : <><Save size={20} /> Authorize Stock Entry</>}
+               </button>
+            </div>
+         </motion.div>
+      </div>
+   );
+}
+
+function ProductCard({ product, onEdit, onDelete, onRestore, onPurge, onQuickStock }) {
+   return (
+      <motion.div 
+         layout
+         className={`group bg-white rounded-[3rem] border border-border-light overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-charcoal/5 transition-all duration-500 flex flex-col h-full ${product.isDeleted ? 'opacity-75 grayscale-[0.5]' : ''}`}
+      >
+         <div className="aspect-[4/5] relative overflow-hidden bg-light-bg">
+            <SafeImage src={product.images?.[0] || product.thumbnail} alt="" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+            
+            {/* Badges Overlay */}
+            <div className="absolute top-6 left-6 flex flex-col gap-2">
+               <div className="px-4 py-2 bg-white/90 backdrop-blur-md rounded-2xl shadow-sm border border-white/50 flex items-center gap-2">
+                  {product.productNature === 'combo' ? <Layers size={10} className="text-premium-gold" /> : <Package size={10} className="text-charcoal" />}
+                  <span className="text-[10px] font-black text-charcoal uppercase tracking-widest">
+                     {product.productNature === 'combo' ? 'Bundle' : (product.category?.name || 'General')}
+                  </span>
+               </div>
+               <button 
+                  onClick={() => onQuickStock(product)}
+                  className={`px-4 py-2 backdrop-blur-md rounded-2xl shadow-sm border border-white/20 flex items-center gap-2 hover:scale-105 transition-all ${product.source === 'procurement' ? 'bg-blue-500/20 text-blue-700' : 'bg-purple-500/20 text-purple-700'}`}
+               >
+                  {product.source === 'procurement' ? <ShoppingCart size={10} /> : <Plus size={10} />}
+                  <span className="text-[8px] font-black uppercase tracking-widest">
+                     {product.source === 'procurement' ? 'Inventory Product' : 'Manual Entry'}
+                  </span>
+               </button>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="absolute top-6 right-6 flex gap-2 translate-x-10 group-hover:translate-x-0 opacity-0 group-hover:opacity-100 transition-all duration-500">
+               {product.isDeleted ? (
+                  <>
+                     <button onClick={onRestore} className="p-4 bg-green-500 text-white rounded-2xl hover:bg-green-600 transition-all shadow-xl" title="Restore Product">
+                        <RotateCcw size={18} />
+                     </button>
+                     <button onClick={onPurge} className="p-4 bg-red-600 text-white rounded-2xl hover:bg-red-700 transition-all shadow-xl" title="PERMANENT DELETE">
+                        <Trash2 size={18} />
+                     </button>
+                  </>
+               ) : (
+                  <>
+                     <button onClick={onEdit} className="p-4 bg-white/90 backdrop-blur-md rounded-2xl text-charcoal hover:bg-charcoal hover:text-white transition-all shadow-xl" title="Edit Profile">
+                        <Edit3 size={18} />
+                     </button>
+                     <button onClick={onDelete} className="p-4 bg-red-500 text-white rounded-2xl hover:bg-red-600 transition-all shadow-xl" title="Archive Profile">
+                        <Archive size={18} />
+                     </button>
+                  </>
+               )}
+            </div>
+
+            {/* Channels Overlay */}
+            <div className="absolute bottom-6 left-6 right-6 flex gap-2">
+               <span className={`px-3 py-1.5 backdrop-blur-md rounded-xl text-[8px] font-black uppercase tracking-widest flex items-center gap-1 border ${product.isOnlineProduct ? 'bg-green-500/80 text-white border-green-400' : 'bg-charcoal/40 text-white/40 border-white/10'}`}>
+                  <Globe size={10} /> {product.isOnlineProduct ? 'Web Active' : 'Web Off'}
+               </span>
+               <span className={`px-3 py-1.5 backdrop-blur-md rounded-xl text-[8px] font-black uppercase tracking-widest flex items-center gap-1 border ${product.isBillingProduct ? 'bg-orange-500/80 text-white border-orange-400' : 'bg-charcoal/40 text-white/40 border-white/10'}`}>
+                  <ShoppingCart size={10} /> {product.isBillingProduct ? 'POS Active' : 'POS Off'}
+               </span>
+            </div>
+         </div>
+
+         <div className="p-8 flex-1 flex flex-col">
+            <div className="flex justify-between items-start mb-4">
+               <div>
+                  <h3 className="text-lg font-black text-charcoal tracking-tight leading-tight group-hover:text-premium-gold transition-colors">{product.name}</h3>
+                  <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest mt-1">{product.sku || 'REF-N/A'}</p>
+               </div>
+               <div className="text-right">
+                  <span className="text-xl font-black text-charcoal">₹{product.sellingPrice}</span>
+                  {product.discountPercentage > 0 && <p className="text-[9px] text-red-500 font-black uppercase">-{product.discountPercentage}% OFF</p>}
+               </div>
+            </div>
+
+            <div className="mt-auto pt-6 border-t border-border-light flex items-center justify-between">
+               <div className="flex flex-col">
+                  <span className="text-[8px] font-black text-text-muted uppercase tracking-[0.2em] mb-1">Live Inventory</span>
+                  <div className="flex items-center gap-2">
+                     <span className={`w-2 h-2 rounded-full ${(product.liveStock?.availableStock ?? product.availableStock) > product.lowStockThreshold ? 'bg-green-500' : (product.liveStock?.availableStock ?? product.availableStock) > 0 ? 'bg-orange-500' : 'bg-red-500'}`} />
+                     <span className="text-sm font-black text-charcoal">{product.liveStock?.availableStock ?? product.availableStock} <span className="text-[10px] text-text-muted font-bold">PCS</span></span>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </motion.div>
+   );
+}
+
+function ProductTable({ products, onEdit, onDelete, onRestore, onPurge }) {
+   return (
+      <div className="overflow-x-auto">
+         <table className="w-full text-left border-collapse">
+            <thead>
+               <tr className="bg-light-bg/50 border-b border-border-light">
+                  <th className="px-8 py-6 text-[10px] font-black text-text-muted uppercase tracking-widest">Master Identity</th>
+                  <th className="px-8 py-6 text-[10px] font-black text-text-muted uppercase tracking-widest">Market & Source</th>
+                  <th className="px-8 py-6 text-[10px] font-black text-text-muted uppercase tracking-widest">Status</th>
+                  <th className="px-8 py-6 text-[10px] font-black text-text-muted uppercase tracking-widest text-right">Live Stock</th>
+                  <th className="px-8 py-6 text-[10px] font-black text-text-muted uppercase tracking-widest text-right">Price Center</th>
+                  <th className="px-8 py-6 text-[10px] font-black text-text-muted uppercase tracking-widest text-right">Actions</th>
+               </tr>
+            </thead>
+            <tbody className="divide-y divide-border-light/30">
+               {products.map(p => (
+                  <tr key={p._id} className="group hover:bg-light-bg/10 transition-all align-top">
+                     <td className="px-8 py-8">
+                        <div className="flex items-center gap-4">
+                           <SafeImage src={p.images?.[0] || p.thumbnail} className="w-12 h-16 rounded-xl object-cover bg-light-bg shadow-sm" />
+                           <div>
+                              <div className="font-black text-charcoal text-sm leading-tight mb-1">{p.name}</div>
+                              <div className="flex items-center gap-2">
+                                 <span className="text-[9px] font-black text-premium-gold uppercase">{p.sku || 'NO-SKU'}</span>
+                              </div>
+                           </div>
+                        </div>
+                     </td>
+                     <td className="px-8 py-8">
+                        <div className="flex flex-col gap-2">
+                           <span className="text-[10px] font-black px-3 py-1 bg-light-bg rounded-full text-charcoal uppercase tracking-widest w-fit border border-border-light">{p.category?.name || 'General'}</span>
+                        </div>
+                     </td>
+                     <td className="px-8 py-8">
+                        {p.isDeleted ? (
+                           <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-[9px] font-black uppercase tracking-widest">Archived</span>
+                        ) : (
+                           <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${p.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                              {p.isActive ? 'Active' : 'Disabled'}
+                           </span>
+                        )}
+                     </td>
+                     <td className="px-8 py-8 text-right">
+                        <div className="flex flex-col items-end">
+                           <div className="font-black text-charcoal text-lg">{(p.liveStock?.availableStock ?? p.availableStock)} <span className="text-[10px] text-text-muted">PCS</span></div>
+                           <div className="text-[8px] font-bold text-text-muted uppercase tracking-widest">Of {(p.liveStock?.totalStock ?? p.totalStock)} Total</div>
+                        </div>
+                     </td>
+                     <td className="px-8 py-8 text-right">
+                        <div className="font-black text-charcoal text-lg tracking-tighter">₹{p.sellingPrice}</div>
+                        {p.discountPercentage > 0 && <div className="text-[10px] text-red-500 font-black uppercase tracking-tighter">-{p.discountPercentage}% Discount</div>}
+                     </td>
+                     <td className="px-8 py-8 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                           {p.isDeleted ? (
+                              <>
+                                 <button onClick={() => onRestore(p)} className="p-4 bg-green-50 text-green-600 rounded-2xl hover:bg-green-600 hover:text-white transition-all shadow-sm"><RotateCcw size={18} /></button>
+                                 <button onClick={() => onPurge(p)} className="p-4 bg-red-50 text-red-600 rounded-2xl hover:bg-red-600 hover:text-white transition-all shadow-sm"><Trash2 size={18} /></button>
+                              </>
+                           ) : (
+                              <>
+                                 <button onClick={() => onEdit(p)} className="p-4 bg-white border border-border-light rounded-2xl text-charcoal hover:bg-charcoal hover:text-white transition-all shadow-sm"><Settings2 size={18} /></button>
+                                 <button onClick={() => onDelete(p)} className="p-4 bg-red-50 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all shadow-sm"><Archive size={18} /></button>
+                              </>
+                           )}
+                        </div>
+                     </td>
+                  </tr>
+               ))}
+            </tbody>
+         </table>
+      </div>
+   );
+}

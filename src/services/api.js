@@ -7,16 +7,25 @@ const API_URL = import.meta.env.VITE_API_URL || '/api/v1';
 const api = axios.create({
   baseURL: API_URL,
   withCredentials: true,
-  timeout: 15000,
+  timeout: 30000, // 30 seconds global timeout
   headers: { 'Content-Type': 'application/json' },
 });
+
+let inMemoryToken = null;
+
+export const setToken = (token) => {
+  inMemoryToken = token;
+};
+
+export const clearToken = () => {
+  inMemoryToken = null;
+};
 
 // ─── Request Interceptor: attach token ───────────────
 api.interceptors.request.use(
   (config) => {
-    const token = sessionStorage.getItem('accessToken');
-    if (token && token !== 'null' && token !== 'undefined') {
-      config.headers.Authorization = `Bearer ${token}`;
+    if (inMemoryToken) {
+      config.headers.Authorization = `Bearer ${inMemoryToken}`;
     }
     return config;
   },
@@ -60,13 +69,13 @@ api.interceptors.response.use(
       try {
         const { data } = await axios.post(`${API_URL}/auth/refresh-token`, {}, { withCredentials: true });
         const newToken = data.data.accessToken;
-        sessionStorage.setItem('accessToken', newToken);
+        setToken(newToken);
         processQueue(null, newToken);
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return api(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);
-        sessionStorage.removeItem('accessToken');
+        clearToken();
         // Clear auth store state
         try {
           const { useAuthStore } = await import('../store');
@@ -76,7 +85,6 @@ api.interceptors.response.use(
         }
         return Promise.reject(refreshError);
       } finally {
-
         isRefreshing = false;
       }
     }

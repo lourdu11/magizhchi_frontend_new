@@ -197,7 +197,7 @@ export default function AdminStaff() {
                   <TrendingUp size={18} className="text-premium-gold" /> Sales Leaderboard
                </h3>
                <div className="h-[400px] w-full">
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} debounce={1}>
                      <BarChart data={performance} layout="vertical">
                         <XAxis type="number" hide />
                         <YAxis dataKey="name" type="category" tick={{ fontSize: 10, fontWeight: 900 }} axisLine={false} tickLine={false} width={100} />

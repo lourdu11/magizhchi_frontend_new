@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { FileText, Search, Eye, Download, Printer, Loader2, Calendar, Trash2, User } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
@@ -6,6 +6,7 @@ import { billService } from '../../services';
 import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../../store';
+import { useVirtualizer } from '@tanstack/react-virtual';
 
 export default function AdminBills() {
   const [search, setSearch] = useState('');
@@ -16,6 +17,8 @@ export default function AdminBills() {
   const [deletingBill, setDeletingBill] = useState(null);
   const [deleteReason, setDeleteReason] = useState('');
   
+  const parentRef = useRef(null);
+
   const { data: billsData, isLoading } = useQuery({
     queryKey: ['admin-bills', search, dateFilter],
     queryFn: () => billService.getBills({ search, date: dateFilter }).then(r => r.data.data),
@@ -37,13 +40,19 @@ export default function AdminBills() {
     deleteMutation.mutate({ id: deletingBill._id, reason: deleteReason });
   };
 
-  const bills = billsData?.bills || billsData || [];
+  const bills = Array.isArray(billsData?.data) ? billsData.data : (Array.isArray(billsData) ? billsData : []);
 
+  const rowVirtualizer = useVirtualizer({
+    count: bills.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 72,
+    overscan: 10,
+  });
 
   const downloadCSV = () => {
     if (!bills.length) return;
     const headers = ['Bill #', 'Staff', 'Customer', 'Phone', 'Amount', 'Payment', 'Date'];
-    const rows = bills.map(b => [b.billNumber, b.staffId?.name || '-', b.customerDetails?.name || 'Walk-in', b.customerDetails?.phone || '-', b.pricing?.totalAmount, b.paymentMethod, new Date(b.createdAt).toLocaleDateString('en-IN')]);
+    const rows = bills.map(b => [b.billNumber, b.staffId?.name || '-', b.customerDetails?.name || 'Walk-in', b.customerDetails?.phone || '-', (b.pricing?.totalAmount / 100), b.paymentMethod, new Date(b.createdAt).toLocaleDateString('en-IN')]);
     const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'bills.csv'; a.click();
@@ -70,7 +79,7 @@ export default function AdminBills() {
         </div>
         <div className="bg-white p-5 rounded-2xl border border-border-light shadow-sm">
           <p className="text-xs font-bold text-text-muted uppercase mb-1">Total Revenue</p>
-          <p className="text-2xl font-bold text-premium-gold">Rs.{bills.filter(b => b.status !== 'voided').reduce((s, b) => s + (b.pricing?.totalAmount || 0), 0).toLocaleString('en-IN')}</p>
+          <p className="text-2xl font-bold text-premium-gold">Rs.{(bills.filter(b => b.status !== 'voided').reduce((s, b) => s + (b.pricing?.totalAmount || 0), 0) / 100).toLocaleString('en-IN')}</p>
         </div>
         <div className="bg-white p-5 rounded-2xl border border-border-light shadow-sm col-span-2 md:col-span-1">
           <p className="text-xs font-bold text-text-muted uppercase mb-1">Voided Bills</p>
@@ -91,66 +100,89 @@ export default function AdminBills() {
       </div>
 
       {/* Bills Table */}
-      <div className="bg-white rounded-2xl border border-border-light overflow-hidden shadow-sm">
-        <table className="w-full text-left border-collapse">
+      <div ref={parentRef} className="bg-white rounded-2xl border border-border-light overflow-auto max-h-[650px] shadow-sm">
+        <table className="w-full text-left border-collapse relative">
           <thead>
-            <tr className="bg-light-bg border-b border-border-light">
-              <th className="px-6 py-4 text-xs font-bold text-text-muted uppercase">Bill #</th>
-              <th className="px-6 py-4 text-xs font-bold text-text-muted uppercase hidden md:table-cell">Customer</th>
-              <th className="px-6 py-4 text-xs font-bold text-text-muted uppercase hidden lg:table-cell">Staff</th>
-              <th className="px-6 py-4 text-xs font-bold text-text-muted uppercase">Amount</th>
-              <th className="px-6 py-4 text-xs font-bold text-text-muted uppercase hidden md:table-cell">Payment</th>
-              <th className="px-6 py-4 text-xs font-bold text-text-muted uppercase hidden lg:table-cell">Date</th>
-              <th className="px-6 py-4 text-xs font-bold text-text-muted uppercase text-right">Actions</th>
+            <tr className="sticky top-0 z-10 border-b border-border-light shadow-sm">
+              <th className="bg-light-bg px-6 py-4 text-xs font-bold text-text-muted uppercase">Bill #</th>
+              <th className="bg-light-bg px-6 py-4 text-xs font-bold text-text-muted uppercase hidden md:table-cell">Customer</th>
+              <th className="bg-light-bg px-6 py-4 text-xs font-bold text-text-muted uppercase hidden lg:table-cell">Staff</th>
+              <th className="bg-light-bg px-6 py-4 text-xs font-bold text-text-muted uppercase">Amount</th>
+              <th className="bg-light-bg px-6 py-4 text-xs font-bold text-text-muted uppercase hidden md:table-cell">Payment</th>
+              <th className="bg-light-bg px-6 py-4 text-xs font-bold text-text-muted uppercase hidden lg:table-cell">Date</th>
+              <th className="bg-light-bg px-6 py-4 text-xs font-bold text-text-muted uppercase text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border-light">
             {isLoading && <tr><td colSpan="7" className="py-12 text-center"><Loader2 className="animate-spin text-premium-gold inline-block" /></td></tr>}
             {!isLoading && bills.length === 0 && <tr><td colSpan="7" className="py-12 text-center text-text-muted">No bills found.</td></tr>}
-             {bills.map(bill => (
-               <tr key={bill._id} className={`hover:bg-light-bg/50 transition-colors group ${bill.status === 'voided' ? 'opacity-60 grayscale-[0.3]' : ''}`}>
-                 <td className="px-6 py-4">
-                   <div className="flex items-center gap-2">
-                     <p className={`font-bold text-sm ${bill.status === 'voided' ? 'text-red-600 line-through' : 'text-text-primary'}`}>#{bill.billNumber}</p>
-                     {bill.status === 'voided' && (
-                       <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-red-100 text-red-600 border border-red-200 uppercase tracking-tighter">Voided</span>
-                     )}
-                   </div>
-                   <p className="text-[10px] text-text-muted">{bill.items?.length} item{bill.items?.length !== 1 ? 's' : ''}</p>
-                 </td>
-                 <td className="px-6 py-4 hidden md:table-cell">
-                   <p className="text-sm font-medium text-text-primary">{bill.customerDetails?.name || 'Walk-in'}</p>
-                   <p className="text-xs text-text-muted">{bill.customerDetails?.phone || '—'}</p>
-                 </td>
-                 <td className="px-6 py-4 hidden lg:table-cell">
-                   <p className="text-sm text-text-muted">{bill.staffId?.name || '—'}</p>
-                 </td>
-                 <td className="px-6 py-4">
-                   <p className={`font-bold ${bill.status === 'voided' ? 'text-text-muted' : 'text-premium-gold'}`}>Rs.{bill.pricing?.totalAmount?.toLocaleString('en-IN')}</p>
-                 </td>
-                 <td className="px-6 py-4 hidden md:table-cell">
-                   <span className={`text-xs font-bold px-2.5 py-1 rounded-full uppercase ${bill.status === 'voided' ? 'bg-gray-100 text-gray-500' : 'bg-blue-50 text-blue-700'}`}>{bill.paymentMethod}</span>
-                 </td>
-                 <td className="px-6 py-4 hidden lg:table-cell">
-                   <p className="text-sm text-text-muted">{new Date(bill.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
-                 </td>
-                 <td className="px-6 py-4 text-right flex justify-end gap-2">
-                   <button onClick={() => window.print()} title="Print Bill" className="p-2 text-text-muted hover:text-premium-gold transition-colors opacity-0 group-hover:opacity-100">
-                     <Printer size={16} />
-                   </button>
-                   {bill.status !== 'voided' && (
-                     <button 
-                       onClick={() => setDeletingBill(bill)} 
-                       title="Delete Bill (Return/Error)"
-                       className="p-2 text-text-muted hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100 disabled:opacity-30"
-                       disabled={deleteMutation.isPending}
-                     >
-                       {deleteMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
-                     </button>
-                   )}
-                 </td>
-               </tr>
-             ))}
+            {!isLoading && bills.length > 0 && (
+              <>
+                {rowVirtualizer.getVirtualItems()[0]?.start > 0 && (
+                  <tr>
+                    <td colSpan="7" style={{ height: `${rowVirtualizer.getVirtualItems()[0].start}px` }} />
+                  </tr>
+                )}
+                {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                  const bill = bills[virtualRow.index];
+                  if (!bill) return null;
+                  return (
+                    <tr 
+                      key={bill._id} 
+                      ref={rowVirtualizer.measureElement}
+                      data-index={virtualRow.index}
+                      className={`hover:bg-light-bg/50 transition-colors group ${bill.status === 'voided' ? 'opacity-60 grayscale-[0.3]' : ''}`}
+                    >
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <p className={`font-bold text-sm ${bill.status === 'voided' ? 'text-red-600 line-through' : 'text-text-primary'}`}>#{bill.billNumber}</p>
+                          {bill.status === 'voided' && (
+                            <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-red-100 text-red-600 border border-red-200 uppercase tracking-tighter">Voided</span>
+                          )}
+                        </div>
+                        <p className="text-[10px] text-text-muted">{bill.items?.length} item{bill.items?.length !== 1 ? 's' : ''}</p>
+                      </td>
+                      <td className="px-6 py-4 hidden md:table-cell">
+                        <p className="text-sm font-medium text-text-primary">{bill.customerDetails?.name || 'Walk-in'}</p>
+                        <p className="text-xs text-text-muted">{bill.customerDetails?.phone || '—'}</p>
+                      </td>
+                      <td className="px-6 py-4 hidden lg:table-cell">
+                        <p className="text-sm text-text-muted">{bill.staffId?.name || '—'}</p>
+                      </td>
+                      <td className="px-6 py-4">
+                        <p className={`font-bold ${bill.status === 'voided' ? 'text-text-muted' : 'text-premium-gold'}`}>Rs.{(bill.pricing?.totalAmount / 100).toLocaleString('en-IN')}</p>
+                      </td>
+                      <td className="px-6 py-4 hidden md:table-cell">
+                        <span className={`text-xs font-bold px-2.5 py-1 rounded-full uppercase ${bill.status === 'voided' ? 'bg-gray-100 text-gray-500' : 'bg-blue-50 text-blue-700'}`}>{bill.paymentMethod}</span>
+                      </td>
+                      <td className="px-6 py-4 hidden lg:table-cell">
+                        <p className="text-sm text-text-muted">{new Date(bill.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                      </td>
+                      <td className="px-6 py-4 text-right flex justify-end gap-2">
+                        <button onClick={() => window.print()} title="Print Bill" className="p-2 text-text-muted hover:text-premium-gold transition-colors opacity-0 group-hover:opacity-100">
+                          <Printer size={16} />
+                        </button>
+                        {bill.status !== 'voided' && (
+                          <button 
+                            onClick={() => setDeletingBill(bill)} 
+                            title="Delete Bill (Return/Error)"
+                            className="p-2 text-text-muted hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100 disabled:opacity-30"
+                            disabled={deleteMutation.isPending}
+                          >
+                            {deleteMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+                {rowVirtualizer.getTotalSize() - rowVirtualizer.getVirtualItems()[rowVirtualizer.getVirtualItems().length - 1]?.end > 0 && (
+                  <tr>
+                    <td colSpan="7" style={{ height: `${rowVirtualizer.getTotalSize() - rowVirtualizer.getVirtualItems()[rowVirtualizer.getVirtualItems().length - 1].end}px` }} />
+                  </tr>
+                )}
+              </>
+            )}
           </tbody>
         </table>
       </div>

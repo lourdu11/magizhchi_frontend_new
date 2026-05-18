@@ -207,8 +207,12 @@ export default function Collections() {
     queryFn: () => categoryService.getCategories().then(r => r.data.data.categories),
   });
 
-  const products = data?.data || [];
-  const pagination = data?.pagination;
+  // ApiResponse.success shape: { success, message, data: { data:[...], total, hasMore, nextCursor } }
+  // .then(r => r.data) gives us { success, message, data: {data:[...], total } }
+  // So we need data?.data?.data for the array and data?.data?.total for count
+  const productsRaw = data?.data;  // { data:[...], total, hasMore, nextCursor }
+  const products = Array.isArray(productsRaw?.data) ? productsRaw.data : (Array.isArray(productsRaw) ? productsRaw : []);
+  const pagination = { total: productsRaw?.total, hasMore: productsRaw?.hasMore };
 
 
 
@@ -219,7 +223,7 @@ export default function Collections() {
         <meta name="description" content="Browse our premium men's clothing collection. Filter by size, price, category." />
       </Helmet>
 
-      <div className="min-h-screen bg-white">
+      <div className="min-h-dvh bg-white">
         {/* Page Header */}
         <div className="bg-cream-bg border-b border-border-light py-10">
           <div className="container-custom">
@@ -323,7 +327,7 @@ export default function Collections() {
 
               {/* Products Grid */}
               {isLoading ? (
-                <div className={`grid gap-4 md:gap-6 ${viewMode === 'grid' ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-1'}`}>
+                <div className={`grid gap-4 md:gap-6 ${viewMode === 'grid' ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3' : 'grid-cols-1'}`}>
                   {Array(9).fill(0).map((_, i) => <SkeletonCard key={i} />)}
                 </div>
               ) : products.length === 0 ? (
@@ -334,30 +338,17 @@ export default function Collections() {
                   <button onClick={clearFilters} className="btn-outline">Clear Filters</button>
                 </div>
               ) : (
-                <div className={`grid gap-4 md:gap-6 ${viewMode === 'grid' ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-1'}`}>
+                <div className={`grid gap-4 md:gap-6 ${viewMode === 'grid' ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3' : 'grid-cols-1'}`}>
                   {products.map(product => <ProductCard key={product._id} product={product} />)}
                 </div>
               )}
 
-              {/* Pagination */}
-              {pagination && pagination.pages > 1 && (
-                <div className="flex justify-center gap-2 mt-10">
-                  {page > 1 && (
-                    <button onClick={() => updateParams({ page: page - 1 })} className="btn-ghost border border-border-light px-4 py-2">Prev</button>
-                  )}
-                  {Array.from({ length: Math.min(5, pagination.pages) }, (_, i) => {
-                    const p = Math.max(1, Math.min(page - 2, pagination.pages - 4)) + i;
-                    return (
-                      <button key={p} onClick={() => updateParams({ page: p })}
-                        className={`w-10 h-10 rounded-lg text-sm font-medium transition-all ${p === page ? 'bg-primary-black text-white' : 'border border-border-light hover:border-premium-gold'}`}>
-                        {p}
-                      </button>
-                    );
-                  })}
-                  {page < pagination.pages && (
-                    <button onClick={() => updateParams({ page: page + 1 })} className="btn-ghost border border-border-light px-4 py-2">Next</button>
-                  )}
-
+              {/* Load More - cursor pagination */}
+              {pagination?.hasMore && (
+                <div className="flex justify-center mt-10">
+                  <button onClick={() => updateParams({ page: page + 1 })} className="btn-ghost border border-border-light px-8 py-3 font-semibold hover:border-premium-gold transition-all">
+                    Load More
+                  </button>
                 </div>
               )}
             </div>

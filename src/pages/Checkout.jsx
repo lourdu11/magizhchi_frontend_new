@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { MapPin, CreditCard, Wallet, ShieldCheck, CheckCircle, AlertCircle, Mail, Phone, User as UserIcon, Smartphone, ArrowRight, ArrowLeft, Package, Trash2, ChevronRight, Loader2 } from 'lucide-react';
@@ -90,12 +90,12 @@ export default function Checkout() {
     }
   }, [userProfile, user]);
 
-  const updateAddr = (k, v) => {
+  const updateAddr = useCallback((k, v) => {
     setAddress(a => ({ ...a, [k]: v }));
     if (errors[k]) setErrors(prev => ({ ...prev, [k]: '' }));
-  };
+  }, [errors]);
 
-  const validateShipping = () => {
+  const validateShipping = useCallback(() => {
     const newErrors = {};
     if (!address.name.trim()) newErrors.name = 'Full name is required';
     if (!address.phone.trim()) {
@@ -120,25 +120,26 @@ export default function Checkout() {
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
+  }, [address, guestDetails.email, isAuthenticated]);
 
-  const nextStep = () => {
+  const nextStep = useCallback(() => {
     if (step === 1 && validateShipping()) setStep(2);
-  };
+  }, [step, validateShipping]);
 
-  const prevStep = () => setStep(1);
+  const prevStep = useCallback(() => setStep(1), []);
 
-  const items = isAuthenticated ? (apiCart?.items || []) : localCartItems;
-  const subtotal = items.reduce((sum, item) => {
+  const items = useMemo(() => isAuthenticated ? (apiCart?.items || []) : localCartItems, [isAuthenticated, apiCart, localCartItems]);
+  
+  const subtotal = useMemo(() => items.reduce((sum, item) => {
     const price = item.productId?.discountedPrice || item.productId?.sellingPrice || 0;
     return sum + price * item.quantity;
-  }, 0);
+  }, 0), [items]);
 
-  const shipping = subtotal >= shippingThreshold ? 0 : flatRate;
-  const currentCodCharge = (paymentMethod === 'cod' && isCodEnabled) ? codExtra : 0;
-  const total = subtotal + shipping + currentCodCharge;
-  const isWithinCodLimit = subtotal <= codMaxLimit;
-  const canUseCod = isCodEnabled && isWithinCodLimit;
+  const shipping = useMemo(() => subtotal >= shippingThreshold ? 0 : flatRate, [subtotal, shippingThreshold, flatRate]);
+  const currentCodCharge = useMemo(() => (paymentMethod === 'cod' && isCodEnabled) ? codExtra : 0, [paymentMethod, isCodEnabled, codExtra]);
+  const total = useMemo(() => subtotal + shipping + currentCodCharge, [subtotal, shipping, currentCodCharge]);
+  const isWithinCodLimit = useMemo(() => subtotal <= codMaxLimit, [subtotal, codMaxLimit]);
+  const canUseCod = useMemo(() => isCodEnabled && isWithinCodLimit, [isCodEnabled, isWithinCodLimit]);
 
   useEffect(() => {
     if (paymentMethod === 'cod' && !canUseCod) {
@@ -150,10 +151,10 @@ export default function Checkout() {
     }
   }, [canUseCod, isWithinCodLimit, paymentMethod, isCodEnabled, codMaxLimit, isOnlineEnabled]);
 
-  const dynamicPaymentMethods = [
+  const dynamicPaymentMethods = useMemo(() => [
     { id: 'razorpay', label: 'Pay Online', desc: 'Cards, UPI, Netbanking, Wallets', icon: CreditCard, show: isOnlineEnabled },
     { id: 'cod', label: 'Cash on Delivery', desc: !isWithinCodLimit ? `Limit Rs.${codMaxLimit}` : `Pay on Delivery`, icon: Wallet, show: isCodEnabled },
-  ].filter(m => m.show);
+  ].filter(m => m.show), [isOnlineEnabled, isWithinCodLimit, codMaxLimit, isCodEnabled]);
 
   const handlePlaceOrderClick = () => {
     if (items.length === 0) return toast.error('Cart is empty');
@@ -166,9 +167,11 @@ export default function Checkout() {
     try {
       const orderItems = items.map(item => ({
         productId: item.productId._id,
-        size: item.variant?.size || item.size, // Fallback for size mismatch
+        size: item.variant?.size || item.size,
         color: item.variant?.color || item.color,
         quantity: item.quantity,
+        isCombo: item.isCombo || false,
+        comboSelections: item.comboSelections || []
       }));
 
       const payload = {
@@ -252,7 +255,7 @@ export default function Checkout() {
   return (
     <>
       <Helmet><title>Checkout — Magizhchi Garments</title></Helmet>
-      <div className="min-h-screen bg-cream-bg py-8">
+      <div className="min-h-dvh bg-cream-bg py-8 pb-36 lg:pb-8">
         <div className="container-custom max-w-5xl">
           
           {/* Progress Header */}
@@ -426,23 +429,35 @@ export default function Checkout() {
 
                       <div className="space-y-4">
                         {items.map(item => (
-                          <div key={item._id} className="flex gap-4 p-4 rounded-2xl bg-light-bg/30 border border-border-light">
-                            <SafeImage src={item.productId.images?.[0]} className="w-20 h-24 object-cover rounded-xl bg-white shadow-sm" />
-                            <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
-                              <div>
-                                <p className="font-bold text-charcoal text-sm truncate">{item.productId.name}</p>
-                                <div className="flex gap-2 mt-2">
-                                  <span className="text-[10px] font-black px-2 py-0.5 bg-white border border-border-light rounded-md text-text-muted uppercase">
-                                    Size: {item.variant?.size || item.size}
-                                  </span>
-                                  <span className="text-[10px] font-black px-2 py-0.5 bg-white border border-border-light rounded-md text-text-muted uppercase">
-                                    Color: {item.variant?.color || item.color}
-                                  </span>
+                          <div key={item._id} className="flex flex-col gap-4 p-4 rounded-2xl bg-light-bg/30 border border-border-light">
+                            <div className="flex gap-4">
+                              <SafeImage src={item.productId.images?.[0]} className="w-20 h-24 object-cover rounded-xl bg-white shadow-sm" />
+                              <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
+                                <div>
+                                  <p className="font-bold text-charcoal text-sm truncate">{item.productId.name}</p>
+                                  {item.isCombo ? (
+                                    <div className="mt-2 space-y-1">
+                                      {item.comboSelections?.map((sel, idx) => (
+                                        <p key={idx} className="text-[9px] font-black text-text-muted uppercase tracking-tight">
+                                          Slot {idx + 1}: {sel.productName} ({sel.size})
+                                        </p>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <div className="flex gap-2 mt-2">
+                                      <span className="text-[10px] font-black px-2 py-0.5 bg-white border border-border-light rounded-md text-text-muted uppercase">
+                                        Size: {item.variant?.size || item.size}
+                                      </span>
+                                      <span className="text-[10px] font-black px-2 py-0.5 bg-white border border-border-light rounded-md text-text-muted uppercase">
+                                        Color: {item.variant?.color || item.color}
+                                      </span>
+                                    </div>
+                                  )}
                                 </div>
-                              </div>
-                              <div className="flex items-center justify-between">
-                                <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">Qty: {item.quantity}</p>
-                                <p className="font-black text-premium-gold">₹{( (item.productId.discountedPrice || item.productId.sellingPrice) * item.quantity).toLocaleString()}</p>
+                                <div className="flex items-center justify-between">
+                                  <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">Qty: {item.quantity}</p>
+                                  <p className="font-black text-premium-gold">₹{( (item.productId.discountedPrice || item.productId.sellingPrice) * item.quantity).toLocaleString()}</p>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -464,7 +479,7 @@ export default function Checkout() {
                           const isDisabled = id === 'cod' && !canUseCod;
                           return (
                             <label key={id} className={`flex items-start gap-5 p-6 rounded-[2rem] border-2 transition-all ${isDisabled ? 'opacity-40 grayscale cursor-not-allowed' : 'cursor-pointer hover:border-premium-gold/50'} ${paymentMethod === id ? 'border-premium-gold bg-gold-soft ring-4 ring-premium-gold/5' : 'border-border-light bg-light-bg/20'}`}>
-                              <input type="radio" disabled={isDisabled} checked={paymentMethod === id} onChange={() => setPaymentMethod(id)} className="mt-1.5 accent-premium-gold w-5 h-5" />
+                              <input type="radio" disabled={isDisabled} checked={paymentMethod === id} onChange={() => setPaymentMethod(id)} className="mt-1.5 accent-premium-gold w-6 h-6" />
                               <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-charcoal border border-border-light shadow-sm">
                                 <Icon size={24} className={paymentMethod === id ? 'text-premium-gold' : 'text-text-muted opacity-40'} />
                               </div>
@@ -522,14 +537,14 @@ export default function Checkout() {
                   <button 
                     onClick={handlePlaceOrderClick} 
                     disabled={loading || items.length === 0} 
-                    className="w-full btn-gold py-6 rounded-[2rem] mt-10 font-black tracking-[0.2em] shadow-xl shadow-premium-gold/20 flex items-center justify-center gap-3 active:scale-95 transition-transform"
+                    className="w-full btn-gold h-14 rounded-[2rem] mt-10 font-black tracking-[0.2em] shadow-xl shadow-premium-gold/20 flex items-center justify-center gap-3 active:scale-95 transition-transform"
                   >
                     {loading ? <Loader2 className="animate-spin" size={20} /> : <><CheckCircle size={20} /> COMPLETE ORDER</>}
                   </button>
                 ) : (
                   <button 
                     onClick={nextStep} 
-                    className="w-full btn-white py-6 rounded-[2rem] mt-10 font-black tracking-[0.2em] shadow-xl text-charcoal flex items-center justify-center gap-3 active:scale-95 transition-transform"
+                    className="w-full btn-white h-14 rounded-[2rem] mt-10 font-black tracking-[0.2em] shadow-xl text-charcoal flex items-center justify-center gap-3 active:scale-95 transition-transform"
                   >
                     CONTINUE <ArrowRight size={20} />
                   </button>
@@ -547,12 +562,38 @@ export default function Checkout() {
         </div>
       </div>
 
+      {/* Mobile Sticky CTA (Visible only on small screens) */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-charcoal p-4 z-40 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.2)]">
+        <div className="flex justify-between items-center mb-3 px-2">
+           <div className="flex flex-col text-white">
+             <span className="text-[10px] font-black text-white/50 uppercase tracking-widest">Final Total</span>
+             <span className="text-xl font-black text-premium-gold font-mono">₹{total.toLocaleString()}</span>
+           </div>
+        </div>
+        {step === 2 ? (
+          <button 
+            onClick={handlePlaceOrderClick} 
+            disabled={loading || items.length === 0} 
+            className="w-full h-14 btn-gold rounded-2xl font-black tracking-[0.2em] shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-transform"
+          >
+            {loading ? <Loader2 className="animate-spin" size={20} /> : <><CheckCircle size={20} /> PLACE ORDER</>}
+          </button>
+        ) : (
+          <button 
+            onClick={nextStep} 
+            className="w-full h-14 btn-white rounded-2xl font-black tracking-[0.2em] shadow-xl text-charcoal flex items-center justify-center gap-2 active:scale-95 transition-transform"
+          >
+            CONTINUE <ArrowRight size={20} />
+          </button>
+        )}
+      </div>
+
       {/* Confirmation Modal */}
       <AnimatePresence>
         {showConfirmModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowConfirmModal(false)} className="absolute inset-0 bg-charcoal/90 backdrop-blur-sm" />
-            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="relative bg-white w-full max-w-md rounded-[3.5rem] p-12 text-center shadow-2xl">
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="relative bg-white w-full admin-modal-container max-w-md rounded-[3.5rem] p-12 text-center shadow-2xl">
               <div className="w-24 h-24 bg-premium-gold/10 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 relative">
                 <div className="absolute inset-0 bg-premium-gold/5 rounded-[2.5rem] animate-ping" />
                 <ShieldCheck size={48} className="text-premium-gold" />
@@ -560,8 +601,8 @@ export default function Checkout() {
               <h3 className="text-3xl font-black text-charcoal tracking-tight mb-3 uppercase">Final Check</h3>
               <p className="text-text-muted font-medium mb-10 leading-relaxed px-4">You are about to place an order for <span className="text-premium-gold font-black underline underline-offset-4">₹{total.toLocaleString()}</span>. Continue?</p>
               <div className="flex gap-4">
-                <button onClick={() => setShowConfirmModal(false)} className="flex-1 py-5 bg-light-bg rounded-[2rem] font-black text-[10px] uppercase tracking-[0.3em] text-text-muted hover:bg-border-light transition-colors">Review</button>
-                <button onClick={executeOrder} className="flex-1 py-5 bg-premium-gold rounded-[2rem] font-black text-[10px] uppercase tracking-[0.3em] text-charcoal shadow-xl hover:shadow-premium-gold/30 transition-all active:scale-95">Place Order</button>
+                <button onClick={() => setShowConfirmModal(false)} className="flex-1 h-14 bg-light-bg rounded-[2rem] font-black text-[10px] uppercase tracking-[0.3em] text-text-muted hover:bg-border-light transition-colors">Review</button>
+                <button onClick={executeOrder} className="flex-1 h-14 bg-premium-gold rounded-[2rem] font-black text-[10px] uppercase tracking-[0.3em] text-charcoal shadow-xl hover:shadow-premium-gold/30 transition-all active:scale-95">Place Order</button>
               </div>
             </motion.div>
           </div>

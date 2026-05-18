@@ -86,7 +86,19 @@ const InvoiceTemplate = React.forwardRef(({ order }, ref) => {
                   </div>
                   <div>
                     <p className="text-sm font-black text-[#121212] tracking-tight">{item.productName}</p>
-                    <p className="text-[9px] text-[#999999] uppercase font-black tracking-widest mt-0.5">{item.size} / {item.color} • ₹{item.price.toLocaleString()}</p>
+                    {item.isCombo ? (
+                       <div className="mt-1 space-y-0.5">
+                         {item.comboSelections?.map((sel, sIdx) => (
+                           <p key={sIdx} className="text-[8px] text-[#999999] font-bold uppercase tracking-tight">
+                             • {sel.productName} ({sel.size})
+                           </p>
+                         ))}
+                       </div>
+                    ) : (
+                       <p className="text-[9px] text-[#999999] uppercase font-black tracking-widest mt-0.5">
+                         {item.variant?.size || item.size} / {item.variant?.color || item.color} • ₹{item.price.toLocaleString()}
+                       </p>
+                    )}
                   </div>
                 </div>
                 <div className="text-right">

@@ -55,10 +55,10 @@ export default function WriteReview() {
     }
   });
 
-  if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-light-bg"><Loader2 className="animate-spin text-premium-gold" size={48} /></div>;
+  if (isLoading) return <div className="min-h-dvh flex items-center justify-center bg-light-bg"><Loader2 className="animate-spin text-premium-gold" size={48} /></div>;
 
   return (
-    <div className="min-h-screen bg-light-bg py-12 px-4 md:py-20">
+    <div className="min-h-dvh bg-light-bg py-12 px-4 md:py-20">
       <div className="max-w-3xl mx-auto">
         {/* Navigation & Header */}
         <button 

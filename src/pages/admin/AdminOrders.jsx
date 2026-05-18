@@ -35,7 +35,7 @@ export default function AdminOrders() {
     queryFn: () => adminService.getAllOrders({ search, status: statusFilter, page, limit: 10 }).then(r => r.data),
   });
 
-  const orders = data?.data?.orders || data?.data || [];
+  const orders = Array.isArray(data?.data?.orders) ? data.data.orders : (Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []));
   const pagination = data?.pagination;
   const total = pagination?.total || orders.length;
 
@@ -403,8 +403,20 @@ function OrderDetailsModal({ order, onClose, onUpdateStatus, onPrint, isUpdating
                       <div>
                         <h4 className="font-bold text-text-primary text-sm line-clamp-1">{item.productName}</h4>
                         <div className="flex flex-wrap gap-2 mt-1.5">
-                          <span className="text-[10px] font-bold px-2 py-0.5 bg-white border border-border-light rounded-md text-text-muted uppercase">Size: {item.variant.size}</span>
-                          <span className="text-[10px] font-bold px-2 py-0.5 bg-white border border-border-light rounded-md text-text-muted uppercase">Color: {item.variant.color}</span>
+                          {item.isCombo ? (
+                            <div className="w-full space-y-1 mt-1">
+                               {item.comboSelections?.map((sel, sIdx) => (
+                                 <p key={sIdx} className="text-[9px] font-black text-text-muted/60 uppercase tracking-tight flex items-center gap-1.5">
+                                   <Zap size={8} className="text-premium-gold" /> Slot {sIdx + 1}: {sel.productName} ({sel.size})
+                                 </p>
+                               ))}
+                            </div>
+                          ) : (
+                            <>
+                              <span className="text-[10px] font-bold px-2 py-0.5 bg-white border border-border-light rounded-md text-text-muted uppercase">Size: {item.variant?.size || 'N/A'}</span>
+                              <span className="text-[10px] font-bold px-2 py-0.5 bg-white border border-border-light rounded-md text-text-muted uppercase">Color: {item.variant?.color || 'N/A'}</span>
+                            </>
+                          )}
                           {item.sku && <span className="text-[10px] font-mono px-2 py-0.5 bg-white border border-border-light rounded-md text-text-muted/60">SKU: {item.sku}</span>}
                         </div>
                       </div>

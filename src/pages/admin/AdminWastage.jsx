@@ -141,7 +141,7 @@ export default function AdminWastage() {
         {showForm && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-charcoal/60 backdrop-blur-md" onClick={() => setShowForm(false)} />
-             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative bg-white w-full max-w-2xl rounded-[4rem] shadow-2xl p-12 border border-border-light max-h-[90vh] flex flex-col">
+             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative bg-white w-full admin-modal-container max-w-2xl rounded-[4rem] shadow-2xl p-12 border border-border-light max-h-[90vh] flex flex-col">
                 <div className="flex items-center justify-between mb-10 shrink-0">
                    <div>
                       <h2 className="text-2xl font-black text-charcoal uppercase tracking-tighter">Log Stock Loss</h2>

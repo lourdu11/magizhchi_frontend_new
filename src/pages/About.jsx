@@ -12,7 +12,7 @@ export default function About() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F8F8F6] overflow-hidden">
+    <div className="min-h-dvh bg-[#F8F8F6] overflow-hidden">
       <Helmet>
         <title>Our Story — Magizhchi Garments</title>
         <meta name="description" content="Discover the legacy of Magizhchi Garments — Thanjavur's premier destination for next-gen fashion and luxury menswear." />

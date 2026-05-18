@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Search, Loader2, X, Save, Plus, Minus, Globe, ShoppingBag, AlertTriangle, Package, Edit3, CheckCircle2, PlusCircle, History } from 'lucide-react';
+import { Search, Loader2, X, Save, Plus, Globe, ShoppingBag, AlertTriangle, Package, Edit3, CheckCircle2, PlusCircle, History, Trash2, ShoppingCart, Wrench } from 'lucide-react';
 import { inventoryService, productService } from '../../services';
 import { toast } from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
@@ -19,6 +19,13 @@ const StatusBadge = ({ item }) => {
 
 export default function AdminInventory() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedSearch(searchTerm), 300);
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
+
   const [page, setPage] = useState(1);
   const [filterStatus, setFilterStatus] = useState('all');
   const [adjustItem, setAdjustItem] = useState(null);
@@ -29,17 +36,19 @@ export default function AdminInventory() {
   const [productSearch, setProductSearch] = useState('');
   const [historyItem, setHistoryItem] = useState(null);
   const [viewBillImage, setViewBillImage] = useState(null);
+  const [deleteItem, setDeleteItem] = useState(null);
+  const [showArchived, setShowArchived] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: statsData } = useQuery({
     queryKey: ['inventory-stats'],
-    queryFn: () => inventoryService.getInventoryStats().then(r => r.data?.data || r.data),
+    queryFn: () => inventoryService.getStats().then(r => r.data?.data || r.data),
   });
 
   const { data: inventoryData, isLoading } = useQuery({
-    queryKey: ['admin-inventory', searchTerm, page, filterStatus],
+    queryKey: ['admin-inventory', debouncedSearch, page, filterStatus, showArchived],
     queryFn: () => {
-      const params = { search: searchTerm, page, limit: 25 };
+      const params = { search: debouncedSearch, page, limit: 25, includeDeleted: showArchived };
       if (filterStatus === 'critical') params.status = 'low_stock';
       if (filterStatus === 'out') params.status = 'out_of_stock';
       if (filterStatus === 'online') params.onlineEnabled = 'true';
@@ -51,7 +60,7 @@ export default function AdminInventory() {
   // Reset page on search or filter change
   useEffect(() => {
     setPage(1);
-  }, [searchTerm, filterStatus]);
+  }, [debouncedSearch, filterStatus, showArchived]);
 
   const { data: searchProducts } = useQuery({
     queryKey: ['product-search-link', productSearch],
@@ -65,26 +74,53 @@ export default function AdminInventory() {
     enabled: !!historyItem
   });
 
-  const rawItems = inventoryData?.data || [];
+  const rawItems = Array.isArray(inventoryData?.data) ? inventoryData.data : (Array.isArray(inventoryData) ? inventoryData : []);
   const items = rawItems.map(i => ({ ...i, availableStock: i.availableStock ?? calcAvail(i) }));
 
   const filtered = items; // Backend already filtered this
 
-  const lowStockItems = items.filter(i => i.availableStock <= (i.lowStockThreshold || 5));
+  const lowStockItems = items.filter(i => i.availableStock <= (i.lowStockThreshold || 5) && !i.deletedAt);
 
   const toggleMutation = useMutation({
     mutationFn: ({ id, channel }) => inventoryService.toggleChannel(id, { channel }),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['admin-inventory'] }); toast.success('Channel updated'); },
+    onSuccess: () => { 
+      queryClient.invalidateQueries({ queryKey: ['admin-inventory'] }); 
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['pos-products'] });
+      toast.success('Channel updated'); 
+    },
   });
 
   const priceMutation = useMutation({
     mutationFn: ({ id, price }) => inventoryService.updateSellingPrice(id, { sellingPrice: price }),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['admin-inventory'] }); toast.success('Price updated'); setEditingPrice(null); },
+    onSuccess: () => { 
+      queryClient.invalidateQueries({ queryKey: ['admin-inventory'] }); 
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['pos-products'] });
+      toast.success('Price updated'); 
+      setEditingPrice(null); 
+    },
+  });
+
+  const restoreMutation = useMutation({
+     mutationFn: (id) => inventoryService.restoreInventory(id),
+     onSuccess: () => {
+       queryClient.invalidateQueries({ queryKey: ['admin-inventory'] });
+       toast.success('Inventory variant restored');
+     },
+     onError: (err) => toast.error(err.response?.data?.message || 'Restore failed'),
   });
 
   const adjustMutation = useMutation({
     mutationFn: ({ id, data }) => inventoryService.adjustStock(id, data),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['admin-inventory'] }); toast.success('Stock adjusted'); setAdjustItem(null); setAdjustForm({ type: 'correction', quantity: '', reason: '' }); },
+    onSuccess: () => { 
+      queryClient.invalidateQueries({ queryKey: ['admin-inventory'] }); 
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['pos-products'] });
+      toast.success('Stock adjusted'); 
+      setAdjustItem(null); 
+      setAdjustForm({ type: 'correction', quantity: '', reason: '' }); 
+    },
     onError: (err) => toast.error(err.response?.data?.message || 'Failed'),
   });
 
@@ -92,10 +128,26 @@ export default function AdminInventory() {
     mutationFn: ({ id, productId }) => inventoryService.linkProduct(id, { productId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-inventory'] });
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['pos-products'] });
       toast.success('Inventory linked to product display');
       setLinkItem(null);
     },
     onError: (err) => toast.error(err.response?.data?.message || 'Linking failed'),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) => inventoryService.deleteItem(id),
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ['admin-inventory'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-products'] });
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['pos-products'] });
+      const msg = res.data?.data?.archived ? 'Variant archived (history preserved)' : 'Variant permanently deleted';
+      toast.success(msg);
+      setDeleteItem(null);
+    },
+    onError: (err) => toast.error(err.response?.data?.message || 'Delete failed'),
   });
 
 
@@ -114,6 +166,11 @@ export default function AdminInventory() {
         <div>
           <h1 className="text-3xl font-black text-charcoal tracking-tighter uppercase mb-1">Master Inventory</h1>
           <p className="text-xs text-text-muted font-bold uppercase tracking-widest">Live Stock Control — Every item tracked here</p>
+        </div>
+        <div className="flex items-center gap-3">
+           <button onClick={() => setLinkItem('new')} className="px-6 py-3 bg-charcoal text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-premium-gold hover:text-charcoal transition-all flex items-center gap-2 shadow-lg shadow-charcoal/10">
+              <Plus size={16} /> Add Manually
+           </button>
         </div>
       </div>
 
@@ -159,9 +216,18 @@ export default function AdminInventory() {
       {/* Filters */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
-          <input className="w-full bg-white border border-border-light rounded-2xl pl-12 pr-5 py-4 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-premium-gold/20 shadow-sm" placeholder="Search by product, color, size..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
+          <input className="w-full bg-white border border-border-light rounded-xl pl-10 pr-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-premium-gold text-sm" placeholder="Search by SKU or name..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
         </div>
+        <button 
+           onClick={() => setShowArchived(!showArchived)}
+           className={`px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all border ${
+              showArchived ? 'bg-amber-100 text-amber-700 border-amber-200' : 'bg-white text-text-muted border-border-light'
+           }`}
+        >
+           <History size={14} />
+           {showArchived ? 'Archive Vault' : 'Show Deleted'}
+        </button>
         <div className="flex gap-2 flex-wrap">
           {[['all','All'], ['critical','Low Stock'], ['out','Out of Stock'], ['online','Online'], ['offline','Offline']].map(([val, label]) => (
             <button key={val} onClick={() => setFilterStatus(val)} className={`px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${filterStatus === val ? 'bg-charcoal text-white shadow-lg' : 'bg-white border border-border-light text-text-muted hover:bg-light-bg'}`}>{label}</button>
@@ -186,22 +252,37 @@ export default function AdminInventory() {
               ) : filtered.length === 0 ? (
                 <tr><td colSpan="7" className="py-20 text-center text-xs font-bold text-text-muted">No inventory items found. Add a purchase bill to populate stock.</td></tr>
               ) : filtered.map(item => (
-                <tr key={item._id} className="hover:bg-light-bg/20 transition-all">
+                <tr key={item._id} className={`hover:bg-light-bg/50 transition-colors group ${item.deletedAt ? 'opacity-40 grayscale-[0.2]' : ''}`}>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-4">
                        <div className="w-12 h-14 bg-light-bg rounded-xl overflow-hidden flex-shrink-0 border border-border-light">
                           <SafeImage src={item.productImages?.[0] || item.productRef?.images?.[0]} className="w-full h-full object-cover" />
                        </div>
                        <div>
-                          <div className="font-black text-charcoal text-sm">{item.productName}</div>
+                          <div className={`font-black text-charcoal text-sm ${item.deletedAt ? 'line-through' : ''}`}>{item.productName}</div>
                           <div className="text-[10px] text-text-muted font-bold mt-0.5">{item.category}</div>
+                          <div className="flex flex-wrap gap-1 mt-1.5">
+                             {item.purchasePrice > 0 ? (
+                               <span className="flex items-center gap-1 text-[8px] font-black text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
+                                 <ShoppingCart size={8} /> Inventory Product
+                               </span>
+                             ) : (
+                               <span className="flex items-center gap-1 text-[8px] font-black text-purple-700 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded-full">
+                                 <Plus size={8} /> Manual Inventory
+                               </span>
+                             )}
+                             {item.offlineEnabled && (
+                               <span className="text-[8px] font-black text-orange-700 bg-orange-50 border border-orange-200 px-2 py-0.5 rounded-full">POS</span>
+                             )}
+                             {item.onlineEnabled && (
+                               <span className="text-[8px] font-black text-green-700 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full">Web</span>
+                             )}
+                             {item.deletedAt && (
+                               <span className="text-[8px] font-black text-red-700 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full">ARCHIVED</span>
+                             )}
+                           </div>
                        </div>
                     </div>
-                    {!item.productRef && (
-                      <div className="mt-2 flex items-center gap-1.5 text-[9px] font-black text-orange-600 bg-orange-50 px-3 py-1 rounded-full w-fit">
-                        <AlertTriangle size={10} /> ORPHAN STOCK (NOT LINKED)
-                      </div>
-                    )}
                   </td>
                   <td className="px-5 py-4">
                     <div className="font-bold text-charcoal text-sm">{item.color}</div>
@@ -250,14 +331,23 @@ export default function AdminInventory() {
                     </div>
                   </td>
                    <td className="px-5 py-4">
-                    <div className="flex items-center gap-2">
-                       <button onClick={() => setAdjustItem(item)} className="p-2 bg-light-bg text-charcoal rounded-xl hover:bg-charcoal hover:text-white transition-all" title="Adjust Stock"><Edit3 size={16} /></button>
-                       <button onClick={() => setHistoryItem(item)} className="p-2 bg-light-bg text-charcoal rounded-xl hover:bg-charcoal hover:text-white transition-all" title="View Stock Ledger"><History size={16} /></button>
-                       {!item.productRef && (
-                         <button onClick={() => setLinkItem(item)} className="p-2 bg-orange-100 text-orange-600 rounded-xl hover:bg-orange-600 hover:text-white transition-all" title="Link to Display Product"><PlusCircle size={16} /></button>
+                     <div className="flex justify-end gap-2">
+                       {item.deletedAt ? (
+                         <button onClick={() => restoreMutation.mutate(item._id)} className="px-4 py-2 bg-charcoal text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-premium-gold transition-all flex items-center gap-2">
+                            <PlusCircle size={14} /> Restore
+                         </button>
+                       ) : (
+                         <div className="flex items-center gap-2">
+                            <button onClick={() => setAdjustItem(item)} className="p-2 bg-light-bg text-charcoal rounded-xl hover:bg-charcoal hover:text-white transition-all" title="Adjust Stock"><Edit3 size={16} /></button>
+                            <button onClick={() => setHistoryItem(item)} className="p-2 bg-light-bg text-charcoal rounded-xl hover:bg-charcoal hover:text-white transition-all" title="View Stock Ledger"><History size={16} /></button>
+                            {!item.productRef && (
+                              <button onClick={() => setLinkItem(item)} className="p-2 bg-orange-100 text-orange-600 rounded-xl hover:bg-orange-600 hover:text-white transition-all" title="Link to Gallery"><PlusCircle size={16} /></button>
+                            )}
+                            <button onClick={() => setDeleteItem(item)} className="p-2 bg-red-50 text-red-500 rounded-xl hover:bg-red-600 hover:text-white transition-all" title="Delete Variant"><Trash2 size={16} /></button>
+                         </div>
                        )}
-                    </div>
-                  </td>
+                     </div>
+                   </td>
                 </tr>
               ))}
             </tbody>
@@ -309,7 +399,7 @@ export default function AdminInventory() {
         {adjustItem && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-charcoal/50 backdrop-blur-sm" onClick={() => setAdjustItem(null)} />
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative bg-white w-full max-w-md rounded-[3rem] shadow-2xl border border-border-light p-8">
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative bg-white w-full admin-modal-container max-w-md rounded-[3rem] shadow-2xl border border-border-light p-8">
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h3 className="text-lg font-black text-charcoal uppercase tracking-tight">Adjust Stock</h3>
@@ -356,53 +446,109 @@ export default function AdminInventory() {
         {linkItem && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-charcoal/50 backdrop-blur-sm" onClick={() => setLinkItem(null)} />
-             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative bg-white w-full max-w-md rounded-[3rem] shadow-2xl border border-border-light p-8 flex flex-col max-h-[80vh]">
+             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative bg-white w-full admin-modal-container max-w-md rounded-[3rem] shadow-2xl border border-border-light p-8 flex flex-col max-h-[80vh]">
                 <div className="flex-none flex items-center justify-between mb-6">
                    <div>
-                      <h3 className="text-lg font-black text-charcoal uppercase tracking-tight">Link Stock to Product</h3>
-                      <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest mt-1">Stock ID: {linkItem._id}</p>
+                      <h3 className="text-lg font-black text-charcoal uppercase tracking-tight">
+                         {linkItem === 'new' ? 'Manual Inventory Entry' : 'Link Stock to Product'}
+                      </h3>
+                      <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest mt-1">
+                         {linkItem === 'new' ? 'Direct master entry (bypass procurement)' : `Stock ID: ${linkItem._id}`}
+                      </p>
                    </div>
                    <button onClick={() => setLinkItem(null)} className="p-3 hover:bg-light-bg rounded-full text-text-muted"><X size={20} /></button>
                 </div>
 
-                <div className="flex-none relative mb-6">
-                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
-                   <input 
-                     className="w-full bg-light-bg border-none rounded-2xl pl-12 pr-4 py-4 font-bold text-sm focus:ring-2 focus:ring-premium-gold/30" 
-                     placeholder="Search display products..." 
-                     value={productSearch}
-                     onChange={e => setProductSearch(e.target.value)}
-                   />
-                </div>
+                {linkItem === 'new' ? (
+                   <div className="space-y-4 overflow-y-auto pr-2 custom-scrollbar">
+                      <div>
+                         <label className="text-[9px] font-black text-text-muted uppercase tracking-widest mb-1.5 block">Product Name</label>
+                         <input className="w-full bg-light-bg border-none rounded-2xl px-5 py-4 font-bold text-sm" placeholder="e.g. Cotton Polo Shirt" id="manualName" />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                         <div>
+                            <label className="text-[9px] font-black text-text-muted uppercase tracking-widest mb-1.5 block">Color</label>
+                            <input className="w-full bg-light-bg border-none rounded-2xl px-5 py-4 font-bold text-sm" placeholder="Black" id="manualColor" />
+                         </div>
+                         <div>
+                            <label className="text-[9px] font-black text-text-muted uppercase tracking-widest mb-1.5 block">Size</label>
+                            <input className="w-full bg-light-bg border-none rounded-2xl px-5 py-4 font-bold text-sm" placeholder="XL" id="manualSize" />
+                         </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                         <div>
+                            <label className="text-[9px] font-black text-text-muted uppercase tracking-widest mb-1.5 block">Price (MRP)</label>
+                            <input type="number" className="w-full bg-light-bg border-none rounded-2xl px-5 py-4 font-bold text-sm" placeholder="999" id="manualPrice" />
+                         </div>
+                         <div>
+                            <label className="text-[9px] font-black text-text-muted uppercase tracking-widest mb-1.5 block">SKU (Optional)</label>
+                            <input className="w-full bg-light-bg border-none rounded-2xl px-5 py-4 font-bold text-sm" placeholder="POLO-BLK-XL" id="manualSku" />
+                         </div>
+                      </div>
+                      <button 
+                         onClick={() => {
+                            const name = document.getElementById('manualName').value;
+                            const color = document.getElementById('manualColor').value;
+                            const size = document.getElementById('manualSize').value;
+                            const price = document.getElementById('manualPrice').value;
+                            const sku = document.getElementById('manualSku').value;
+                            if (!name || !color || !size || !price) return toast.error('Required fields missing');
+                            
+                            inventoryService.createItem({ productName: name, color, size, sellingPrice: price, sku })
+                               .then(() => {
+                                  queryClient.invalidateQueries({ queryKey: ['admin-inventory'] });
+                                  toast.success('Manual entry added');
+                                  setLinkItem(null);
+                               })
+                               .catch(err => toast.error(err.response?.data?.message || 'Failed'));
+                         }}
+                         className="w-full py-4 bg-charcoal text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-premium-gold hover:text-charcoal transition-all shadow-lg"
+                      >
+                         Create Manual Item
+                      </button>
+                   </div>
+                ) : (
+                   <>
+                      <div className="flex-none relative mb-6">
+                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
+                         <input 
+                           className="w-full bg-light-bg border-none rounded-2xl pl-12 pr-4 py-4 font-bold text-sm focus:ring-2 focus:ring-premium-gold/30" 
+                           placeholder="Search display products..." 
+                           value={productSearch}
+                           onChange={e => setProductSearch(e.target.value)}
+                         />
+                      </div>
 
-                <div className="flex-1 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
-                   {searchProducts?.map(p => (
-                     <button 
-                       key={p._id} 
-                       onClick={() => linkMutation.mutate({ id: linkItem._id, productId: p._id })}
-                       className="w-full text-left p-4 hover:bg-light-bg rounded-2xl border border-transparent hover:border-premium-gold/20 flex items-center gap-4 transition-all"
-                     >
-                        <SafeImage src={p.images?.[0]} className="w-10 h-12 rounded-lg object-cover" alt="" />
-                        <div>
-                           <div className="text-xs font-black text-charcoal">{p.name}</div>
-                           <div className="text-[10px] text-text-muted font-bold uppercase tracking-widest">{p.category?.name}</div>
-                        </div>
-                     </button>
-                   ))}
-                   {productSearch.length > 2 && !searchProducts?.length && (
-                     <div className="py-10 text-center text-xs font-bold text-text-muted uppercase tracking-widest">No products found</div>
-                   )}
-                   {productSearch.length <= 2 && (
-                     <div className="py-10 text-center text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">Type at least 3 characters to search</div>
-                   )}
-                </div>
+                      <div className="flex-1 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
+                         {searchProducts?.map(p => (
+                           <button 
+                             key={p._id} 
+                             onClick={() => linkMutation.mutate({ id: linkItem._id, productId: p._id })}
+                             className="w-full text-left p-4 hover:bg-light-bg rounded-2xl border border-transparent hover:border-premium-gold/20 flex items-center gap-4 transition-all"
+                           >
+                              <SafeImage src={p.images?.[0]} className="w-10 h-12 rounded-lg object-cover" alt="" />
+                              <div>
+                                 <div className="text-xs font-black text-charcoal">{p.name}</div>
+                                 <div className="text-[10px] text-text-muted font-bold uppercase tracking-widest">{p.category?.name}</div>
+                              </div>
+                           </button>
+                         ))}
+                         {productSearch.length > 2 && !searchProducts?.length && (
+                           <div className="py-10 text-center text-xs font-bold text-text-muted uppercase tracking-widest">No products found</div>
+                         )}
+                         {productSearch.length <= 2 && (
+                           <div className="py-10 text-center text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">Type at least 3 characters to search</div>
+                         )}
+                      </div>
+                   </>
+                )}
              </motion.div>
           </div>
         )}
         {historyItem && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-charcoal/50 backdrop-blur-sm" onClick={() => setHistoryItem(null)} />
-             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative bg-white w-full max-w-2xl rounded-[3rem] shadow-2xl border border-border-light p-8 flex flex-col max-h-[85vh]">
+             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative bg-white w-full admin-modal-container max-w-2xl rounded-[3rem] shadow-2xl border border-border-light p-8 flex flex-col max-h-[85vh]">
                 <div className="flex-none flex items-center justify-between mb-8">
                    <div>
                       <h3 className="text-xl font-black text-charcoal uppercase tracking-tight">Stock Movement Ledger</h3>
@@ -464,7 +610,7 @@ export default function AdminInventory() {
         {viewBillImage && (
           <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-charcoal/90 backdrop-blur-md" onClick={() => setViewBillImage(null)} />
-             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative bg-white w-full max-w-4xl rounded-[3rem] shadow-2xl overflow-hidden border border-white/10 flex flex-col max-h-[90vh]">
+             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative bg-white w-full admin-modal-container max-w-4xl rounded-[3rem] shadow-2xl overflow-hidden border border-white/10 flex flex-col max-h-[90vh]">
                 <div className="flex-none p-6 flex items-center justify-between border-b border-border-light">
                    <h3 className="text-sm font-black text-charcoal uppercase tracking-widest">Linked Purchase Invoice</h3>
                    <button onClick={() => setViewBillImage(null)} className="p-3 hover:bg-light-bg rounded-full text-text-muted transition-colors"><X size={20} /></button>
@@ -476,6 +622,40 @@ export default function AdminInventory() {
                    <a href={viewBillImage} download className="btn-primary py-3 px-8 text-[10px] rounded-2xl">Download Proof</a>
                 </div>
              </motion.div>
+          </div>
+        )}
+        </AnimatePresence>
+
+      {/* ─── Delete Confirmation Modal ─── */}
+      <AnimatePresence>
+        {deleteItem && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-charcoal/50 backdrop-blur-sm" onClick={() => setDeleteItem(null)} />
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative bg-white w-full admin-modal-container max-w-sm rounded-[2.5rem] shadow-2xl border border-border-light p-8 text-center">
+              <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-5 border border-red-100">
+                <Trash2 size={28} className="text-red-500" />
+              </div>
+              <h3 className="text-xl font-black text-charcoal uppercase tracking-tight mb-2">Delete Variant?</h3>
+              <p className="text-sm font-bold text-text-muted mb-1">
+                <span className="text-charcoal">{deleteItem.productName}</span> — {deleteItem.size} / {deleteItem.color}
+              </p>
+              <p className="text-[10px] font-bold text-text-muted mb-6">
+                {(deleteItem.onlineSold || 0) + (deleteItem.offlineSold || 0) > 0
+                  ? '⚠️ This variant has sales history. It will be archived (not permanently deleted) to preserve the audit trail.'
+                  : 'This variant has no sales history. It will be permanently removed.'}
+              </p>
+              <div className="flex gap-3">
+                <button onClick={() => setDeleteItem(null)} className="flex-1 py-4 bg-light-bg text-charcoal font-black text-xs uppercase tracking-widest rounded-2xl hover:bg-border-light transition-all">Cancel</button>
+                <button
+                  onClick={() => deleteMutation.mutate(deleteItem._id)}
+                  disabled={deleteMutation.isPending}
+                  className="flex-1 py-4 bg-red-600 text-white font-black text-xs uppercase tracking-widest rounded-2xl hover:bg-red-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  {deleteMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                  Confirm
+                </button>
+              </div>
+            </motion.div>
           </div>
         )}
       </AnimatePresence>

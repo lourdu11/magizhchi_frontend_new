@@ -48,13 +48,14 @@ const NAV = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
   { icon: Tag, label: 'Category', path: '/admin/categories' },
   { icon: Truck, label: 'Procurement Hub', path: '/admin/procurement' },
-  { icon: LayoutGrid, label: 'Catalog Master', path: '/admin/catalog' },
+  { icon: Boxes, label: 'Product Profiles', path: '/admin/profiles' },
   { icon: ShoppingBag, label: 'Orders', path: '/admin/orders' },
   { icon: Users, label: 'Customers', path: '/admin/users' },
   { icon: ShoppingBag, label: 'Create Bill', path: '/admin/create-bill' },
   { icon: FileText, label: 'Offline Bills', path: '/admin/bills' },
   { icon: Star, label: 'Reviews', path: '/admin/reviews' },
   { icon: BarChart2, label: 'Analysis', path: '/admin/analytics' },
+  { icon: Smartphone, label: 'Broadcast Center', path: '/admin/broadcast' },
   { icon: UserCog, label: 'Staff', path: '/admin/staff' },
   { icon: Image, label: 'Banners', path: '/admin/banners' },
   { icon: Settings, label: 'Settings', path: '/admin/settings' },
@@ -68,12 +69,14 @@ export default function AdminLayout() {
   const navigate = useNavigate();
 
   const handleLogout = () => { 
-    logout(); 
-    navigate('/login'); 
+    navigate('/'); 
+    setTimeout(() => {
+      logout();
+    }, 50);
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] font-sans">
+    <div className="min-h-dvh bg-[#F8F9FA] font-sans">
       {/* Mobile Header (Fixed at top) */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-[#DADCE0] px-6 flex items-center justify-between z-[60]">
         <div className="flex items-center gap-2">
@@ -106,7 +109,7 @@ export default function AdminLayout() {
         <aside className={`
           ${collapsed ? 'w-16' : 'w-64'} 
           ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-          shrink-0 bg-white border-r border-[#DADCE0] flex flex-col transition-all duration-300 fixed lg:sticky top-0 h-screen z-[80] shadow-xl lg:shadow-none
+          shrink-0 bg-white border-r border-[#DADCE0] flex flex-col transition-all duration-300 fixed lg:sticky top-0 h-dvh z-[80] shadow-xl lg:shadow-none
         `}>
           {/* Logo */}
           <div className={`flex items-center ${collapsed ? 'justify-center' : 'justify-between'} px-6 py-5 border-b border-[#F1F3F4]`}>
@@ -167,7 +170,7 @@ export default function AdminLayout() {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 min-h-screen pt-16 lg:pt-0">
+        <main className="flex-1 min-h-dvh pt-16 lg:pt-0">
           <div className="p-4 md:p-10 max-w-[1600px] mx-auto">
             <Outlet />
           </div>

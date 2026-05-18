@@ -58,7 +58,7 @@ export default function StaffDailyReport() {
 
   if (isLoading) {
     return (
-      <div className="h-screen bg-light-bg flex flex-col items-center justify-center gap-6">
+      <div className="h-dvh bg-light-bg flex flex-col items-center justify-center gap-6">
         <motion.div animate={{ rotate: 360, scale: [1, 1.1, 1] }} transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }} className="w-16 h-16 bg-charcoal rounded-[1.5rem] flex items-center justify-center shadow-2xl shadow-premium-gold/20">
           <Loader2 size={32} className="text-premium-gold" />
         </motion.div>
@@ -68,7 +68,7 @@ export default function StaffDailyReport() {
   }
 
   return (
-    <div className="min-h-screen bg-light-bg p-6 lg:p-10 space-y-10">
+    <div className="min-h-dvh bg-light-bg p-6 lg:p-10 space-y-10">
       <Helmet><title>Z-Report — End of Day Dashboard</title></Helmet>
       
       {/* ── Immersive SaaS Header ── */}

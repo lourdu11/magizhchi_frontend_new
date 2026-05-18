@@ -54,9 +54,19 @@ export default function Home() {
     id: b._id,
     title: b.title.includes(' ') && !b.title.includes('\n') ? b.title.replace(' ', '\n') : b.title,
     subtitle: b.subtitle || "Premium Quality & Timeless Style",
+    accent: b.accent || "New Collection",
+    img: b.desktopImage,
+    mobileImg: b.mobileImage || b.desktopImage,
     cta: 'Shop Now',
     ctaLink: b.link,
-    img: b.desktopImage,
+    fit: b.desktopFit || 'cover',
+    pos: b.desktopPos || 'center',
+    scale: b.desktopScale || 1,
+    gravity: b.desktopGravity || 'auto',
+    mobileFit: b.mobileFit || b.desktopFit || 'cover',
+    mobilePos: b.mobilePos || b.desktopPos || 'center',
+    mobileScale: b.mobileScale || b.desktopScale || 1,
+    mobileGravity: b.mobileGravity || b.desktopGravity || 'auto',
     accent: b.type === 'hero' ? 'New Arrival' : 'Special Offer'
   })) || [];
 
@@ -99,7 +109,7 @@ export default function Home() {
 
       {/* ── Hero Section ── */}
       {slides.length > 0 && (
-        <section className="relative h-[65vh] md:h-[80vh] w-full bg-charcoal overflow-hidden">
+        <section className="relative h-[65vh] md:h-[80vh] w-full bg-charcoal overflow-hidden p-0 m-0">
           <AnimatePresence mode="wait">
           <motion.div 
             key={heroIdx}
@@ -107,17 +117,24 @@ export default function Home() {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 1 }}
-            className="absolute inset-0"
+            className="absolute inset-0 w-full h-full p-0 m-0"
           >
             <SafeImage 
-              src={slides[heroIdx]?.img} 
+              src={window.innerWidth < 768 ? (slides[heroIdx]?.mobileImg || slides[heroIdx]?.img) : slides[heroIdx]?.img} 
               alt="" 
               width={window.innerWidth < 768 ? 400 : 1200} 
               height={window.innerWidth < 768 ? 600 : 800}
               quality={heroIdx === 0 ? (window.innerWidth < 768 ? 45 : 60) : 40}
               fetchPriority="high"
               loading="eager"
-              className="w-full h-full object-cover opacity-60" 
+              style={{ 
+                objectFit: window.innerWidth < 768 ? (slides[heroIdx]?.mobileFit || 'cover') : (slides[heroIdx]?.fit || 'cover'),
+                objectPosition: window.innerWidth < 768 ? (slides[heroIdx]?.mobilePos || 'center') : (slides[heroIdx]?.pos || 'center'),
+                transform: `scale(${window.innerWidth < 768 ? (slides[heroIdx]?.mobileScale || 1) : (slides[heroIdx]?.scale || 1)})`
+              }}
+              crop="fill"
+              gravity={window.innerWidth < 768 ? slides[heroIdx]?.mobileGravity : slides[heroIdx]?.gravity}
+              aspect={window.innerWidth < 768 ? '4:5' : '21:9'}
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent" />
           </motion.div>

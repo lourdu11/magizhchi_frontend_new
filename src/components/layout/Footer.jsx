@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
-import { MessageCircle, Mail, Phone, MapPin, Share2 } from 'lucide-react';
+import { MessageCircle, Mail, Phone, MapPin, Share2, Shield } from 'lucide-react';
 import { adminService } from '../../services';
 import { useQuery } from '@tanstack/react-query';
 
@@ -177,8 +177,8 @@ export default function Footer() {
         <div className="mt-10 pt-6 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-3">
           <p className="text-white/60 text-xs">© {year} {store.name}. All rights reserved. {store.gstin && `GSTIN: ${store.gstin}`}</p>
           <div className="flex items-center gap-4">
-            <img src="https://razorpay.com/favicon.png" alt="Razorpay" width="16" height="16" className="h-4 w-4 opacity-70" />
-            <span className="text-white/85 text-xs">Secured by Razorpay</span>
+            <Shield size={14} className="text-premium-gold" />
+            <span className="text-white/85 text-xs font-bold uppercase tracking-widest">Secured Payments</span>
           </div>
         </div>
       </div>

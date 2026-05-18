@@ -89,9 +89,11 @@ export default function Header() {
   }, [lastScrollY]);
 
   const handleLogout = () => {
-    logout();
     navigate('/');
     setShowUserMenu(false);
+    setTimeout(() => {
+      logout();
+    }, 50);
   };
 
   return (
@@ -119,7 +121,7 @@ export default function Header() {
 
             {/* Center: logo (naturally centred because both sides are flex-1) */}
             <div className="flex-1 flex justify-center">
-              <Link to="/" className="flex items-center gap-2 leading-none mt-[-12px]" style={{ textDecoration: 'none' }}>
+              <Link to="/" className="flex items-center gap-2 leading-none" style={{ textDecoration: 'none' }}>
                 <SafeImage
                   src="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0043.jpg?updatedAt=1772379265473"
                   alt="Magizhchi"
