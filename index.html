@@ -27,6 +27,33 @@
     <noscript>
       <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     </noscript>
+
+    <!-- Critical Above-The-Fold Inline CSS -->
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #ffffff;
+        font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        color: #121212;
+      }
+      .glass {
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        background-color: rgba(250, 249, 245, 0.7);
+      }
+      .container-custom {
+        max-width: 80rem;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: 1.25rem;
+        padding-right: 1.25rem;
+      }
+      .cls-stable-section {
+        content-visibility: auto;
+        contain-intrinsic-size: 600px;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>

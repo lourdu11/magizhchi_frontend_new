@@ -193,7 +193,7 @@ export default function Home() {
               key={i} 
               onClick={() => setHeroIdx(i)} 
               aria-label={`Go to slide ${i + 1}`}
-              className={`h-1.5 rounded-full transition-all duration-500 ${i === heroIdx ? 'w-12 bg-premium-gold' : 'w-3 bg-white/30'}`} 
+              className={`h-1.5 w-3 rounded-full transition-all duration-500 origin-center ${i === heroIdx ? 'scale-x-[4] bg-premium-gold' : 'bg-white/30'}`} 
             />
           ))}
         </div>
@@ -201,7 +201,7 @@ export default function Home() {
       )}
 
       {/* ── Category Spotlight ── */}
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-white cls-stable-section">
         <div className="container-custom">
           <motion.div 
             initial={{ opacity: 0, y: 40 }}

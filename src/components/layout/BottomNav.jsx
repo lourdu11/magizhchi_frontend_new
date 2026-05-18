@@ -21,6 +21,7 @@ export default function BottomNav() {
           const active = location.pathname === path || (path !== '/' && location.pathname.startsWith(path));
           return (
             <Link key={path} to={path}
+              aria-label={label}
               className={`flex flex-col items-center justify-center gap-1 transition-colors relative ${active ? 'text-premium-gold' : 'text-text-muted hover:text-text-secondary'}`}>
               {active && (
                 <span className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-0.5 bg-gold-gradient rounded-b-full" />

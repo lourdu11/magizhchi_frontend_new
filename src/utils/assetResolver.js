@@ -32,6 +32,28 @@ export const resolveAssetURL = (path, width = null, quality = 80, options = {}) 
       
       resolved = resolved.replace('/upload/', `/upload/${transforms}/`);
     }
+    
+    // ImageKit Optimizations & Dynamic Resizing
+    if (resolved.includes('ik.imagekit.io')) {
+      try {
+        const urlObj = new URL(resolved);
+        const { gravity, crop, aspect, height } = options;
+        let transformParts = [];
+        if (width) transformParts.push(`w-${width}`);
+        if (height) transformParts.push(`h-${height}`);
+        transformParts.push(`q-${quality}`);
+        transformParts.push(`f-auto`); // WebP/AVIF auto fallback
+        
+        if (transformParts.length > 0) {
+          urlObj.searchParams.set('tr', transformParts.join(','));
+        }
+        resolved = urlObj.toString();
+      } catch (err) {
+        // Fallback if URL parsing fails
+        resolved = resolved + (resolved.includes('?') ? '&' : '?') + `tr=w-${width || 800},q-${quality},f-auto`;
+      }
+    }
+    
     return resolved;
   }
 
@@ -44,16 +66,34 @@ export const resolveAssetURL = (path, width = null, quality = 80, options = {}) 
 
   // If it's a relative path starting with /uploads or just a filename
   // Map local paths to ImageKit CDN for optimization
+  let resolvedLocal = '';
   if (cleanPath.startsWith('/uploads/')) {
-    return `${IK_BASE}${cleanPath}`;
+    resolvedLocal = `${IK_BASE}${cleanPath}`;
+  } else if (cleanPath.startsWith('uploads/')) {
+    resolvedLocal = `${IK_BASE}/${cleanPath}`;
+  } else {
+    resolvedLocal = `${IK_BASE}/uploads/${cleanPath}`;
   }
 
-  if (cleanPath.startsWith('uploads/')) {
-    return `${IK_BASE}/${cleanPath}`;
+  // Apply ImageKit transformations for resolved local path
+  try {
+    const urlObj = new URL(resolvedLocal);
+    const { gravity, crop, aspect, height } = options;
+    let transformParts = [];
+    if (width) transformParts.push(`w-${width}`);
+    if (height) transformParts.push(`h-${height}`);
+    transformParts.push(`q-${quality}`);
+    transformParts.push(`f-auto`);
+    
+    if (transformParts.length > 0) {
+      urlObj.searchParams.set('tr', transformParts.join(','));
+    }
+    resolvedLocal = urlObj.toString();
+  } catch (err) {
+    resolvedLocal = resolvedLocal + (resolvedLocal.includes('?') ? '&' : '?') + `tr=w-${width || 800},q-${quality},f-auto`;
   }
 
-  // Default: assume it's a filename in uploads and route through IK
-  return `${IK_BASE}/uploads/${cleanPath}`;
+  return resolvedLocal;
 };
 
 export const getPlaceholder = () => PLACEHOLDER;
