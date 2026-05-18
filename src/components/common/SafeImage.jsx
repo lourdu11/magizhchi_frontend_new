@@ -6,7 +6,7 @@ import { resolveAssetURL, getPlaceholder } from '../../utils/assetResolver';
  * Automatically resolves asset URLs, handles HTTPS upgrades,
  * and provides a fallback placeholder if the image fails to load.
  */
-export default function SafeImage({ src, alt, className, width, quality, gravity, crop, aspect, ...props }) {
+export default function SafeImage({ src, alt, className, width, height, quality, gravity, crop, aspect, ...props }) {
   const resolvedSrc = resolveAssetURL(src, width, quality, { gravity, crop, aspect });
 
   return (
@@ -14,6 +14,8 @@ export default function SafeImage({ src, alt, className, width, quality, gravity
       src={resolvedSrc}
       alt={alt || 'Magizhchi Garments Asset'}
       className={className}
+      width={width}
+      height={height}
       effect="blur"
       threshold={300}
       wrapperClassName={className}

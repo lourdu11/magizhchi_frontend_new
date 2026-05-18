@@ -125,8 +125,10 @@ export default function Header() {
                 <SafeImage
                   src="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0043.jpg?updatedAt=1772379265473"
                   alt="Magizhchi"
-                  width={150}
-                  className={`w-auto aspect-square object-cover rounded-full transition-all duration-500 flex-shrink-0 ${scrolled ? 'h-7' : 'h-9'}`}
+                  width={scrolled ? 28 : 36}
+                  height={scrolled ? 28 : 36}
+                  className={`object-cover rounded-full transition-all duration-500 flex-shrink-0`}
+                  style={{ width: scrolled ? '28px' : '36px', height: scrolled ? '28px' : '36px' }}
                 />
                 <div className="flex flex-col leading-none">
                   <span
@@ -189,7 +191,14 @@ export default function Header() {
                   style={{ transformStyle: "preserve-3d" }}
                   className="perspective-1000"
                 >
-                  <SafeImage src="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0043.jpg?updatedAt=1772379265473" width={200} alt="Magizhchi" className={`transition-all duration-500 w-auto aspect-square object-cover rounded-full ${scrolled ? 'h-8 md:h-12' : 'h-10 md:h-14'}`} />
+                  <SafeImage 
+                    src="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0043.jpg?updatedAt=1772379265473" 
+                    width={scrolled ? 48 : 56} 
+                    height={scrolled ? 48 : 56}
+                    alt="Magizhchi" 
+                    className={`transition-all duration-500 object-cover rounded-full`} 
+                    style={{ width: scrolled ? '48px' : '56px', height: scrolled ? '48px' : '56px' }}
+                  />
                 </motion.div>
                 <div className="flex flex-col transition-all duration-500 overflow-hidden">
                   <motion.span
@@ -320,7 +329,14 @@ export default function Header() {
             >
               <div className="flex-none flex items-center justify-between px-6 py-5 border-b border-gray-100">
                 <Link to="/" onClick={() => setMobileMenu(false)} className="flex items-center gap-3">
-                  <SafeImage src="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0043.jpg?updatedAt=1772379265473" width={150} alt="Logo" className="h-9 w-auto aspect-square object-cover rounded-full" />
+                  <SafeImage 
+                    src="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0043.jpg?updatedAt=1772379265473" 
+                    width={36} 
+                    height={36}
+                    alt="Logo" 
+                    className="h-9 w-9 object-cover rounded-full" 
+                    style={{ width: '36px', height: '36px' }}
+                  />
                   <div className="flex flex-col leading-none">
                     <span className="font-black text-[15px] tracking-tight text-charcoal">MAGIZHCHI</span>
                     <span className="font-black text-[8px] tracking-[0.28em] text-premium-gold uppercase mt-0.5">GARMENTS</span>
