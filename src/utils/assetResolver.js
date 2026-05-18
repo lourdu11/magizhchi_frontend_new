@@ -3,7 +3,7 @@
  * Handles environment-safe URL construction for all images and static assets.
  */
 
-const VITE_API_URL = import.meta.env.VITE_API_URL || 'https://magizhchi-backend-new.onrender.com/api/v1';
+const VITE_API_URL = import.meta.env.VITE_API_URL || 'https://magizhchi-backend-28sx.onrender.com/api/v1';
 const API_BASE = VITE_API_URL;
 const PLACEHOLDER = 'https://placehold.co/600x800/1A1A1A/D4AF37?text=Magizhchi+Garments';
 
