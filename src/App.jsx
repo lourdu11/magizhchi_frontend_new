@@ -1,6 +1,6 @@
 // v1.0.1 - Forced Refresh
 // v1.0.1 - Forced Refresh
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { Suspense, lazy, useEffect } from 'react';
 
 // Layouts
@@ -10,9 +10,8 @@ import StaffLayout from './components/layout/StaffLayout';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import PageLoader from './components/common/PageLoader';
 
-// Eagerly loaded pages
-import Home from './pages/Home';
-import { Navigate } from 'react-router-dom';
+// Lazily loaded pages
+const Home = lazy(() => import('./pages/Home'));
 
 // Lazily loaded pages
 const Collections = lazy(() => import('./pages/Collections'));
