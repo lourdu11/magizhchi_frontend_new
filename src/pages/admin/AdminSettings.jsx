@@ -281,7 +281,8 @@ export default function AdminSettings() {
     try {
       const res = await adminService.resetSystemData({ selections: resetSelections });
       if (res.data?.data?.status === 'OTP_REQUIRED') {
-        toast.success(`OTP Sent! Check your ${res.data.data.method}.`, { id: toastId });
+        const customMsg = res.data?.message || `OTP Sent! Check your ${res.data.data.method}.`;
+        toast.success(customMsg, { id: toastId, duration: 8000 });
         setResetStep(2); // Move to OTP entry
       } else {
         toast.dismiss(toastId);
