@@ -293,8 +293,30 @@ export default function Home() {
           </motion.div>
 
           {loadingFeatured ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-10">
-              {Array(8).fill(0).map((_, i) => <SkeletonCard key={i} />)}
+            <div className="flex flex-col items-center justify-center py-20 w-full">
+              {/* Luxury Gold Spinner */}
+              <div className="relative w-20 h-20 mb-6 flex items-center justify-center">
+                <div className="absolute inset-0 rounded-full border-4 border-charcoal/5" />
+                <div className="absolute inset-0 rounded-full border-4 border-t-premium-gold border-r-premium-gold animate-spin" style={{ animationDuration: '0.8s' }} />
+                <div className="absolute w-12 h-12 bg-black rounded-full border border-premium-gold/20 flex items-center justify-center shadow-lg overflow-hidden animate-pulse">
+                  <img 
+                    src="/receipt_logo.jpg" 
+                    alt="Magizhchi" 
+                    className="w-full h-full object-cover scale-[1.02]" 
+                  />
+                </div>
+              </div>
+              <h3 className="text-lg font-bold text-charcoal tracking-wide mb-1 animate-pulse">
+                Loading Staff Favorites...
+              </h3>
+              <p className="text-xs text-text-muted font-bold tracking-widest uppercase animate-pulse">
+                Connecting to Thanjavur Fashion Hub
+              </p>
+              
+              {/* Translucent Skeletons */}
+              <div className="w-full mt-12 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-10 opacity-30 select-none pointer-events-none">
+                {Array(4).fill(0).map((_, i) => <SkeletonCard key={i} />)}
+              </div>
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-10">
