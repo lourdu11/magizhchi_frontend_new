@@ -13,10 +13,8 @@ export default function PageLoader() {
           {/* Inner solid circular black container featuring the Tamil logo */}
           <div className="absolute w-20 h-20 bg-black rounded-full border border-premium-gold/25 flex items-center justify-center shadow-lg overflow-hidden animate-pulse">
             <img 
-              src="/receipt_logo.png" 
+              src="/receipt_logo.jpg" 
               alt="Magizhchi Logo" 
-              width={80}
-              height={80}
               className="w-full h-full object-cover scale-[1.02]" 
             />
           </div>

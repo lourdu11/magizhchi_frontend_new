@@ -69,7 +69,7 @@ export default function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <Link to="/" aria-label="Go to homepage" className="block mb-6 group/flogo">
+            <Link to="/" className="block mb-6 group/flogo">
               <motion.div 
                 whileHover={{ rotateY: 10, rotateX: -5, z: 20 }}
                 style={{ transformStyle: "preserve-3d" }}

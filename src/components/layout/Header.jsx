@@ -113,7 +113,7 @@ export default function Header() {
               <button
                 onClick={() => setMobileMenu(true)}
                 aria-label="Open navigation menu"
-                className={`w-10 h-10 flex items-center justify-center hover:text-premium-gold transition-colors ${scrolled ? 'text-charcoal' : 'text-white'}`}
+                className="w-10 h-10 flex items-center justify-center text-charcoal hover:text-premium-gold transition-colors"
               >
                 <Menu size={22} />
               </button>
@@ -121,18 +121,16 @@ export default function Header() {
 
             {/* Center: logo (naturally centred because both sides are flex-1) */}
             <div className="flex-1 flex justify-center">
-              <Link to="/" aria-label="Go to homepage" className="flex items-center gap-2 leading-none" style={{ textDecoration: 'none' }}>
+              <Link to="/" className="flex items-center gap-2 leading-none" style={{ textDecoration: 'none' }}>
                 <SafeImage
                   src="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0043.jpg?updatedAt=1772379265473"
                   alt="Magizhchi"
-                  width={scrolled ? 28 : 36}
-                  height={scrolled ? 28 : 36}
-                  className={`object-cover rounded-full transition-all duration-500 flex-shrink-0`}
-                  style={{ width: scrolled ? '28px' : '36px', height: scrolled ? '28px' : '36px' }}
+                  width={150}
+                  className={`w-auto aspect-square object-cover rounded-full transition-all duration-500 flex-shrink-0 ${scrolled ? 'h-7' : 'h-9'}`}
                 />
                 <div className="flex flex-col leading-none">
                   <span
-                    className={`font-black whitespace-nowrap ${scrolled ? 'text-charcoal' : 'text-white'}`}
+                    className="font-black text-charcoal whitespace-nowrap"
                     style={{ fontSize: '14px', letterSpacing: '0.05em', lineHeight: 1 }}
                   >
                     MAGIZHCHI
@@ -153,7 +151,7 @@ export default function Header() {
                 <Link
                   to="/wishlist"
                   aria-label="Wishlist"
-                  className={`relative w-10 h-10 flex items-center justify-center hover:text-premium-gold transition-colors ${scrolled ? 'text-charcoal' : 'text-white'}`}
+                  className="relative w-10 h-10 flex items-center justify-center text-charcoal hover:text-premium-gold transition-colors"
                 >
                   <Heart size={20} />
                   {wishlistCount > 0 && (
@@ -166,7 +164,7 @@ export default function Header() {
               <Link
                 to="/cart"
                 aria-label="Cart"
-                className={`relative w-10 h-10 flex items-center justify-center hover:text-premium-gold transition-colors ${scrolled ? 'text-charcoal' : 'text-white'}`}
+                className="relative w-10 h-10 flex items-center justify-center text-charcoal hover:text-premium-gold transition-colors"
               >
                 <ShoppingBag size={20} />
                 {itemCount > 0 && (
@@ -191,19 +189,12 @@ export default function Header() {
                   style={{ transformStyle: "preserve-3d" }}
                   className="perspective-1000"
                 >
-                  <SafeImage 
-                    src="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0043.jpg?updatedAt=1772379265473" 
-                    width={scrolled ? 48 : 56} 
-                    height={scrolled ? 48 : 56}
-                    alt="Magizhchi" 
-                    className={`transition-all duration-500 object-cover rounded-full`} 
-                    style={{ width: scrolled ? '48px' : '56px', height: scrolled ? '48px' : '56px' }}
-                  />
+                  <SafeImage src="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0043.jpg?updatedAt=1772379265473" width={200} alt="Magizhchi" className={`transition-all duration-500 w-auto aspect-square object-cover rounded-full ${scrolled ? 'h-8 md:h-12' : 'h-10 md:h-14'}`} />
                 </motion.div>
                 <div className="flex flex-col transition-all duration-500 overflow-hidden">
                   <motion.span
                     whileHover={{ z: 50, color: '#D4AF37' }}
-                    className={`font-black tracking-[0.1em] leading-none transition-all duration-500 whitespace-nowrap ${scrolled ? 'text-lg md:text-2xl text-charcoal' : 'text-xl md:text-3xl text-white'}`}
+                    className={`font-black tracking-[0.1em] text-charcoal leading-none transition-all duration-500 whitespace-nowrap ${scrolled ? 'text-lg md:text-2xl' : 'text-xl md:text-3xl'}`}
                   >
                     MAGIZHCHI
                   </motion.span>
@@ -220,7 +211,7 @@ export default function Header() {
                 <div key={link.path} className="relative group/nav"
                   onMouseEnter={() => link.hasDropdown && setShowDropdown(true)}
                   onMouseLeave={() => link.hasDropdown && setShowDropdown(false)}>
-                  <Link to={link.path} aria-label={`Go to ${link.label}`} className={`text-[11px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-1 ${location.pathname === link.path ? 'text-premium-gold' : (scrolled ? 'text-charcoal hover:text-premium-gold' : 'text-white hover:text-premium-gold')}`}>
+                  <Link to={link.path} aria-label={`Go to ${link.label}`} className={`text-[11px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-1 ${location.pathname === link.path ? 'text-premium-gold' : 'text-charcoal hover:text-premium-gold'}`}>
                     {link.label} {link.hasDropdown && <ChevronDown size={12} className={`transition-transform duration-300 ${showDropdown ? 'rotate-180' : ''}`} />}
                   </Link>
                   {link.hasDropdown && (
@@ -246,7 +237,7 @@ export default function Header() {
             {/* Icons */}
             <div className="flex items-center gap-0.5 md:gap-4 flex-shrink-0">
               {isAuthenticated && (
-                <Link to="/wishlist" aria-label={`Wishlist (${wishlistCount} items)`} className={`w-9 h-9 md:w-11 md:h-11 flex items-center justify-center hover:text-premium-gold transition-colors relative ${scrolled ? 'text-charcoal' : 'text-white'}`}>
+                <Link to="/wishlist" aria-label={`Wishlist (${wishlistCount} items)`} className="w-9 h-9 md:w-11 md:h-11 flex items-center justify-center text-charcoal hover:text-premium-gold transition-colors relative">
                   <Heart size={20} />
                   {wishlistCount > 0 && (
                     <span className="absolute top-1.5 right-1.5 md:top-2 md:right-2 w-4 h-4 bg-premium-gold text-white text-[8px] font-black rounded-full flex items-center justify-center shadow-lg">
@@ -256,7 +247,7 @@ export default function Header() {
                 </Link>
               )}
 
-              <Link to="/cart" aria-label={`Cart (${itemCount} items)`} className={`w-9 h-9 md:w-11 md:h-11 flex items-center justify-center hover:text-premium-gold transition-colors relative ${scrolled ? 'text-charcoal' : 'text-white'}`}>
+              <Link to="/cart" aria-label={`Cart (${itemCount} items)`} className="w-9 h-9 md:w-11 md:h-11 flex items-center justify-center text-charcoal hover:text-premium-gold transition-colors relative">
                 <ShoppingBag size={20} />
                 {itemCount > 0 && (
                   <span className="absolute top-1.5 right-1.5 md:top-2 md:right-2 w-4 h-4 bg-charcoal text-white text-[8px] font-black rounded-full flex items-center justify-center shadow-lg">
@@ -328,15 +319,8 @@ export default function Header() {
               style={{ width: 'min(80vw, 320px)' }}
             >
               <div className="flex-none flex items-center justify-between px-6 py-5 border-b border-gray-100">
-                <Link to="/" aria-label="Go to homepage" onClick={() => setMobileMenu(false)} className="flex items-center gap-3">
-                  <SafeImage 
-                    src="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0043.jpg?updatedAt=1772379265473" 
-                    width={36} 
-                    height={36}
-                    alt="Logo" 
-                    className="h-9 w-9 object-cover rounded-full" 
-                    style={{ width: '36px', height: '36px' }}
-                  />
+                <Link to="/" onClick={() => setMobileMenu(false)} className="flex items-center gap-3">
+                  <SafeImage src="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0043.jpg?updatedAt=1772379265473" width={150} alt="Logo" className="h-9 w-auto aspect-square object-cover rounded-full" />
                   <div className="flex flex-col leading-none">
                     <span className="font-black text-[15px] tracking-tight text-charcoal">MAGIZHCHI</span>
                     <span className="font-black text-[8px] tracking-[0.28em] text-premium-gold uppercase mt-0.5">GARMENTS</span>

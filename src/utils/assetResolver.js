@@ -32,27 +32,6 @@ export const resolveAssetURL = (path, width = null, quality = 80, options = {}) 
       
       resolved = resolved.replace('/upload/', `/upload/${transforms}/`);
     }
-
-    // ImageKit Optimizations & Sizing for absolute URLs
-    if (resolved.includes('ik.imagekit.io')) {
-      try {
-        const urlObj = new URL(resolved);
-        const parts = [];
-        if (width) parts.push(`w-${width}`);
-        if (quality) parts.push(`q-${quality}`);
-        parts.push('f-auto');
-        urlObj.searchParams.set('tr', parts.join(','));
-        resolved = urlObj.toString();
-      } catch (err) {
-        const parts = [];
-        if (width) parts.push(`w-${width}`);
-        if (quality) parts.push(`q-${quality}`);
-        parts.push('f-auto');
-        const sep = resolved.includes('?') ? '&' : '?';
-        resolved = `${resolved}${sep}tr=${parts.join(',')}`;
-      }
-    }
-
     return resolved;
   }
 
@@ -62,37 +41,19 @@ export const resolveAssetURL = (path, width = null, quality = 80, options = {}) 
 
   // ImageKit Base for Magizhchi
   const IK_BASE = 'https://ik.imagekit.io/Lourdu/magizhchi_garments';
-  let resolvedUrl = '';
 
   // If it's a relative path starting with /uploads or just a filename
   // Map local paths to ImageKit CDN for optimization
   if (cleanPath.startsWith('/uploads/')) {
-    resolvedUrl = `${IK_BASE}${cleanPath}`;
-  } else if (cleanPath.startsWith('uploads/')) {
-    resolvedUrl = `${IK_BASE}/${cleanPath}`;
-  } else {
-    // Default: assume it's a filename in uploads and route through IK
-    resolvedUrl = `${IK_BASE}/uploads/${cleanPath}`;
+    return `${IK_BASE}${cleanPath}`;
   }
 
-  // Apply ImageKit transformations to relative paths
-  try {
-    const urlObj = new URL(resolvedUrl);
-    const parts = [];
-    if (width) parts.push(`w-${width}`);
-    if (quality) parts.push(`q-${quality}`);
-    parts.push('f-auto');
-    urlObj.searchParams.set('tr', parts.join(','));
-    resolvedUrl = urlObj.toString();
-  } catch (err) {
-    const parts = [];
-    if (width) parts.push(`w-${width}`);
-    if (quality) parts.push(`q-${quality}`);
-    parts.push('f-auto');
-    resolvedUrl = `${resolvedUrl}?tr=${parts.join(',')}`;
+  if (cleanPath.startsWith('uploads/')) {
+    return `${IK_BASE}/${cleanPath}`;
   }
 
-  return resolvedUrl;
+  // Default: assume it's a filename in uploads and route through IK
+  return `${IK_BASE}/uploads/${cleanPath}`;
 };
 
 export const getPlaceholder = () => PLACEHOLDER;

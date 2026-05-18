@@ -55,10 +55,8 @@ export default function Preloader() {
           {/* Inner solid circular black container featuring the Tamil logo */}
           <div className="absolute w-24 h-24 bg-black rounded-full border border-premium-gold/35 flex items-center justify-center shadow-xl overflow-hidden">
             <img 
-              src="/receipt_logo.png" 
+              src="/receipt_logo.jpg" 
               alt="Magizhchi Logo" 
-              width={96}
-              height={96}
               className="w-full h-full object-cover scale-[1.02]" 
             />
           </div>
