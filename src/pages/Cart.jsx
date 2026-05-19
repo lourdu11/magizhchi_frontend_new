@@ -3,8 +3,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion'; // eslint-disable-line no-unused-vars
 
 import { Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { calculatePromoPrices } from '../utils/promoHelpers';
 import { toast } from 'react-hot-toast';
 import { cartService, adminService } from '../services';
 import { useAuthStore, useCartStore } from '../store';
@@ -78,11 +79,8 @@ export default function Cart() {
     },
   });
 
-  const items = isAuthenticated ? (cart?.items || []) : localItems;
-  const subtotal = items.reduce((sum, item) => {
-    const price = item.productId?.discountedPrice || item.productId?.sellingPrice || 0;
-    return sum + price * item.quantity;
-  }, 0);
+  const rawItems = isAuthenticated ? (cart?.items || []) : localItems;
+  const { items, subtotal } = useMemo(() => calculatePromoPrices(rawItems), [rawItems]);
   const shipping = subtotal >= shippingThreshold ? 0 : shippingCharge;
   const total = subtotal + shipping;
 
@@ -154,7 +152,12 @@ export default function Cart() {
                               className="px-3 py-1.5 hover:bg-light-bg transition-colors text-base">+</button>
                           </div>
                           <div className="flex items-center gap-3">
-                            <span className="font-bold text-premium-gold">Rs.{(price * item.quantity).toLocaleString('en-IN')}</span>
+                            {item.hasPromoApplied && (
+                              <span className="text-[8px] font-black text-green-600 bg-green-50 px-2 py-1 rounded-md uppercase tracking-wider animate-pulse">
+                                Promo Applied!
+                              </span>
+                            )}
+                            <span className="font-bold text-premium-gold">Rs.{item.calculatedTotal.toLocaleString('en-IN')}</span>
                             <button onClick={() => removeItem(item._id)} className="text-text-muted hover:text-stock-out transition-colors">
                               <Trash2 size={16} />
                             </button>

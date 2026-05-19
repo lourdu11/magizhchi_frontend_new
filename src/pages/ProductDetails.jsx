@@ -309,6 +309,24 @@ export default function ProductDetails() {
                   </span>
                 )}
               </div>
+
+              {product.multiBuyEnabled && product.multiBuyQuantity > 0 && product.multiBuyPrice > 0 && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-8 p-5 rounded-2xl bg-gold-soft border border-premium-gold/30 flex items-center gap-4 shadow-sm"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-premium-gold flex items-center justify-center text-charcoal shrink-0 font-black">
+                    🔥
+                  </div>
+                  <div>
+                    <p className="text-xs font-black text-charcoal uppercase tracking-wider">Special Promotion Active!</p>
+                    <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest mt-1">
+                      Buy any <span className="text-charcoal font-black">{product.multiBuyQuantity}</span> for only <span className="text-premium-gold font-black">Rs.{product.multiBuyPrice.toLocaleString('en-IN')}</span>!
+                    </p>
+                  </div>
+                </motion.div>
+              )}
             </div>
 
             {/* Colors & Sizes (Standard) or Combo Selector */}

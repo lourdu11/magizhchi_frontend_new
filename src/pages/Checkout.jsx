@@ -9,6 +9,7 @@ import { cartService, orderService, authService, adminService } from '../service
 import { useAuthStore, useCartStore } from '../store';
 import { loadRazorpay } from '../utils/scriptLoader';
 import SafeImage from '../components/common/SafeImage';
+import { calculatePromoPrices } from '../utils/promoHelpers';
 
 export default function Checkout() {
   const { isAuthenticated, user } = useAuthStore();
@@ -165,12 +166,9 @@ export default function Checkout() {
 
   const prevStep = useCallback(() => setStep(1), []);
 
-  const items = useMemo(() => isAuthenticated ? (apiCart?.items || []) : localCartItems, [isAuthenticated, apiCart, localCartItems]);
+  const rawItems = useMemo(() => isAuthenticated ? (apiCart?.items || []) : localCartItems, [isAuthenticated, apiCart, localCartItems]);
   
-  const subtotal = useMemo(() => items.reduce((sum, item) => {
-    const price = item.productId?.discountedPrice || item.productId?.sellingPrice || 0;
-    return sum + price * item.quantity;
-  }, 0), [items]);
+  const { items, subtotal } = useMemo(() => calculatePromoPrices(rawItems), [rawItems]);
 
   const shipping = useMemo(() => subtotal >= shippingThreshold ? 0 : flatRate, [subtotal, shippingThreshold, flatRate]);
   const currentCodCharge = useMemo(() => (paymentMethod === 'cod' && isCodEnabled) ? codExtra : 0, [paymentMethod, isCodEnabled, codExtra]);
@@ -509,8 +507,15 @@ export default function Checkout() {
                                   )}
                                 </div>
                                 <div className="flex items-center justify-between">
-                                  <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">Qty: {item.quantity}</p>
-                                  <p className="font-black text-premium-gold">₹{( (item.productId.discountedPrice || item.productId.sellingPrice) * item.quantity).toLocaleString()}</p>
+                                  <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">
+                                    Qty: {item.quantity}
+                                    {item.hasPromoApplied && (
+                                      <span className="ml-2 text-[8px] font-black text-green-600 bg-green-50 px-1.5 py-0.5 rounded uppercase tracking-wider">
+                                        Promo
+                                      </span>
+                                    )}
+                                  </p>
+                                  <p className="font-black text-premium-gold">₹{item.calculatedTotal.toLocaleString()}</p>
                                 </div>
                               </div>
                             </div>

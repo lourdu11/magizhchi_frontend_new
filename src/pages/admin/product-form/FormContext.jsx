@@ -9,6 +9,7 @@ const initialState = {
     sku: '', productType: 'Finished Good', productNature: 'standalone',
     supplier: '', procurementSource: '',
     costPrice: 0, sellingPrice: 0, discountedPrice: 0, wholesalePrice: 0, discountPercentage: 0, discountAmount: 0, gstPercentage: 12,
+    multiBuyEnabled: false, multiBuyQuantity: 2, multiBuyPrice: 0,
     lowStockThreshold: 10, warehouseLocation: '', unitType: 'pcs', inventoryTracking: true,
     description: '', tags: [], isFeatured: false, isTrending: false, isActive: true,
     thumbnail: '', images: [], video: '',
