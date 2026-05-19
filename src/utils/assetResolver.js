@@ -23,7 +23,7 @@ export const resolveAssetURL = (path, width = null, quality = 70, options = {}) 
     // Cloudinary Optimizations & Smart Cropping
     if (resolved.includes('res.cloudinary.com') && resolved.includes('/upload/')) {
       const { gravity, crop, aspect } = options;
-      let transforms = `f_auto,q_${quality}`;
+      let transforms = `f_auto,q_${quality === 70 ? 'auto' : quality}`;
       
       if (width) transforms += `,w_${width}`;
       if (crop) transforms += `,c_${crop}`;

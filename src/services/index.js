@@ -1,4 +1,6 @@
-import api, { cachedGet } from './api';
+import api, { cachedGet, checkAuthSession } from './api';
+
+export { checkAuthSession };
 
 export const authService = {
   sendOTP: (identifier, purpose) => api.post('/auth/send-otp', { identifier, purpose }),

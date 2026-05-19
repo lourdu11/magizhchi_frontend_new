@@ -30,18 +30,19 @@ export default function SafeImage({
   let srcSetProps = {};
   const isSmall = width && parseInt(width, 10) <= 150;
   if (!isSmall && src && typeof src === 'string' && (src.includes('ik.imagekit.io') || src.includes('res.cloudinary.com') || src.includes('images.unsplash.com'))) {
-    const widths = [375, 640, 768, 1024, 1280, 1536, 1920];
+    const widths = [180, 240, 320, 400, 480, 640, 768, 960, 1100, 1280, 1500, 1920];
     const srcSetList = widths.map(w => {
+      const targetQuality = quality || (w <= 400 ? 55 : (w <= 960 ? 60 : 70));
       // Scale height/aspect accordingly if options present
-      return `${resolveAssetURL(src, w, quality || 70, { gravity, crop, aspect, height })} ${w}w`;
+      return `${resolveAssetURL(src, w, targetQuality, { gravity, crop, aspect, height })} ${w}w`;
     });
 
     // Smart default sizes based on target width
     let defaultSizes = '(max-width: 640px) 100vw, 100vw'; // Default for large banners
     const numWidth = width ? parseInt(width, 10) : null;
     if (numWidth && numWidth <= 500) {
-      // For grid cards, product thumbnails, etc.
-      defaultSizes = `(max-width: 640px) 50vw, (max-width: 1024px) 33vw, ${numWidth}px`;
+      // For grid cards (Category Spotlight, Product Grid columns)
+      defaultSizes = `(max-width: 640px) 50vw, (max-width: 1024px) 25vw, ${numWidth}px`;
     }
 
     srcSetProps = {

@@ -1,7 +1,7 @@
 // v1.0.1 - Forced Refresh
 // v1.0.1 - Forced Refresh
 import { Routes, Route } from 'react-router-dom';
-import { Suspense, lazy, useEffect } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 
 // Layouts
 import UserLayout from './components/layout/UserLayout';
@@ -71,14 +71,29 @@ const StaffDailyReport = lazy(() => import('./pages/staff/StaffDailyReport'));
 import ScrollToTop from './components/layout/ScrollToTop';
 import { useAuthStore } from './store';
 import Preloader from './components/common/Preloader';
+import { checkAuthSession } from './services';
 
 export default function App() {
   const logout = useAuthStore((state) => state.logout);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const [isInitializingAuth, setIsInitializingAuth] = useState(isAuthenticated);
 
   useEffect(() => {
-    // Session persistence is now local to each tab's memory until refresh or API activity.
-    // We removed the cross-tab logout listener to give users more control over multiple tabs.
-  }, []);
+    const initAuth = async () => {
+      if (isAuthenticated) {
+        const success = await checkAuthSession();
+        if (!success) {
+          logout();
+        }
+      }
+      setIsInitializingAuth(false);
+    };
+    initAuth();
+  }, [isAuthenticated, logout]);
+
+  if (isInitializingAuth) {
+    return <PageLoader />;
+  }
 
   return (
     <Suspense fallback={<PageLoader />}>

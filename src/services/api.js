@@ -21,6 +21,22 @@ export const clearToken = () => {
   inMemoryToken = null;
 };
 
+export const checkAuthSession = async () => {
+  if (inMemoryToken) return true;
+  try {
+    const { data } = await axios.post(`${API_URL}/auth/refresh-token`, {}, { withCredentials: true });
+    const newToken = data?.data?.accessToken || data?.data?.data?.accessToken;
+    if (newToken) {
+      setToken(newToken);
+      return true;
+    }
+    return false;
+  } catch (err) {
+    clearToken();
+    return false;
+  }
+};
+
 // ─── Request Interceptor: attach token ───────────────
 api.interceptors.request.use(
   (config) => {
