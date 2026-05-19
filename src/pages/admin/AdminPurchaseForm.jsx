@@ -172,7 +172,7 @@ export default function AdminPurchaseForm() {
     setIsUploading(true);
     try {
       const res = await productService.getProducts({ search: row.productName, limit: 1, isAdmin: 'true' });
-      const product = res.data.data?.[0];
+      const product = res.data.data?.data?.[0] || res.data.data?.[0];
       if (product) {
         setPurchaseRows(prev => prev.map(r => r.id === rowId ? { 
           ...r, 

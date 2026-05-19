@@ -29,7 +29,7 @@ export default function SafeImage({
   // Auto-generate responsive srcset and sizes when dealing with CDN assets
   let srcSetProps = {};
   const isSmall = width && parseInt(width, 10) <= 150;
-  if (!isSmall && src && typeof src === 'string' && (src.includes('ik.imagekit.io') || src.includes('res.cloudinary.com'))) {
+  if (!isSmall && src && typeof src === 'string' && (src.includes('ik.imagekit.io') || src.includes('res.cloudinary.com') || src.includes('images.unsplash.com'))) {
     const widths = [375, 640, 768, 1024, 1280, 1536, 1920];
     const srcSetList = widths.map(w => {
       // Scale height/aspect accordingly if options present

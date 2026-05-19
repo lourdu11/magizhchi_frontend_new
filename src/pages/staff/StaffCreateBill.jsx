@@ -14,6 +14,7 @@ import { resolveAssetURL } from '../../utils/assetResolver';
 import SafeImage from '../../components/common/SafeImage';
 import { dbService } from '../../utils/db';
 import { usePosLock } from '../../hooks/usePosLock';
+import '../../print.css';
 // ─── Constants ─────────────────────────────────────────
 const SHORTCUTS = [
   { key: 'F2', action: 'Focus Search' },
@@ -607,6 +608,7 @@ export default function StaffCreateBill() {
     queryKey: ['admin-health'],
     queryFn: () => adminService.getHealth().then(r => r.data),
     refetchInterval: 30000,
+    enabled: !!user,
   });
   const health = healthData?.data;
 

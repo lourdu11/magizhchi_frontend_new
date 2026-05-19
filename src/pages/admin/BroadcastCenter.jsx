@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { broadcastService, adminService } from '../../services';
 import { toast } from 'react-hot-toast';
 import { format } from 'date-fns';
+import { useAuthStore } from '../../store';
 
 const BroadcastCenter = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -56,12 +57,14 @@ const BroadcastCenter = () => {
   }, [history]);
 
   const fetchWhatsappStatus = async () => {
+    if (!useAuthStore.getState().isAuthenticated) return;
     try {
       const { data } = await adminService.getHealth();
       if (data.success && data.data?.whatsapp) {
         setWhatsappStatus(data.data.whatsapp);
       }
     } catch (err) {
+      if (err?.response?.status === 401) return;
       console.error('WhatsApp status check failed', err);
     }
   };
@@ -83,17 +86,20 @@ const BroadcastCenter = () => {
   }, [filters.segment]);
 
   const fetchCustomers = async () => {
+    if (!useAuthStore.getState().isAuthenticated) return;
     try {
       const res = await broadcastService.getCustomers(filters);
       if (res.data.success) {
         setCustomers(res.data.users);
       }
     } catch (err) {
+      if (err?.response?.status === 401) return;
       toast.error('Failed to load customers');
     }
   };
 
   const fetchTemplates = async () => {
+    if (!useAuthStore.getState().isAuthenticated) return;
     try {
       const res = await broadcastService.getTemplates();
       if (res.data.success) setTemplates(res.data.templates);
@@ -120,10 +126,14 @@ const BroadcastCenter = () => {
   };
 
   const fetchHistory = async () => {
+    if (!useAuthStore.getState().isAuthenticated) return;
     try {
       const { data } = await broadcastService.getHistory();
       if (data.success) setHistory(data.broadcasts);
-    } catch (err) { console.error('History failed'); }
+    } catch (err) { 
+      if (err?.response?.status === 401) return;
+      console.error('History failed'); 
+    }
   };
 
   const fetchDetails = async (broadcast) => {

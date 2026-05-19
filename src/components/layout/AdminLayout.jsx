@@ -12,6 +12,7 @@ function WhatsAppStatus({ collapsed }) {
 
   useEffect(() => {
     const checkStatus = async () => {
+      if (!useAuthStore.getState().isAuthenticated) return;
       try {
         const { data } = await adminService.getHealth();
         setStatus(data.whatsapp || 'Unknown');

@@ -18,6 +18,15 @@ export default defineConfig({
       algorithm: 'brotliCompress',
       ext: '.br',
     }),
+    {
+      name: 'non-blocking-css',
+      transformIndexHtml(html) {
+        return html.replace(
+          /<link rel="stylesheet" ([^>]*?)href="([^"]+?\.css)"([^>]*?)>/g,
+          '<link rel="stylesheet" $1href="$2"$3 media="print" onload="this.media=\'all\'">'
+        );
+      }
+    }
   ],
   resolve: {
     alias: {
@@ -52,6 +61,11 @@ export default defineConfig({
     cssCodeSplit: true,
     chunkSizeWarningLimit: 150,
     sourcemap: false,
+    modulePreload: {
+      resolveDependencies(url, deps, context) {
+        return deps.filter(dep => !dep.includes('charts'));
+      }
+    },
     rollupOptions: {
       output: {
         manualChunks(id) {

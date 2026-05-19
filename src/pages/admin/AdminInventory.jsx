@@ -64,7 +64,7 @@ export default function AdminInventory() {
 
   const { data: searchProducts } = useQuery({
     queryKey: ['product-search-link', productSearch],
-    queryFn: () => productService.getProducts({ search: productSearch }).then(r => r.data.data),
+    queryFn: () => productService.getProducts({ search: productSearch }).then(r => r.data.data?.data || r.data.data || []),
     enabled: productSearch.length > 2
   });
 

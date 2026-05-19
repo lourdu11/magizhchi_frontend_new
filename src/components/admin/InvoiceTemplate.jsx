@@ -1,6 +1,7 @@
 import React from 'react';
 import { Sparkles, User } from 'lucide-react';
 import SafeImage from '../common/SafeImage';
+import '../../print.css';
 
 const InvoiceTemplate = React.forwardRef(({ order }, ref) => {
   if (!order) return null;

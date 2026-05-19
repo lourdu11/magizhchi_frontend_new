@@ -53,6 +53,22 @@ export const resolveAssetURL = (path, width = null, quality = 70, options = {}) 
         resolved = resolved + (resolved.includes('?') ? '&' : '?') + `tr=w-${width || 800},q-${quality},f-auto`;
       }
     }
+
+    // Unsplash Optimizations & Dynamic Resizing
+    if (resolved.includes('images.unsplash.com')) {
+      try {
+        const urlObj = new URL(resolved);
+        if (width) urlObj.searchParams.set('w', width.toString());
+        const { height } = options;
+        if (height) urlObj.searchParams.set('h', height.toString());
+        urlObj.searchParams.set('q', (quality || 60).toString());
+        urlObj.searchParams.set('auto', 'format');
+        urlObj.searchParams.set('fit', 'crop');
+        resolved = urlObj.toString();
+      } catch (err) {
+        // Fallback
+      }
+    }
     
     return resolved;
   }

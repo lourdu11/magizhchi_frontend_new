@@ -13,6 +13,7 @@ import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
+import { useAuthStore } from '../../store';
 
 // --- Helpers ---
 const formatDate = (d) => new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -39,6 +40,7 @@ const createNewPurchaseRow = () => ({
 const STANDARD_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
 export default function AdminProcurement() {
+   const { isAuthenticated } = useAuthStore();
    const [activeTab, setActiveTab] = useState('purchases'); // 'purchases' or 'suppliers'
    const [showPurchaseForm, setShowPurchaseForm] = useState(() => {
       return localStorage.getItem('open_purchase_form') === 'true';
@@ -134,6 +136,7 @@ export default function AdminProcurement() {
     queryKey: ['admin-health'],
     queryFn: () => adminService.getHealth().then(r => r.data),
     refetchInterval: 30000, // Refresh every 30s
+    enabled: isAuthenticated,
   });
   const health = healthData?.data;
 
@@ -321,7 +324,7 @@ export default function AdminProcurement() {
       setIsUploading(true);
       try {
          const res = await productService.getProducts({ search: name, limit: 1 });
-         const product = res.data.data?.[0];
+         const product = res.data.data?.data?.[0] || res.data.data?.[0];
          
          if (product) {
             setPurchaseRows(prev => prev.map(r => r.id === rowId ? { 
