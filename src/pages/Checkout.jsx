@@ -485,7 +485,7 @@ export default function Checkout() {
                         {items.map(item => (
                           <div key={item._id} className="flex flex-col gap-4 p-4 rounded-2xl bg-light-bg/30 border border-border-light">
                             <div className="flex gap-4">
-                              <SafeImage src={item.productId.images?.[0]} className="w-20 h-24 object-cover rounded-xl bg-white shadow-sm" />
+                              <SafeImage src={item.productId.images?.[0]} width={150} quality={70} className="w-20 h-24 object-cover rounded-xl bg-white shadow-sm" />
                               <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
                                 <div>
                                   <p className="font-bold text-charcoal text-sm truncate">{item.productId.name}</p>

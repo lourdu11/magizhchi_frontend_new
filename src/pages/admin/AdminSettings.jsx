@@ -186,9 +186,12 @@ export default function AdminSettings() {
     
     const alertEmail = formData.notifications?.email?.alertEmail?.trim().toLowerCase();
     if (alertEmail) {
+      const emailList = alertEmail.split(/[\s,;]+/).map(item => item.trim()).filter(Boolean);
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(alertEmail)) {
-        return toast.error("Please enter a valid admin notification email");
+      for (const email of emailList) {
+        if (!emailRegex.test(email)) {
+          return toast.error(`Invalid email format: ${email}`);
+        }
       }
     }
 
@@ -693,30 +696,30 @@ export default function AdminSettings() {
                    
                    <div className="grid md:grid-cols-2 gap-8">
                       <label className="block">
-                         <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-2 block">Admin WhatsApp Number</span>
+                         <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-2 block">Admin WhatsApp Numbers</span>
                          <div className="relative">
                             <Smartphone className="absolute left-4 top-1/2 -translate-y-1/2 text-[#25D366]" size={18} />
                             <input className="w-full bg-light-bg border-none rounded-2xl pl-12 pr-5 py-4 focus:ring-2 focus:ring-[#25D366]/30 font-black text-lg" 
                               value={formData.notifications.whatsapp.adminPhone} 
                               onChange={e => updateWhatsApp('adminPhone', e.target.value)} 
-                              placeholder="9344881275" />
+                              placeholder="9344881275, 9876543210" />
                          </div>
-                         <p className="text-[9px] text-text-muted mt-2 font-bold uppercase italic">Receives WhatsApp alerts</p>
+                         <p className="text-[9px] text-text-muted mt-2 font-bold uppercase italic">Receives WhatsApp alerts (Separate multiple with commas)</p>
                       </label>
 
                       <label className="block">
-                         <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-2 block">Admin Notification Email</span>
+                         <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-2 block">Admin Notification Emails</span>
                          <div className="relative">
                             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-premium-gold" size={18} />
                             <input className={`w-full bg-light-bg border-none rounded-2xl pl-12 pr-5 py-4 focus:ring-2 focus:ring-premium-gold/30 font-black text-lg ${isEmailDirty ? 'ring-2 ring-amber-400' : ''}`} 
                               value={formData.notifications.email.alertEmail} 
                               onChange={e => updateEmail('alertEmail', e.target.value)} 
-                              placeholder="admin@magizhchi.in" />
+                              placeholder="admin@magizhchi.in, manager@magizhchi.in" />
                          </div>
                          {isEmailDirty ? (
                            <p className="text-[9px] font-black text-amber-600 uppercase tracking-widest mt-2 animate-pulse">⚠️ Unsaved Change — Alerts still going to {settings?.notifications?.email?.alertEmail || 'nowhere'}</p>
                          ) : (
-                           <p className="text-[9px] text-text-muted mt-2 font-bold uppercase italic">Receives Email alerts</p>
+                           <p className="text-[9px] text-text-muted mt-2 font-bold uppercase italic">Receives Email alerts (Separate multiple with commas)</p>
                          )}
                        </label>
                     </div>

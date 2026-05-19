@@ -87,20 +87,8 @@ export default function ProductCard({ product }) {
             transition: { type: "spring", stiffness: 300, damping: 20 }
           }}
           style={{ transformStyle: "preserve-3d" }}
-          className={`relative aspect-[4/5] max-w-xs mx-auto rounded-[2rem] md:rounded-[2.5rem] overflow-hidden ${product.bgStyle === 'solid' ? 'bg-white' : 'bg-light-bg'} mb-4 border border-border-light group-hover:border-premium-gold/30 transition-all duration-500 shadow-sm group-hover:shadow-2xl group-hover:shadow-premium-gold/10`}
+          className="relative aspect-[4/5] max-w-xs mx-auto rounded-[2rem] md:rounded-[2.5rem] overflow-hidden bg-white mb-4 border border-border-light group-hover:border-premium-gold/30 transition-all duration-500 shadow-sm group-hover:shadow-2xl group-hover:shadow-premium-gold/10"
         >
-
-          {/* Subtle ambient glow — reduced opacity so image isn't hidden */}
-          {product.bgStyle !== 'solid' && (
-            <div 
-              className="absolute inset-0 filter blur-2xl opacity-40 scale-110 pointer-events-none select-none"
-              style={{
-                backgroundImage: `url(${product.images?.[0] || product.thumbnail || product.laptopImage || product.tabletImage || product.mobileImage})`,
-                backgroundSize: 'cover',
-                backgroundPosition: product.position || 'center'
-              }}
-            />
-          )}
 
           <SafeImage
             src={product.images?.[0] || product.thumbnail || product.laptopImage || product.tabletImage || product.mobileImage}
@@ -112,7 +100,8 @@ export default function ProductCard({ product }) {
             style={{
               objectFit: product.cardFit || 'cover',
               objectPosition: product.position || 'center',
-              transform: `scale(${product.scale || 1})`
+              transform: `scale(${product.scale || 1})`,
+              padding: product.cardFit === 'contain' ? '12px' : '0'
             }}
             loading="lazy"
           />

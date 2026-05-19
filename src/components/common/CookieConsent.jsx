@@ -51,9 +51,9 @@ export default function CookieConsent() {
                   </button>
                   <a
                     href="/privacy-policy"
-                    className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest hover:text-neutral-900 transition-colors"
+                    className="text-[10px] text-neutral-600 font-bold uppercase tracking-widest hover:text-neutral-900 transition-colors"
                   >
-                    Learn More
+                    Read Privacy Policy
                   </a>
                 </div>
               </div>
@@ -61,7 +61,8 @@ export default function CookieConsent() {
 
             <button
               onClick={() => setShow(false)}
-              className="absolute top-4 right-4 text-neutral-400 hover:text-neutral-900 transition-colors"
+              aria-label="Close cookie consent"
+              className="absolute top-4 right-4 text-neutral-600 hover:text-neutral-900 transition-colors"
             >
               <X className="w-4 h-4" />
             </button>

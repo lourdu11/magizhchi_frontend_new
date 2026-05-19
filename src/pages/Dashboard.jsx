@@ -8,6 +8,7 @@ import { orderService } from '../services';
 import { toast } from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
 import api from '../services/api';
+import SafeImage from '../components/common/SafeImage';
 
 const NAV = [
   { path: '', label: 'My Orders', icon: Package },
@@ -56,7 +57,7 @@ function MyOrders() {
           <div className="p-5 space-y-3">
             {order.items?.map((item, i) => (
               <div key={i} className="flex items-center gap-4">
-                <img src={item.productImage || '/placeholder.jpg'} alt="" className="w-16 h-16 rounded-xl object-cover bg-white" />
+                <SafeImage src={item.productImage} alt="" width={120} quality={70} className="w-16 h-16 rounded-xl object-cover bg-white" />
                 <div className="flex-1">
                   <p className="font-semibold text-text-primary text-sm">{item.productName}</p>
                   <p className="text-xs text-text-muted">{item.variant?.size} · {item.variant?.color} · Qty: {item.quantity}</p>
@@ -259,9 +260,11 @@ function MyWishlist() {
             {/* Image */}
             <div className="relative aspect-[4/5] bg-light-bg overflow-hidden">
               <Link to={`/product/${product.slug}`}>
-                <img
-                  src={product.images?.[0] || '/placeholder.jpg'}
+                <SafeImage
+                  src={product.images?.[0]}
                   alt={product.name}
+                  width={300}
+                  quality={70}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   loading="lazy"
                 />

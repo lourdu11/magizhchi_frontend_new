@@ -1,4 +1,3 @@
-import { LazyLoadImage } from 'react-lazy-load-image-component';
 import { resolveAssetURL, getPlaceholder } from '../../utils/assetResolver';
 
 /**
@@ -11,6 +10,7 @@ export default function SafeImage({
   alt, 
   className, 
   width, 
+  height,
   quality, 
   gravity, 
   crop, 
@@ -19,23 +19,34 @@ export default function SafeImage({
   fetchPriority, 
   fetchpriority, 
   priority, 
+  sizes,
   ...props 
 }) {
-  const resolvedSrc = resolveAssetURL(src, width, quality, { gravity, crop, aspect });
+  const resolvedSrc = resolveAssetURL(src, width, quality, { gravity, crop, aspect, height });
 
   const isPriority = priority || loading === 'eager' || fetchPriority === 'high' || fetchpriority === 'high';
 
   // Auto-generate responsive srcset and sizes when dealing with CDN assets
   let srcSetProps = {};
-  if (src && typeof src === 'string' && (src.includes('ik.imagekit.io') || src.includes('res.cloudinary.com'))) {
+  const isSmall = width && parseInt(width, 10) <= 150;
+  if (!isSmall && src && typeof src === 'string' && (src.includes('ik.imagekit.io') || src.includes('res.cloudinary.com'))) {
     const widths = [375, 640, 768, 1024, 1280, 1536, 1920];
     const srcSetList = widths.map(w => {
       // Scale height/aspect accordingly if options present
-      return `${resolveAssetURL(src, w, quality || 80, { gravity, crop, aspect })} ${w}w`;
+      return `${resolveAssetURL(src, w, quality || 70, { gravity, crop, aspect, height })} ${w}w`;
     });
+
+    // Smart default sizes based on target width
+    let defaultSizes = '(max-width: 640px) 100vw, 100vw'; // Default for large banners
+    const numWidth = width ? parseInt(width, 10) : null;
+    if (numWidth && numWidth <= 500) {
+      // For grid cards, product thumbnails, etc.
+      defaultSizes = `(max-width: 640px) 50vw, (max-width: 1024px) 33vw, ${numWidth}px`;
+    }
+
     srcSetProps = {
       srcSet: srcSetList.join(', '),
-      sizes: props.sizes || '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'
+      sizes: sizes || defaultSizes
     };
   }
 
@@ -45,6 +56,8 @@ export default function SafeImage({
         src={resolvedSrc}
         alt={alt || 'Magizhchi Garments Asset'}
         className={className}
+        width={width}
+        height={height}
         loading="eager"
         fetchpriority={fetchPriority || fetchpriority || 'high'}
         decoding="async"
@@ -60,14 +73,14 @@ export default function SafeImage({
   }
 
   return (
-    <LazyLoadImage
+    <img
       src={resolvedSrc}
       alt={alt || 'Magizhchi Garments Asset'}
       className={className}
-      effect="blur"
-      threshold={300}
-      wrapperClassName={className}
-      style={{ display: 'block' }}
+      width={width}
+      height={height}
+      loading="lazy"
+      decoding="async"
       onError={(e) => {
         if (e.target.src !== getPlaceholder()) {
           e.target.src = getPlaceholder();

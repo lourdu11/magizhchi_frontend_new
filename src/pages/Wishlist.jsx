@@ -6,6 +6,7 @@ import { wishlistService, cartService } from '../services';
 import { useWishlistStore } from '../store';
 import { toast } from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
+import SafeImage from '../components/common/SafeImage';
 
 export default function Wishlist() {
   const qc = useQueryClient();
@@ -88,9 +89,11 @@ export default function Wishlist() {
               {/* Image */}
               <div className="relative aspect-[4/5] bg-light-bg">
                 <Link to={`/product/${product.slug}`}>
-                  <img
-                    src={product.images?.[0] || '/placeholder.jpg'}
+                  <SafeImage
+                    src={product.images?.[0]}
                     alt={product.name}
+                    width={300}
+                    quality={70}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     loading="lazy"
                   />

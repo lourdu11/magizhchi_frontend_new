@@ -10,7 +10,7 @@ const PLACEHOLDER = 'https://placehold.co/600x800/1A1A1A/D4AF37?text=Magizhchi+G
 /**
  * Resolves a full URL for any asset path.
  */
-export const resolveAssetURL = (path, width = null, quality = 80, options = {}) => {
+export const resolveAssetURL = (path, width = null, quality = 70, options = {}) => {
   if (!path) return PLACEHOLDER;
 
   // 1. If it's already a full URL (HTTPS), return as is
@@ -47,7 +47,7 @@ export const resolveAssetURL = (path, width = null, quality = 80, options = {}) 
         if (transformParts.length > 0) {
           urlObj.searchParams.set('tr', transformParts.join(','));
         }
-        resolved = urlObj.toString();
+        resolved = urlObj.toString().replace(/%2C/g, ',');
       } catch (err) {
         // Fallback if URL parsing fails
         resolved = resolved + (resolved.includes('?') ? '&' : '?') + `tr=w-${width || 800},q-${quality},f-auto`;
@@ -88,7 +88,7 @@ export const resolveAssetURL = (path, width = null, quality = 80, options = {}) 
     if (transformParts.length > 0) {
       urlObj.searchParams.set('tr', transformParts.join(','));
     }
-    resolvedLocal = urlObj.toString();
+    resolvedLocal = urlObj.toString().replace(/%2C/g, ',');
   } catch (err) {
     resolvedLocal = resolvedLocal + (resolvedLocal.includes('?') ? '&' : '?') + `tr=w-${width || 800},q-${quality},f-auto`;
   }

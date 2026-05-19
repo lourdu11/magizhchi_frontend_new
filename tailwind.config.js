@@ -2,8 +2,16 @@
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   safelist: [
-    { pattern: /^(bg|text|border|from|via|to)-/ },
-    { pattern: /^(w|h|p|m|gap|grid|col|row)-/ },
+    'bg-blue-50',
+    'bg-green-50',
+    'bg-orange-50',
+    'bg-red-50',
+    'bg-indigo-50',
+    'text-blue-600',
+    'text-green-600',
+    'text-orange-600',
+    'text-red-600',
+    'text-indigo-600',
   ],
   theme: {
     extend: {

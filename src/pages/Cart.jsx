@@ -8,6 +8,7 @@ import { Helmet } from 'react-helmet-async';
 import { toast } from 'react-hot-toast';
 import { cartService, adminService } from '../services';
 import { useAuthStore, useCartStore } from '../store';
+import SafeImage from '../components/common/SafeImage';
 
 // Fallback shipping constants (overridden by store settings)
 const DEFAULT_SHIPPING_THRESHOLD = 999;
@@ -118,8 +119,8 @@ export default function Cart() {
                     <motion.div key={item._id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
                       className="bg-white rounded-xl p-4 flex gap-4 border border-border-light hover:shadow-card transition-shadow">
                       <Link to={`/product/${product.slug}`} className="shrink-0">
-                        <img src={product.images?.[0] || '/placeholder.jpg'} alt={product.name}
-                          className="w-20 h-24 object-cover rounded-lg bg-light-bg" />
+                        <SafeImage src={product.images?.[0]} alt={product.name}
+                          width={150} quality={70} className="w-20 h-24 object-cover rounded-lg bg-light-bg" />
                       </Link>
                       <div className="flex-1 min-w-0">
                         <Link to={`/product/${product.slug}`} className="font-semibold text-text-primary text-sm hover:text-premium-gold transition-colors line-clamp-2">

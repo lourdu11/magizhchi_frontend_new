@@ -44,20 +44,35 @@ import { HelmetProvider } from 'react-helmet-async';
 import App from './App';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import './index.css';
-import 'react-lazy-load-image-component/src/effects/blur.css';
 import * as Sentry from "@sentry/react";
 
-// ─── Sentry Frontend Initialization ─────────────────────────────
-Sentry.init({
-  dsn: import.meta.env.VITE_SENTRY_DSN || "https://placeholder@sentry.io/placeholder",
-  integrations: [
-    Sentry.browserTracingIntegration(),
-    Sentry.replayIntegration(),
-  ],
-  tracesSampleRate: 1.0,
-  replaysSessionSampleRate: 0.1,
-  replaysOnErrorSampleRate: 1.0,
-});
+// ─── Sentry Frontend Initialization (Deferred to prevent main-thread blocking) ───
+const sentryDsn = import.meta.env.VITE_SENTRY_DSN;
+if (sentryDsn && sentryDsn !== "https://placeholder@sentry.io/placeholder") {
+  const initSentry = () => {
+    Sentry.init({
+      dsn: sentryDsn,
+      integrations: [
+        Sentry.browserTracingIntegration(),
+        Sentry.replayIntegration({
+          maskAllText: true,
+          blockAllMedia: true,
+        }),
+      ],
+      tracesSampleRate: 0.1,         // 10% traces to save CPU/network
+      replaysSessionSampleRate: 0.0, // Disable continuous session replay recording
+      replaysOnErrorSampleRate: 1.0, // Capture replays only when errors occur
+    });
+  };
+
+  if (document.readyState === 'complete') {
+    initSentry();
+  } else {
+    window.addEventListener('load', () => {
+      setTimeout(initSentry, 1000); // Boot Sentry 1s after load to yield main thread to layout/paint
+    });
+  }
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {

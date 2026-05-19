@@ -224,25 +224,13 @@ export default function ProductDetails() {
           
           {/* ── Image Gallery ── */}
           <div className="space-y-6 min-w-0">
-            <div className={`relative aspect-[4/5] rounded-[2.5rem] md:rounded-[3.5rem] overflow-hidden border border-border-light group shadow-xl shadow-black/5 ${product.bgStyle === 'solid' ? 'bg-white' : 'bg-[#F8F8F8]'}`}>
+            <div className="relative aspect-[4/5] rounded-[2.5rem] md:rounded-[3.5rem] overflow-hidden border border-border-light group shadow-xl shadow-black/5 bg-white">
               <motion.div
                 key={selectedImage}
                 initial={{ opacity: 0, scale: 1.05 }}
                 animate={{ opacity: 1, scale: 1 }}
                 className="w-full h-full relative"
               >
-                {/* Subtle ambient glow — only for non-solid BG, reduced to 40% so it doesn't bleed over image */}
-                {product.bgStyle !== 'solid' && (
-                  <div 
-                    className="absolute inset-0 filter blur-2xl opacity-40 scale-110 pointer-events-none select-none"
-                    style={{
-                      backgroundImage: `url(${images[selectedImage]})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: product.position || 'center'
-                    }}
-                  />
-                )}
-
                 {/* Main Product Image — contain by default so full image always shows */}
                 <SafeImage 
                   src={images[selectedImage]} 
@@ -251,10 +239,10 @@ export default function ProductDetails() {
                   alt="" 
                   className="w-full h-full relative z-10 transition-all duration-700" 
                   style={{
-                    objectFit: product.bgStyle === 'solid' ? 'contain' : (product.detailFit || 'contain'),
+                    objectFit: product.detailFit || 'contain',
                     objectPosition: product.position || 'center',
                     transform: `scale(${product.scale || 1})`,
-                    padding: product.bgStyle === 'solid' ? '12px' : '0'
+                    padding: (product.detailFit || 'contain') === 'contain' ? '12px' : '0'
                   }}
                 />
               </motion.div>
@@ -445,7 +433,7 @@ export default function ProductDetails() {
               {[
                 { icon: Truck, text: 'Fast Delivery' },
                 { icon: Shield, text: 'Secure Checkout' },
-                { icon: RefreshCw, text: '7-Day Return' },
+                { icon: Heart, text: 'Made in India' },
                 { icon: Check, text: 'Premium Quality' }
               ].map((f, i) => (
                 <div key={i} className="flex items-center gap-3 p-4 bg-light-bg rounded-2xl">

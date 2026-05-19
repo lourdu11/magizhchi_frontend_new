@@ -7,6 +7,7 @@ import { Helmet } from 'react-helmet-async';
 import { toast } from 'react-hot-toast';
 import { authService } from '../../services';
 import { useAuthStore } from '../../store';
+import SafeImage from '../../components/common/SafeImage';
 
 const isEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 const isPhone = (v) => /^\d{10}$/.test(v.replace(/\D/g, ''));
@@ -158,9 +159,15 @@ export default function Login() {
           {/* Logo Section */}
           <div className="relative z-10">
             <Link to="/" className="flex items-center gap-3 group">
-              <img
+              <SafeImage
                 src="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0043.jpg?updatedAt=1772379265473"
                 alt="Magizhchi Logo"
+                width={55}
+                height={55}
+                quality={80}
+                priority={true}
+                fetchPriority="high"
+                loading="eager"
                 className="w-12 h-12 object-cover rounded-full shadow-[0_0_30px_rgba(212,175,55,0.3)] transition-transform duration-500 group-hover:scale-105"
               />
               <div className="flex flex-col leading-none">
@@ -208,9 +215,15 @@ export default function Login() {
           {/* Top Header Navigation */}
           <div className="flex items-center justify-between px-8 py-8 lg:px-16">
             <Link to="/" className="lg:hidden flex items-center gap-3 group">
-               <img
+               <SafeImage
                  src="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0043.jpg?updatedAt=1772379265473"
                  alt="Magizhchi Logo"
+                 width={55}
+                 height={55}
+                 quality={80}
+                 priority={true}
+                 fetchPriority="high"
+                 loading="eager"
                  className="w-10 h-10 object-cover rounded-full shadow-[0_0_15px_rgba(212,175,55,0.2)]"
                />
                <div className="flex flex-col leading-none">

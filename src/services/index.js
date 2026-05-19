@@ -24,7 +24,12 @@ export const productService = {
 };
 
 export const categoryService = {
-  getCategories: (params) => api.get('/categories', { params: { ...params } }),
+  getCategories: (params) => {
+    if (!params || Object.keys(params).length === 0) {
+      return cachedGet('/categories');
+    }
+    return api.get('/categories', { params: { ...params } });
+  },
   getCategory: (slug) => api.get(`/categories/${slug}`),
   createCategory: (data) => api.post('/categories', data),
   updateCategory: (id, data) => api.put(`/categories/${id}`, data),

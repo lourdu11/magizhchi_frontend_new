@@ -78,7 +78,7 @@ export default function Register() {
             <div className="text-xs text-white/40 tracking-[0.5em] uppercase mb-8">GARMENTS</div>
             <div className="w-16 h-0.5 bg-gold-gradient mx-auto mb-8" />
             <div className="space-y-3 text-left">
-              {['Free shipping on orders above Rs.999', 'Easy 7-day returns', 'Exclusive member discounts', 'Order tracking & GST invoices'].map(b => (
+              {['Free shipping on orders above Rs.999', 'Made in India', 'Exclusive member discounts', 'Order tracking & GST invoices'].map(b => (
                 <div key={b} className="flex items-center gap-3 text-white/70 text-sm">
                   <div className="w-5 h-5 rounded-full bg-premium-gold/20 flex items-center justify-center shrink-0">
                     <span className="text-premium-gold text-xs">✓</span>

@@ -32,7 +32,7 @@ function LivePreview({ src, fit, position, scale, bgStyle, label, aspect }) {
 
   return (
     <div
-      className="relative w-full overflow-hidden rounded-3xl border border-border-light bg-light-bg shadow-inner"
+      className="relative w-full overflow-hidden rounded-3xl border border-border-light bg-white shadow-inner"
       style={{ aspectRatio: aspect }}
     >
       {!src || err ? (
@@ -42,13 +42,6 @@ function LivePreview({ src, fit, position, scale, bgStyle, label, aspect }) {
         </div>
       ) : (
         <>
-          {/* Ambient blur bg */}
-          {bgStyle !== 'solid' && (
-            <div
-              className="absolute inset-0 scale-125 blur-3xl opacity-90 pointer-events-none"
-              style={{ backgroundImage: `url(${src})`, backgroundSize: 'cover', backgroundPosition: position || 'center' }}
-            />
-          )}
           <img
             src={src}
             alt={label}
@@ -58,6 +51,7 @@ function LivePreview({ src, fit, position, scale, bgStyle, label, aspect }) {
               objectPosition: position || 'center',
               transform: `scale(${scale || 1})`,
               transformOrigin: position || 'center',
+              padding: (fit || 'contain') === 'contain' ? '12px' : '0'
             }}
             onLoad={() => setLoading(false)}
             onError={() => setErr(true)}

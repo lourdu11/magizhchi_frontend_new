@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,6 +9,8 @@ import ProductCard from '../components/product/ProductCard';
 import SkeletonCard from '../components/product/SkeletonCard';
 import SafeImage from '../components/common/SafeImage';
 
+const MotionLink = motion(Link);
+
 
 
 const CATEGORIES = [
@@ -18,9 +20,30 @@ const CATEGORIES = [
   { name: 'Formals', slug: 'formals', img: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=400&auto=format&fit=crop', items: '40+ Items' }
 ];
 
+const DEFAULT_SLIDES = [
+  {
+    id: "default-hero",
+    title: "Premium Casual\nPants Collection",
+    subtitle: "Modern comfort and effortless style for everyday wear.",
+    accent: "New Arrival",
+    img: "https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925",
+    mobileImg: "https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925",
+    cta: 'Shop Now',
+    ctaLink: '/collections/pants',
+    fit: 'cover',
+    pos: 'top',
+    scale: 1,
+    gravity: 'north',
+    mobileFit: 'cover',
+    mobilePos: 'center',
+    mobileScale: 1,
+    mobileGravity: 'auto'
+  }
+];
+
 export default function Home() {
   const [heroIdx, setHeroIdx] = useState(0);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const glowRef = useRef(null);
 
   const { data: featuredData, isLoading: loadingFeatured } = useQuery({
     queryKey: ['products', 'featured'],
@@ -47,7 +70,15 @@ export default function Home() {
   });
 
   const featured = (featuredData?.length > 0) ? featuredData : (allProductsData || []);
-  const homeCategories = (catsData && catsData.length > 0) ? catsData.slice(0, 4) : CATEGORIES;
+
+  // Stable category array to prevent CLS (Layout Shift) when loading dynamic categories
+  const rawCats = catsData || [];
+  const homeCategories = [...rawCats.slice(0, 4)];
+  if (homeCategories.length < 4) {
+    const needed = 4 - homeCategories.length;
+    const fallbackItems = CATEGORIES.filter(c => !homeCategories.some(h => h.slug === c.slug));
+    homeCategories.push(...fallbackItems.slice(0, needed));
+  }
   
   // Transform dynamic banners to match Hero layout
   const dynamicSlides = bannersData?.map(b => ({
@@ -70,10 +101,15 @@ export default function Home() {
     accent: b.type === 'hero' ? 'New Arrival' : 'Special Offer'
   })) || [];
 
-  const slides = dynamicSlides;
+  const slides = dynamicSlides.length > 0 ? dynamicSlides : DEFAULT_SLIDES;
 
   useEffect(() => {
-    const handleMouseMove = (e) => setMousePos({ x: e.clientX, y: e.clientY });
+    const handleMouseMove = (e) => {
+      if (glowRef.current) {
+        glowRef.current.style.setProperty('--mouse-x', `${e.clientX}px`);
+        glowRef.current.style.setProperty('--mouse-y', `${e.clientY}px`);
+      }
+    };
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
@@ -100,9 +136,10 @@ export default function Home() {
 
       {/* Global Mouse Glow */}
       <div 
+        ref={glowRef}
         className="fixed inset-0 pointer-events-none z-[1] transition-opacity duration-1000"
         style={{
-          background: `radial-gradient(600px circle at ${mousePos.x}px ${mousePos.y}px, rgba(212, 175, 55, 0.03), transparent 80%)`
+          background: 'radial-gradient(600px circle at var(--mouse-x, -999px) var(--mouse-y, -999px), rgba(212, 175, 55, 0.03), transparent 80%)'
         }}
       />
 
@@ -135,6 +172,8 @@ export default function Home() {
               crop="fill"
               gravity={window.innerWidth < 768 ? slides[heroIdx]?.mobileGravity : slides[heroIdx]?.gravity}
               aspect={window.innerWidth < 768 ? '4:5' : '21:9'}
+              srcSet={heroIdx === 0 ? "https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-1200,h-800,q-60,f-auto 1200w, https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-400,h-600,q-45,f-auto 400w" : undefined}
+              sizes={heroIdx === 0 ? "(max-width: 768px) 400px, 1200px" : undefined}
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent" />
           </motion.div>
@@ -227,42 +266,41 @@ export default function Home() {
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
             {homeCategories.map((cat, i) => (
-              <motion.div 
+              <MotionLink 
                 key={cat.slug || cat._id}
+                to={`/collections/${cat.slug}`}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
+                whileHover={{ 
+                  rotateY: 12, 
+                  rotateX: -8,
+                  scale: 1.08,
+                  z: 30,
+                  transition: { duration: 0.3 }
+                }}
+                transition={{ 
+                  initial: { delay: i * 0.1 },
+                  whileHover: { duration: 0.3 }
+                }}
                 viewport={{ once: true }}
+                style={{ transformStyle: "preserve-3d" }}
+                className="group relative block aspect-[4/5] rounded-[3rem] overflow-hidden bg-light-bg perspective-2000 w-full h-full"
               >
-                <Link to={`/collections/${cat.slug}`} className="group relative block aspect-[4/5] rounded-[3rem] overflow-hidden bg-light-bg perspective-2000">
-                  <motion.div 
-                    whileHover={{ 
-                      rotateY: 12, 
-                      rotateX: -8,
-                      scale: 1.08,
-                      z: 30,
-                      transition: { duration: 0.3 }
-                    }}
-                    style={{ transformStyle: "preserve-3d" }}
-                    className="w-full h-full"
-                  >
-                    <SafeImage 
-                      src={cat.image || cat.img} 
-                      alt={cat.name} 
-                      width={400} 
-                      height={500} 
-                      className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" 
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80" />
-                    <div className="absolute bottom-10 left-8" style={{ transform: "translateZ(50px)" }}>
-                      <p className="text-white font-black text-3xl tracking-tighter mb-1 uppercase">{cat.name}</p>
-                      <div className="inline-block px-4 py-1.5 bg-premium-gold rounded-full">
-                        <p className="text-charcoal text-[8px] font-black uppercase tracking-[0.2em]">{cat.items || 'Explore'}</p>
-                      </div>
-                    </div>
-                  </motion.div>
-                </Link>
-              </motion.div>
+                <SafeImage 
+                  src={cat.image || cat.img} 
+                  alt={cat.name} 
+                  width={400} 
+                  height={500} 
+                  className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" 
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80" />
+                <div className="absolute bottom-10 left-8" style={{ transform: "translateZ(50px)" }}>
+                  <p className="text-white font-black text-3xl tracking-tighter mb-1 uppercase">{cat.name}</p>
+                  <div className="inline-block px-4 py-1.5 bg-premium-gold rounded-full">
+                    <p className="text-charcoal text-[8px] font-black uppercase tracking-[0.2em]">{cat.items || 'Explore'}</p>
+                  </div>
+                </div>
+              </MotionLink>
             ))}
           </div>
         </div>

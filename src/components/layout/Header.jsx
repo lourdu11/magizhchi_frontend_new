@@ -335,7 +335,7 @@ export default function Header() {
             >
               <div className="flex-none flex items-center justify-between px-6 py-5 border-b border-gray-100">
                 <Link to="/" onClick={() => setMobileMenu(false)} className="flex items-center gap-3">
-                  <SafeImage src="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0043.jpg?updatedAt=1772379265473" width={55} height={55} alt="Logo" className="h-9 w-auto aspect-square object-cover rounded-full" />
+                  <SafeImage src="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0043.jpg?updatedAt=1772379265473" width={55} height={55} quality={80} alt="Logo" className="h-9 w-auto aspect-square object-cover rounded-full" />
                   <div className="flex flex-col leading-none">
                     <span className="font-black text-[15px] tracking-tight text-charcoal">MAGIZHCHI</span>
                     <span className="font-black text-[8px] tracking-[0.28em] text-premium-gold uppercase mt-0.5">GARMENTS</span>

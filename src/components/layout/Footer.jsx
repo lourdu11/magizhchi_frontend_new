@@ -37,8 +37,8 @@ export default function Footer() {
   };
 
   const socialLinks = [
-    { icon: Instagram, href: 'https://instagram.com/magizhchigarments', title: 'Instagram' },
-    { icon: Facebook, href: 'https://facebook.com/magizhchigarments', title: 'Facebook' },
+    { icon: Instagram, href: 'https://www.instagram.com/magizhchi_garments_official/', title: 'Instagram' },
+    { icon: Facebook, href: 'https://www.facebook.com/magizhchi.garment/', title: 'Facebook' },
     { icon: Phone, href: `tel:${store.phone.replace(/ /g, '')}`, title: 'Call Us' },
     { icon: MessageCircle, href: `https://wa.me/${store.phone.replace(/[^0-9]/g, '')}`, title: 'WhatsApp' },
   ];
@@ -78,7 +78,7 @@ export default function Footer() {
                 <div className="font-display text-2xl font-black tracking-[0.15em] text-white group-hover/flogo:text-premium-gold transition-colors uppercase" style={{ transform: "translateZ(30px)" }}>
                   {store.name.split(' ')[0]}
                 </div>
-                <div className="text-[9px] text-white/40 tracking-[0.4em] uppercase font-black" style={{ transform: "translateZ(10px)" }}>
+                <div className="text-[9px] text-white/60 tracking-[0.4em] uppercase font-black" style={{ transform: "translateZ(10px)" }}>
                   {store.name.split(' ').slice(1).join(' ') || 'GARMENTS'}
                 </div>
               </motion.div>
@@ -167,7 +167,7 @@ export default function Footer() {
               </li>
             </ul>
             <div className="mt-4 p-3 bg-white/5 rounded-lg border border-white/10">
-              <p className="text-xs text-white/40 font-medium uppercase tracking-wide mb-1">Store Hours</p>
+              <p className="text-xs text-white/60 font-medium uppercase tracking-wide mb-1">Store Hours</p>
               <p className="text-white/60 text-xs">Mon – Sun: 10:00 AM – 10:00 PM</p>
             </div>
           </div>
