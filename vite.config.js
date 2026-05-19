@@ -63,9 +63,9 @@ export default defineConfig({
     sourcemap: false,
     modulePreload: {
       resolveDependencies(url, deps, context) {
-        // Only eagerly preload critical core runtime and entry code; 
-        // Defer UI libraries (Framer Motion, Lucide) and Data/API layer to prevent main-thread work blockage.
-        return deps.filter(dep => !dep.includes('charts') && !dep.includes('ui-lib') && !dep.includes('data-layer'));
+        // Eagerly preload ONLY critical core runtime; defer all heavy secondary chunks to keep main thread unblocked
+        const excludedList = ['charts', 'ui-lib', 'data-layer', 'telemetry', 'form-utils', 'image-compressor', 'carousel', 'date-utils'];
+        return deps.filter(dep => !excludedList.some(ex => dep.includes(ex)));
       }
     },
     rollupOptions: {
@@ -76,6 +76,21 @@ export default defineConfig({
           }
           if (id.includes('node_modules/@radix-ui') || id.includes('node_modules/headlessui') || id.includes('node_modules/framer-motion')) {
             return 'ui-lib';
+          }
+          if (id.includes('node_modules/@sentry')) {
+            return 'telemetry';
+          }
+          if (id.includes('node_modules/react-hook-form') || id.includes('node_modules/zod') || id.includes('node_modules/@hookform')) {
+            return 'form-utils';
+          }
+          if (id.includes('node_modules/browser-image-compression')) {
+            return 'image-compressor';
+          }
+          if (id.includes('node_modules/swiper')) {
+            return 'carousel';
+          }
+          if (id.includes('node_modules/date-fns')) {
+            return 'date-utils';
           }
           if (id.includes('node_modules')) {
             if (id.includes('node_modules/react') || id.includes('node_modules/react-dom') || id.includes('node_modules/react-router-dom')) {

@@ -156,7 +156,7 @@ export default function Home() {
       {/* ── Hero Section ── */}
       {slides.length > 0 && (
         <section className="relative h-[65vh] md:h-[80vh] w-full bg-charcoal overflow-hidden p-0 m-0">
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="wait" initial={false}>
           <motion.div 
             key={heroIdx}
             initial={{ opacity: 0, scale: 1.1 }}
