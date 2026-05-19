@@ -340,17 +340,8 @@ export default function Home() {
           </motion.div>
 
           {loadingFeatured ? (
-            <div className="flex flex-col items-center justify-center py-24 w-full">
-              {/* Sleek, minimal gold spinner */}
-              <div className="w-12 h-12 rounded-full border-4 border-charcoal/5 border-t-premium-gold border-r-premium-gold animate-spin" style={{ animationDuration: '0.7s' }} />
-              <p className="text-xs text-text-muted font-bold tracking-widest uppercase mt-4 animate-pulse">
-                Loading...
-              </p>
-              
-              {/* Translucent Skeletons */}
-              <div className="w-full mt-12 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-10 opacity-30 select-none pointer-events-none">
-                {Array(4).fill(0).map((_, i) => <SkeletonCard key={i} />)}
-              </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-10 opacity-30 select-none pointer-events-none">
+              {Array(8).fill(0).map((_, i) => <SkeletonCard key={i} />)}
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-10">
