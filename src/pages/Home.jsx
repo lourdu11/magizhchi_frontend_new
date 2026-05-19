@@ -137,8 +137,8 @@ export default function Home() {
         <link
           rel="preload"
           as="image"
-          imagesrcset="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&amp;tr=w-1200,h-800,q-60,f-auto 1200w, https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&amp;tr=w-800,h-533,q-50,f-auto 800w, https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&amp;tr=w-400,h-600,q-45,f-auto 400w"
-          imagesizes="(max-width: 480px) 400px, (max-width: 1024px) 800px, 1200px"
+          imagesrcset="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-1200,h-800,q-60,f-auto 1200w, https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-800,h-533,q-50,f-auto 800w, https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-400,h-600,q-45,f-auto 400w"
+          imagesizes="(max-width: 480px) 360px, (max-width: 1024px) 800px, 1200px"
           fetchpriority="high"
         />
       </Helmet>
@@ -182,7 +182,7 @@ export default function Home() {
               gravity={window.innerWidth < 768 ? slides[heroIdx]?.mobileGravity : slides[heroIdx]?.gravity}
               aspect={window.innerWidth < 768 ? '4:5' : '21:9'}
               srcSet={heroIdx === 0 ? "https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-1200,h-800,q-60,f-auto 1200w, https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-800,h-533,q-50,f-auto 800w, https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-400,h-600,q-45,f-auto 400w" : undefined}
-              sizes={heroIdx === 0 ? "(max-width: 480px) 400px, (max-width: 1024px) 800px, 1200px" : undefined}
+              sizes={heroIdx === 0 ? "(max-width: 480px) 360px, (max-width: 1024px) 800px, 1200px" : undefined}
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent" />
           </motion.div>
@@ -300,6 +300,7 @@ export default function Home() {
                   alt={cat.name} 
                   width={400} 
                   height={500} 
+                  sizes="(max-width: 640px) 40vw, (max-width: 1024px) 20vw, 240px"
                   className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" 
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80" />
