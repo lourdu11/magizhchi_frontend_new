@@ -32,8 +32,13 @@ export const checkAuthSession = async () => {
     }
     return false;
   } catch (err) {
-    clearToken();
-    return false;
+    // Only clear session and log out if the server explicitly rejects the refresh token with 401 or 403
+    if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+      clearToken();
+      return false;
+    }
+    // Retain session on transient network errors or 5xx server issues
+    return true;
   }
 };
 

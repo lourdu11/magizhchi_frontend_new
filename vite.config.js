@@ -63,7 +63,9 @@ export default defineConfig({
     sourcemap: false,
     modulePreload: {
       resolveDependencies(url, deps, context) {
-        return deps.filter(dep => !dep.includes('charts'));
+        // Only eagerly preload critical core runtime and entry code; 
+        // Defer UI libraries (Framer Motion, Lucide) and Data/API layer to prevent main-thread work blockage.
+        return deps.filter(dep => !dep.includes('charts') && !dep.includes('ui-lib') && !dep.includes('data-layer'));
       }
     },
     rollupOptions: {

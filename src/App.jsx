@@ -76,7 +76,6 @@ import { checkAuthSession } from './services';
 export default function App() {
   const logout = useAuthStore((state) => state.logout);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const [isInitializingAuth, setIsInitializingAuth] = useState(isAuthenticated);
 
   useEffect(() => {
     const initAuth = async () => {
@@ -86,14 +85,16 @@ export default function App() {
           logout();
         }
       }
-      setIsInitializingAuth(false);
     };
-    initAuth();
+    // Defer session checking to idle callback or timeout to prevent main-thread blockage
+    if (window.requestIdleCallback) {
+      window.requestIdleCallback(() => {
+        initAuth();
+      });
+    } else {
+      setTimeout(initAuth, 150);
+    }
   }, [isAuthenticated, logout]);
-
-  if (isInitializingAuth) {
-    return <PageLoader />;
-  }
 
   return (
     <Suspense fallback={<PageLoader />}>
