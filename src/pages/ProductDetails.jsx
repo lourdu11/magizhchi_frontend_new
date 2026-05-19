@@ -10,6 +10,37 @@ import api from '../services/api';
 import { useAuthStore, useWishlistStore } from '../store';
 import SafeImage from '../components/common/SafeImage';
 
+const COLOR_MAP = {
+  black: '#000000',
+  white: '#FFFFFF',
+  'pure white': '#FFFFFF',
+  cream: '#FFFDD0',
+  'khaki brown': '#C3B091',
+  'ash grey': '#B2BEB5',
+  'light grey': '#D3D3D3',
+  'grey': '#808080',
+  'navy blue': '#000080',
+  'sage green': '#9CAF88',
+  red: '#FF0000',
+  blue: '#0000FF',
+  green: '#008000',
+  yellow: '#FFFF00',
+  pink: '#FFC0CB',
+  purple: '#800080',
+  orange: '#FFA500',
+  brown: '#A52A2A',
+  gold: '#FFD700',
+  silver: '#C0C0C0',
+  beige: '#F5F5DC',
+  olive: '#808000',
+  maroon: '#800000',
+  teal: '#008080',
+  lavender: '#E6E6FA',
+  peach: '#FFDAB9',
+  mustard: '#FFDB58',
+  mint: '#AAF0D1'
+};
+
 export default function ProductDetails() {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -378,9 +409,16 @@ export default function ProductDetails() {
                           <button
                             key={color}
                             onClick={() => handleColorSelect(color)}
-                            className={`px-5 py-3 rounded-2xl text-[10px] font-black uppercase transition-all border-2 ${selectedColor === color ? 'bg-charcoal text-white border-charcoal shadow-xl scale-105' : isAvailable ? 'bg-white text-charcoal border-border-light hover:border-premium-gold' : 'bg-light-bg text-text-muted border-border-light opacity-30 cursor-not-allowed'}`}
+                            className={`flex items-center gap-2.5 px-5 py-3 rounded-2xl text-[10px] font-black uppercase transition-all border-2 ${selectedColor === color ? 'bg-charcoal text-white border-charcoal shadow-xl scale-105' : isAvailable ? 'bg-white text-charcoal border-border-light hover:border-premium-gold' : 'bg-light-bg text-text-muted border-border-light opacity-30 cursor-not-allowed'}`}
                           >
-                            {color}
+                            <span 
+                              className="w-3.5 h-3.5 rounded-full border border-black/10 shrink-0 shadow-inner" 
+                              style={{ 
+                                backgroundColor: COLOR_MAP[color.toLowerCase()] || color.toLowerCase(),
+                                boxShadow: selectedColor === color ? '0 0 0 1.5px rgba(255,255,255,0.5)' : 'none'
+                              }}
+                            />
+                            <span>{color}</span>
                           </button>
                         );
                       })}
