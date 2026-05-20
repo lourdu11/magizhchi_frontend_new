@@ -159,8 +159,8 @@ export default function Home() {
             <SafeImage 
               src={isMobile ? (slides[heroIdx]?.mobileImg || slides[heroIdx]?.img) : slides[heroIdx]?.img} 
               alt="" 
-              width={isMobile ? 400 : 1200} 
-              height={isMobile ? 600 : 800}
+              width={isMobile ? 480 : 1440} 
+              height={isMobile ? 720 : 960}
               quality={heroIdx === 0 ? (isMobile ? 45 : 60) : 40}
               fetchPriority="high"
               loading="eager"
