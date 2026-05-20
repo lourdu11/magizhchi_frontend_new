@@ -154,7 +154,7 @@ export default function Home() {
         <section className="relative h-[65vh] md:h-[80vh] w-full bg-charcoal overflow-hidden p-0 m-0">
           <div 
             key={heroIdx}
-            className="absolute inset-0 w-full h-full p-0 m-0 animate-fade-scale-in"
+            className={`absolute inset-0 w-full h-full p-0 m-0 ${heroIdx === 0 ? '' : 'animate-fade-scale-in'}`}
           >
             <SafeImage 
               src={isMobile ? (slides[heroIdx]?.mobileImg || slides[heroIdx]?.img) : slides[heroIdx]?.img} 
@@ -172,14 +172,12 @@ export default function Home() {
               crop="fill"
               gravity={isMobile ? slides[heroIdx]?.mobileGravity : slides[heroIdx]?.gravity}
               aspect={isMobile ? '4:5' : '21:9'}
-              srcSet={heroIdx === 0 ? "https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-1200,h-800,q-60,f-auto 1200w, https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-800,h-533,q-50,f-auto 800w, https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-600,h-400,q-45,f-auto 600w, https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-400,h-600,q-45,f-auto 400w" : undefined}
-              sizes={heroIdx === 0 ? "(max-width: 640px) 100vw, (max-width: 1024px) 800px, 1200px" : undefined}
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent" />
           </div>
 
         <div className="relative z-10 container-custom h-full flex flex-col justify-center pt-20">
-          <div className="max-w-3xl animate-fade-in-up hover:scale-[1.02] transition-transform duration-500">
+          <div className="max-w-3xl hover:scale-[1.02] transition-transform duration-500">
             <div className="flex items-center gap-2 mb-6" style={{ transform: "translateZ(30px)" }}>
               <div className="w-10 h-[1px] bg-premium-gold" />
               <span className="text-premium-gold font-black uppercase tracking-[0.4em] text-[10px]">{slides[heroIdx]?.accent}</span>
