@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Heart, ShoppingBag, Star, Plus } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { useQueryClient } from '@tanstack/react-query';
 import { cartService, wishlistService, authService } from '../../services';
 import { useAuthStore, useWishlistStore } from '../../store';
@@ -16,27 +15,6 @@ export default function ProductCard({ product }) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   
-  const [isMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
-  
-  const CardContainer = isMobile ? 'div' : motion.div;
-  const ImageWrapper = isMobile ? 'div' : motion.div;
-
-  const motionProps = isMobile ? {} : {
-    initial: { opacity: 0, y: 20 },
-    whileInView: { opacity: 1, y: 0 },
-    viewport: { once: true }
-  };
-
-  const imageMotionProps = isMobile ? {} : {
-    whileHover: { 
-      rotateY: 5, 
-      rotateX: -5,
-      z: 50,
-      scale: 1.05,
-      transition: { type: "spring", stiffness: 300, damping: 20 }
-    }
-  };
-
   // Guard: if product is missing, don't render
   if (!product || !product._id) return null;
 
@@ -96,17 +74,10 @@ export default function ProductCard({ product }) {
   };
 
   return (
-    <CardContainer 
-      {...motionProps}
-      className="group relative"
-    >
+    <div className="group relative">
       <Link to={`/product/${product.slug}`} aria-label={`View details for ${product.name}`} className="block">
         {/* Image Container */}
-        <ImageWrapper 
-          {...imageMotionProps}
-          style={isMobile ? {} : { transformStyle: "preserve-3d" }}
-          className="relative aspect-[4/5] max-w-xs mx-auto rounded-[2rem] md:rounded-[2.5rem] overflow-hidden bg-white mb-4 border border-border-light group-hover:border-premium-gold/30 transition-all duration-500 shadow-sm group-hover:shadow-2xl group-hover:shadow-premium-gold/10"
-        >
+        <div className="relative aspect-[4/5] max-w-xs mx-auto rounded-[2rem] md:rounded-[2.5rem] overflow-hidden bg-white mb-4 border border-border-light group-hover:border-premium-gold/30 transition-all duration-500 shadow-sm group-hover:shadow-2xl group-hover:shadow-premium-gold/10 group-hover:scale-[1.03] transform will-change-transform">
 
           <SafeImage
             src={product.images?.[0] || product.thumbnail || product.laptopImage || product.tabletImage || product.mobileImage}
@@ -176,7 +147,7 @@ export default function ProductCard({ product }) {
               </button>
             </div>
           )}
-        </ImageWrapper>
+        </div>
 
 
         {/* Product Details */}
@@ -199,6 +170,6 @@ export default function ProductCard({ product }) {
           </div>
         </div>
       </Link>
-    </CardContainer>
+    </div>
   );
 }

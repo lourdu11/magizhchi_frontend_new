@@ -47,18 +47,7 @@ export default defineConfig({
     cssCodeSplit: true,
     chunkSizeWarningLimit: 500,
     sourcemap: false,
-    modulePreload: {
-      resolveDependencies(url, deps) {
-        // Only eagerly preload the smallest critical runtime chunks.
-        // Heavy secondary chunks are deferred to keep the main thread free on initial load.
-        const excludedList = [
-          'charts', 'ui-lib', 'framer-motion', 'data-layer',
-          'telemetry', 'form-utils', 'image-compressor', 'carousel',
-          'date-utils', 'vendor',
-        ];
-        return deps.filter(dep => !excludedList.some(ex => dep.includes(ex)));
-      }
-    },
+    modulePreload: false,
     rollupOptions: {
       output: {
         manualChunks(id) {

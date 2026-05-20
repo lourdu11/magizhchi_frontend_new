@@ -16,11 +16,11 @@ export default function Wishlist() {
   
   const { data: wishlist, isLoading } = useQuery({
     queryKey: ['wishlist'],
-    queryFn: () => wishlistService.getWishlist().then(r => r.data.data),
+    queryFn: () => wishlistService.getWishlist().then(r => r?.data?.data || null),
   });
 
   useEffect(() => {
-    if (wishlist?.wishlist?.products) {
+    if (wishlist?.wishlist && Array.isArray(wishlist.wishlist.products)) {
       setWishlist(wishlist.wishlist.products);
     }
   }, [wishlist, setWishlist]);
@@ -46,7 +46,7 @@ export default function Wishlist() {
     </div>
   );
 
-  const items = wishlist?.wishlist?.products || [];
+  const items = Array.isArray(wishlist?.wishlist?.products) ? wishlist.wishlist.products : [];
 
   return (
     <div className="container-custom py-12">
@@ -78,27 +78,28 @@ export default function Wishlist() {
       )}
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {items.map((item) => {
+        {(Array.isArray(items) ? items : []).map((item) => {
+          if (!item) return null;
           const product = item.productId || item;
-          if (!product?._id) return null;
+          if (!product || !product._id) return null;
           const price = product.discountedPrice || product.sellingPrice;
-          const firstVariant = product.variants?.[0];
+          const firstVariant = Array.isArray(product.variants) ? product.variants[0] : null;
 
           return (
             <div key={product._id} className="bg-white rounded-2xl border border-border-light overflow-hidden shadow-sm group hover:shadow-card-hover transition-shadow">
               {/* Image */}
               <div className="relative aspect-[4/5] bg-light-bg">
-                <Link to={`/product/${product.slug}`}>
+                <Link to={`/product/${product.slug || ''}`}>
                   <SafeImage
                     src={product.images?.[0]}
-                    alt={product.name}
+                    alt={product.name || ''}
                     width={300}
                     quality={70}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     loading="lazy"
                   />
                 </Link>
-                {product.discountPercentage > 0 && (
+                {(product.discountPercentage || 0) > 0 && (
                   <span className="absolute top-3 left-3 bg-premium-gold text-charcoal text-[10px] font-bold px-2 py-0.5 rounded-full">
                     -{product.discountPercentage}%
                   </span>
@@ -114,12 +115,12 @@ export default function Wishlist() {
 
               {/* Info */}
               <div className="p-4">
-                <Link to={`/product/${product.slug}`}>
-                  <h3 className="font-semibold text-text-primary text-sm leading-tight hover:text-premium-gold transition-colors line-clamp-2">{product.name}</h3>
+                <Link to={`/product/${product.slug || ''}`}>
+                  <h3 className="font-semibold text-text-primary text-sm leading-tight hover:text-premium-gold transition-colors line-clamp-2">{product.name || ''}</h3>
                 </Link>
                 <div className="flex items-baseline gap-2 mt-2">
                   <span className="font-bold text-text-primary">Rs.{price?.toLocaleString('en-IN')}</span>
-                  {product.discountPercentage > 0 && (
+                  {(product.discountPercentage || 0) > 0 && (
                     <span className="text-xs text-text-muted line-through">Rs.{product.sellingPrice?.toLocaleString('en-IN')}</span>
                   )}
                 </div>

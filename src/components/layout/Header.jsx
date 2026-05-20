@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, Heart, User, Menu, X, ChevronDown, Sparkles } from 'lucide-react';
 import { useAuthStore, useCartStore, useUIStore, useWishlistStore } from '../../store';
 import { cartService, categoryService, wishlistService } from '../../services';
@@ -14,14 +13,6 @@ const NAV_LINKS = [
   { label: 'About', path: '/about' },
   { label: 'Services', path: '/services' },
   { label: 'Contact', path: '/contact' },
-];
-
-const CATEGORIES = [
-  { label: 'All Essentials', path: '/collections' },
-  { label: 'Premium Shirts', path: '/collections/shirts' },
-  { label: 'Casual T-Shirts', path: '/collections/t-shirts' },
-  { label: 'Classic Jeans', path: '/collections/jeans' },
-  { label: 'Office Formals', path: '/collections/formals' },
 ];
 
 export default function Header() {
@@ -98,16 +89,11 @@ export default function Header() {
 
   return (
     <>
-      <header className={`fixed top-0 left-0 right-0 z-50 premium-header h-16 md:h-20 ${scrolled ? 'glass shadow-2xl shadow-black/10' : 'bg-transparent'} ${!visible ? '-translate-y-full md:translate-y-0' : 'translate-y-0'}`}>
+      <header className={`fixed top-0 left-0 right-0 z-50 premium-header h-16 md:h-20 transition-all duration-300 ${scrolled ? 'glass shadow-2xl shadow-black/10' : 'bg-transparent'} ${!visible ? '-translate-y-full md:translate-y-0' : 'translate-y-0'}`}>
         <div className="container-custom h-full">
 
-          {/* ─────────────────────────────────────────────
-              MOBILE HEADER  (visible below lg)
-              Layout: [Menu] [Logo — centered] [Cart]
-              Three equal flex-1 columns guarantee true centering.
-          ───────────────────────────────────────────── */}
+          {/* MOBILE HEADER */}
           <div className="flex lg:hidden items-center h-full w-full px-2">
-
             {/* Left: hamburger */}
             <div className="flex-1 flex justify-start">
               <button
@@ -119,7 +105,7 @@ export default function Header() {
               </button>
             </div>
 
-            {/* Center: logo (naturally centred because both sides are flex-1) */}
+            {/* Center: logo */}
             <div className="flex-1 flex justify-center">
               <Link 
                 to="/" 
@@ -185,9 +171,7 @@ export default function Header() {
             </div>
           </div>
 
-          {/* ─────────────────────────────────────────────
-              DESKTOP / LAPTOP HEADER  (visible lg+)
-          ───────────────────────────────────────────── */}
+          {/* DESKTOP HEADER */}
           <div className="hidden lg:flex items-center justify-between h-full flex-nowrap gap-2">
             {/* Logo */}
             <div className="flex items-center flex-shrink-0">
@@ -196,12 +180,7 @@ export default function Header() {
                 aria-label="Go to homepage" 
                 className={`flex items-center gap-2 md:gap-3 group transition-transform duration-500 origin-left ${scrolled ? 'scale-90' : 'scale-100'}`}
               >
-                <motion.div
-                  whileHover={{ rotateY: 360, scale: 1.1 }}
-                  transition={{ duration: 0.8, type: "spring", stiffness: 100 }}
-                  style={{ transformStyle: "preserve-3d" }}
-                  className="perspective-1000"
-                >
+                <div className="perspective-1000 transition-transform duration-500 hover:scale-105">
                   <SafeImage 
                     src="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0043.jpg?updatedAt=1772379265473" 
                     width={55} 
@@ -213,14 +192,11 @@ export default function Header() {
                     alt="Magizhchi" 
                     className="w-auto h-10 md:h-12 aspect-square object-cover rounded-full" 
                   />
-                </motion.div>
+                </div>
                 <div className="flex flex-col overflow-hidden">
-                  <motion.span
-                    whileHover={{ z: 50, color: '#D4AF37' }}
-                    className="font-black tracking-[0.1em] text-charcoal leading-none whitespace-nowrap text-lg md:text-2xl"
-                  >
+                  <span className="font-black tracking-[0.1em] text-charcoal leading-none whitespace-nowrap text-lg md:text-2xl hover:text-premium-gold transition-colors duration-300">
                     MAGIZHCHI
-                  </motion.span>
+                  </span>
                   <span className="font-black tracking-[0.4em] text-premium-gold uppercase whitespace-nowrap text-[8px] mt-1 md:text-[10px] mt-1.5">
                     GARMENTS
                   </span>
@@ -238,20 +214,15 @@ export default function Header() {
                     {link.label} {link.hasDropdown && <ChevronDown size={12} className={`transition-transform duration-300 ${showDropdown ? 'rotate-180' : ''}`} />}
                   </Link>
                   {link.hasDropdown && (
-                    <AnimatePresence mode="wait">
-                      {showDropdown && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
-                          className="absolute top-full left-0 mt-4 w-64 glass rounded-[2rem] shadow-2xl border border-white/40 overflow-hidden py-4"
-                        >
-                          {categories.map(cat => (
-                            <Link key={cat.path} to={cat.path} className="flex items-center gap-3 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-charcoal hover:text-premium-gold hover:bg-premium-gold/5 transition-all">
-                              <Sparkles size={12} className="text-premium-gold/60" /> {cat.label}
-                            </Link>
-                          ))}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                    <div
+                      className={`absolute top-full left-0 mt-4 w-64 glass rounded-[2rem] shadow-2xl border border-white/40 overflow-hidden py-4 transition-all duration-300 origin-top ${showDropdown ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-2 pointer-events-none'}`}
+                    >
+                      {categories.map(cat => (
+                        <Link key={cat.path} to={cat.path} className="flex items-center gap-3 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-charcoal hover:text-premium-gold hover:bg-premium-gold/5 transition-all">
+                          <Sparkles size={12} className="text-premium-gold/60" /> {cat.label}
+                        </Link>
+                      ))}
+                    </div>
                   )}
                 </div>
               ))}
@@ -285,35 +256,26 @@ export default function Header() {
                     <button onClick={() => setShowUserMenu(!showUserMenu)} aria-label="Toggle user menu" className={`w-11 h-11 rounded-2xl flex items-center justify-center shadow-lg transition-all ${showUserMenu ? 'bg-premium-gold text-charcoal' : 'bg-charcoal text-premium-gold hover:scale-105'}`}>
                       <User size={18} />
                     </button>
-                    <AnimatePresence mode="wait">
-                      {showUserMenu && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 15, rotateX: -15, scale: 0.95 }}
-                          animate={{ opacity: 1, y: 0, rotateX: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: 10, rotateX: -10, scale: 0.95 }}
-                          transition={{ type: "spring", damping: 20, stiffness: 300 }}
-                          style={{ transformOrigin: "top right", transformStyle: "preserve-3d" }}
-                          className="absolute top-full right-0 mt-4 w-56 glass rounded-[2rem] shadow-2xl border border-white/40 overflow-hidden py-4 z-[100] perspective-1000"
-                        >
-                          <div className="px-6 py-4 border-b border-white/20 mb-2">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-charcoal/60">Welcome back</p>
-                            <p className="text-xs font-black text-charcoal truncate">{user?.name || 'Customer'}</p>
-                          </div>
-                          {user?.role === 'admin' ? (
-                            <Link to="/admin" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-premium-gold hover:bg-premium-gold/5 transition-all">Admin Panel</Link>
-                          ) : user?.role === 'staff' ? (
-                            <Link to="/staff" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-premium-gold hover:bg-premium-gold/5 transition-all">Staff Portal</Link>
-                          ) : (
-                            <>
-                              <Link to="/dashboard" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-charcoal/60 hover:text-premium-gold hover:bg-premium-gold/5 transition-all">My Account</Link>
-                              <Link to="/dashboard/orders" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-charcoal/60 hover:text-premium-gold hover:bg-premium-gold/5 transition-all">Order History</Link>
-                            </>
-                          )}
-                          <div className="h-px bg-white/20 my-2 mx-4" />
-                          <button onClick={handleLogout} className="w-full flex items-center gap-3 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-stock-out hover:bg-stock-out/5 transition-all text-left">Sign Out</button>
-                        </motion.div>
+                    <div
+                      className={`absolute top-full right-0 mt-4 w-56 glass rounded-[2rem] shadow-2xl border border-white/40 overflow-hidden py-4 z-[100] transition-all duration-300 origin-top-right ${showUserMenu ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto' : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'}`}
+                    >
+                      <div className="px-6 py-4 border-b border-white/20 mb-2">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-charcoal/60">Welcome back</p>
+                        <p className="text-xs font-black text-charcoal truncate">{user?.name || 'Customer'}</p>
+                      </div>
+                      {user?.role === 'admin' ? (
+                        <Link to="/admin" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-premium-gold hover:bg-premium-gold/5 transition-all">Admin Panel</Link>
+                      ) : user?.role === 'staff' ? (
+                        <Link to="/staff" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-premium-gold hover:bg-premium-gold/5 transition-all">Staff Portal</Link>
+                      ) : (
+                        <>
+                          <Link to="/dashboard" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-charcoal/60 hover:text-premium-gold hover:bg-premium-gold/5 transition-all">My Account</Link>
+                          <Link to="/dashboard/orders" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-charcoal/60 hover:text-premium-gold hover:bg-premium-gold/5 transition-all">Order History</Link>
+                        </>
                       )}
-                    </AnimatePresence>
+                      <div className="h-px bg-white/20 my-2 mx-4" />
+                      <button onClick={handleLogout} className="w-full flex items-center gap-3 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-stock-out hover:bg-stock-out/5 transition-all text-left">Sign Out</button>
+                    </div>
                   </div>
                 ) : (
                   <Link to="/login" className="px-6 py-2.5 bg-charcoal text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-premium-gold hover:text-charcoal transition-all">Login</Link>
@@ -326,145 +288,123 @@ export default function Header() {
 
       </header>
 
-      <AnimatePresence mode="wait">
-        {isMobileMenuOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setMobileMenu(false)}
-              className="fixed inset-0 bg-black/60 z-[60] backdrop-blur-sm"
-            />
+      {/* Backdrop */}
+      <div
+        onClick={() => setMobileMenu(false)}
+        className={`fixed inset-0 bg-black/60 z-[60] backdrop-blur-sm transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+      />
 
-            <motion.div
-              initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed top-0 left-0 h-full max-h-[100dvh] bg-white z-[70] shadow-2xl flex flex-col"
-              style={{ width: 'min(80vw, 320px)' }}
-            >
-              <div className="flex-none flex items-center justify-between px-6 py-5 border-b border-gray-100">
-                <Link to="/" onClick={() => setMobileMenu(false)} className="flex items-center gap-3">
-                  <SafeImage src="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0043.jpg?updatedAt=1772379265473" width={55} height={55} quality={80} alt="Logo" className="h-9 w-auto aspect-square object-cover rounded-full" />
-                  <div className="flex flex-col leading-none">
-                    <span className="font-black text-[15px] tracking-tight text-charcoal">MAGIZHCHI</span>
-                    <span className="font-black text-[8px] tracking-[0.28em] text-premium-gold uppercase mt-0.5">GARMENTS</span>
-                  </div>
-                </Link>
-                <button
+      {/* Drawer */}
+      <div
+        className={`fixed top-0 left-0 h-full max-h-[100dvh] bg-white z-[70] shadow-2xl flex flex-col transition-transform duration-300 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}
+        style={{ width: 'min(80vw, 320px)' }}
+      >
+        <div className="flex-none flex items-center justify-between px-6 py-5 border-b border-gray-100">
+          <Link to="/" onClick={() => setMobileMenu(false)} className="flex items-center gap-3">
+            <SafeImage src="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0043.jpg?updatedAt=1772379265473" width={55} height={55} quality={80} alt="Logo" className="h-9 w-auto aspect-square object-cover rounded-full" />
+            <div className="flex flex-col leading-none">
+              <span className="font-black text-[15px] tracking-tight text-charcoal">MAGIZHCHI</span>
+              <span className="font-black text-[8px] tracking-[0.28em] text-premium-gold uppercase mt-0.5">GARMENTS</span>
+            </div>
+          </Link>
+          <button
+            onClick={() => setMobileMenu(false)}
+            aria-label="Close menu"
+            className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-charcoal hover:bg-gray-200 transition-all ml-2 flex-shrink-0"
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto overscroll-contain px-6 py-5 space-y-1">
+          {NAV_LINKS.map((link) => (
+            <div key={link.path}>
+              <Link
+                to={link.path}
+                onClick={() => setMobileMenu(false)}
+                className={`block py-4 text-xl font-black tracking-tight border-b border-gray-100 last:border-0 transition-colors ${location.pathname === link.path ? 'text-premium-gold' : 'text-charcoal hover:text-premium-gold'}`}
+              >
+                {link.label}
+              </Link>
+            </div>
+          ))}
+
+          <div className="pt-5">
+            <p className="text-[9px] font-black uppercase tracking-[0.3em] text-premium-gold mb-3">Collections</p>
+            {categories.map((cat) => (
+              <div key={cat.path}>
+                <Link
+                  to={cat.path}
                   onClick={() => setMobileMenu(false)}
-                  aria-label="Close menu"
-                  className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-charcoal hover:bg-gray-200 transition-all ml-2 flex-shrink-0"
+                  className="flex items-center gap-2 py-3.5 text-[11px] font-black uppercase tracking-widest text-charcoal/70 hover:text-premium-gold transition-colors border-b border-gray-100 last:border-0"
                 >
-                  <X size={16} />
-                </button>
+                  <Sparkles size={9} className="text-premium-gold/70 flex-shrink-0" />
+                  {cat.label}
+                </Link>
               </div>
+            ))}
+          </div>
 
-              <div className="flex-1 overflow-y-auto overscroll-contain px-6 py-5 space-y-1">
-                {NAV_LINKS.map((link, idx) => (
-                  <motion.div
-                    key={link.path}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.1 + idx * 0.1 }}
-                  >
-                    <Link
-                      to={link.path}
-                      onClick={() => setMobileMenu(false)}
-                      className={`block py-4 text-xl font-black tracking-tight border-b border-gray-100 last:border-0 transition-colors ${location.pathname === link.path ? 'text-premium-gold' : 'text-charcoal hover:text-premium-gold'}`}
-                    >
-                      {link.label}
-                    </Link>
-                  </motion.div>
-                ))}
-
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
-                  className="pt-5"
+          {isAuthenticated && (
+            <div className="pt-5">
+              <p className="text-[9px] font-black uppercase tracking-[0.3em] text-premium-gold mb-3">My Account</p>
+              {user?.role === 'admin' ? (
+                <Link
+                  to="/admin"
+                  onClick={() => setMobileMenu(false)}
+                  className="block py-2.5 text-sm font-bold text-premium-gold hover:text-premium-gold transition-colors border-b border-gray-50 last:border-0"
                 >
-                  <p className="text-[9px] font-black uppercase tracking-[0.3em] text-premium-gold mb-3">Collections</p>
-                  {categories.map((cat, idx) => (
-                    <motion.div
-                      key={cat.path}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.6 + idx * 0.05 }}
-                    >
-                      <Link
-                        to={cat.path}
-                        onClick={() => setMobileMenu(false)}
-                        className="flex items-center gap-2 py-3.5 text-[11px] font-black uppercase tracking-widest text-charcoal/70 hover:text-premium-gold transition-colors border-b border-gray-100 last:border-0"
-                      >
-                        <Sparkles size={9} className="text-premium-gold/70 flex-shrink-0" />
-                        {cat.label}
-                      </Link>
-                    </motion.div>
-                  ))}
-                </motion.div>
-
-                {isAuthenticated && (
-                  <div className="pt-5">
-                    <p className="text-[9px] font-black uppercase tracking-[0.3em] text-premium-gold mb-3">My Account</p>
-                    {user?.role === 'admin' ? (
-                      <Link
-                        to="/admin"
-                        onClick={() => setMobileMenu(false)}
-                        className="block py-2.5 text-sm font-bold text-premium-gold hover:text-premium-gold transition-colors border-b border-gray-50 last:border-0"
-                      >
-                        Admin Panel
-                      </Link>
-                    ) : user?.role === 'staff' ? (
-                      <Link
-                        to="/staff"
-                        onClick={() => setMobileMenu(false)}
-                        className="block py-2.5 text-sm font-bold text-premium-gold hover:text-premium-gold transition-colors border-b border-gray-50 last:border-0"
-                      >
-                        Staff Portal
-                      </Link>
-                    ) : (
-                      <>
-                        <Link
-                          to="/dashboard"
-                          onClick={() => setMobileMenu(false)}
-                          className="block py-2.5 text-sm font-bold text-charcoal hover:text-premium-gold transition-colors border-b border-gray-50 last:border-0"
-                        >
-                          My Profile
-                        </Link>
-                        <Link
-                          to="/dashboard/orders"
-                          onClick={() => setMobileMenu(false)}
-                          className="block py-2.5 text-sm font-bold text-charcoal hover:text-premium-gold transition-colors border-b border-gray-50 last:border-0"
-                        >
-                          Order History
-                        </Link>
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <div className="flex-none px-6 pt-4 pb-8 border-t border-gray-100">
-                {isAuthenticated ? (
-                  <button
-                    onClick={handleLogout}
-                    className="w-full py-3.5 bg-stock-out/10 text-stock-out font-black uppercase tracking-widest text-[10px] rounded-2xl hover:bg-stock-out hover:text-white transition-all"
-                  >
-                    Sign Out
-                  </button>
-                ) : (
+                  Admin Panel
+                </Link>
+              ) : user?.role === 'staff' ? (
+                <Link
+                  to="/staff"
+                  onClick={() => setMobileMenu(false)}
+                  className="block py-2.5 text-sm font-bold text-premium-gold hover:text-premium-gold transition-colors border-b border-gray-50 last:border-0"
+                >
+                  Staff Portal
+                </Link>
+              ) : (
+                <>
                   <Link
-                    to="/login"
+                    to="/dashboard"
                     onClick={() => setMobileMenu(false)}
-                    className="btn-primary block w-full text-center py-3.5 rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-lg"
+                    className="block py-2.5 text-sm font-bold text-charcoal hover:text-premium-gold transition-colors border-b border-gray-50 last:border-0"
                   >
-                    Login
+                    My Profile
                   </Link>
-                )}
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+                  <Link
+                    to="/dashboard/orders"
+                    onClick={() => setMobileMenu(false)}
+                    className="block py-2.5 text-sm font-bold text-charcoal hover:text-premium-gold transition-colors border-b border-gray-50 last:border-0"
+                  >
+                    Order History
+                  </Link>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="flex-none px-6 pt-4 pb-8 border-t border-gray-100">
+          {isAuthenticated ? (
+            <button
+              onClick={handleLogout}
+              className="w-full py-3.5 bg-stock-out/10 text-stock-out font-black uppercase tracking-widest text-[10px] rounded-2xl hover:bg-stock-out hover:text-white transition-all"
+            >
+              Sign Out
+            </button>
+          ) : (
+            <Link
+              to="/login"
+              onClick={() => setMobileMenu(false)}
+              className="btn-primary block w-full text-center py-3.5 rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-lg"
+            >
+              Login
+            </Link>
+          )}
+        </div>
+      </div>
     </>
   );
 }

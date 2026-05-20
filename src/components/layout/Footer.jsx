@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
 
 import { MessageCircle, Mail, Phone, MapPin, Share2, Shield } from 'lucide-react';
 import { adminService } from '../../services';
@@ -70,18 +69,14 @@ export default function Footer() {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <Link to="/" className="block mb-6 group/flogo">
-              <motion.div 
-                whileHover={{ rotateY: 10, rotateX: -5, z: 20 }}
-                style={{ transformStyle: "preserve-3d" }}
-                className="perspective-1000"
-              >
-                <div className="font-display text-2xl font-black tracking-[0.15em] text-white group-hover/flogo:text-premium-gold transition-colors uppercase" style={{ transform: "translateZ(30px)" }}>
+              <div className="perspective-1000 transition-transform duration-300 hover:scale-[1.02]">
+                <div className="font-display text-2xl font-black tracking-[0.15em] text-white group-hover/flogo:text-premium-gold transition-colors uppercase">
                   {store.name.split(' ')[0]}
                 </div>
-                <div className="text-[9px] text-white/60 tracking-[0.4em] uppercase font-black" style={{ transform: "translateZ(10px)" }}>
+                <div className="text-[9px] text-white/60 tracking-[0.4em] uppercase font-black">
                   {store.name.split(' ').slice(1).join(' ') || 'GARMENTS'}
                 </div>
-              </motion.div>
+              </div>
             </Link>
             <p className="text-white/70 text-sm leading-relaxed mb-6 font-medium">
 
@@ -89,27 +84,17 @@ export default function Footer() {
             </p>
             <div className="flex gap-3">
               {socialLinks.map(({ icon: Icon, href, title }) => (
-                <motion.a 
+                <a 
                   key={title} 
                   href={href} 
                   target="_blank" 
                   rel="noreferrer" 
                   title={title}
-                  whileHover={{ 
-                    scale: 1.2, 
-                    rotateY: 20, 
-                    rotateX: -10,
-                    z: 30,
-                    backgroundColor: "#D4AF37",
-                    color: "#000"
-                  }}
-                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                  style={{ transformStyle: "preserve-3d" }}
-                  className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center transition-all duration-200 text-white/60 hover:text-charcoal shadow-lg"
+                  className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center transition-all duration-300 text-white/60 hover:text-charcoal hover:bg-premium-gold hover:scale-110 shadow-lg"
                   aria-label={`Follow us on ${title}`}
                 >
-                  <Icon size={18} style={{ transform: "translateZ(20px)" }} />
-                </motion.a>
+                  <Icon size={18} />
+                </a>
               ))}
             </div>
 

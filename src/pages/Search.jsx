@@ -19,7 +19,7 @@ export default function Search() {
     placeholderData: (prev) => prev,
   });
 
-  const products = data?.products || data || [];
+  const products = Array.isArray(data?.products) ? data.products : (Array.isArray(data) ? data : []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -58,7 +58,7 @@ export default function Search() {
           <SearchIcon size={56} className="mx-auto text-border-light mb-4" />
           <p className="text-text-muted text-lg">Start typing to search for products</p>
           <div className="flex flex-wrap justify-center gap-2 mt-6">
-            {['Shirts', 'T-Shirts', 'Jeans', 'Trousers', 'Formals'].map(s => (
+            {(Array.isArray(['Shirts', 'T-Shirts', 'Jeans', 'Trousers', 'Formals']) ? ['Shirts', 'T-Shirts', 'Jeans', 'Trousers', 'Formals'] : []).map(s => (
               <button key={s} onClick={() => { setLocalQ(s); setSearchParams({ q: s }); }} className="px-4 py-2 bg-light-bg border border-border-light rounded-full text-sm font-semibold text-text-muted hover:text-text-primary hover:border-premium-gold transition-all">
                 {s}
               </button>
@@ -100,7 +100,10 @@ export default function Search() {
           )}
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {products.map(p => <ProductCard key={p._id} product={p} />)}
+            {(Array.isArray(products) ? products : []).map(p => {
+              if (!p || !p._id) return null;
+              return <ProductCard key={p._id} product={p} />;
+            })}
           </div>
         </>
       )}

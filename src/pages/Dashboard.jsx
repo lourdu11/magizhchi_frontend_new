@@ -28,7 +28,10 @@ function StatusBadge({ status }) {
 // ── Orders Tab
 function MyOrders() {
   const qc = useQueryClient();
-  const { data: orders, isLoading } = useQuery({ queryKey: ['my-orders'], queryFn: () => orderService.getMyOrders().then(r => r.data.data) });
+  const { data: orders, isLoading } = useQuery({ 
+    queryKey: ['my-orders'], 
+    queryFn: () => orderService.getMyOrders().then(r => r?.data?.data || []) 
+  });
   const cancelMutation = useMutation({
     mutationFn: (id) => orderService.cancelOrder(id, 'Customer cancelled'),
     onSuccess: () => { toast.success('Order cancelled'); qc.invalidateQueries(['my-orders']); },
@@ -36,47 +39,53 @@ function MyOrders() {
 
 
   if (isLoading) return <div className="py-20 flex justify-center"><Loader2 className="animate-spin text-premium-gold" size={36} /></div>;
-  if (!orders?.length) return <div className="py-20 text-center"><Package size={48} className="text-border-light mx-auto mb-3" /><p className="text-text-muted">No orders yet. Start shopping!</p><Link to="/collections" className="btn-primary mt-4 inline-block">Browse Products</Link></div>;
+  if (!Array.isArray(orders) || orders.length === 0) return <div className="py-20 text-center"><Package size={48} className="text-border-light mx-auto mb-3" /><p className="text-text-muted">No orders yet. Start shopping!</p><Link to="/collections" className="btn-primary mt-4 inline-block">Browse Products</Link></div>;
 
   return (
     <div className="space-y-4">
-      {orders.map(order => (
-        <div key={order._id} className="bg-light-bg rounded-2xl overflow-hidden border border-border-light">
-          <div className="flex items-center justify-between px-5 py-3 bg-white border-b border-border-light">
-            <div>
-              <p className="text-xs font-bold text-text-muted">ORDER #{order.orderNumber}</p>
-              <p className="text-xs text-text-muted">{new Date(order.createdAt).toLocaleDateString('en-IN', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
-            </div>
-            <div className="flex items-center gap-3">
-              <StatusBadge status={order.orderStatus} />
-              {['placed', 'confirmed'].includes(order.orderStatus) && (
-                <button onClick={() => { if (window.confirm('Cancel this order?')) cancelMutation.mutate(order._id); }} className="text-xs text-red-500 hover:underline font-bold">Cancel</button>
-              )}
-            </div>
-          </div>
-          <div className="p-5 space-y-3">
-            {order.items?.map((item, i) => (
-              <div key={i} className="flex items-center gap-4">
-                <SafeImage src={item.productImage} alt="" width={120} quality={70} className="w-16 h-16 rounded-xl object-cover bg-white" />
-                <div className="flex-1">
-                  <p className="font-semibold text-text-primary text-sm">{item.productName}</p>
-                  <p className="text-xs text-text-muted">{item.variant?.size} · {item.variant?.color} · Qty: {item.quantity}</p>
-                  <p className="text-sm font-bold text-premium-gold mt-0.5">Rs.{item.total?.toLocaleString('en-IN')}</p>
-                </div>
+      {(Array.isArray(orders) ? orders : []).map(order => {
+        if (!order) return null;
+        return (
+          <div key={order._id} className="bg-light-bg rounded-2xl overflow-hidden border border-border-light">
+            <div className="flex items-center justify-between px-5 py-3 bg-white border-b border-border-light">
+              <div>
+                <p className="text-xs font-bold text-text-muted">ORDER #{order.orderNumber || ''}</p>
+                <p className="text-xs text-text-muted">{order.createdAt ? new Date(order.createdAt).toLocaleDateString('en-IN', { month: 'long', day: 'numeric', year: 'numeric' }) : ''}</p>
               </div>
-            ))}
-          </div>
-          <div className="px-5 pb-4 flex items-center justify-between">
-            <p className="text-sm font-bold text-text-primary">Total: <span className="text-premium-gold">Rs.{order.pricing?.totalAmount?.toLocaleString('en-IN')}</span></p>
-            <div className="flex gap-2">
-              {order.invoiceUrl && <a href={order.invoiceUrl} target="_blank" rel="noreferrer" className="text-xs font-bold text-premium-gold hover:underline">Invoice ↓</a>}
-              {order.orderStatus === 'delivered' && !order.returnRequest?.isRequested && (
-                <Link to={`/dashboard/return/${order._id}`} className="text-xs font-bold text-text-muted hover:text-text-primary">Return / Exchange</Link>
-              )}
+              <div className="flex items-center gap-3">
+                <StatusBadge status={order.orderStatus} />
+                {['placed', 'confirmed'].includes(order.orderStatus) && (
+                  <button onClick={() => { if (window.confirm('Cancel this order?')) cancelMutation.mutate(order._id); }} className="text-xs text-red-500 hover:underline font-bold">Cancel</button>
+                )}
+              </div>
+            </div>
+            <div className="p-5 space-y-3">
+              {(Array.isArray(order.items) ? order.items : []).map((item, i) => {
+                if (!item) return null;
+                return (
+                  <div key={i} className="flex items-center gap-4">
+                    <SafeImage src={item.productImage} alt="" width={120} quality={70} className="w-16 h-16 rounded-xl object-cover bg-white" />
+                    <div className="flex-1">
+                      <p className="font-semibold text-text-primary text-sm">{item.productName || ''}</p>
+                      <p className="text-xs text-text-muted">{item.variant?.size || ''} · {item.variant?.color || ''} · Qty: {item.quantity || 0}</p>
+                      <p className="text-sm font-bold text-premium-gold mt-0.5">Rs.{item.total?.toLocaleString('en-IN')}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="px-5 pb-4 flex items-center justify-between">
+              <p className="text-sm font-bold text-text-primary">Total: <span className="text-premium-gold">Rs.{order.pricing?.totalAmount?.toLocaleString('en-IN')}</span></p>
+              <div className="flex gap-2">
+                {order.invoiceUrl && <a href={order.invoiceUrl} target="_blank" rel="noreferrer" className="text-xs font-bold text-premium-gold hover:underline">Invoice ↓</a>}
+                {order.orderStatus === 'delivered' && !order.returnRequest?.isRequested && (
+                  <Link to={`/dashboard/return/${order._id}`} className="text-xs font-bold text-text-muted hover:text-text-primary">Return / Exchange</Link>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -187,27 +196,30 @@ function Addresses() {
         </div>
       )}
 
-      {!user?.addresses?.length && !adding && (
+      {(!Array.isArray(user?.addresses) || user.addresses.length === 0) && !adding && (
         <div className="py-12 text-center text-text-muted bg-light-bg rounded-2xl"><MapPin size={36} className="mx-auto mb-2 text-border-light" /><p>No saved addresses. Add your first address.</p></div>
       )}
 
-      {user?.addresses?.map(addr => (
-        <div key={addr._id} className="bg-white rounded-2xl border border-border-light p-5 flex items-start justify-between group">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-light-bg text-text-muted uppercase">{addr.type}</span>
-              {addr.isDefault && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-premium-gold/10 text-premium-gold uppercase">Default</span>}
+      {(Array.isArray(user?.addresses) ? user.addresses : []).map(addr => {
+        if (!addr) return null;
+        return (
+          <div key={addr._id} className="bg-white rounded-2xl border border-border-light p-5 flex items-start justify-between group">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-light-bg text-text-muted uppercase">{addr.type || ''}</span>
+                {addr.isDefault && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-premium-gold/10 text-premium-gold uppercase">Default</span>}
+              </div>
+              <p className="font-semibold text-text-primary">{addr.name || ''}</p>
+              <p className="text-sm text-text-muted">{addr.addressLine1 || ''}{addr.addressLine2 ? `, ${addr.addressLine2}` : ''}</p>
+              <p className="text-sm text-text-muted">{addr.city || ''}, {addr.state || ''} — {addr.pincode || ''}</p>
+              <p className="text-sm text-text-muted">{addr.phone || ''}</p>
             </div>
-            <p className="font-semibold text-text-primary">{addr.name}</p>
-            <p className="text-sm text-text-muted">{addr.addressLine1}{addr.addressLine2 ? `, ${addr.addressLine2}` : ''}</p>
-            <p className="text-sm text-text-muted">{addr.city}, {addr.state} — {addr.pincode}</p>
-            <p className="text-sm text-text-muted">{addr.phone}</p>
+            <button onClick={() => { if (window.confirm('Remove this address?')) deleteMutation.mutate(addr._id); }} className="p-2 text-text-muted hover:text-stock-out hover:bg-red-50 rounded-lg opacity-0 group-hover:opacity-100 transition-all">
+              <Trash2 size={16} />
+            </button>
           </div>
-          <button onClick={() => { if (window.confirm('Remove this address?')) deleteMutation.mutate(addr._id); }} className="p-2 text-text-muted hover:text-stock-out hover:bg-red-50 rounded-lg opacity-0 group-hover:opacity-100 transition-all">
-            <Trash2 size={16} />
-          </button>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -219,7 +231,7 @@ function MyWishlist() {
 
   const { data: wishlist, isLoading } = useQuery({
     queryKey: ['wishlist'],
-    queryFn: () => api.get('/wishlist').then(r => r.data.data),
+    queryFn: () => api.get('/wishlist').then(r => r?.data?.data || null),
   });
 
   const removeMutation = useMutation({
@@ -235,7 +247,7 @@ function MyWishlist() {
 
   if (isLoading) return <div className="py-20 flex justify-center"><Loader2 className="animate-spin text-premium-gold" size={36} /></div>;
 
-  const items = wishlist?.wishlist?.products || [];
+  const items = Array.isArray(wishlist?.wishlist?.products) ? wishlist.wishlist.products : [];
 
   if (!items.length) {
     return (
@@ -249,27 +261,28 @@ function MyWishlist() {
 
   return (
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {items.map((item) => {
+      {(Array.isArray(items) ? items : []).map((item) => {
+        if (!item) return null;
         const product = item.productId || item;
-        if (!product?._id) return null;
+        if (!product || !product._id) return null;
         const price = product.discountedPrice || product.sellingPrice;
-        const firstVariant = product.variants?.[0];
+        const firstVariant = Array.isArray(product.variants) ? product.variants[0] : null;
 
         return (
           <div key={product._id} className="bg-white rounded-2xl border border-border-light overflow-hidden shadow-sm group hover:shadow-md transition-all relative flex flex-col h-full">
             {/* Image */}
             <div className="relative aspect-[4/5] bg-light-bg overflow-hidden">
-              <Link to={`/product/${product.slug}`}>
+              <Link to={`/product/${product.slug || ''}`}>
                 <SafeImage
                   src={product.images?.[0]}
-                  alt={product.name}
+                  alt={product.name || ''}
                   width={300}
                   quality={70}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   loading="lazy"
                 />
               </Link>
-              {product.discountPercentage > 0 && (
+              {(product.discountPercentage || 0) > 0 && (
                 <span className="absolute top-3 left-3 bg-premium-gold text-charcoal text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full shadow-lg shadow-premium-gold/10">
                   -{product.discountPercentage}%
                 </span>
@@ -286,12 +299,12 @@ function MyWishlist() {
             {/* Info */}
             <div className="p-4 flex-1 flex flex-col justify-between">
               <div>
-                <Link to={`/product/${product.slug}`}>
-                  <h4 className="font-bold text-text-primary text-sm hover:text-premium-gold transition-colors line-clamp-1">{product.name}</h4>
+                <Link to={`/product/${product.slug || ''}`}>
+                  <h4 className="font-bold text-text-primary text-sm hover:text-premium-gold transition-colors line-clamp-1">{product.name || ''}</h4>
                 </Link>
                 <div className="flex items-baseline gap-2 mt-2">
                   <span className="font-bold text-charcoal text-sm">Rs.{price?.toLocaleString('en-IN')}</span>
-                  {product.discountPercentage > 0 && (
+                  {(product.discountPercentage || 0) > 0 && (
                     <span className="text-xs text-text-muted line-through font-medium">Rs.{product.sellingPrice?.toLocaleString('en-IN')}</span>
                   )}
                 </div>

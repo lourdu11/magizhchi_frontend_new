@@ -26,7 +26,7 @@ export default function TrackOrder() {
         : { orderNumber: cleanQuery.toUpperCase() };
 
       const { data } = await publicService.trackOrder(payload);
-      setOrder(data.data.order);
+      setOrder(data?.data?.order || null);
       toast.success('Order status retrieved!');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Order not found. Check details.');
@@ -93,9 +93,9 @@ export default function TrackOrder() {
                 <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
                   <div>
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-[10px] font-black text-premium-gold uppercase tracking-widest bg-premium-gold/10 px-2 py-0.5 rounded">Order #{order.orderNumber}</span>
+                      <span className="text-[10px] font-black text-premium-gold uppercase tracking-widest bg-premium-gold/10 px-2 py-0.5 rounded">Order #{order.orderNumber || ''}</span>
                     </div>
-                    <h3 className="text-xl font-black text-charcoal">Status: <span className="text-premium-gold uppercase">{order.orderStatus.replace(/_/g, ' ')}</span></h3>
+                    <h3 className="text-xl font-black text-charcoal">Status: <span className="text-premium-gold uppercase">{(order.orderStatus || '').replace(/_/g, ' ')}</span></h3>
                     <p className="text-xs text-text-muted mt-1 font-bold">Estimated Delivery: {order.estimatedDeliveryDate ? new Date(order.estimatedDeliveryDate).toDateString() : 'TBA'}</p>
                   </div>
                   {order.trackingInfo?.trackingNumber && (
@@ -139,10 +139,10 @@ export default function TrackOrder() {
                     <MapPin className="text-premium-gold" size={20} />
                     <h4 className="font-black text-charcoal uppercase tracking-widest text-xs">Shipping Address</h4>
                   </div>
-                  <p className="font-black text-charcoal">{order.shippingAddress.name}</p>
+                  <p className="font-black text-charcoal">{order.shippingAddress?.name || ''}</p>
                   <p className="text-sm text-text-secondary mt-2 leading-relaxed">
-                    {order.shippingAddress.addressLine1}, {order.shippingAddress.addressLine2}<br />
-                    {order.shippingAddress.city}, {order.shippingAddress.state} — {order.shippingAddress.pincode}
+                    {order.shippingAddress?.addressLine1 || ''}{order.shippingAddress?.addressLine2 ? `, ${order.shippingAddress.addressLine2}` : ''}<br />
+                    {order.shippingAddress?.city || ''}, {order.shippingAddress?.state || ''} — {order.shippingAddress?.pincode || ''}
                   </p>
                 </div>
 
@@ -152,29 +152,32 @@ export default function TrackOrder() {
                     <h4 className="font-black text-charcoal uppercase tracking-widest text-xs">Items Summary</h4>
                   </div>
                   <div className="space-y-4">
-                    {order.items.map((item, idx) => (
-                      <div key={idx} className="flex items-center gap-4">
-                        <img src={item.productImage || '/placeholder.jpg'} className="w-12 h-12 rounded-xl object-cover" />
-                        <div className="flex-1">
-                          <p className="text-xs font-black text-charcoal leading-tight">{item.productName}</p>
-                          {item.isCombo ? (
-                             <div className="mt-1">
-                               {item.comboSelections?.map((sel, sIdx) => (
-                                 <p key={sIdx} className="text-[9px] text-text-muted font-bold leading-tight">
-                                   • {sel.productName} ({sel.size})
-                                 </p>
-                               ))}
-                             </div>
-                          ) : (
-                             <p className="text-[10px] text-text-muted font-bold">{item.variant?.size} / {item.variant?.color} × {item.quantity}</p>
-                          )}
+                    {(Array.isArray(order.items) ? order.items : []).map((item, idx) => {
+                      if (!item) return null;
+                      return (
+                        <div key={idx} className="flex items-center gap-4">
+                          <img src={item.productImage || '/placeholder.jpg'} className="w-12 h-12 rounded-xl object-cover" />
+                          <div className="flex-1">
+                            <p className="text-xs font-black text-charcoal leading-tight">{item.productName || ''}</p>
+                            {item.isCombo ? (
+                               <div className="mt-1">
+                                 {Array.isArray(item.comboSelections) && item.comboSelections.map((sel, sIdx) => (
+                                   <p key={sIdx} className="text-[9px] text-text-muted font-bold leading-tight">
+                                     • {sel?.productName || ''} ({sel?.size || ''})
+                                   </p>
+                                 ))}
+                               </div>
+                            ) : (
+                               <p className="text-[10px] text-text-muted font-bold">{item.variant?.size || ''} / {item.variant?.color || ''} × {item.quantity || 0}</p>
+                            )}
+                          </div>
+                          <p className="font-black text-premium-gold text-sm">₹{(item.total || 0).toLocaleString('en-IN')}</p>
                         </div>
-                        <p className="font-black text-premium-gold text-sm">₹{item.total.toLocaleString('en-IN')}</p>
-                      </div>
-                    ))}
+                      );
+                    })}
                     <div className="pt-4 border-t border-border-light flex justify-between items-center">
                       <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">Total Amount Paid</p>
-                      <p className="text-lg font-black text-charcoal">₹{order.pricing.totalAmount.toLocaleString('en-IN')}</p>
+                      <p className="text-lg font-black text-charcoal">₹{(order.pricing?.totalAmount || 0).toLocaleString('en-IN')}</p>
                     </div>
                   </div>
                 </div>
