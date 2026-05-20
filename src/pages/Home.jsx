@@ -172,6 +172,7 @@ export default function Home() {
               crop="fill"
               gravity={isMobile ? slides[heroIdx]?.mobileGravity : slides[heroIdx]?.gravity}
               aspect={isMobile ? '4:5' : '21:9'}
+              sizes="100vw"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent" />
           </div>
