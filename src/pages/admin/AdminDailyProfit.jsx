@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { adminService } from '../../services';
 import { 
@@ -16,9 +16,8 @@ import {
   BarChart2
 } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
 
-const COLORS = ['#D4AF37', '#1A1A1A', '#4F46E5', '#10B981', '#F59E0B'];
+const DailyProfitBarChart = lazy(() => import('./charts/DailyProfitBarChart'));
 
 export default function AdminDailyProfit() {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
@@ -88,17 +87,9 @@ export default function AdminDailyProfit() {
             <Layers size={18} className="text-premium-gold" /> Profit by Category
           </h3>
           <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%" minWidth={0} debounce={1}>
-              <BarChart data={report?.byCategory || []}>
-                <XAxis dataKey="category" tick={{ fontSize: 10, fontWeight: 900 }} axisLine={false} tickLine={false} />
-                <Tooltip cursor={{ fill: '#F8F9FA' }} contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)', fontWeight: 900 }} />
-                <Bar dataKey="profit" radius={[10, 10, 0, 0]} barSize={40}>
-                  {report?.byCategory?.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+            <Suspense fallback={<div className="h-[300px] w-full bg-light-bg rounded-2xl animate-pulse" />}>
+              <DailyProfitBarChart data={report?.byCategory || []} />
+            </Suspense>
           </div>
           <div className="grid grid-cols-2 gap-4 mt-8">
             {report?.byCategory?.map((cat, i) => (

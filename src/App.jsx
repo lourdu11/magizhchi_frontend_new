@@ -3,18 +3,19 @@
 import { Routes, Route } from 'react-router-dom';
 import { Suspense, lazy, useEffect, useState } from 'react';
 
-// Layouts
+// Layouts — UserLayout is eagerly loaded (serves all public users)
 import UserLayout from './components/layout/UserLayout';
-import AdminLayout from './components/layout/AdminLayout';
-import StaffLayout from './components/layout/StaffLayout';
 import ProtectedRoute from './components/common/ProtectedRoute';
+// AdminLayout & StaffLayout are lazy: they bring framer-motion + heavy deps
+const AdminLayout = lazy(() => import('./components/layout/AdminLayout'));
+const StaffLayout = lazy(() => import('./components/layout/StaffLayout'));
 import PageLoader from './components/common/PageLoader';
 
 // Eagerly loaded pages
-import Home from './pages/Home';
 import { Navigate } from 'react-router-dom';
 
 // Lazily loaded pages
+const Home = lazy(() => import('./pages/Home'));
 const Collections = lazy(() => import('./pages/Collections'));
 const ProductDetails = lazy(() => import('./pages/ProductDetails'));
 const Cart = lazy(() => import('./pages/Cart'));

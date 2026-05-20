@@ -58,14 +58,14 @@ export default function ProductDetails() {
 
   const { data, isLoading } = useQuery({
     queryKey: ['product', slug],
-    queryFn: () => productService.getProduct(slug).then(r => r.data.data.product),
+    queryFn: () => productService.getProduct(slug).then(r => r?.data?.data?.product || null),
   });
 
   const product = data;
-  const variants = useMemo(() => product?.variants || [], [product]);
+  const variants = useMemo(() => Array.isArray(product?.variants) ? product.variants : [], [product]);
 
-  const sizes = useMemo(() => product ? [...new Set(variants.map(v => v.size).filter(Boolean))] : [], [product, variants]);
-  const colors = useMemo(() => product ? [...new Set(variants.map(v => v.color).filter(Boolean))] : [], [product, variants]);
+  const sizes = useMemo(() => (product && Array.isArray(variants)) ? [...new Set(variants.map(v => v?.size).filter(Boolean))] : [], [product, variants]);
+  const colors = useMemo(() => (product && Array.isArray(variants)) ? [...new Set(variants.map(v => v?.color).filter(Boolean))] : [], [product, variants]);
 
   // Auto-select if only one option
   useEffect(() => {
@@ -76,7 +76,7 @@ export default function ProductDetails() {
     const socket = adminService.getSocket?.() || null;
     if (socket && product) {
        const handleProductSync = (data) => {
-          if (data.id === product._id || data.productId === product._id) {
+          if (data && (data.id === product._id || data.productId === product._id)) {
              queryClient.invalidateQueries({ queryKey: ['product', slug] });
              if (data.type === 'PRODUCT_ARCHIVED' || data.type === 'PRODUCT_PURGED' || !product.isActive) {
                 toast.error('This product is no longer available', { id: 'product-archive-alert' });
@@ -100,9 +100,9 @@ export default function ProductDetails() {
     }
   }, [sizes, colors, product, queryClient, slug]);
 
-  const currentVariant = useMemo(() => variants.find(
-    v => v.size === selectedSize && v.color === selectedColor
-  ), [variants, selectedSize, selectedColor]);
+  const currentVariant = useMemo(() => Array.isArray(variants) ? variants.find(
+    v => v?.size === selectedSize && v?.color === selectedColor
+  ) : null, [variants, selectedSize, selectedColor]);
 
   // variant.stock from API is already: totalStock - onlineSold - offlineSold - reservedStock + returned - damaged
   const availableStock = useMemo(() => currentVariant ? Math.max(0, currentVariant.availableStock ?? currentVariant.available ?? currentVariant.qty ?? currentVariant.stock ?? 0) : 0, [currentVariant]);
@@ -111,9 +111,9 @@ export default function ProductDetails() {
   // Sync image with color selection
   const handleColorSelect = useCallback((color) => {
     setSelectedColor(color);
-    const variantWithImage = variants.find(v => v.color === color && v.images?.length > 0);
+    const variantWithImage = Array.isArray(variants) ? variants.find(v => v?.color === color && v?.images?.length > 0) : null;
     if (variantWithImage) {
-      const imgIdx = (product.images || []).findIndex(img => img === variantWithImage.images[0]);
+      const imgIdx = Array.isArray(product?.images) ? product.images.findIndex(img => img === variantWithImage.images[0]) : -1;
       if (imgIdx > -1) setSelectedImage(imgIdx);
     }
   }, [variants, product?.images]);
@@ -122,16 +122,16 @@ export default function ProductDetails() {
   const handleSizeSelect = useCallback((size) => {
     setSelectedSize(size);
     if (selectedColor) {
-      const exists = variants.some(v => v.size === size && v.color === selectedColor);
+      const exists = Array.isArray(variants) && variants.some(v => v?.size === size && v?.color === selectedColor);
       if (!exists) setSelectedColor(null);
     }
   }, [selectedColor, variants]);
 
-  const isWishlisted = product ? productIds.includes(product._id) : false;
+  const isWishlisted = (product && Array.isArray(productIds)) ? productIds.includes(product._id) : false;
 
   const handleAddToCart = useCallback(async () => {
-    if (product.productNature === 'combo') {
-       const slotsCount = product.comboSlots?.length || 0;
+    if (product?.productNature === 'combo') {
+       const slotsCount = product?.comboSlots?.length || 0;
        const selectedCount = Object.keys(selectedComboItems).length;
        if (selectedCount < slotsCount) return toast.error('Please configure your bundle selections');
     } else {
@@ -227,13 +227,13 @@ export default function ProductDetails() {
     );
   }
 
-  const images = product.images?.length > 0 
+  const images = Array.isArray(product?.images) && product.images.length > 0 
     ? product.images 
-    : [product.laptopImage, product.tabletImage, product.mobileImage].filter(Boolean).length > 0
-      ? [product.laptopImage, product.tabletImage, product.mobileImage].filter(Boolean)
+    : [product?.laptopImage, product?.tabletImage, product?.mobileImage].filter(Boolean).length > 0
+      ? [product?.laptopImage, product?.tabletImage, product?.mobileImage].filter(Boolean)
       : ['https://images.unsplash.com/photo-1596755094514-f87e34085b2c?q=80&w=800&auto=format&fit=crop'];
-  const price = product.discountedPrice || product.sellingPrice;
-  const hasDiscount = product.discountPercentage > 0;
+  const price = product?.discountedPrice || product?.sellingPrice;
+  const hasDiscount = (product?.discountPercentage || 0) > 0;
 
   return (
     <div className="bg-white min-h-dvh pb-24 md:pb-0">
@@ -281,7 +281,7 @@ export default function ProductDetails() {
               
               {/* Image Nav Dots */}
               <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
-                {images.map((_, i) => (
+                {Array.isArray(images) && images.map((_, i) => (
                   <button 
                     key={i} 
                     onClick={() => setSelectedImage(i)} 
@@ -293,7 +293,7 @@ export default function ProductDetails() {
             </div>
             
             <div className="hidden md:flex gap-4 overflow-x-auto pb-2 no-scrollbar">
-              {images.map((img, i) => (
+              {Array.isArray(images) && images.map((img, i) => (
                 <button 
                   key={i} 
                   onClick={() => setSelectedImage(i)} 
@@ -361,25 +361,25 @@ export default function ProductDetails() {
             </div>
 
             {/* Colors & Sizes (Standard) or Combo Selector */}
-            {product.productNature === 'combo' ? (
+            {product?.productNature === 'combo' ? (
               <div className="space-y-8">
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-premium-gold">Bundle Architecture</p>
                 <div className="space-y-6">
-                  {product.comboSlots?.map((slot, sIdx) => (
-                    <div key={slot.id || sIdx} className="p-6 bg-light-bg/30 rounded-[2rem] border border-border-light space-y-4">
-                      <p className="text-[9px] font-black text-charcoal uppercase tracking-widest">{slot.name}</p>
-                      {slot.products?.map(p => (
-                        <div key={p._id} className="space-y-3">
-                          <p className="text-[11px] font-bold text-text-muted uppercase">{p.name}</p>
+                  {Array.isArray(product?.comboSlots) && product.comboSlots.map((slot, sIdx) => (
+                    <div key={slot?.id || sIdx} className="p-6 bg-light-bg/30 rounded-[2rem] border border-border-light space-y-4">
+                      <p className="text-[9px] font-black text-charcoal uppercase tracking-widest">{slot?.name}</p>
+                      {Array.isArray(slot?.products) && slot.products.map(p => (
+                        <div key={p?._id} className="space-y-3">
+                          <p className="text-[11px] font-bold text-text-muted uppercase">{p?.name}</p>
                           <div className="flex flex-wrap gap-2">
-                            {p.syncedVariants?.map(v => (
+                            {Array.isArray(p?.syncedVariants) && p.syncedVariants.map(v => (
                               <button
-                                key={v.id}
-                                onClick={() => v.qty > 0 && setSelectedComboItems({ ...selectedComboItems, [slot.id]: { productName: p.name, productRef: p._id, ...v } })}
-                                disabled={v.qty <= 0}
-                                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all border-2 ${selectedComboItems[slot.id]?.id === v.id ? 'bg-charcoal text-white border-charcoal shadow-lg scale-105' : v.qty > 0 ? 'bg-white text-text-muted border-border-light hover:border-premium-gold' : 'bg-light-bg text-text-muted/30 border-border-light opacity-50 cursor-not-allowed'}`}
+                                key={v?.id}
+                                onClick={() => v?.qty > 0 && setSelectedComboItems({ ...selectedComboItems, [slot?.id]: { productName: p?.name, productRef: p?._id, ...v } })}
+                                disabled={v?.qty <= 0}
+                                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all border-2 ${selectedComboItems[slot?.id]?.id === v?.id ? 'bg-charcoal text-white border-charcoal shadow-lg scale-105' : v?.qty > 0 ? 'bg-white text-text-muted border-border-light hover:border-premium-gold' : 'bg-light-bg text-text-muted/30 border-border-light opacity-50 cursor-not-allowed'}`}
                               >
-                                {v.size} / {v.color} {v.qty <= 0 && '(Sold Out)'}
+                                {v?.size} / {v?.color} {v?.qty <= 0 && '(Sold Out)'}
                               </button>
                             ))}
                           </div>
@@ -392,17 +392,19 @@ export default function ProductDetails() {
             ) : (
               <>
                 {/* Colors */}
-                {colors.length > 0 && (
+                {Array.isArray(colors) && colors.length > 0 && (
                   <div className="space-y-3">
                     <p className="text-[10px] font-black uppercase tracking-widest text-text-muted flex items-center justify-between">
                       Select Color <span>{selectedColor || 'Required'}</span>
                     </p>
                     <div className="flex gap-3 flex-wrap">
                       {colors.map(color => {
-                        const totalColorStock = variants
-                          .filter(v => v.color === color)
-                          .reduce((sum, v) => sum + (v.availableStock ?? v.available ?? v.qty ?? v.stock ?? 0), 0);
-                        const variant = variants.find(v => v.color === color && v.size === selectedSize);
+                        const totalColorStock = Array.isArray(variants)
+                          ? variants
+                            .filter(v => v?.color === color)
+                            .reduce((sum, v) => sum + (v?.availableStock ?? v?.available ?? v?.qty ?? v?.stock ?? 0), 0)
+                          : 0;
+                        const variant = Array.isArray(variants) ? variants.find(v => v?.color === color && v?.size === selectedSize) : null;
                         const isAvailable = selectedSize ? ((variant?.availableStock ?? variant?.available ?? variant?.qty ?? variant?.stock ?? 0) > 0) : (totalColorStock > 0);
 
                         return (
@@ -427,17 +429,19 @@ export default function ProductDetails() {
                 )}
 
                 {/* Sizes */}
-                {sizes.length > 0 && (
+                {Array.isArray(sizes) && sizes.length > 0 && (
                   <div className="space-y-3">
                     <p className="text-[10px] font-black uppercase tracking-widest text-text-muted flex items-center justify-between">
                       Select Size <span>{selectedSize || 'Required'}</span>
                     </p>
                     <div className="flex gap-3 flex-wrap">
                       {sizes.map(size => {
-                        const totalSizeStock = variants
-                          .filter(v => v.size === size)
-                          .reduce((sum, v) => sum + (v.availableStock ?? v.available ?? v.qty ?? v.stock ?? 0), 0);
-                        const variant = variants.find(v => v.size === size && v.color === selectedColor);
+                        const totalSizeStock = Array.isArray(variants)
+                          ? variants
+                            .filter(v => v?.size === size)
+                            .reduce((sum, v) => sum + (v?.availableStock ?? v?.available ?? v?.qty ?? v?.stock ?? 0), 0)
+                          : 0;
+                        const variant = Array.isArray(variants) ? variants.find(v => v?.size === size && v?.color === selectedColor) : null;
                         const isAvailable = selectedColor ? ((variant?.availableStock ?? variant?.available ?? variant?.qty ?? variant?.stock ?? 0) > 0) : (totalSizeStock > 0);
 
                         return (
@@ -561,13 +565,13 @@ function ReviewSection({ productId, slug, averageRating = 0, totalCount = 0 }) {
 
   const { data: reviews, isLoading } = useQuery({
     queryKey: ['product-reviews', productId, sortBy],
-    queryFn: () => reviewService.getProductReviews(productId, { sort: sortBy === 'helpful' ? '-likes' : '-createdAt' }).then(r => r.data.data),
+    queryFn: () => reviewService.getProductReviews(productId, { sort: sortBy === 'helpful' ? '-likes' : '-createdAt' }).then(r => r?.data?.data || []),
     enabled: !!productId,
   });
 
   const { data: stats } = useQuery({
     queryKey: ['review-stats', productId],
-    queryFn: () => reviewService.getReviewStats(productId).then(r => r.data.data),
+    queryFn: () => reviewService.getReviewStats(productId).then(r => r?.data?.data || null),
     enabled: !!productId,
   });
 
@@ -579,7 +583,7 @@ function ReviewSection({ productId, slug, averageRating = 0, totalCount = 0 }) {
     onError: (err) => toast.error(err.response?.data?.message || 'Login to vote')
   });
 
-  const allCustomerImages = reviews?.flatMap(r => r.images || []).filter(Boolean) || [];
+  const allCustomerImages = Array.isArray(reviews) ? reviews.flatMap(r => r?.images || []).filter(Boolean) : [];
   const currentTotalReviews = stats?.totalReviews || totalCount || 0;
   const formattedAvg = parseFloat(stats?.averageRating || averageRating || 0).toFixed(1);
 
@@ -681,24 +685,24 @@ function ReviewSection({ productId, slug, averageRating = 0, totalCount = 0 }) {
           </div>
         </div>
 
-        {reviews?.length === 0 ? (
+        {!Array.isArray(reviews) || reviews.length === 0 ? (
           <div className="text-center py-20 bg-light-bg/20 rounded-[4rem] border border-dashed border-border-light">
             <MessageCircle className="mx-auto text-text-muted/20 mb-4" size={48} />
             <p className="text-text-muted font-bold italic">No reviews found yet. Be the first to share your experience!</p>
           </div>
         ) : (
           reviews.map(review => (
-            <div key={review._id} className="p-6 md:p-10 bg-white rounded-[3rem] border border-border-light hover:shadow-2xl transition-all space-y-6">
+            <div key={review?._id} className="p-6 md:p-10 bg-white rounded-[3rem] border border-border-light hover:shadow-2xl transition-all space-y-6">
               {/* Card Header */}
               <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-full bg-light-bg flex items-center justify-center text-charcoal font-bold text-lg border border-border-light">
-                    {review.userId?.name?.charAt(0) || 'U'}
+                    {review?.userId?.name?.charAt(0) || 'U'}
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-black text-charcoal uppercase tracking-widest">{review.userId?.name || 'Anonymous'}</span>
-                      {review.isVerifiedPurchase && (
+                      <span className="text-sm font-black text-charcoal uppercase tracking-widest">{review?.userId?.name || 'Anonymous'}</span>
+                      {review?.isVerifiedPurchase && (
                         <div className="flex items-center gap-1 bg-green-50 text-green-600 px-2 py-0.5 rounded-full">
                           <CheckCircle size={10} />
                           <span className="text-[8px] font-black uppercase tracking-widest">Certified</span>
@@ -707,9 +711,9 @@ function ReviewSection({ productId, slug, averageRating = 0, totalCount = 0 }) {
                     </div>
                     <div className="flex items-center gap-2 mt-1">
                       <div className="flex gap-0.5">
-                        {[1, 2, 3, 4, 5].map(s => <Star key={s} size={10} fill={s <= review.rating ? '#16a34a' : 'none'} stroke={s <= review.rating ? '#16a34a' : '#E5E7EB'} />)}
+                        {[1, 2, 3, 4, 5].map(s => <Star key={s} size={10} fill={s <= (review?.rating || 0) ? '#16a34a' : 'none'} stroke={s <= (review?.rating || 0) ? '#16a34a' : '#E5E7EB'} />)}
                       </div>
-                      <span className="text-[10px] text-text-muted font-bold">{new Date(review.createdAt).toLocaleDateString()}</span>
+                      <span className="text-[10px] text-text-muted font-bold">{review?.createdAt ? new Date(review.createdAt).toLocaleDateString() : ''}</span>
                     </div>
                   </div>
                 </div>

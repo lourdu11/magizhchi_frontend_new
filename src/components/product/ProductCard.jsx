@@ -15,9 +15,35 @@ export default function ProductCard({ product }) {
   const [isAddingCart, setIsAddingCart] = useState(false);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  
+  const [isMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
+  
+  const CardContainer = isMobile ? 'div' : motion.div;
+  const ImageWrapper = isMobile ? 'div' : motion.div;
 
-  const price = product.discountedPrice || product.sellingPrice;
-  const hasDiscount = product.discountPercentage > 0;
+  const motionProps = isMobile ? {} : {
+    initial: { opacity: 0, y: 20 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true }
+  };
+
+  const imageMotionProps = isMobile ? {} : {
+    whileHover: { 
+      rotateY: 5, 
+      rotateX: -5,
+      z: 50,
+      scale: 1.05,
+      transition: { type: "spring", stiffness: 300, damping: 20 }
+    }
+  };
+
+  // Guard: if product is missing, don't render
+  if (!product || !product._id) return null;
+
+  const sellingPrice = product.sellingPrice ?? 0;
+  const discountedPrice = product.discountedPrice ?? 0;
+  const price = discountedPrice > 0 ? discountedPrice : sellingPrice;
+  const hasDiscount = (product.discountPercentage ?? 0) > 0 && sellingPrice > 0;
   
   const getVariantStock = (v) => {
     if (v.availableStock !== undefined) return v.availableStock;
@@ -29,10 +55,10 @@ export default function ProductCard({ product }) {
 
   // Combo products are available if they have slots, standalone products depend on variants stock
   const isOutOfStock = product.productNature === 'combo' 
-    ? (!product.comboSlots || product.comboSlots.length === 0)
-    : (product.variants || []).length === 0 || product.variants.every(v => getVariantStock(v) - (v.reservedStock || 0) <= 0);
+    ? (!Array.isArray(product.comboSlots) || product.comboSlots.length === 0)
+    : (!Array.isArray(product.variants) || product.variants.length === 0 || product.variants.every(v => getVariantStock(v) - (v.reservedStock || 0) <= 0));
 
-  const isWishlisted = productIds.includes(product._id);
+  const isWishlisted = Array.isArray(productIds) && productIds.includes(product._id);
 
   const handleCart = (e) => {
     if (e) {
@@ -70,23 +96,15 @@ export default function ProductCard({ product }) {
   };
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
+    <CardContainer 
+      {...motionProps}
       className="group relative"
     >
       <Link to={`/product/${product.slug}`} aria-label={`View details for ${product.name}`} className="block">
         {/* Image Container */}
-        <motion.div 
-          whileHover={{ 
-            rotateY: 5, 
-            rotateX: -5,
-            z: 50,
-            scale: 1.05,
-            transition: { type: "spring", stiffness: 300, damping: 20 }
-          }}
-          style={{ transformStyle: "preserve-3d" }}
+        <ImageWrapper 
+          {...imageMotionProps}
+          style={isMobile ? {} : { transformStyle: "preserve-3d" }}
           className="relative aspect-[4/5] max-w-xs mx-auto rounded-[2rem] md:rounded-[2.5rem] overflow-hidden bg-white mb-4 border border-border-light group-hover:border-premium-gold/30 transition-all duration-500 shadow-sm group-hover:shadow-2xl group-hover:shadow-premium-gold/10"
         >
 
@@ -158,7 +176,7 @@ export default function ProductCard({ product }) {
               </button>
             </div>
           )}
-        </motion.div>
+        </ImageWrapper>
 
 
         {/* Product Details */}
@@ -174,13 +192,13 @@ export default function ProductCard({ product }) {
           <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest mb-3">{product.brand || 'Magizhchi'}</p>
           
           <div className="flex items-center gap-3">
-            <span className="text-base md:text-xl font-black text-charcoal tracking-tighter">Rs.{price.toLocaleString('en-IN')}</span>
-            {hasDiscount && (
-              <span className="text-xs md:text-sm text-text-muted line-through font-medium">Rs.{product.sellingPrice.toLocaleString('en-IN')}</span>
+            <span className="text-base md:text-xl font-black text-charcoal tracking-tighter">Rs.{(price || 0).toLocaleString('en-IN')}</span>
+            {hasDiscount && sellingPrice > 0 && (
+              <span className="text-xs md:text-sm text-text-muted line-through font-medium">Rs.{sellingPrice.toLocaleString('en-IN')}</span>
             )}
           </div>
         </div>
       </Link>
-    </motion.div>
+    </CardContainer>
   );
 }

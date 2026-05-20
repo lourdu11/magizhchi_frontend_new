@@ -204,15 +204,15 @@ export default function Collections() {
 
   const { data: categoriesData } = useQuery({
     queryKey: ['categories'],
-    queryFn: () => categoryService.getCategories().then(r => r.data.data.categories),
+    queryFn: () => categoryService.getCategories().then(r => r?.data?.data?.categories || r?.data?.data || []),
   });
 
   // ApiResponse.success shape: { success, message, data: { data:[...], total, hasMore, nextCursor } }
   // .then(r => r.data) gives us { success, message, data: {data:[...], total } }
   // So we need data?.data?.data for the array and data?.data?.total for count
-  const productsRaw = data?.data;  // { data:[...], total, hasMore, nextCursor }
+  const productsRaw = data?.data;
   const products = Array.isArray(productsRaw?.data) ? productsRaw.data : (Array.isArray(productsRaw) ? productsRaw : []);
-  const pagination = { total: productsRaw?.total, hasMore: productsRaw?.hasMore };
+  const pagination = { total: productsRaw?.total ?? 0, hasMore: productsRaw?.hasMore ?? false };
 
 
 

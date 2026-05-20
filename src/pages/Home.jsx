@@ -43,7 +43,20 @@ const DEFAULT_SLIDES = [
 
 export default function Home() {
   const [heroIdx, setHeroIdx] = useState(0);
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
   const glowRef = useRef(null);
+
+  const MotionDiv = isMobile ? 'div' : motion.div;
+  const MotionP = isMobile ? 'p' : motion.p;
+  const MotionA = isMobile ? 'a' : motion.a;
+  const HeroContent = isMobile ? 'div' : motion.div;
+  const CategoryCard = isMobile ? Link : MotionLink;
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize, { passive: true });
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const { data: featuredData, isLoading: loadingFeatured } = useQuery({
     queryKey: ['products', 'featured'],
@@ -104,6 +117,7 @@ export default function Home() {
   const slides = dynamicSlides.length > 0 ? dynamicSlides : DEFAULT_SLIDES;
 
   useEffect(() => {
+    if (isMobile) return;
     const handleMouseMove = (e) => {
       if (glowRef.current) {
         glowRef.current.style.setProperty('--mouse-x', `${e.clientX}px`);
@@ -112,16 +126,16 @@ export default function Home() {
     };
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
+  }, [isMobile]);
 
   // Auto-play carousel (Disabled on mobile to reduce main-thread tasks)
   useEffect(() => {
-    if (window.innerWidth < 768) return;
+    if (isMobile) return;
     const timer = setInterval(() => {
       setHeroIdx(prev => (prev + 1) % slides.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, [slides.length]);
+  }, [slides.length, isMobile]);
 
   // Reset index if slides count changes (e.g. from 4 demo to 1 real)
   useEffect(() => {
@@ -159,28 +173,28 @@ export default function Home() {
           <AnimatePresence mode="wait" initial={false}>
           <motion.div 
             key={heroIdx}
-            initial={{ opacity: 0, scale: 1.1 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 1 }}
+            initial={isMobile ? {} : { opacity: 0, scale: 1.1 }}
+            animate={isMobile ? {} : { opacity: 1, scale: 1 }}
+            exit={isMobile ? {} : { opacity: 0 }}
+            transition={isMobile ? { duration: 0 } : { duration: 1 }}
             className="absolute inset-0 w-full h-full p-0 m-0"
           >
             <SafeImage 
-              src={window.innerWidth < 768 ? (slides[heroIdx]?.mobileImg || slides[heroIdx]?.img) : slides[heroIdx]?.img} 
+              src={isMobile ? (slides[heroIdx]?.mobileImg || slides[heroIdx]?.img) : slides[heroIdx]?.img} 
               alt="" 
-              width={window.innerWidth < 768 ? 400 : 1200} 
-              height={window.innerWidth < 768 ? 600 : 800}
-              quality={heroIdx === 0 ? (window.innerWidth < 768 ? 45 : 60) : 40}
+              width={isMobile ? 400 : 1200} 
+              height={isMobile ? 600 : 800}
+              quality={heroIdx === 0 ? (isMobile ? 45 : 60) : 40}
               fetchPriority="high"
               loading="eager"
               style={{ 
-                objectFit: window.innerWidth < 768 ? (slides[heroIdx]?.mobileFit || 'cover') : (slides[heroIdx]?.fit || 'cover'),
-                objectPosition: window.innerWidth < 768 ? (slides[heroIdx]?.mobilePos || 'center') : (slides[heroIdx]?.pos || 'center'),
-                transform: `scale(${window.innerWidth < 768 ? (slides[heroIdx]?.mobileScale || 1) : (slides[heroIdx]?.scale || 1)})`
+                objectFit: isMobile ? (slides[heroIdx]?.mobileFit || 'cover') : (slides[heroIdx]?.fit || 'cover'),
+                objectPosition: isMobile ? (slides[heroIdx]?.mobilePos || 'center') : (slides[heroIdx]?.pos || 'center'),
+                transform: `scale(${isMobile ? (slides[heroIdx]?.mobileScale || 1) : (slides[heroIdx]?.scale || 1)})`
               }}
               crop="fill"
-              gravity={window.innerWidth < 768 ? slides[heroIdx]?.mobileGravity : slides[heroIdx]?.gravity}
-              aspect={window.innerWidth < 768 ? '4:5' : '21:9'}
+              gravity={isMobile ? slides[heroIdx]?.mobileGravity : slides[heroIdx]?.gravity}
+              aspect={isMobile ? '4:5' : '21:9'}
               srcSet={heroIdx === 0 ? "https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-1200,h-800,q-60,f-auto 1200w, https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-800,h-533,q-50,f-auto 800w, https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-400,h-600,q-45,f-auto 400w" : undefined}
               sizes={heroIdx === 0 ? "(max-width: 480px) 360px, (max-width: 1024px) 800px, 1200px" : undefined}
             />
@@ -189,27 +203,29 @@ export default function Home() {
         </AnimatePresence>
 
         <div className="relative z-10 container-custom h-full flex flex-col justify-center pt-20">
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ 
-              opacity: 1, 
-              x: 0,
-              y: [0, -10, 0], // Subtle floating effect
-            }}
-            whileHover={{ 
-              rotateY: 8, 
-              rotateX: -4,
-              z: 50,
-              transition: { duration: 0.4 }
-            }}
-            style={{ 
-              transformStyle: "preserve-3d",
-              perspective: "2000px" 
-            }}
-            transition={{ 
-              duration: 0.8,
-              y: window.innerWidth < 768 ? { duration: 0 } : { duration: 4, repeat: Infinity, ease: "easeInOut" }
-            }}
+          <HeroContent
+            {...(isMobile ? {} : {
+              initial: { opacity: 0, x: -50 },
+              animate: { 
+                opacity: 1, 
+                x: 0,
+                y: [0, -10, 0],
+              },
+              whileHover: { 
+                rotateY: 8, 
+                rotateX: -4,
+                z: 50,
+                transition: { duration: 0.4 }
+              },
+              style: { 
+                transformStyle: "preserve-3d",
+                perspective: "2000px" 
+              },
+              transition: { 
+                duration: 0.8,
+                y: { duration: 4, repeat: Infinity, ease: "easeInOut" }
+              }
+            })}
             className="max-w-3xl"
           >
             <div className="flex items-center gap-2 mb-6" style={{ transform: "translateZ(30px)" }}>
@@ -230,7 +246,7 @@ export default function Home() {
                 Our Story
               </Link>
             </div>
-          </motion.div>
+          </HeroContent>
         </div>
 
 
@@ -251,48 +267,51 @@ export default function Home() {
       {/* ── Category Spotlight ── */}
       <section className="py-24 bg-white cls-stable-section" style={{ minHeight: '420px', contain: 'layout' }}>
         <div className="container-custom">
-          <motion.div 
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+          <MotionDiv 
+            {...(isMobile ? {} : {
+              initial: { opacity: 0, y: 40 },
+              whileInView: { opacity: 1, y: 0 },
+              viewport: { once: true }
+            })}
             className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6"
           >
             <div>
-              <motion.p 
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 }}
+              <MotionP 
+                {...(isMobile ? {} : {
+                  initial: { opacity: 0, x: -20 },
+                  whileInView: { opacity: 1, x: 0 },
+                  transition: { delay: 0.2 }
+                })}
                 className="text-premium-gold font-black uppercase tracking-widest text-xs mb-3"
               >
                 Essentials
-              </motion.p>
+              </MotionP>
               <h2 className="text-4xl md:text-6xl font-black text-charcoal tracking-tighter">Shop by Lifestyle</h2>
             </div>
             <Link to="/collections" className="text-sm font-bold text-charcoal hover:text-premium-gold flex items-center gap-2 group transition-all">
               Discover All <div className="w-10 h-10 rounded-full border border-charcoal/10 flex items-center justify-center group-hover:bg-charcoal group-hover:text-white transition-all group-hover:scale-110 group-hover:rotate-12"><ArrowRight size={18} /></div>
             </Link>
-          </motion.div>
+          </MotionDiv>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
             {homeCategories.map((cat, i) => (
-              <MotionLink 
+              <CategoryCard 
                 key={cat.slug || cat._id}
                 to={`/collections/${cat.slug}`}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                whileHover={{ 
-                  rotateY: 12, 
-                  rotateX: -8,
-                  scale: 1.08,
-                  z: 30,
-                  transition: { duration: 0.3 }
-                }}
-                transition={{ 
-                  initial: { delay: i * 0.1 },
-                  whileHover: { duration: 0.3 }
-                }}
-                viewport={{ once: true }}
-                style={{ transformStyle: "preserve-3d" }}
+                {...(isMobile ? {} : {
+                  initial: { opacity: 0, y: 30 },
+                  whileInView: { opacity: 1, y: 0 },
+                  whileHover: { 
+                    rotateY: 12, 
+                    rotateX: -8,
+                    scale: 1.08,
+                    z: 30,
+                    transition: { duration: 0.3 }
+                  },
+                  transition: { delay: i * 0.1 },
+                  viewport: { once: true },
+                  style: { transformStyle: "preserve-3d" }
+                })}
                 className="group relative block aspect-[4/5] rounded-[3rem] overflow-hidden bg-light-bg perspective-2000 w-full h-full"
               >
                 <SafeImage 
@@ -304,13 +323,13 @@ export default function Home() {
                   className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" 
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80" />
-                <div className="absolute bottom-10 left-8" style={{ transform: "translateZ(50px)" }}>
+                <div className="absolute bottom-10 left-8" style={isMobile ? {} : { transform: "translateZ(50px)" }}>
                   <p className="text-white font-black text-3xl tracking-tighter mb-1 uppercase">{cat.name}</p>
                   <div className="inline-block px-4 py-1.5 bg-premium-gold rounded-full">
                     <p className="text-charcoal text-[8px] font-black uppercase tracking-[0.2em]">{cat.items || 'Explore'}</p>
                   </div>
                 </div>
-              </MotionLink>
+              </CategoryCard>
             ))}
           </div>
         </div>
@@ -319,10 +338,12 @@ export default function Home() {
       {/* ── Featured Showcase ── */}
       <section className="py-24 bg-light-bg rounded-[3rem] md:rounded-[5rem] mx-2 md:mx-6">
         <div className="container-custom">
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
+          <MotionDiv 
+            {...(isMobile ? {} : {
+              initial: { opacity: 0, scale: 0.9 },
+              whileInView: { opacity: 1, scale: 1 },
+              viewport: { once: true }
+            })}
             className="text-center mb-20"
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-premium-gold/10 rounded-full mb-6">
@@ -330,15 +351,17 @@ export default function Home() {
               <span className="text-premium-gold font-black uppercase tracking-widest text-[10px]">Staff Favorites</span>
             </div>
             <h2 className="text-4xl md:text-7xl font-black text-charcoal tracking-tight mb-6">Trending Now</h2>
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
+            <MotionP 
+              {...(isMobile ? {} : {
+                initial: { opacity: 0, y: 20 },
+                whileInView: { opacity: 1, y: 0 },
+                transition: { delay: 0.3 }
+              })}
               className="text-text-secondary max-w-xl mx-auto font-medium"
             >
               Curated pieces that define modern sophistication. Hand-picked by our stylists for the current season.
-            </motion.p>
-          </motion.div>
+            </MotionP>
+          </MotionDiv>
 
           {loadingFeatured ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-10 opacity-30 select-none pointer-events-none">
@@ -368,13 +391,15 @@ export default function Home() {
               { icon: RefreshCw, title: 'Seamless Returns', desc: 'No-questions-asked 7-day exchange policy.' },
               { icon: Shield, title: 'Authenticity Guarantee', desc: 'Only 100% genuine premium fabrics & hardware.' }
             ].map((item, i) => (
-              <motion.div 
+              <MotionDiv 
                 key={i} 
-                initial={{ opacity: 0, scale: 0.8, y: 30 }}
-                whileInView={{ opacity: 1, scale: 1, y: 0 }}
-                whileHover={{ y: -10 }}
-                transition={{ delay: i * 0.2 }}
-                viewport={{ once: true }}
+                {...(isMobile ? {} : {
+                  initial: { opacity: 0, scale: 0.8, y: 30 },
+                  whileInView: { opacity: 1, scale: 1, y: 0 },
+                  whileHover: { y: -10 },
+                  transition: { delay: i * 0.2 },
+                  viewport: { once: true }
+                })}
                 className="space-y-4"
               >
                 <div className="w-16 h-16 bg-charcoal text-premium-gold rounded-3xl flex items-center justify-center mx-auto shadow-2xl shadow-charcoal/10 transition-transform group-hover:rotate-6">
@@ -382,7 +407,7 @@ export default function Home() {
                 </div>
                 <h3 className="text-xl font-black text-charcoal">{item.title}</h3>
                 <p className="text-text-secondary text-sm leading-relaxed max-w-xs mx-auto">{item.desc}</p>
-              </motion.div>
+              </MotionDiv>
             ))}
           </div>
         </div>
@@ -391,25 +416,29 @@ export default function Home() {
       {/* ── Mobile Friendly WhatsApp CTA ── */}
       <section className="py-20 bg-charcoal relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-premium-gold/5 rounded-full blur-[100px] -mr-48 -mt-48" />
-        <motion.div 
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+        <MotionDiv 
+          {...(isMobile ? {} : {
+            initial: { opacity: 0, y: 40 },
+            whileInView: { opacity: 1, y: 0 },
+            viewport: { once: true }
+          })}
           className="container-custom relative z-10 flex flex-col md:flex-row items-center justify-between gap-8"
         >
           <div>
             <h2 className="text-3xl md:text-5xl font-black text-white tracking-tighter mb-4">Personal Styling <br/>on WhatsApp</h2>
             <p className="text-white/40 font-medium">Chat with our fashion experts for sizing & style advice.</p>
           </div>
-          <motion.a 
-            whileHover={{ scale: 1.05, rotate: -2 }}
-            whileTap={{ scale: 0.95 }}
+          <MotionA 
+            {...(isMobile ? {} : {
+              whileHover: { scale: 1.05, rotate: -2 },
+              whileTap: { scale: 0.95 }
+            })}
             href="https://wa.me/917358885452" 
             className="px-10 py-5 bg-[#25D366] text-white rounded-[2rem] font-black tracking-widest text-sm hover:scale-105 transition-all shadow-2xl shadow-[#25D366]/20"
           >
             CONNECT NOW
-          </motion.a>
-        </motion.div>
+          </MotionA>
+        </MotionDiv>
       </section>
     </div>
   );

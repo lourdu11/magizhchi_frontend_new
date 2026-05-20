@@ -76,6 +76,14 @@
   .glass-dark {
     @apply backdrop-blur-xl bg-black/60 border border-white/10;
   }
+  .premium-header {
+    transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1), 
+                backdrop-filter 0.5s cubic-bezier(0.4, 0, 0.2, 1), 
+                -webkit-backdrop-filter 0.5s cubic-bezier(0.4, 0, 0.2, 1), 
+                box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1), 
+                transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: background-color, backdrop-filter, box-shadow, transform;
+  }
 
   /* Card Styles */
   .card-premium {

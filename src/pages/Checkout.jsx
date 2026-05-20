@@ -85,7 +85,7 @@ export default function Checkout() {
 
   const { data: apiCart } = useQuery({
     queryKey: ['cart'],
-    queryFn: () => cartService.getCart().then(r => r.data.data.cart),
+    queryFn: () => cartService.getCart().then(r => r?.data?.data?.cart || null),
     enabled: isAuthenticated,
   });
 
@@ -201,13 +201,13 @@ export default function Checkout() {
     setLoading(true);
     try {
       const orderItems = items.map(item => ({
-        productId: item.productId._id,
-        size: item.variant?.size || item.size,
-        color: item.variant?.color || item.color,
-        quantity: item.quantity,
-        isCombo: item.isCombo || false,
-        comboSelections: item.comboSelections || []
-      }));
+        productId: item?.productId?._id || item?.productId,
+        size: item?.variant?.size || item?.size,
+        color: item?.variant?.color || item?.color,
+        quantity: item?.quantity,
+        isCombo: item?.isCombo || false,
+        comboSelections: item?.comboSelections || []
+      })).filter(i => i.productId);
 
       const payload = {
         items: orderItems,
@@ -480,47 +480,50 @@ export default function Checkout() {
                       </div>
 
                       <div className="space-y-4">
-                        {items.map(item => (
+                        {(Array.isArray(items) ? items : []).map(item => {
+                          if (!item?.productId) return null;
+                          return (
                           <div key={item._id} className="flex flex-col gap-4 p-4 rounded-2xl bg-light-bg/30 border border-border-light">
                             <div className="flex gap-4">
-                              <SafeImage src={item.productId.images?.[0]} width={150} quality={70} className="w-20 h-24 object-cover rounded-xl bg-white shadow-sm" />
+                              <SafeImage src={item.productId?.images?.[0]} width={150} quality={70} className="w-20 h-24 object-cover rounded-xl bg-white shadow-sm" />
                               <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
                                 <div>
-                                  <p className="font-bold text-charcoal text-sm truncate">{item.productId.name}</p>
+                                  <p className="font-bold text-charcoal text-sm truncate">{item.productId?.name}</p>
                                   {item.isCombo ? (
                                     <div className="mt-2 space-y-1">
                                       {item.comboSelections?.map((sel, idx) => (
                                         <p key={idx} className="text-[9px] font-black text-text-muted uppercase tracking-tight">
-                                          Slot {idx + 1}: {sel.productName} ({sel.size})
+                                          Slot {idx + 1}: {sel?.productName} ({sel?.size})
                                         </p>
                                       ))}
                                     </div>
                                   ) : (
                                     <div className="flex gap-2 mt-2">
                                       <span className="text-[10px] font-black px-2 py-0.5 bg-white border border-border-light rounded-md text-text-muted uppercase">
-                                        Size: {item.variant?.size || item.size}
+                                        Size: {item?.variant?.size || item?.size}
                                       </span>
                                       <span className="text-[10px] font-black px-2 py-0.5 bg-white border border-border-light rounded-md text-text-muted uppercase">
-                                        Color: {item.variant?.color || item.color}
+                                        Color: {item?.variant?.color || item?.color}
                                       </span>
                                     </div>
                                   )}
                                 </div>
                                 <div className="flex items-center justify-between">
                                   <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">
-                                    Qty: {item.quantity}
-                                    {item.hasPromoApplied && (
+                                    Qty: {item?.quantity}
+                                    {item?.hasPromoApplied && (
                                       <span className="ml-2 text-[8px] font-black text-green-600 bg-green-50 px-1.5 py-0.5 rounded uppercase tracking-wider">
                                         Promo
                                       </span>
                                     )}
                                   </p>
-                                  <p className="font-black text-premium-gold">₹{item.calculatedTotal.toLocaleString()}</p>
+                                  <p className="font-black text-premium-gold">₹{(item?.calculatedTotal ?? 0).toLocaleString()}</p>
                                 </div>
                               </div>
                             </div>
                           </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
 

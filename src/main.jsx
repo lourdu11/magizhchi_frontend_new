@@ -1,3 +1,4 @@
+import './storage-polyfill';
 // ─── Console Noise Filter (Razorpay/Browser clutter) ───
 if (typeof window !== 'undefined') {
   const noisePatterns = [

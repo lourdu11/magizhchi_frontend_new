@@ -1,13 +1,12 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { UserPlus, Trash2, Loader2, X, Save, Mail, Phone, Edit2, Percent, TrendingUp, Trophy, IndianRupee, ShoppingBag, Target } from 'lucide-react';
 import { adminService } from '../../services';
 import { toast } from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
 import api from '../../services/api';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
-const COLORS = ['#D4AF37', '#1A1A1A', '#4F46E5', '#10B981', '#F59E0B'];
+const StaffBarChart = lazy(() => import('./charts/StaffBarChart'));
 
 export default function AdminStaff() {
   const [showAdd, setShowAdd] = useState(false);
@@ -197,18 +196,9 @@ export default function AdminStaff() {
                   <TrendingUp size={18} className="text-premium-gold" /> Sales Leaderboard
                </h3>
                <div className="h-[400px] w-full">
-                  <ResponsiveContainer width="100%" height="100%" minWidth={0} debounce={1}>
-                     <BarChart data={performance} layout="vertical">
-                        <XAxis type="number" hide />
-                        <YAxis dataKey="name" type="category" tick={{ fontSize: 10, fontWeight: 900 }} axisLine={false} tickLine={false} width={100} />
-                        <Tooltip contentStyle={{ borderRadius: '20px', border: 'none', fontWeight: 900 }} />
-                        <Bar dataKey="totalSales" radius={[0, 10, 10, 0]} barSize={30}>
-                           {performance?.map((entry, index) => (
-                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                           ))}
-                        </Bar>
-                     </BarChart>
-                  </ResponsiveContainer>
+                  <Suspense fallback={<div className="h-[400px] w-full bg-light-bg rounded-2xl animate-pulse" />}>
+                     <StaffBarChart data={performance} />
+                  </Suspense>
                </div>
             </div>
 

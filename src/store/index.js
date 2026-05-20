@@ -53,13 +53,16 @@ export const useWishlistStore = create((set) => ({
   itemCount: 0,
   productIds: [],
   setItemCount: (count) => set({ itemCount: count }),
-  setWishlist: (products) => set({
-    itemCount: products.length,
-    productIds: products.map(p => (p.productId?._id || p.productId || p._id))
-  }),
+  setWishlist: (products) => {
+    const list = Array.isArray(products) ? products : [];
+    set({
+      itemCount: list.length,
+      productIds: list.map(p => (p?.productId?._id || p?.productId || p?._id)).filter(Boolean)
+    });
+  },
   toggleId: (id, add = true) => set(state => ({
-    productIds: add ? [...state.productIds, id] : state.productIds.filter(i => i !== id),
-    itemCount: add ? state.itemCount + 1 : Math.max(0, state.itemCount - 1)
+    productIds: add ? [...(state.productIds || []), id] : (state.productIds || []).filter(i => i !== id),
+    itemCount: add ? (state.itemCount || 0) + 1 : Math.max(0, (state.itemCount || 0) - 1)
   }))
 }));
 

@@ -98,7 +98,7 @@ export default function Header() {
 
   return (
     <>
-      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 will-change-transform ${scrolled ? 'glass h-16 md:h-20 shadow-2xl shadow-black/10' : 'bg-transparent h-20 md:h-24'} ${!visible ? '-translate-y-full md:translate-y-0' : 'translate-y-0'}`}>
+      <header className={`fixed top-0 left-0 right-0 z-50 premium-header h-16 md:h-20 ${scrolled ? 'glass shadow-2xl shadow-black/10' : 'bg-transparent'} ${!visible ? '-translate-y-full md:translate-y-0' : 'translate-y-0'}`}>
         <div className="container-custom h-full">
 
           {/* ─────────────────────────────────────────────
@@ -121,7 +121,11 @@ export default function Header() {
 
             {/* Center: logo (naturally centred because both sides are flex-1) */}
             <div className="flex-1 flex justify-center">
-              <Link to="/" className="flex items-center gap-2 leading-none" style={{ textDecoration: 'none' }}>
+              <Link 
+                to="/" 
+                className={`flex items-center gap-2 leading-none transition-transform duration-500 origin-center ${scrolled ? 'scale-90' : 'scale-100'}`} 
+                style={{ textDecoration: 'none' }}
+              >
                 <SafeImage
                   src="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0043.jpg?updatedAt=1772379265473"
                   alt="Magizhchi"
@@ -131,7 +135,7 @@ export default function Header() {
                   priority={true}
                   fetchPriority="high"
                   loading="eager"
-                  className={`w-auto aspect-square object-cover rounded-full transition-all duration-500 flex-shrink-0 ${scrolled ? 'h-7' : 'h-9'}`}
+                  className="w-auto h-8 aspect-square object-cover rounded-full flex-shrink-0"
                 />
                 <div className="flex flex-col leading-none">
                   <span
@@ -187,7 +191,11 @@ export default function Header() {
           <div className="hidden lg:flex items-center justify-between h-full flex-nowrap gap-2">
             {/* Logo */}
             <div className="flex items-center flex-shrink-0">
-              <Link to="/" aria-label="Go to homepage" className="flex items-center gap-2 md:gap-3 group transition-transform">
+              <Link 
+                to="/" 
+                aria-label="Go to homepage" 
+                className={`flex items-center gap-2 md:gap-3 group transition-transform duration-500 origin-left ${scrolled ? 'scale-90' : 'scale-100'}`}
+              >
                 <motion.div
                   whileHover={{ rotateY: 360, scale: 1.1 }}
                   transition={{ duration: 0.8, type: "spring", stiffness: 100 }}
@@ -203,17 +211,17 @@ export default function Header() {
                     fetchPriority="high"
                     loading="eager"
                     alt="Magizhchi" 
-                    className={`transition-all duration-500 w-auto aspect-square object-cover rounded-full ${scrolled ? 'h-8 md:h-12' : 'h-10 md:h-14'}`} 
+                    className="w-auto h-10 md:h-12 aspect-square object-cover rounded-full" 
                   />
                 </motion.div>
-                <div className="flex flex-col transition-all duration-500 overflow-hidden">
+                <div className="flex flex-col overflow-hidden">
                   <motion.span
                     whileHover={{ z: 50, color: '#D4AF37' }}
-                    className={`font-black tracking-[0.1em] text-charcoal leading-none transition-all duration-500 whitespace-nowrap ${scrolled ? 'text-lg md:text-2xl' : 'text-xl md:text-3xl'}`}
+                    className="font-black tracking-[0.1em] text-charcoal leading-none whitespace-nowrap text-lg md:text-2xl"
                   >
                     MAGIZHCHI
                   </motion.span>
-                  <span className={`font-black tracking-[0.4em] text-premium-gold uppercase transition-all duration-500 whitespace-nowrap ${scrolled ? 'text-[8px] mt-1' : 'text-[10px] mt-1.5'}`}>
+                  <span className="font-black tracking-[0.4em] text-premium-gold uppercase whitespace-nowrap text-[8px] mt-1 md:text-[10px] mt-1.5">
                     GARMENTS
                   </span>
                 </div>

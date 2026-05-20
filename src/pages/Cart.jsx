@@ -40,7 +40,7 @@ export default function Cart() {
 
   const { data: cart, isLoading } = useQuery({
     queryKey: ['cart'],
-    queryFn: () => cartService.getCart().then(r => r.data.data.cart),
+    queryFn: () => cartService.getCart().then(r => r?.data?.data?.cart || null),
     enabled: isAuthenticated,
   });
 
@@ -79,7 +79,7 @@ export default function Cart() {
     },
   });
 
-  const rawItems = isAuthenticated ? (cart?.items || []) : localItems;
+  const rawItems = isAuthenticated ? (Array.isArray(cart?.items) ? cart.items : []) : (Array.isArray(localItems) ? localItems : []);
   const { items, subtotal } = useMemo(() => calculatePromoPrices(rawItems), [rawItems]);
   const shipping = subtotal >= shippingThreshold ? 0 : shippingCharge;
   const total = subtotal + shipping;
@@ -109,10 +109,11 @@ export default function Cart() {
             <div className="grid lg:grid-cols-3 gap-6">
               {/* Cart Items */}
               <div className="lg:col-span-2 space-y-3">
-                {items.map((item, i) => {
-                  const product = item.productId;
+                {(Array.isArray(items) ? items : []).map((item, i) => {
+                  if (!item) return null;
+                  const product = item?.productId;
                   const price = product?.discountedPrice || product?.sellingPrice || 0;
-                  if (!product) return null;
+                  if (!product || !product._id) return null;
                   return (
                     <motion.div key={item._id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
                       className="bg-white rounded-xl p-4 flex gap-4 border border-border-light hover:shadow-card transition-shadow">
@@ -125,10 +126,10 @@ export default function Cart() {
                           {product.name}
                         </Link>
                         <div className="flex flex-col gap-1.5 mt-2">
-                          {!item.comboSelections || item.comboSelections.length === 0 ? (
+                          {!Array.isArray(item?.comboSelections) || item.comboSelections.length === 0 ? (
                             <div className="flex gap-2">
-                              <span className="text-[9px] font-black uppercase tracking-widest text-text-muted border border-border-light rounded-lg px-2.5 py-1">{item.variant?.size}</span>
-                              <span className="text-[9px] font-black uppercase tracking-widest text-text-muted border border-border-light rounded-lg px-2.5 py-1">{item.variant?.color}</span>
+                              <span className="text-[9px] font-black uppercase tracking-widest text-text-muted border border-border-light rounded-lg px-2.5 py-1">{item?.variant?.size}</span>
+                              <span className="text-[9px] font-black uppercase tracking-widest text-text-muted border border-border-light rounded-lg px-2.5 py-1">{item?.variant?.color}</span>
                             </div>
                           ) : (
                             <div className="space-y-1.5 bg-light-bg/50 p-2.5 rounded-xl border border-border-light/40">
@@ -136,7 +137,7 @@ export default function Cart() {
                               <div className="grid gap-1">
                                 {item.comboSelections.map((sel, idx) => (
                                   <p key={idx} className="text-[10px] font-bold text-charcoal leading-none">
-                                    <span className="text-text-muted">{sel.productName}:</span> {sel.size} / {sel.color}
+                                    <span className="text-text-muted">{sel?.productName}:</span> {sel?.size} / {sel?.color}
                                   </p>
                                 ))}
                               </div>
@@ -157,7 +158,7 @@ export default function Cart() {
                                 Promo Applied!
                               </span>
                             )}
-                            <span className="font-bold text-premium-gold">Rs.{item.calculatedTotal.toLocaleString('en-IN')}</span>
+                            <span className="font-bold text-premium-gold">Rs.{(item?.calculatedTotal ?? 0).toLocaleString('en-IN')}</span>
                             <button onClick={() => removeItem(item._id)} className="text-text-muted hover:text-stock-out transition-colors">
                               <Trash2 size={16} />
                             </button>
