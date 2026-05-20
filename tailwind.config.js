@@ -33,7 +33,7 @@ export default {
         'cream-bg': '#FCFCFA',
         'text-primary': '#111111',
         'text-secondary': '#555555',
-        'text-muted': '#999999',
+        'text-muted': '#6B6B6B',
         'border-light': '#EEEEEE',
         'border-dark': '#DDDDDD',
         'stock-in': '#059669',

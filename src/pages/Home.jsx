@@ -264,9 +264,9 @@ export default function Home() {
       <section className="py-24 bg-light-bg rounded-[3rem] md:rounded-[5rem] mx-2 md:mx-6">
         <div className="container-custom">
           <div className="text-center mb-20 animate-fade-in-up">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-premium-gold/10 rounded-full mb-6">
-              <Sparkles className="text-premium-gold" size={16} />
-              <span className="text-premium-gold font-black uppercase tracking-widest text-[10px]">Staff Favorites</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-premium-gold rounded-full mb-6">
+              <Sparkles className="text-charcoal" size={16} />
+              <span className="text-charcoal font-black uppercase tracking-widest text-[10px]">Staff Favorites</span>
             </div>
             <h2 className="text-4xl md:text-7xl font-black text-charcoal tracking-tight mb-6">Trending Now</h2>
             <p className="text-text-secondary max-w-xl mx-auto font-medium animate-fade-in-up delay-300">
@@ -324,11 +324,11 @@ export default function Home() {
         <div className="container-custom relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 animate-fade-in-up delay-200">
           <div>
             <h2 className="text-3xl md:text-5xl font-black text-white tracking-tighter mb-4">Personal Styling <br/>on WhatsApp</h2>
-            <p className="text-white/40 font-medium">Chat with our fashion experts for sizing & style advice.</p>
+            <p className="text-white/70 font-medium">Chat with our fashion experts for sizing & style advice.</p>
           </div>
           <a
             href="https://wa.me/917358885452" 
-            className="px-10 py-5 bg-[#25D366] text-white rounded-[2rem] font-black tracking-widest text-sm hover:scale-105 hover:-rotate-2 active:scale-95 transition-all shadow-2xl shadow-[#25D366]/20"
+            className="px-10 py-5 bg-[#25D366] text-charcoal rounded-[2rem] font-black tracking-widest text-sm hover:scale-105 hover:-rotate-2 active:scale-95 transition-all shadow-2xl shadow-[#25D366]/20"
           >
             CONNECT NOW
           </a>
