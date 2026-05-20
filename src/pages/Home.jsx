@@ -192,8 +192,8 @@ export default function Home() {
               crop="fill"
               gravity={isMobile ? slides[heroIdx]?.mobileGravity : slides[heroIdx]?.gravity}
               aspect={isMobile ? '4:5' : '21:9'}
-              srcSet={heroIdx === 0 ? "https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-1200,h-800,q-60,f-auto 1200w, https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-800,h-533,q-50,f-auto 800w, https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-400,h-600,q-45,f-auto 400w" : undefined}
-              sizes={heroIdx === 0 ? "(max-width: 480px) 360px, (max-width: 1024px) 800px, 1200px" : undefined}
+              srcSet={heroIdx === 0 ? "https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-1200,h-800,q-60,f-auto 1200w, https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-800,h-533,q-50,f-auto 800w, https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-600,h-400,q-45,f-auto 600w, https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-400,h-600,q-45,f-auto 400w" : undefined}
+              sizes={heroIdx === 0 ? "(max-width: 640px) 100vw, (max-width: 1024px) 800px, 1200px" : undefined}
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent" />
           </MotionDiv>
