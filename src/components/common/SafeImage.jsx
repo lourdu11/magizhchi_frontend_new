@@ -66,7 +66,7 @@ export default function SafeImage({
         width={width}
         height={height}
         loading="eager"
-        fetchpriority={fetchPriority || fetchpriority || 'high'}
+        fetchPriority={fetchPriority || fetchpriority || 'high'}
         decoding="async"
         onError={(e) => {
           if (e.target.src !== getPlaceholder()) {
