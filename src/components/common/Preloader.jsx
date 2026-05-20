@@ -6,31 +6,41 @@ export default function Preloader() {
   const [fadeOut, setFadeOut] = useState(false);
 
   useEffect(() => {
-    // Increment progress bar smoothly up to 100% in 1.5 seconds
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          return 100;
-        }
-        const step = Math.floor(Math.random() * 15) + 10;
-        return Math.min(prev + step, 100);
-      });
-    }, 100);
-
-    // Fade out at 1.7 seconds and remove at 2.2 seconds
-    const timer = setTimeout(() => {
+    const handleLoad = () => {
+      setProgress(100);
       setFadeOut(true);
       const removeTimer = setTimeout(() => {
         setLoading(false);
-      }, 500);
+      }, 300); // reduced from 500ms
       return () => clearTimeout(removeTimer);
-    }, 1700);
-
-    return () => {
-      clearInterval(interval);
-      clearTimeout(timer);
     };
+
+    if (document.readyState === 'complete') {
+      handleLoad();
+    } else {
+      window.addEventListener('load', handleLoad);
+      
+      // Smooth visual progress increment
+      const interval = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 90) {
+            clearInterval(interval);
+            return 90;
+          }
+          const step = Math.floor(Math.random() * 10) + 15;
+          return Math.min(prev + step, 90);
+        });
+      }, 60);
+
+      // Max timeout safeguard (reduced from 1700ms)
+      const fallbackTimer = setTimeout(handleLoad, 1000);
+
+      return () => {
+        window.removeEventListener('load', handleLoad);
+        clearInterval(interval);
+        clearTimeout(fallbackTimer);
+      };
+    }
   }, []);
 
   if (!loading) return null;

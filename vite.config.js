@@ -95,6 +95,7 @@ export default defineConfig({
           if (id.includes('node_modules/browser-image-compression')) return 'image-compressor';
           if (id.includes('node_modules/swiper')) return 'carousel';
           if (id.includes('node_modules/date-fns')) return 'date-utils';
+          if (id.includes('node_modules/lucide-react')) return 'icons';
 
           // ── 6. VENDOR — catch ALL other node_modules BEFORE charts ───────────
           //    Shared transitive deps (d3 sub-packages, tiny-invariant, clsx, …)

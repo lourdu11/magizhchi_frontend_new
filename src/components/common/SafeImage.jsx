@@ -30,7 +30,7 @@ export default function SafeImage({
   let srcSetProps = {};
   const isSmall = width && parseInt(width, 10) <= 150;
   if (!isSmall && src && typeof src === 'string' && (src.includes('ik.imagekit.io') || src.includes('res.cloudinary.com') || src.includes('images.unsplash.com'))) {
-    const widths = [180, 240, 320, 400, 480, 640, 768, 960, 1100, 1280, 1500, 1920];
+    const widths = [320, 480, 768, 1024, 1440];
     const baseQuality = quality ? parseInt(quality, 10) : 65;
     const numWidth = width ? parseInt(width, 10) : null;
     const numHeight = height ? parseInt(height, 10) : null;

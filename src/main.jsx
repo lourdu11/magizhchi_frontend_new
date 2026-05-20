@@ -45,25 +45,28 @@ import { HelmetProvider } from 'react-helmet-async';
 import App from './App';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import './index.css';
-import * as Sentry from "@sentry/react";
-
 // ─── Sentry Frontend Initialization (Deferred to prevent main-thread blocking) ───
 const sentryDsn = import.meta.env.VITE_SENTRY_DSN;
 if (sentryDsn && sentryDsn !== "https://placeholder@sentry.io/placeholder") {
-  const initSentry = () => {
-    Sentry.init({
-      dsn: sentryDsn,
-      integrations: [
-        Sentry.browserTracingIntegration(),
-        Sentry.replayIntegration({
-          maskAllText: true,
-          blockAllMedia: true,
-        }),
-      ],
-      tracesSampleRate: 0.1,         // 10% traces to save CPU/network
-      replaysSessionSampleRate: 0.0, // Disable continuous session replay recording
-      replaysOnErrorSampleRate: 1.0, // Capture replays only when errors occur
-    });
+  const initSentry = async () => {
+    try {
+      const Sentry = await import("@sentry/react");
+      Sentry.init({
+        dsn: sentryDsn,
+        integrations: [
+          Sentry.browserTracingIntegration(),
+          Sentry.replayIntegration({
+            maskAllText: true,
+            blockAllMedia: true,
+          }),
+        ],
+        tracesSampleRate: 0.1,         // 10% traces to save CPU/network
+        replaysSessionSampleRate: 0.0, // Disable continuous session replay recording
+        replaysOnErrorSampleRate: 1.0, // Capture replays only when errors occur
+      });
+    } catch (err) {
+      console.error("Failed to initialize Sentry:", err);
+    }
   };
 
   if (document.readyState === 'complete') {

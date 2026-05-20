@@ -1,17 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Truck, RefreshCw, Shield, ShoppingBag, Sparkles, Loader2 } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { productService, bannerService, categoryService } from '../services';
 import ProductCard from '../components/product/ProductCard';
 import SkeletonCard from '../components/product/SkeletonCard';
 import SafeImage from '../components/common/SafeImage';
-
-const MotionLink = motion(Link);
-
-
 
 const CATEGORIES = [
   { name: 'Shirts', slug: 'shirts', img: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?q=80&w=400&auto=format&fit=crop', items: '120+ Items' },
@@ -46,11 +41,20 @@ export default function Home() {
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
   const glowRef = useRef(null);
 
-  const MotionDiv = isMobile ? 'div' : motion.div;
-  const MotionP = isMobile ? 'p' : motion.p;
-  const MotionA = isMobile ? 'a' : motion.a;
-  const HeroContent = isMobile ? 'div' : motion.div;
-  const CategoryCard = isMobile ? Link : MotionLink;
+  const [framer, setFramer] = useState(null);
+
+  useEffect(() => {
+    if (!isMobile) {
+      import('framer-motion').then(setFramer);
+    }
+  }, [isMobile]);
+
+  const MotionDiv = framer ? framer.motion.div : 'div';
+  const MotionP = framer ? framer.motion.p : 'p';
+  const MotionA = framer ? framer.motion.a : 'a';
+  const HeroContent = framer ? framer.motion.div : 'div';
+  const CategoryCard = framer ? framer.motion(Link) : Link;
+  const AnimatePresenceComponent = framer ? framer.AnimatePresence : ({ children }) => <>{children}</>;
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -170,8 +174,8 @@ export default function Home() {
       {/* ── Hero Section ── */}
       {slides.length > 0 && (
         <section className="relative h-[65vh] md:h-[80vh] w-full bg-charcoal overflow-hidden p-0 m-0">
-          <AnimatePresence mode="wait" initial={false}>
-          <motion.div 
+          <AnimatePresenceComponent mode="wait" initial={false}>
+          <MotionDiv 
             key={heroIdx}
             initial={isMobile ? {} : { opacity: 0, scale: 1.1 }}
             animate={isMobile ? {} : { opacity: 1, scale: 1 }}
@@ -199,8 +203,8 @@ export default function Home() {
               sizes={heroIdx === 0 ? "(max-width: 480px) 360px, (max-width: 1024px) 800px, 1200px" : undefined}
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent" />
-          </motion.div>
-        </AnimatePresence>
+          </MotionDiv>
+        </AnimatePresenceComponent>
 
         <div className="relative z-10 container-custom h-full flex flex-col justify-center pt-20">
           <HeroContent

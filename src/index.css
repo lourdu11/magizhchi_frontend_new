@@ -174,38 +174,3 @@
 .bg-gold-gradient {
   background: linear-gradient(135deg, #D4AF37 0%, #F4E5C2 50%, #B58D21 100%);
 }
-
-/* Marquee Animation */
-.animate-marquee {
-  display: inline-block;
-  animation: marquee 40s linear infinite;
-}
-.animate-marquee2 {
-  display: inline-block;
-  animation: marquee2 40s linear infinite;
-}
-
-@keyframes marquee {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(-100%); }
-}
-@keyframes marquee2 {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(-100%); }
-}
-
-
-/* ─── Lazy Load Image Wrapper Fix ──────────────────── */
-.lazy-load-image-wrapper {
-  display: block !important;
-  width: 100%;
-  height: 100%;
-}
-.lazy-load-image-wrapper img {
-  object-fit: cover;
-  width: 100%;
-  height: 100%;
-}
-
-
-
