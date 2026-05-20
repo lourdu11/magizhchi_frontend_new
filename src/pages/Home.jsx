@@ -152,13 +152,6 @@ export default function Home() {
     <div className="overflow-x-hidden relative">
       <Helmet>
         <title>MAGIZHCHI GARMENTS — Premium Men's Wear</title>
-        <link
-          rel="preload"
-          as="image"
-          imagesrcset="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-1200,h-800,q-60,f-auto 1200w, https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-800,h-533,q-50,f-auto 800w, https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-400,h-600,q-45,f-auto 400w"
-          imagesizes="(max-width: 480px) 360px, (max-width: 1024px) 800px, 1200px"
-          fetchpriority="high"
-        />
       </Helmet>
 
       {/* Global Mouse Glow */}

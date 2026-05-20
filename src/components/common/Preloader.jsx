@@ -6,41 +6,13 @@ export default function Preloader() {
   const [fadeOut, setFadeOut] = useState(false);
 
   useEffect(() => {
-    const handleLoad = () => {
-      setProgress(100);
-      setFadeOut(true);
-      const removeTimer = setTimeout(() => {
-        setLoading(false);
-      }, 300); // reduced from 500ms
-      return () => clearTimeout(removeTimer);
-    };
-
-    if (document.readyState === 'complete') {
-      handleLoad();
-    } else {
-      window.addEventListener('load', handleLoad);
-      
-      // Smooth visual progress increment
-      const interval = setInterval(() => {
-        setProgress((prev) => {
-          if (prev >= 90) {
-            clearInterval(interval);
-            return 90;
-          }
-          const step = Math.floor(Math.random() * 10) + 15;
-          return Math.min(prev + step, 90);
-        });
-      }, 60);
-
-      // Max timeout safeguard (reduced from 1700ms)
-      const fallbackTimer = setTimeout(handleLoad, 1000);
-
-      return () => {
-        window.removeEventListener('load', handleLoad);
-        clearInterval(interval);
-        clearTimeout(fallbackTimer);
-      };
-    }
+    // Instantly fade out since React has already hydrated and the page is ready
+    setProgress(100);
+    setFadeOut(true);
+    const removeTimer = setTimeout(() => {
+      setLoading(false);
+    }, 300);
+    return () => clearTimeout(removeTimer);
   }, []);
 
   if (!loading) return null;
@@ -73,8 +45,8 @@ export default function Preloader() {
               decoding="async"
               className="w-full h-full object-cover scale-[1.02]" 
               onError={(e) => {
-                if (e.target.src !== '/receipt_logo.jpg') {
-                  e.target.src = '/receipt_logo.jpg';
+                if (e.target.src !== '/receipt_logo.png') {
+                  e.target.src = '/receipt_logo.png';
                 }
               }}
             />

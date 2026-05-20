@@ -28,8 +28,12 @@ export default function NotFound() {
             <div className="absolute inset-0 rounded-full border border-premium-gold/30 animate-ping opacity-30" />
             <div className="absolute w-20 h-20 bg-black rounded-full border border-premium-gold/25 flex items-center justify-center shadow-lg overflow-hidden">
               <img 
-                src="/receipt_logo.jpg" 
+                src="/receipt_logo.webp" 
                 alt="Magizhchi Logo" 
+                width={112}
+                height={112}
+                loading="eager"
+                decoding="async"
                 className="w-full h-full object-cover scale-[1.02]" 
               />
             </div>
