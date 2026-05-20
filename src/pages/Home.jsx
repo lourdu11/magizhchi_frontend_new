@@ -41,21 +41,6 @@ export default function Home() {
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
   const glowRef = useRef(null);
 
-  const [framer, setFramer] = useState(null);
-
-  useEffect(() => {
-    if (!isMobile) {
-      import('framer-motion').then(setFramer);
-    }
-  }, [isMobile]);
-
-  const MotionDiv = framer ? framer.motion.div : 'div';
-  const MotionP = framer ? framer.motion.p : 'p';
-  const MotionA = framer ? framer.motion.a : 'a';
-  const HeroContent = framer ? framer.motion.div : 'div';
-  const CategoryCard = framer ? framer.motion(Link) : Link;
-  const AnimatePresenceComponent = framer ? framer.AnimatePresence : ({ children }) => <>{children}</>;
-
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', handleResize, { passive: true });
@@ -167,14 +152,9 @@ export default function Home() {
       {/* ── Hero Section ── */}
       {slides.length > 0 && (
         <section className="relative h-[65vh] md:h-[80vh] w-full bg-charcoal overflow-hidden p-0 m-0">
-          <AnimatePresenceComponent mode="wait" initial={false}>
-          <MotionDiv 
+          <div 
             key={heroIdx}
-            initial={isMobile ? {} : { opacity: 0, scale: 1.1 }}
-            animate={isMobile ? {} : { opacity: 1, scale: 1 }}
-            exit={isMobile ? {} : { opacity: 0 }}
-            transition={isMobile ? { duration: 0 } : { duration: 1 }}
-            className="absolute inset-0 w-full h-full p-0 m-0"
+            className="absolute inset-0 w-full h-full p-0 m-0 animate-fade-scale-in"
           >
             <SafeImage 
               src={isMobile ? (slides[heroIdx]?.mobileImg || slides[heroIdx]?.img) : slides[heroIdx]?.img} 
@@ -196,35 +176,10 @@ export default function Home() {
               sizes={heroIdx === 0 ? "(max-width: 640px) 100vw, (max-width: 1024px) 800px, 1200px" : undefined}
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent" />
-          </MotionDiv>
-        </AnimatePresenceComponent>
+          </div>
 
         <div className="relative z-10 container-custom h-full flex flex-col justify-center pt-20">
-          <HeroContent
-            {...(isMobile ? {} : {
-              initial: { opacity: 0, x: -50 },
-              animate: { 
-                opacity: 1, 
-                x: 0,
-                y: [0, -10, 0],
-              },
-              whileHover: { 
-                rotateY: 8, 
-                rotateX: -4,
-                z: 50,
-                transition: { duration: 0.4 }
-              },
-              style: { 
-                transformStyle: "preserve-3d",
-                perspective: "2000px" 
-              },
-              transition: { 
-                duration: 0.8,
-                y: { duration: 4, repeat: Infinity, ease: "easeInOut" }
-              }
-            })}
-            className="max-w-3xl"
-          >
+          <div className="max-w-3xl animate-fade-in-up hover:scale-[1.02] transition-transform duration-500">
             <div className="flex items-center gap-2 mb-6" style={{ transform: "translateZ(30px)" }}>
               <div className="w-10 h-[1px] bg-premium-gold" />
               <span className="text-premium-gold font-black uppercase tracking-[0.4em] text-[10px]">{slides[heroIdx]?.accent}</span>
@@ -243,7 +198,7 @@ export default function Home() {
                 Our Story
               </Link>
             </div>
-          </HeroContent>
+          </div>
         </div>
 
 
@@ -264,52 +219,25 @@ export default function Home() {
       {/* ── Category Spotlight ── */}
       <section className="py-24 bg-white cls-stable-section" style={{ minHeight: '420px', contain: 'layout' }}>
         <div className="container-custom">
-          <MotionDiv 
-            {...(isMobile ? {} : {
-              initial: { opacity: 0, y: 40 },
-              whileInView: { opacity: 1, y: 0 },
-              viewport: { once: true }
-            })}
-            className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6"
-          >
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6 animate-fade-in-up delay-100">
             <div>
-              <MotionP 
-                {...(isMobile ? {} : {
-                  initial: { opacity: 0, x: -20 },
-                  whileInView: { opacity: 1, x: 0 },
-                  transition: { delay: 0.2 }
-                })}
-                className="text-premium-gold font-black uppercase tracking-widest text-xs mb-3"
-              >
+              <p className="text-premium-gold font-black uppercase tracking-widest text-xs mb-3 animate-fade-in-up delay-200">
                 Essentials
-              </MotionP>
+              </p>
               <h2 className="text-4xl md:text-6xl font-black text-charcoal tracking-tighter">Shop by Lifestyle</h2>
             </div>
             <Link to="/collections" className="text-sm font-bold text-charcoal hover:text-premium-gold flex items-center gap-2 group transition-all">
               Discover All <div className="w-10 h-10 rounded-full border border-charcoal/10 flex items-center justify-center group-hover:bg-charcoal group-hover:text-white transition-all group-hover:scale-110 group-hover:rotate-12"><ArrowRight size={18} /></div>
             </Link>
-          </MotionDiv>
+          </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
             {homeCategories.map((cat, i) => (
-              <CategoryCard 
+              <Link
                 key={cat.slug || cat._id}
                 to={`/collections/${cat.slug}`}
-                {...(isMobile ? {} : {
-                  initial: { opacity: 0, y: 30 },
-                  whileInView: { opacity: 1, y: 0 },
-                  whileHover: { 
-                    rotateY: 12, 
-                    rotateX: -8,
-                    scale: 1.08,
-                    z: 30,
-                    transition: { duration: 0.3 }
-                  },
-                  transition: { delay: i * 0.1 },
-                  viewport: { once: true },
-                  style: { transformStyle: "preserve-3d" }
-                })}
-                className="group relative block aspect-[4/5] rounded-[3rem] overflow-hidden bg-light-bg perspective-2000 w-full h-full"
+                className="group relative block aspect-[4/5] rounded-[3rem] overflow-hidden bg-light-bg perspective-2000 w-full h-full animate-fade-in-up hover:scale-[1.05] hover:-translate-y-2 transition-all duration-500"
+                style={{ animationDelay: `${i * 100}ms` }}
               >
                 <SafeImage 
                   src={cat.image || cat.img} 
@@ -326,7 +254,7 @@ export default function Home() {
                     <p className="text-charcoal text-[8px] font-black uppercase tracking-[0.2em]">{cat.items || 'Explore'}</p>
                   </div>
                 </div>
-              </CategoryCard>
+              </Link>
             ))}
           </div>
         </div>
@@ -335,30 +263,16 @@ export default function Home() {
       {/* ── Featured Showcase ── */}
       <section className="py-24 bg-light-bg rounded-[3rem] md:rounded-[5rem] mx-2 md:mx-6">
         <div className="container-custom">
-          <MotionDiv 
-            {...(isMobile ? {} : {
-              initial: { opacity: 0, scale: 0.9 },
-              whileInView: { opacity: 1, scale: 1 },
-              viewport: { once: true }
-            })}
-            className="text-center mb-20"
-          >
+          <div className="text-center mb-20 animate-fade-in-up">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-premium-gold/10 rounded-full mb-6">
               <Sparkles className="text-premium-gold" size={16} />
               <span className="text-premium-gold font-black uppercase tracking-widest text-[10px]">Staff Favorites</span>
             </div>
             <h2 className="text-4xl md:text-7xl font-black text-charcoal tracking-tight mb-6">Trending Now</h2>
-            <MotionP 
-              {...(isMobile ? {} : {
-                initial: { opacity: 0, y: 20 },
-                whileInView: { opacity: 1, y: 0 },
-                transition: { delay: 0.3 }
-              })}
-              className="text-text-secondary max-w-xl mx-auto font-medium"
-            >
+            <p className="text-text-secondary max-w-xl mx-auto font-medium animate-fade-in-up delay-300">
               Curated pieces that define modern sophistication. Hand-picked by our stylists for the current season.
-            </MotionP>
-          </MotionDiv>
+            </p>
+          </div>
 
           {loadingFeatured ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-10 opacity-30 select-none pointer-events-none">
@@ -388,23 +302,17 @@ export default function Home() {
               { icon: RefreshCw, title: 'Seamless Returns', desc: 'No-questions-asked 7-day exchange policy.' },
               { icon: Shield, title: 'Authenticity Guarantee', desc: 'Only 100% genuine premium fabrics & hardware.' }
             ].map((item, i) => (
-              <MotionDiv 
-                key={i} 
-                {...(isMobile ? {} : {
-                  initial: { opacity: 0, scale: 0.8, y: 30 },
-                  whileInView: { opacity: 1, scale: 1, y: 0 },
-                  whileHover: { y: -10 },
-                  transition: { delay: i * 0.2 },
-                  viewport: { once: true }
-                })}
-                className="space-y-4"
+              <div 
+                key={i}
+                className="space-y-4 animate-fade-in-up hover:-translate-y-2 transition-transform duration-300"
+                style={{ animationDelay: `${i * 200}ms` }}
               >
                 <div className="w-16 h-16 bg-charcoal text-premium-gold rounded-3xl flex items-center justify-center mx-auto shadow-2xl shadow-charcoal/10 transition-transform group-hover:rotate-6">
                   <item.icon size={28} />
                 </div>
                 <h3 className="text-xl font-black text-charcoal">{item.title}</h3>
                 <p className="text-text-secondary text-sm leading-relaxed max-w-xs mx-auto">{item.desc}</p>
-              </MotionDiv>
+              </div>
             ))}
           </div>
         </div>
@@ -413,29 +321,18 @@ export default function Home() {
       {/* ── Mobile Friendly WhatsApp CTA ── */}
       <section className="py-20 bg-charcoal relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-premium-gold/5 rounded-full blur-[100px] -mr-48 -mt-48" />
-        <MotionDiv 
-          {...(isMobile ? {} : {
-            initial: { opacity: 0, y: 40 },
-            whileInView: { opacity: 1, y: 0 },
-            viewport: { once: true }
-          })}
-          className="container-custom relative z-10 flex flex-col md:flex-row items-center justify-between gap-8"
-        >
+        <div className="container-custom relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 animate-fade-in-up delay-200">
           <div>
             <h2 className="text-3xl md:text-5xl font-black text-white tracking-tighter mb-4">Personal Styling <br/>on WhatsApp</h2>
             <p className="text-white/40 font-medium">Chat with our fashion experts for sizing & style advice.</p>
           </div>
-          <MotionA 
-            {...(isMobile ? {} : {
-              whileHover: { scale: 1.05, rotate: -2 },
-              whileTap: { scale: 0.95 }
-            })}
+          <a
             href="https://wa.me/917358885452" 
-            className="px-10 py-5 bg-[#25D366] text-white rounded-[2rem] font-black tracking-widest text-sm hover:scale-105 transition-all shadow-2xl shadow-[#25D366]/20"
+            className="px-10 py-5 bg-[#25D366] text-white rounded-[2rem] font-black tracking-widest text-sm hover:scale-105 hover:-rotate-2 active:scale-95 transition-all shadow-2xl shadow-[#25D366]/20"
           >
             CONNECT NOW
-          </MotionA>
-        </MotionDiv>
+          </a>
+        </div>
       </section>
     </div>
   );
