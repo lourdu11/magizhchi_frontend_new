@@ -9,10 +9,10 @@ import SkeletonCard from '../components/product/SkeletonCard';
 import SafeImage from '../components/common/SafeImage';
 
 const CATEGORIES = [
-  { name: 'Shirts', slug: 'shirts', img: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?q=80&w=400&auto=format&fit=crop', items: '120+ Items' },
-  { name: 'T-Shirts', slug: 't-shirts', img: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=400&auto=format&fit=crop', items: '80+ Items' },
-  { name: 'Jeans', slug: 'jeans', img: 'https://images.unsplash.com/photo-1542272604-787c3835535d?q=80&w=400&auto=format&fit=crop', items: '50+ Items' },
-  { name: 'Formals', slug: 'formals', img: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=400&auto=format&fit=crop', items: '40+ Items' }
+  { name: 'Shirts', slug: 'shirts', img: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?q=50&w=320&auto=format&fit=crop&h=400', items: '120+ Items' },
+  { name: 'T-Shirts', slug: 't-shirts', img: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=50&w=320&auto=format&fit=crop&h=400', items: '80+ Items' },
+  { name: 'Jeans', slug: 'jeans', img: 'https://images.unsplash.com/photo-1542272604-787c3835535d?q=50&w=320&auto=format&fit=crop&h=400', items: '50+ Items' },
+  { name: 'Formals', slug: 'formals', img: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=50&w=320&auto=format&fit=crop&h=400', items: '40+ Items' }
 ];
 
 const DEFAULT_SLIDES = [
@@ -158,9 +158,9 @@ export default function Home() {
           >
             <SafeImage 
               src={isMobile ? (slides[heroIdx]?.mobileImg || slides[heroIdx]?.img) : slides[heroIdx]?.img} 
-              alt="" 
+              alt="Magizhchi Garments Hero" 
               width={isMobile ? 400 : 1200} 
-              height={isMobile ? 600 : 800}
+              height={isMobile ? 267 : 800}
               quality={heroIdx === 0 ? (isMobile ? 45 : 60) : 40}
               fetchPriority="high"
               loading="eager"
