@@ -47,7 +47,7 @@ export default defineConfig({
     cssCodeSplit: true,
     chunkSizeWarningLimit: 500,
     sourcemap: false,
-    modulePreload: false,
+    modulePreload: { polyfill: true },
     rollupOptions: {
       output: {
         manualChunks(id) {
