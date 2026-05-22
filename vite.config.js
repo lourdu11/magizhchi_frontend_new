@@ -42,38 +42,12 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
-          // React core — must be first so CJS interop wrappers land here
-          if (
-            id.includes('node_modules/react/') ||
-            id.includes('node_modules/react-dom/') ||
-            id.includes('node_modules/react-router') ||
-            id.includes('node_modules/scheduler/')
-          ) {
-            return 'react-core';
-          }
-
           // Consolidate ALL lucide-react icons into one chunk (eliminates 20+ tiny HTTP requests)
           if (id.includes('node_modules/lucide-react')) {
             return 'icons';
           }
-
-          // Data fetching layer
-          if (
-            id.includes('node_modules/axios') ||
-            id.includes('node_modules/@tanstack')
-          ) {
-            return 'data-layer';
-          }
-
-          // Framer-motion isolated (only loaded by admin/review pages)
-          if (id.includes('node_modules/framer-motion')) {
-            return 'framer-motion';
-          }
-
-          // Recharts isolated (only loaded by admin analytics)
-          if (id.includes('node_modules/recharts') || id.includes('node_modules/d3-')) {
-            return 'charts';
-          }
+          // Let Rollup handle everything else automatically (React, charts, etc.)
+          // This prevents CJS interop wrappers from leaking into the wrong chunks.
         },
       },
     },
