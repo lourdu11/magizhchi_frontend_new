@@ -47,12 +47,12 @@ export default function Home() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const { data: featuredData, isLoading: loadingFeatured, isError: isFeaturedError } = useQuery({
+  const { data: featuredData, isLoading: loadingFeatured } = useQuery({
     queryKey: ['products', 'featured'],
     queryFn: () => productService.getProducts({ isFeatured: 'true', limit: 8 }).then(r => r.data.data?.data || r.data.data || []),
   });
 
-  const { data: allProductsData, isError: isAllProductsError } = useQuery({
+  const { data: allProductsData } = useQuery({
     queryKey: ['products', 'latest'],
     queryFn: () => productService.getProducts({ limit: 8 }).then(r => r.data.data?.data || r.data.data || []),
     enabled: !loadingFeatured && (!featuredData || (Array.isArray(featuredData) && featuredData.length === 0)),
@@ -128,10 +128,10 @@ export default function Home() {
 
   // Reset index if slides count changes (e.g. from 4 demo to 1 real)
   useEffect(() => {
-    if (slides && slides.length > 0 && heroIdx >= slides.length) {
+    if (heroIdx >= slides.length) {
       setHeroIdx(0);
     }
-  }, [slides?.length, heroIdx]);
+  }, [slides.length, heroIdx]);
 
   return (
     <div className="overflow-x-hidden relative">
@@ -231,16 +231,16 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-            {homeCategories?.map((cat, i) => (
+            {homeCategories.map((cat, i) => (
               <Link
-                key={cat?.slug || cat?._id || i}
-                to={`/collections/${cat?.slug || ''}`}
+                key={cat.slug || cat._id}
+                to={`/collections/${cat.slug}`}
                 className="group relative block aspect-[4/5] rounded-[3rem] overflow-hidden bg-light-bg perspective-2000 w-full h-full animate-fade-in-up hover:scale-[1.05] hover:-translate-y-2 transition-all duration-500"
                 style={{ animationDelay: `${i * 100}ms` }}
               >
                 <SafeImage 
-                  src={cat?.image || cat?.img} 
-                  alt={cat?.name || 'Category'} 
+                  src={cat.image || cat.img} 
+                  alt={cat.name} 
                   width={400} 
                   height={500} 
                   sizes="(max-width: 640px) 40vw, (max-width: 1024px) 20vw, 240px"
@@ -248,9 +248,9 @@ export default function Home() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80" />
                 <div className="absolute bottom-10 left-8" style={isMobile ? {} : { transform: "translateZ(50px)" }}>
-                  <p className="text-white font-black text-3xl tracking-tighter mb-1 uppercase">{cat?.name || 'Collection'}</p>
+                  <p className="text-white font-black text-3xl tracking-tighter mb-1 uppercase">{cat.name}</p>
                   <div className="inline-block px-4 py-1.5 bg-premium-gold rounded-full">
-                    <p className="text-charcoal text-[8px] font-black uppercase tracking-[0.2em]">{cat?.items || 'Explore'}</p>
+                    <p className="text-charcoal text-[8px] font-black uppercase tracking-[0.2em]">{cat.items || 'Explore'}</p>
                   </div>
                 </div>
               </Link>
@@ -277,14 +277,9 @@ export default function Home() {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-10 opacity-30 select-none pointer-events-none">
               {Array(8).fill(0).map((_, i) => <SkeletonCard key={i} />)}
             </div>
-          ) : isFeaturedError || isAllProductsError ? (
-            <div className="text-center py-10">
-              <p className="text-text-secondary">Failed to load trending products.</p>
-              <button onClick={() => window.location.reload()} className="mt-4 text-premium-gold hover:underline text-sm font-bold">Try again</button>
-            </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-10">
-              {featured?.map(product => product?._id ? <ProductCard key={product._id} product={product} /> : null)}
+              {featured.map(product => <ProductCard key={product._id} product={product} />)}
             </div>
           )}
 

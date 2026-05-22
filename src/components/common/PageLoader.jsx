@@ -1,21 +1,4 @@
-import { useState, useEffect } from 'react';
-
 export default function PageLoader() {
-  const [showRetry, setShowRetry] = useState(false);
-  const [showForceRetry, setShowForceRetry] = useState(false);
-
-  useEffect(() => {
-    // After 8 seconds: show "Taking too long?" hint
-    const hintTimer = setTimeout(() => setShowRetry(true), 8000);
-    // After 15 seconds: show full retry button (force escape from infinite loading)
-    const forceTimer = setTimeout(() => setShowForceRetry(true), 15000);
-
-    return () => {
-      clearTimeout(hintTimer);
-      clearTimeout(forceTimer);
-    };
-  }, []);
-
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/95 backdrop-blur-md">
       {/* Sleek Golden Ambient Glow Background */}
@@ -54,42 +37,9 @@ export default function PageLoader() {
         </div>
         
         {/* Subtle loading caption */}
-        {!showRetry && (
-          <p className="text-[8px] text-charcoal/40 tracking-[0.25em] uppercase mt-4 animate-pulse">
-            Loading Luxury...
-          </p>
-        )}
-
-        {/* Timeout Hint — appears after 8 seconds */}
-        {showRetry && !showForceRetry && (
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-4 px-5 py-2 text-[10px] text-premium-gold/80 tracking-[0.15em] uppercase font-bold hover:text-premium-gold transition-colors animate-fade-in-up"
-          >
-            Taking too long? Tap to reload
-          </button>
-        )}
-
-        {/* Force Retry — appears after 15 seconds (escapes infinite loading) */}
-        {showForceRetry && (
-          <div className="mt-6 flex flex-col items-center gap-3 animate-fade-in-up">
-            <p className="text-xs text-charcoal/50 font-medium">
-              Slow connection detected
-            </p>
-            <button
-              onClick={() => window.location.reload()}
-              className="px-8 py-3 bg-charcoal text-white text-[10px] font-black uppercase tracking-widest rounded-2xl shadow-lg hover:bg-charcoal/90 transition-all active:scale-95"
-            >
-              Reload Page
-            </button>
-            <button
-              onClick={() => { window.location.href = '/'; }}
-              className="text-[10px] text-charcoal/40 uppercase tracking-widest font-bold hover:text-charcoal/60 transition-colors"
-            >
-              Go to Home
-            </button>
-          </div>
-        )}
+        <p className="text-[8px] text-charcoal/40 tracking-[0.25em] uppercase mt-4 animate-pulse">
+          Loading Luxury...
+        </p>
       </div>
     </div>
   );

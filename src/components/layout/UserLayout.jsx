@@ -2,8 +2,6 @@ import { lazy, Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
 import Header from './Header';
 
-import RouteErrorBoundary from '../common/RouteErrorBoundary';
-
 const Footer = lazy(() => import('./Footer'));
 const CookieConsent = lazy(() => import('../common/CookieConsent'));
 
@@ -13,9 +11,7 @@ export default function UserLayout() {
       <Header />
       <main className="flex-1">
         <div className="pt-16 md:pt-32">
-          <RouteErrorBoundary>
-            <Outlet />
-          </RouteErrorBoundary>
+          <Outlet />
         </div>
       </main>
 

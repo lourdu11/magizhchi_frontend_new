@@ -89,18 +89,6 @@ Pants Collection</h1>
           </div>
         </div>
       </div>
-      <!-- Global Crash Fallback (Triggers if React fails to mount within 12 seconds) -->
-      <script>
-        setTimeout(function() {
-          var skeleton = document.getElementById('hero-skeleton');
-          if (skeleton && document.getElementById('root').contains(skeleton)) {
-            var fallbackUI = document.createElement('div');
-            fallbackUI.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(26,26,26,0.95);display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;font-family:sans-serif;padding:2rem;text-align:center;backdrop-filter:blur(10px);';
-            fallbackUI.innerHTML = '<h2 style="font-size:1.5rem;margin-bottom:1rem;font-weight:bold;">Slow Connection Detected</h2><p style="margin-bottom:2rem;color:#aaa;">The application is taking too long to load.</p><button onclick="window.location.reload()" style="padding:1rem 2rem;background:#D4AF37;color:#1A1A1A;border:none;border-radius:1rem;font-weight:bold;cursor:pointer;font-size:1rem;text-transform:uppercase;letter-spacing:0.1em;">Reload Page</button>';
-            document.body.appendChild(fallbackUI);
-          }
-        }, 12000);
-      </script>
     </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

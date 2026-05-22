@@ -39,8 +39,8 @@ if (typeof window !== 'undefined') {
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import { QueryClient, QueryClientProvider, QueryCache } from '@tanstack/react-query';
-import { Toaster, toast } from 'react-hot-toast';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from 'react-hot-toast';
 import { HelmetProvider } from 'react-helmet-async';
 import App from './App';
 import ErrorBoundary from './components/common/ErrorBoundary';
@@ -84,20 +84,9 @@ const queryClient = new QueryClient({
       staleTime: 30 * 1000, // 30 seconds
       gcTime: 10 * 60 * 1000,
       retry: 1,
-      retryDelay: 1000,
       refetchOnWindowFocus: false,
-      networkMode: 'offlineFirst', // Prevents blocking if Render backend is cold-starting
     },
   },
-  // Global error handler for silent API failures
-  queryCache: new QueryCache({
-    onError: (error) => {
-      // Don't toast 404s (e.g. empty lists) or 401s (auth errors handled elsewhere)
-      if (error?.response?.status !== 404 && error?.response?.status !== 401) {
-        toast.error('Network issue. Some data may be missing.');
-      }
-    }
-  })
 });
 
 createRoot(document.getElementById('root')).render(
