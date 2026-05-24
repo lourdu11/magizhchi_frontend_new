@@ -213,58 +213,64 @@ const BroadcastCenter = () => {
   };
 
   const handleAddCustomRecipient = async () => {
-    if (!customPhone || customPhone.length < 10) {
-      toast.error('Please enter a valid 10-digit mobile number');
+    if (!customPhone) {
+      toast.error('Please enter valid 10-digit mobile numbers');
       return;
     }
     
-    const fullPhone = `91${customPhone}`;
+    const rawNumbers = customPhone.split(/[,\s\n]+/).filter(Boolean);
+    const validNumbers = [];
     
-    // Check if already in list
-    if (selectedRecipients.some(r => r.phone === fullPhone)) {
-      toast.error('This number is already in the recipient list');
-      return;
-    }
-
-    let registeredCustomer = null;
-
-    if (saveToDb) {
-      try {
-        const res = await adminService.createCustomer({
-          name: customName.trim() || `Customer +91${customPhone}`,
-          phone: customPhone
-        });
-        toast.success('Successfully saved permanently to Customer Database!');
-        registeredCustomer = res.data.data;
-        // Trigger reload of the master database list in Step 1
-        fetchCustomers();
-      } catch (err) {
-        const errMsg = err.response?.data?.message || 'Failed to save customer to database';
-        toast.error(errMsg);
+    rawNumbers.forEach(num => {
+      const cleaned = num.replace(/\D/g, '');
+      if (cleaned.length >= 10) {
+        validNumbers.push(cleaned.slice(-10));
       }
+    });
+
+    if (validNumbers.length === 0) {
+      toast.error('Please enter valid 10-digit mobile numbers');
+      return;
     }
-    
-    const newRecipient = {
-      id: registeredCustomer?._id || `custom_${Date.now()}`,
-      name: customName.trim() || (registeredCustomer?.name) || `Guest +91${customPhone}`,
-      phone: fullPhone,
-      type: registeredCustomer ? 'online' : 'manual',
-      totalSpent: 0,
-      billCount: 0,
-      lastPurchase: null
-    };
-    
-    setSelectedRecipients([...selectedRecipients, newRecipient]);
-    
-    // Inject into the main customer table so the user can see/toggle it from below
-    if (!registeredCustomer) {
-      setCustomers(prev => [newRecipient, ...prev]);
+
+    const newAdded = [];
+    let duplicateCount = 0;
+
+    for (const phone of validNumbers) {
+      const fullPhone = `91${phone}`;
+      
+      if (selectedRecipients.some(r => r.phone === fullPhone) || newAdded.some(r => r.phone === fullPhone)) {
+        duplicateCount++;
+        continue;
+      }
+
+      const singleName = validNumbers.length === 1 && customName.trim() ? customName.trim() : `Guest +91${phone}`;
+
+      const newRecipient = {
+        id: `custom_${Date.now()}_${phone}`,
+        name: singleName,
+        phone: fullPhone,
+        type: 'manual',
+        totalSpent: 0,
+        billCount: 0,
+        lastPurchase: null
+      };
+      
+      newAdded.push(newRecipient);
     }
-    
-    setCustomPhone('');
-    setCustomName('');
-    setSaveToDb(false); // Reset checkbox
-    toast.success(`Direct number +${fullPhone} added to recipients list and table!`);
+
+    if (newAdded.length > 0) {
+      setSelectedRecipients(prev => [...prev, ...newAdded]);
+      setCustomers(prev => [...newAdded, ...prev]);
+      setCustomPhone('');
+      setCustomName('');
+      setSaveToDb(false);
+      toast.success(`${newAdded.length} direct number(s) added successfully!`);
+    }
+
+    if (duplicateCount > 0) {
+      toast.error(`${duplicateCount} number(s) were skipped (already in list).`);
+    }
   };
 
   const segments = [
@@ -381,17 +387,14 @@ const BroadcastCenter = () => {
                 <div className="flex flex-col md:flex-row gap-6 items-end w-full">
                   <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
                     <div>
-                      <label className="text-[9px] font-black text-[#5F6368] uppercase tracking-[0.2em] mb-2 block">Direct Phone Number (மொபைல் எண்)</label>
-                      <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-bold text-[#5F6368]">+91</span>
-                        <input 
-                          type="tel" 
-                          placeholder="Enter 10-digit mobile number"
-                          className="w-full bg-[#F8F9FA] pl-14 pr-6 py-3 rounded-2xl border border-[#DADCE0] outline-none font-bold focus:ring-4 focus:ring-blue-100 text-sm"
-                          value={customPhone}
-                          onChange={(e) => setCustomPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                        />
-                      </div>
+                      <label className="text-[9px] font-black text-[#5F6368] uppercase tracking-[0.2em] mb-2 block">Direct Phone Numbers (மொபைல் எண்கள்)</label>
+                      <textarea 
+                        placeholder="Paste numbers separated by commas (e.g. 9876543210, 9123456789)"
+                        rows={2}
+                        className="w-full bg-[#F8F9FA] px-6 py-3 rounded-2xl border border-[#DADCE0] outline-none font-bold focus:ring-4 focus:ring-blue-100 text-sm resize-none"
+                        value={customPhone}
+                        onChange={(e) => setCustomPhone(e.target.value.replace(/[^0-9,\s\n+]/g, ''))}
+                      />
                     </div>
                     <div>
                       <label className="text-[9px] font-black text-[#5F6368] uppercase tracking-[0.2em] mb-2 block">Recipient Name (பெயர் - Optional)</label>
@@ -408,7 +411,7 @@ const BroadcastCenter = () => {
                     onClick={handleAddCustomRecipient}
                     className="w-full md:w-auto bg-black text-white hover:bg-white hover:text-black hover:border-black border border-transparent px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 whitespace-nowrap"
                   >
-                    <Plus size={16} /> Add Direct Number
+                    <Plus size={16} /> Add Direct Numbers
                   </button>
                 </div>
 

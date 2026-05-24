@@ -79,6 +79,15 @@ export default function GeneralInfoTab({ categories }) {
           <input 
             type="checkbox" 
             className="w-6 h-6 rounded-lg border-border-light text-premium-gold focus:ring-premium-gold" 
+            checked={formData.isTrending} 
+            onChange={e => setField('isTrending', e.target.checked)} 
+          />
+          <span className="text-[10px] font-black uppercase tracking-widest text-charcoal">Popular Product</span>
+        </div>
+        <div className="flex items-center gap-4">
+          <input 
+            type="checkbox" 
+            className="w-6 h-6 rounded-lg border-border-light text-premium-gold focus:ring-premium-gold" 
             checked={formData.isActive} 
             onChange={e => setField('isActive', e.target.checked)} 
           />
