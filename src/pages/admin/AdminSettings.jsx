@@ -696,7 +696,7 @@ export default function AdminSettings() {
                    
                    <div className="grid md:grid-cols-2 gap-8">
                       <label className="block">
-                         <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-2 block">Admin WhatsApp Numbers</span>
+                         <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-2 block">Admin WhatsApp Numbers (Optional)</span>
                          <div className="relative">
                             <Smartphone className="absolute left-4 top-1/2 -translate-y-1/2 text-[#25D366]" size={18} />
                             <input className="w-full bg-light-bg border-none rounded-2xl pl-12 pr-5 py-4 focus:ring-2 focus:ring-[#25D366]/30 font-black text-lg" 
@@ -708,7 +708,7 @@ export default function AdminSettings() {
                       </label>
 
                       <label className="block">
-                         <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-2 block">Admin Notification Emails</span>
+                         <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-2 block">Admin Notification Emails (Optional)</span>
                          <div className="relative">
                             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-premium-gold" size={18} />
                             <input className={`w-full bg-light-bg border-none rounded-2xl pl-12 pr-5 py-4 focus:ring-2 focus:ring-premium-gold/30 font-black text-lg ${isEmailDirty ? 'ring-2 ring-amber-400' : ''}`} 
