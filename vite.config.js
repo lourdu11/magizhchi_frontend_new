@@ -6,12 +6,25 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 import viteCompression from 'vite-plugin-compression';
+import { visualizer } from 'rollup-plugin-visualizer';
+
+const asyncCssPlugin = () => ({
+  name: 'async-css',
+  transformIndexHtml(html) {
+    return html.replace(
+      /<link rel="stylesheet" crossorigin href="(.*?)">/g,
+      `<link rel="preload" as="style" crossorigin href="$1" onload="this.rel='stylesheet'"><noscript><link rel="stylesheet" crossorigin href="$1"></noscript>`
+    );
+  }
+});
 
 export default defineConfig({
   plugins: [
     react(),
+    asyncCssPlugin(),
     viteCompression({ algorithm: 'gzip', ext: '.gz' }),
     viteCompression({ algorithm: 'brotliCompress', ext: '.br' }),
+    visualizer({ filename: './stats.html', open: false }),
   ],
   resolve: {
     alias: { '@': path.resolve(__dirname, './src') },

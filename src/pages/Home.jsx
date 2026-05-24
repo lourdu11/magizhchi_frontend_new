@@ -9,10 +9,10 @@ import SkeletonCard from '../components/product/SkeletonCard';
 import SafeImage from '../components/common/SafeImage';
 
 const CATEGORIES = [
-  { name: 'Shirts', slug: 'shirts', img: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?q=80&w=400&auto=format&fit=crop', items: '120+ Items' },
-  { name: 'T-Shirts', slug: 't-shirts', img: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=400&auto=format&fit=crop', items: '80+ Items' },
-  { name: 'Jeans', slug: 'jeans', img: 'https://images.unsplash.com/photo-1542272604-787c3835535d?q=80&w=400&auto=format&fit=crop', items: '50+ Items' },
-  { name: 'Formals', slug: 'formals', img: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=400&auto=format&fit=crop', items: '40+ Items' }
+  { name: 'Shirts', slug: 'shirts', img: 'https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0045.jpg?tr=w-400,h-500,q-80,f-webp', items: '120+ Items' },
+  { name: 'T-Shirts', slug: 't-shirts', img: 'https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0058.jpg?tr=w-400,h-500,q-80,f-webp', items: '80+ Items' },
+  { name: 'Jeans', slug: 'jeans', img: 'https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0057.jpg?tr=w-400,h-500,q-80,f-webp', items: '50+ Items' },
+  { name: 'Formals', slug: 'formals', img: 'https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?tr=w-400,h-500,q-80,f-webp', items: '40+ Items' }
 ];
 
 const DEFAULT_SLIDES = [
@@ -21,8 +21,8 @@ const DEFAULT_SLIDES = [
     title: "Premium Casual\nPants Collection",
     subtitle: "Modern comfort and effortless style for everyday wear.",
     accent: "New Arrival",
-    img: "https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925",
-    mobileImg: "https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925",
+    img: "https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-1440,h-960,q-80,f-webp",
+    mobileImg: "https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-412,h-618,q-80,f-webp",
     cta: 'Shop Now',
     ctaLink: '/collections/pants',
     fit: 'cover',
@@ -39,6 +39,7 @@ const DEFAULT_SLIDES = [
 export default function Home() {
   const [heroIdx, setHeroIdx] = useState(0);
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
+  const [visibleCount, setVisibleCount] = useState(4);
   const glowRef = useRef(null);
 
   useEffect(() => {
@@ -107,14 +108,21 @@ export default function Home() {
 
   useEffect(() => {
     if (isMobile) return;
+    let rafId;
     const handleMouseMove = (e) => {
-      if (glowRef.current) {
-        glowRef.current.style.setProperty('--mouse-x', `${e.clientX}px`);
-        glowRef.current.style.setProperty('--mouse-y', `${e.clientY}px`);
-      }
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        if (glowRef.current) {
+          glowRef.current.style.setProperty('--mouse-x', `${e.clientX}px`);
+          glowRef.current.style.setProperty('--mouse-y', `${e.clientY}px`);
+        }
+      });
     };
     window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      cancelAnimationFrame(rafId);
+    };
   }, [isMobile]);
 
   // Auto-play carousel (Disabled on mobile to reduce main-thread tasks)
@@ -278,9 +286,18 @@ export default function Home() {
               {Array(8).fill(0).map((_, i) => <SkeletonCard key={i} />)}
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-10">
-              {featured.map(product => <ProductCard key={product._id} product={product} />)}
-            </div>
+            <>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-10">
+                {featured.slice(0, visibleCount).map(product => <ProductCard key={product._id} product={product} />)}
+              </div>
+              {visibleCount < featured.length && (
+                <div className="mt-12 text-center">
+                  <button onClick={() => setVisibleCount(featured.length)} className="btn-outline px-8 py-3 rounded-2xl inline-flex items-center gap-2">
+                    Load More <ArrowRight size={16} />
+                  </button>
+                </div>
+              )}
+            </>
           )}
 
           <div className="mt-20 text-center">
