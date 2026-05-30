@@ -1,35 +1,154 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useProductForm } from './FormContext';
 import { SectionHeader, InputField } from './Common';
-import { Trash2, Layers, Sparkles, X, Plus, PlusCircle, Upload, ImageIcon, Loader2, Edit3, Save } from 'lucide-react';
+import { Trash2, Layers, Sparkles, X, Plus, PlusCircle, Upload, ImageIcon, Loader2, Edit3, Save, Barcode, RefreshCw, Printer } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { adminService } from '../../../services';
 import SafeImage from '../../../components/common/SafeImage';
 import { resolveAssetURL } from '../../../utils/assetResolver';
 
+// ── EAN-13 Generator (India prefix 890) ──────────
+function generateEAN13() {
+  const prefix = '890';
+  const mid = Date.now().toString().slice(-6);
+  const rand = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+  const base = prefix + mid + rand;
+  let sum = 0;
+  for (let i = 0; i < 12; i++) sum += parseInt(base[i]) * (i % 2 === 0 ? 1 : 3);
+  return base + ((10 - (sum % 10)) % 10);
+}
+
+// ── Render barcode SVG using JsBarcode ──────────
+function renderBarcodeSVG(svgEl, code) {
+  if (!svgEl || !code) return;
+  const doRender = () => {
+    try {
+      window.JsBarcode(svgEl, code, {
+        format: 'EAN13', width: 1.5, height: 40,
+        displayValue: true, fontSize: 10, margin: 4,
+        background: '#fff', lineColor: '#000'
+      });
+    } catch(e) { console.warn('Barcode render error', e); }
+  };
+  if (window.JsBarcode) {
+    doRender();
+  } else {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js';
+    s.onload = doRender;
+    document.head.appendChild(s);
+  }
+}
+
 const COMMON_SIZES = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL', '30', '32', '34', '36', '38', '40', 'FREE'];
 
 export default function VariantsTab() {
   const { state, dispatch } = useProductForm();
   const { formData } = state;
-
   const setField = (field, value) => dispatch({ type: 'SET_FIELD', field, value });
+  const activeVariants = (formData.variants || []).filter(v => !v.isDeleted);
+
+  // ── Print All Barcodes on A4 ─────────────────
+  const handlePrintAllBarcodes = () => {
+    const variantsWithBarcode = activeVariants.filter(v => v.barcode?.length === 13);
+    if (variantsWithBarcode.length === 0) {
+      toast.error('No variants have barcodes yet. Generate barcodes first!');
+      return;
+    }
+
+    // Load JsBarcode then open print window
+    const doOpen = () => {
+      const win = window.open('', '_blank', 'width=800,height=600');
+      const labels = variantsWithBarcode.map(v => {
+        // Build SVG via JsBarcode using a temp element
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        try {
+          window.JsBarcode(svg, v.barcode, {
+            format: 'EAN13', width: 1.8, height: 50,
+            displayValue: true, fontSize: 11, margin: 5,
+            background: '#fff', lineColor: '#000'
+          });
+        } catch(e) { console.warn(e); }
+        return `
+          <div class="label">
+            <div class="pname">${formData.name || 'Product'}</div>
+            <div class="variant">${v.color || ''} • Size: ${v.size || ''}</div>
+            ${formData.sellingPrice ? `<div class="price">₹${formData.sellingPrice}</div>` : ''}
+            ${svg.outerHTML}
+            <div class="barcode-num">${v.barcode}</div>
+          </div>
+        `;
+      }).join('');
+
+      win.document.write(`
+        <html><head><title>Barcode Labels — ${formData.name}</title>
+        <style>
+          * { box-sizing: border-box; margin: 0; padding: 0; }
+          body { font-family: Arial, sans-serif; background: #fff; padding: 10mm; }
+          .grid { display: flex; flex-wrap: wrap; gap: 6mm; }
+          .label {
+            width: 60mm; border: 1px solid #ccc; border-radius: 4px;
+            padding: 4mm; text-align: center; page-break-inside: avoid;
+            background: #fff;
+          }
+          .pname { font-size: 9px; font-weight: bold; text-transform: uppercase; margin-bottom: 2px; }
+          .variant { font-size: 8px; color: #555; margin-bottom: 2px; }
+          .price { font-size: 13px; font-weight: black; font-weight: 900; margin-bottom: 3px; }
+          .barcode-num { font-size: 8px; color: #888; margin-top: 2px; letter-spacing: 1px; }
+          svg { max-width: 100%; height: auto; }
+          @media print {
+            body { padding: 5mm; }
+            @page { size: A4; margin: 8mm; }
+          }
+        </style></head>
+        <body>
+          <div style="margin-bottom:6mm; font-size:11px; color:#999; font-weight:bold;">
+            ${formData.name} — ${variantsWithBarcode.length} Barcode Labels — Cut &amp; Stick
+          </div>
+          <div class="grid">${labels}</div>
+          <script>window.onload = () => setTimeout(() => window.print(), 300)<\/script>
+        </body></html>
+      `);
+      win.document.close();
+    };
+
+    if (window.JsBarcode) { doOpen(); }
+    else {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js';
+      s.onload = doOpen;
+      document.head.appendChild(s);
+    }
+  };
 
   return (
     <div className="space-y-12">
-      <SectionHeader title="Variant Orchestration" subtitle="Multi-selection & initial stock inflow" />
+      <div className="flex items-center justify-between">
+        <SectionHeader title="Variant Orchestration" subtitle="Multi-selection & initial stock inflow" />
+        {activeVariants.some(v => v.barcode?.length === 13) && (
+          <button
+            type="button"
+            onClick={handlePrintAllBarcodes}
+            className="flex items-center gap-2 px-6 py-3 bg-charcoal text-white rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-premium-gold hover:text-charcoal active:scale-95 transition-all shadow-lg"
+          >
+            <Printer size={14} />
+            Print All Barcodes (A4)
+          </button>
+        )}
+      </div>
       <VariantManagerSection 
         productName={formData.name} 
         variants={formData.variants} 
         basePrice={formData.sellingPrice}
+        sellingPrice={formData.sellingPrice}
         onUpdate={(v) => setField('variants', v)} 
       />
     </div>
   );
 }
 
-function VariantManagerSection({ productName, variants, basePrice, onUpdate }) {
+function VariantManagerSection({ productName, variants, basePrice, sellingPrice, onUpdate }) {
   const [multiMode, setMultiMode] = useState(true);
   const [colors, setColors] = useState([]);
   const [sizes, setSizes] = useState([]);
@@ -394,7 +513,17 @@ function VariantManagerSection({ productName, variants, basePrice, onUpdate }) {
                       <button type="button" onClick={() => handleRemove(v._id)} className="p-2 text-text-muted hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100 flex items-center justify-center"><Trash2 size={16} /></button>
                     </div>
                   </div>
-                  <div className="mt-8 pt-8 border-t border-border-light/50 flex items-center justify-between">
+                  {/* ── Per-Variant Barcode Section ── */}
+                  <VariantBarcodeSection
+                    variant={v}
+                    productName={productName}
+                    sellingPrice={sellingPrice}
+                    onBarcodeChange={(newBarcode) => {
+                      onUpdate(variants.map(vv => vv._id === v._id ? { ...vv, barcode: newBarcode } : vv));
+                    }}
+                  />
+
+                  <div className="mt-8 pt-6 border-t border-border-light/50 flex items-center justify-between">
                     <div className="flex flex-col">
                       <span className="text-[8px] font-black text-text-muted uppercase tracking-widest mb-1">SKU Code</span>
                       <span className="text-[9px] font-black text-premium-gold uppercase">{v.sku || 'AUTO'}</span>
@@ -411,6 +540,107 @@ function VariantManagerSection({ productName, variants, basePrice, onUpdate }) {
           ))
         )}
       </div>
+    </div>
+  );
+}
+
+function VariantBarcodeSection({ variant, productName, sellingPrice, onBarcodeChange }) {
+  const svgRef = useRef(null);
+  const [showPreview, setShowPreview] = useState(false);
+
+  useEffect(() => {
+    if (variant.barcode?.length === 13 && svgRef.current) {
+      renderBarcodeSVG(svgRef.current, variant.barcode);
+      setShowPreview(true);
+    } else {
+      setShowPreview(false);
+    }
+  }, [variant.barcode]);
+
+  const handlePrintSingleLabel = () => {
+    if (!variant.barcode || variant.barcode.length !== 13) return;
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    try {
+      window.JsBarcode?.(svg, variant.barcode, {
+        format: 'EAN13', width: 2, height: 55,
+        displayValue: true, fontSize: 12, margin: 6,
+        background: '#fff', lineColor: '#000'
+      });
+    } catch(e) { console.warn(e); }
+    const win = window.open('', '_blank', 'width=300,height=280');
+    win.document.write(`
+      <html><head><title>Label</title>
+      <style>
+        body { margin:0; padding:8px; font-family:Arial,sans-serif; text-align:center; }
+        .name { font-size:9px; font-weight:bold; text-transform:uppercase; }
+        .variant { font-size:8px; color:#555; margin:2px 0; }
+        .price { font-size:14px; font-weight:900; margin:3px 0; }
+        svg { max-width:100%; }
+        @media print { @page { margin: 4mm; } }
+      </style></head>
+      <body>
+        <div class="name">${productName || 'Product'}</div>
+        <div class="variant">${variant.color || ''} • Size: ${variant.size || ''}</div>
+        ${sellingPrice ? `<div class="price">₹${sellingPrice}</div>` : ''}
+        ${svg.outerHTML}
+        <script>window.onload=()=>setTimeout(()=>window.print(),200)<\/script>
+      </body></html>
+    `);
+    win.document.close();
+  };
+
+  return (
+    <div className="mt-4 p-4 bg-light-bg/60 rounded-2xl border border-border-light/60 space-y-3">
+      <div className="flex items-center gap-2">
+        <Barcode size={12} className="text-premium-gold" />
+        <span className="text-[8px] font-black text-text-muted uppercase tracking-widest">
+          Variant Barcode — {variant.color} / {variant.size}
+        </span>
+      </div>
+
+      <div className="flex gap-2 items-center">
+        <input
+          type="text"
+          className="flex-1 bg-white border-none rounded-xl px-4 py-2.5 text-[10px] font-black tracking-widest outline-none focus:ring-2 focus:ring-premium-gold/20 font-mono"
+          placeholder="Auto-generate barcode..."
+          value={variant.barcode || ''}
+          onChange={e => onBarcodeChange(e.target.value)}
+          maxLength={13}
+        />
+        <button
+          type="button"
+          onClick={() => onBarcodeChange(generateEAN13())}
+          className="flex items-center gap-1.5 px-4 py-2.5 bg-premium-gold text-charcoal rounded-xl text-[8px] font-black uppercase tracking-widest hover:bg-premium-gold/80 active:scale-95 transition-all whitespace-nowrap"
+        >
+          <RefreshCw size={11} />
+          Generate
+        </button>
+        {variant.barcode?.length === 13 && (
+          <button
+            type="button"
+            onClick={handlePrintSingleLabel}
+            title="Print this label"
+            className="p-2.5 bg-charcoal text-white rounded-xl hover:bg-premium-gold hover:text-charcoal active:scale-95 transition-all"
+          >
+            <Printer size={13} />
+          </button>
+        )}
+      </div>
+
+      {showPreview && (
+        <div className="flex justify-center pt-1">
+          <div className="bg-white rounded-xl px-4 py-2 border border-border-light shadow-sm text-center">
+            <svg ref={svgRef} />
+            <p className="text-[7px] text-text-muted mt-1 font-mono tracking-widest">{variant.barcode}</p>
+          </div>
+        </div>
+      )}
+
+      {variant.barcode && variant.barcode.length !== 13 && (
+        <p className="text-[8px] font-black text-amber-500 uppercase tracking-widest">
+          ⚠️ {variant.barcode.length}/13 digits
+        </p>
+      )}
     </div>
   );
 }
