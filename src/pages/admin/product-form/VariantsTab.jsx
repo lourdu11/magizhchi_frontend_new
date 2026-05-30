@@ -40,17 +40,17 @@ export default function VariantsTab() {
   const setField = (field, value) => dispatch({ type: 'SET_FIELD', field, value });
   const activeVariants = (formData.variants || []).filter(v => !v.isDeleted);
 
-  // ── Canvas → PNG (medium size, readable on thermal) ──────
+  // ── Canvas → PNG (compact, for garment tags) ──────
   const barcodeToDataURL = (code) => {
     try {
       const canvas = document.createElement('canvas');
       JsBarcode(canvas, code, {
         format: 'EAN13',
-        width: 2,        // medium bar width
-        height: 55,      // medium height
+        width: 1,
+        height: 25,
         displayValue: true,
-        fontSize: 11,
-        margin: 6,
+        fontSize: 8,
+        margin: 2,
         background: '#ffffff',
         lineColor: '#000000'
       });
@@ -58,7 +58,7 @@ export default function VariantsTab() {
     } catch(e) { console.warn('Barcode canvas error', e); return ''; }
   };
 
-  // ── Print All Barcodes (A4 sheet — 3 columns, cut & stick) ──
+  // ── Print All Barcodes (A4 sheet — 4 columns, compact garment tags) ──
   const handlePrintAllBarcodes = () => {
     const variantsWithBarcode = activeVariants.filter(v => v.barcode?.length === 13);
     if (variantsWithBarcode.length === 0) {
@@ -66,15 +66,13 @@ export default function VariantsTab() {
       return;
     }
 
-    // Pre-render all barcodes to PNG before opening window
     const labels = variantsWithBarcode.map(v => {
       const imgSrc = barcodeToDataURL(v.barcode);
       return `
         <div class="label">
-          <div class="lname">${(formData.name || 'Product').substring(0, 28)}</div>
+          <div class="lname">${(formData.name || 'Product').substring(0, 20)}</div>
           <div class="lmeta">${v.color || ''} &bull; ${v.size || ''}</div>
-          ${formData.sellingPrice ? `<div class="lprice">&#8377;${formData.sellingPrice}</div>` : ''}
-          ${imgSrc ? `<img src="${imgSrc}" />` : '<p style="color:red;font-size:7px">Error</p>'}
+          ${imgSrc ? `<img src="${imgSrc}" />` : '<p style="color:red;font-size:6px">Error</p>'}
         </div>
       `;
     }).join('');
@@ -83,20 +81,20 @@ export default function VariantsTab() {
     win.document.write(`<!DOCTYPE html>
 <html><head><title></title><style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: #eee; padding: 4mm; font-family: Arial, sans-serif; }
-  .info { font-size: 9px; color: #666; margin-bottom: 4mm; }
+  body { background: #eee; padding: 3mm; font-family: Arial, sans-serif; }
+  .info { font-size: 8px; color: #666; margin-bottom: 3mm; }
   .grid {
     display: grid;
-    grid-template-columns: repeat(3, 63mm);
+    grid-template-columns: repeat(4, 48mm);
     gap: 0;
   }
   .label {
-    width: 63mm;
-    height: 38mm;
-    padding: 2.5mm 3mm;
+    width: 48mm;
+    height: 28mm;
+    padding: 1.5mm 2mm;
     text-align: center;
     background: #fff;
-    border: 0.5px dashed #aaa;
+    border: 0.3px dashed #bbb;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -104,44 +102,38 @@ export default function VariantsTab() {
     overflow: hidden;
   }
   .lname {
-    font-size: 7.5pt;
+    font-size: 6pt;
     font-weight: bold;
     text-transform: uppercase;
-    letter-spacing: 0.3px;
-    line-height: 1.15;
+    letter-spacing: 0.2px;
+    line-height: 1.1;
     color: #000;
-    max-width: 57mm;
+    max-width: 44mm;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    margin-bottom: 0.5mm;
+    margin-bottom: 0.3mm;
   }
   .lmeta {
-    font-size: 7pt;
+    font-size: 5.5pt;
     font-weight: 700;
     color: #222;
-    margin-bottom: 0.5mm;
-  }
-  .lprice {
-    font-size: 9pt;
-    font-weight: 900;
-    color: #000;
-    margin-bottom: 1mm;
+    margin-bottom: 0.3mm;
   }
   img {
-    width: 56mm;
+    width: 42mm;
     height: auto;
     display: block;
     margin: 0 auto;
   }
   @media print {
-    body { background: #fff; padding: 5mm; }
+    body { background: #fff; padding: 3mm; }
     .info { display: none; }
-    @page { size: A4 portrait; margin: 5mm; }
+    @page { size: A4 portrait; margin: 3mm; }
   }
 </style></head>
 <body>
-  <div class="info">${formData.name || 'Products'} &mdash; ${variantsWithBarcode.length} labels &mdash; Cut along dashed lines &amp; stick on products</div>
+  <div class="info">${formData.name || 'Products'} &mdash; ${variantsWithBarcode.length} labels &mdash; Cut along dashed lines</div>
   <div class="grid">${labels}</div>
   <script>window.onload=()=>setTimeout(()=>window.print(),350);<\/script>
 </body></html>`);
@@ -587,7 +579,7 @@ function VariantBarcodeSection({ variant, productName, sellingPrice, onBarcodeCh
     }
   }, [variant.barcode, isLocked]);
 
-  // ── Canvas → PNG → Print (reliable) ───────────
+  // ── Canvas → PNG → Print (compact garment tag) ───────────
   const handlePrintSingleLabel = () => {
     if (!isLocked) return;
     let imgSrc = '';
@@ -595,75 +587,70 @@ function VariantBarcodeSection({ variant, productName, sellingPrice, onBarcodeCh
       const canvas = document.createElement('canvas');
       JsBarcode(canvas, variant.barcode, {
         format: 'EAN13',
-        width: 2,
-        height: 55,
+        width: 1.2,
+        height: 30,
         displayValue: true,
-        fontSize: 11,
-        margin: 6,
+        fontSize: 9,
+        margin: 2,
         background: '#ffffff',
         lineColor: '#000000'
       });
       imgSrc = canvas.toDataURL('image/png');
     } catch(e) { console.warn(e); }
 
-    const name = (productName || 'Product').substring(0, 30);
-    const win = window.open('', '_blank', 'width=320,height=220');
-    // EMPTY title = no browser header text on print
+    const name = (productName || 'Product').substring(0, 24);
+    const win = window.open('', '_blank', 'width=280,height=180');
     win.document.write(`<!DOCTYPE html>
 <html><head><title></title><style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body {
-    width: 76mm;
+    width: 50mm;
     margin: 0;
     padding: 0;
     background: #fff;
     font-family: Arial, sans-serif;
   }
   .label {
-    width: 76mm;
-    padding: 2mm 3mm 2.5mm 3mm;
+    width: 50mm;
+    padding: 1.5mm 2mm 1.5mm 2mm;
     text-align: center;
   }
   .name {
-    font-size: 8pt;
+    font-size: 6pt;
     font-weight: bold;
     text-transform: uppercase;
-    letter-spacing: 0.4px;
-    line-height: 1.2;
+    letter-spacing: 0.3px;
+    line-height: 1.1;
     color: #000;
-    margin-bottom: 0.8mm;
+    margin-bottom: 0.5mm;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .meta {
-    font-size: 7.5pt;
+    font-size: 6pt;
     font-weight: 700;
     color: #111;
-    margin-bottom: 0.8mm;
-  }
-  .price {
-    font-size: 10pt;
-    font-weight: 900;
-    color: #000;
-    margin-bottom: 1.5mm;
+    margin-bottom: 0.5mm;
   }
   img {
-    width: 68mm;
+    width: 44mm;
     height: auto;
     display: block;
     margin: 0 auto;
   }
   @page {
-    size: 80mm auto;  /* exact content height, no extra blank space */
-    margin: 0;        /* zero margin removes browser header/footer */
+    size: 50mm auto;
+    margin: 0;
   }
   @media print {
-    html, body { width: 80mm; }
+    html, body { width: 50mm; }
   }
 </style></head>
 <body>
   <div class="label">
     <div class="name">${name}</div>
-    <div class="meta">${variant.color || ''} &bull; Size: ${variant.size || ''}</div>
-    ${sellingPrice ? `<div class="price">&#8377;${sellingPrice}</div>` : ''}
+    <div class="meta">${variant.color || ''} &bull; ${variant.size || ''}</div>
     ${imgSrc ? `<img src="${imgSrc}" />` : '<p style="color:red;font-size:7px">Barcode error</p>'}
   </div>
   <script>window.onload=()=>setTimeout(()=>window.print(),200);<\/script>

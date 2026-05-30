@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
 import { LayoutGrid, ShoppingCart, ListFilter, Printer } from 'lucide-react';
@@ -142,45 +142,61 @@ function PosContent() {
       if (selectedCategory !== 'All') params.category = selectedCategory;
       if (search) params.search = search;
       return productService.getProducts(params).then(r => {
-        const rawItems = r.data?.data?.data || r.data?.data?.products || r.data?.data || [];
-        
-        // --- BARCODE / SKU AUTO-ADD (Retsol LS Scanner Support) ---
-        // Priority 1: Check if scanned value matches a VARIANT barcode → add that exact variant directly
-        let variantDirectMatch = null;
-        for (const item of rawItems) {
-          if (item.variants?.length > 0) {
-            const matchedVariant = item.variants.find(
-              v => v.barcode && v.barcode.toLowerCase() === search.toLowerCase()
-            );
-            if (matchedVariant) {
-              variantDirectMatch = matchedVariant;
-              break;
-            }
-          }
-        }
-
-        if (variantDirectMatch) {
-          dispatch({ type: 'SELECT_PRODUCT', payload: variantDirectMatch });
-          dispatch({ type: 'SET_SEARCH', payload: '' });
-          toast.success(`✅ Scanned: ${variantDirectMatch.productName || variantDirectMatch.name} (${variantDirectMatch.size}/${variantDirectMatch.color})`);
-        } else if (search && rawItems.length === 1) {
-          // Priority 2: Exact SKU match OR product-level barcode match
-          const match = rawItems[0];
-          const skuMatch = match.sku?.toLowerCase() === search.toLowerCase();
-          const barcodeMatch = match.barcode?.toLowerCase() === search.toLowerCase();
-
-          if (skuMatch || barcodeMatch) {
-            dispatch({ type: 'SELECT_PRODUCT', payload: match });
-            dispatch({ type: 'SET_SEARCH', payload: '' });
-            toast.success(`✅ Scanned: ${match.name || match.productName}`);
-          }
-        }
-
-        return rawItems;
+        return r.data?.data?.data || r.data?.data?.products || r.data?.data || [];
       });
     },
     keepPreviousData: true
   });
+
+  // ── BARCODE / SKU AUTO-DETECT (moved out of queryFn for reliable clearing) ──
+  const lastScannedRef = useRef('');
+  useEffect(() => {
+    if (!search || !inventoryData || inventoryData.length === 0) return;
+    // Prevent duplicate processing of the same scan
+    if (lastScannedRef.current === search) return;
+
+    // Priority 1: Check if scanned value matches a VARIANT barcode
+    let variantDirectMatch = null;
+    for (const item of inventoryData) {
+      if (item.variants?.length > 0) {
+        const matchedVariant = item.variants.find(
+          v => v.barcode && v.barcode.toLowerCase() === search.toLowerCase()
+        );
+        if (matchedVariant) {
+          variantDirectMatch = matchedVariant;
+          break;
+        }
+      }
+    }
+
+    if (variantDirectMatch) {
+      lastScannedRef.current = search;
+      dispatch({ type: 'SELECT_PRODUCT', payload: variantDirectMatch });
+      dispatch({ type: 'SET_SEARCH', payload: '' });
+      toast.success(`✅ Scanned: ${variantDirectMatch.productName || variantDirectMatch.name} (${variantDirectMatch.size}/${variantDirectMatch.color})`);
+      // Refocus search for next scan
+      setTimeout(() => {
+        document.getElementById('pos-search')?.focus();
+        lastScannedRef.current = '';
+      }, 100);
+    } else if (inventoryData.length === 1) {
+      // Priority 2: Exact SKU match OR product-level barcode match
+      const match = inventoryData[0];
+      const skuMatch = match.sku?.toLowerCase() === search.toLowerCase();
+      const barcodeMatch = match.barcode?.toLowerCase() === search.toLowerCase();
+
+      if (skuMatch || barcodeMatch) {
+        lastScannedRef.current = search;
+        dispatch({ type: 'SELECT_PRODUCT', payload: match });
+        dispatch({ type: 'SET_SEARCH', payload: '' });
+        toast.success(`✅ Scanned: ${match.name || match.productName}`);
+        setTimeout(() => {
+          document.getElementById('pos-search')?.focus();
+          lastScannedRef.current = '';
+        }, 100);
+      }
+    }
+  }, [inventoryData, search, dispatch]);
 
   const [isSyncing, setIsSyncing] = useState(false);
   const [isOnline, setIsOnline] = useState(window.navigator.onLine);

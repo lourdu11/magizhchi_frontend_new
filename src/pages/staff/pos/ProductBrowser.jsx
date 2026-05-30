@@ -109,7 +109,6 @@ const ProductBrowser = memo(({ products, categories, isLoading }) => {
             value={search}
             onChange={(e) => dispatch({ type: 'SET_SEARCH', payload: e.target.value })}
             onFocus={() => setScannerReady(true)}
-            onBlur={() => setScannerReady(false)}
           />
         </div>
 
