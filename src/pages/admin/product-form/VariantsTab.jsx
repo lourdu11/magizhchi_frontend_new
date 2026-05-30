@@ -40,17 +40,17 @@ export default function VariantsTab() {
   const setField = (field, value) => dispatch({ type: 'SET_FIELD', field, value });
   const activeVariants = (formData.variants || []).filter(v => !v.isDeleted);
 
-  // ── Canvas → PNG (small size, fit for shirt/pant tags) ──────
+  // ── Canvas → PNG (medium size, readable on thermal) ──────
   const barcodeToDataURL = (code) => {
     try {
       const canvas = document.createElement('canvas');
       JsBarcode(canvas, code, {
         format: 'EAN13',
-        width: 1.5,      // small bar width
-        height: 35,      // short height for tags
+        width: 2,        // medium bar width
+        height: 55,      // medium height
         displayValue: true,
-        fontSize: 10,
-        margin: 4,
+        fontSize: 11,
+        margin: 6,
         background: '#ffffff',
         lineColor: '#000000'
       });
@@ -87,14 +87,13 @@ export default function VariantsTab() {
   .info { font-size: 9px; color: #666; margin-bottom: 4mm; }
   .grid {
     display: grid;
-    grid-template-columns: repeat(4, 48mm); /* 4 columns of small tags */
-    gap: 2mm;
-    justify-content: center;
+    grid-template-columns: repeat(3, 63mm);
+    gap: 0;
   }
   .label {
-    width: 48mm;
-    height: 25mm; /* Small pant/shirt tag size */
-    padding: 1.5mm 2mm;
+    width: 63mm;
+    height: 38mm;
+    padding: 2.5mm 3mm;
     text-align: center;
     background: #fff;
     border: 0.5px dashed #aaa;
@@ -105,32 +104,32 @@ export default function VariantsTab() {
     overflow: hidden;
   }
   .lname {
-    font-size: 6.5pt;
+    font-size: 7.5pt;
     font-weight: bold;
     text-transform: uppercase;
     letter-spacing: 0.3px;
-    line-height: 1.1;
+    line-height: 1.15;
     color: #000;
-    max-width: 44mm;
+    max-width: 57mm;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
     margin-bottom: 0.5mm;
   }
   .lmeta {
-    font-size: 6pt;
+    font-size: 7pt;
     font-weight: 700;
     color: #222;
     margin-bottom: 0.5mm;
   }
   .lprice {
-    font-size: 7.5pt;
+    font-size: 9pt;
     font-weight: 900;
     color: #000;
-    margin-bottom: 0.5mm;
+    margin-bottom: 1mm;
   }
   img {
-    width: 40mm;
+    width: 56mm;
     height: auto;
     display: block;
     margin: 0 auto;
@@ -596,11 +595,11 @@ function VariantBarcodeSection({ variant, productName, sellingPrice, onBarcodeCh
       const canvas = document.createElement('canvas');
       JsBarcode(canvas, variant.barcode, {
         format: 'EAN13',
-        width: 1.5,
-        height: 35,
+        width: 2,
+        height: 55,
         displayValue: true,
-        fontSize: 10,
-        margin: 4,
+        fontSize: 11,
+        margin: 6,
         background: '#ffffff',
         lineColor: '#000000'
       });
@@ -614,50 +613,50 @@ function VariantBarcodeSection({ variant, productName, sellingPrice, onBarcodeCh
 <html><head><title></title><style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body {
-    width: 50mm; /* Fits standard small tag thermal rolls if used, or centers on 80mm */
-    margin: 0 auto;
+    width: 76mm;
+    margin: 0;
     padding: 0;
     background: #fff;
     font-family: Arial, sans-serif;
   }
   .label {
-    width: 100%;
-    padding: 2mm;
+    width: 76mm;
+    padding: 2mm 3mm 2.5mm 3mm;
     text-align: center;
   }
   .name {
-    font-size: 7pt;
+    font-size: 8pt;
     font-weight: bold;
     text-transform: uppercase;
-    letter-spacing: 0.2px;
-    line-height: 1.1;
+    letter-spacing: 0.4px;
+    line-height: 1.2;
     color: #000;
-    margin-bottom: 0.5mm;
+    margin-bottom: 0.8mm;
   }
   .meta {
-    font-size: 6pt;
+    font-size: 7.5pt;
     font-weight: 700;
     color: #111;
-    margin-bottom: 0.5mm;
+    margin-bottom: 0.8mm;
   }
   .price {
-    font-size: 8pt;
+    font-size: 10pt;
     font-weight: 900;
     color: #000;
-    margin-bottom: 1mm;
+    margin-bottom: 1.5mm;
   }
   img {
-    width: 45mm; /* medium size for barcode as requested */
+    width: 68mm;
     height: auto;
     display: block;
     margin: 0 auto;
   }
   @page {
-    size: 50mm 25mm;  /* standard small tag size auto-cut */
+    size: 80mm auto;  /* exact content height, no extra blank space */
     margin: 0;        /* zero margin removes browser header/footer */
   }
   @media print {
-    html, body { width: 50mm; height: 25mm; }
+    html, body { width: 80mm; }
   }
 </style></head>
 <body>

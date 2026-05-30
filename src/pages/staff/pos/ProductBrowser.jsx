@@ -36,30 +36,6 @@ const ProductBrowser = memo(({ products, categories, isLoading }) => {
     }
   }, [selectedProduct]);
 
-  const [localSearch, setLocalSearch] = useState(search);
-
-  // Sync local search when global search clears (e.g. after successful scan)
-  useEffect(() => {
-    setLocalSearch(search);
-  }, [search]);
-
-  // Debounce for manual typing
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (localSearch !== search) {
-        dispatch({ type: 'SET_SEARCH', payload: localSearch });
-      }
-    }, 400);
-    return () => clearTimeout(timer);
-  }, [localSearch, search, dispatch]);
-
-  const handleScanSubmit = (e) => {
-    e.preventDefault();
-    if (localSearch.trim()) {
-      dispatch({ type: 'SET_SEARCH', payload: localSearch.trim() });
-    }
-  };
-
   // Click anywhere on POS → refocus search (so scanner always captured)
   const handlePageClick = useCallback((e) => {
     const tag = e.target.tagName;
@@ -122,7 +98,7 @@ const ProductBrowser = memo(({ products, categories, isLoading }) => {
           </div>
         </div>
 
-        <form className="relative group" onSubmit={handleScanSubmit}>
+        <div className="relative group">
           <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-premium-gold transition-colors" size={20} />
           <input 
             ref={searchRef}
@@ -130,13 +106,12 @@ const ProductBrowser = memo(({ products, categories, isLoading }) => {
             type="text"
             placeholder="🔫 Scan Barcode or Search Products (F1)..."
             className="w-full bg-light-bg/50 border-none rounded-[2rem] pl-16 pr-8 py-6 text-sm font-bold focus:ring-4 focus:ring-premium-gold/10 transition-all outline-none"
-            value={localSearch}
-            onChange={(e) => setLocalSearch(e.target.value)}
+            value={search}
+            onChange={(e) => dispatch({ type: 'SET_SEARCH', payload: e.target.value })}
             onFocus={() => setScannerReady(true)}
             onBlur={() => setScannerReady(false)}
-            autoComplete="off"
           />
-        </form>
+        </div>
 
         {/* Categories */}
         <div className="flex items-center gap-4 overflow-x-auto pb-2 scrollbar-hide">
