@@ -17,6 +17,7 @@ if (typeof window !== 'undefined') {
     'Failed to decode downloaded font',
     'OTS parsing error',
     'credentials mode does not match',
+    'Permissions policy violation',
   ];
 
   // Only run noise filter in development to keep production main-thread lean
