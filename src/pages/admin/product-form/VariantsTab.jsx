@@ -48,20 +48,25 @@ export default function VariantsTab() {
       return;
     }
 
-  // ── Canvas → PNG helper (reliable cross-window print) ────────
+  // ── Canvas → PNG (medium size, readable on thermal) ──────
   const barcodeToDataURL = (code) => {
     try {
       const canvas = document.createElement('canvas');
       JsBarcode(canvas, code, {
-        format: 'EAN13', width: 3, height: 80,
-        displayValue: true, fontSize: 16, margin: 12,
-        background: '#ffffff', lineColor: '#000000'
+        format: 'EAN13',
+        width: 2,        // medium bar width
+        height: 55,      // medium height
+        displayValue: true,
+        fontSize: 11,
+        margin: 6,
+        background: '#ffffff',
+        lineColor: '#000000'
       });
       return canvas.toDataURL('image/png');
     } catch(e) { console.warn('Barcode canvas error', e); return ''; }
   };
 
-  // ── Print All Barcodes on A4 ─────────────────
+  // ── Print All Barcodes (A4 sheet — 3 columns, cut & stick) ──
   const handlePrintAllBarcodes = () => {
     const variantsWithBarcode = activeVariants.filter(v => v.barcode?.length === 13);
     if (variantsWithBarcode.length === 0) {
@@ -69,80 +74,88 @@ export default function VariantsTab() {
       return;
     }
 
-    // Generate PNG dataURLs for all variants BEFORE opening window
+    // Pre-render all barcodes to PNG before opening window
     const labels = variantsWithBarcode.map(v => {
       const imgSrc = barcodeToDataURL(v.barcode);
       return `
         <div class="label">
-          <div class="pname">${formData.name || 'Product'}</div>
-          <div class="variant">${v.color || ''} &bull; Size: ${v.size || ''}</div>
-          ${formData.sellingPrice ? `<div class="price">&#8377;${formData.sellingPrice}</div>` : ''}
-          ${imgSrc ? `<img src="${imgSrc}" class="barcode-img" />` : '<p style="color:red;font-size:8px">Barcode error</p>'}
+          <div class="lname">${(formData.name || 'Product').substring(0, 28)}</div>
+          <div class="lmeta">${v.color || ''} &bull; ${v.size || ''}</div>
+          ${formData.sellingPrice ? `<div class="lprice">&#8377;${formData.sellingPrice}</div>` : ''}
+          ${imgSrc ? `<img src="${imgSrc}" />` : '<p style="color:red;font-size:7px">Error</p>'}
         </div>
       `;
     }).join('');
 
     const win = window.open('', '_blank', 'width=900,height=700');
-    win.document.write(`
-      <html><head><title>Barcode Labels &mdash; ${formData.name || 'Products'}</title>
-      <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 10mm; }
-        h2 { font-size: 12px; color: #555; margin-bottom: 8mm; font-weight: bold; }
-        .grid { display: flex; flex-wrap: wrap; gap: 5mm; }
-        .label {
-          width: 80mm;
-          background: #fff;
-          border: 1.5px solid #bbb;
-          border-radius: 6px;
-          padding: 5mm;
-          text-align: center;
-          page-break-inside: avoid;
-          break-inside: avoid;
-        }
-        .pname {
-          font-size: 11px;
-          font-weight: bold;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          margin-bottom: 3px;
-          color: #111;
-        }
-        .variant {
-          font-size: 10px;
-          color: #444;
-          margin-bottom: 4px;
-          font-weight: 600;
-        }
-        .price {
-          font-size: 16px;
-          font-weight: 900;
-          color: #111;
-          margin-bottom: 5px;
-        }
-        .barcode-img {
-          width: 100%;
-          max-width: 70mm;
-          height: auto;
-          display: block;
-          margin: 0 auto;
-        }
-        @media print {
-          body { background: #fff; padding: 5mm; }
-          @page { size: A4 portrait; margin: 8mm; }
-          .no-print { display: none; }
-        }
-      </style></head>
-      <body>
-        <h2 class="no-print">
-          ${formData.name || 'Products'} &mdash; ${variantsWithBarcode.length} Labels &mdash; Print on A4, Cut &amp; Stick on Products
-        </h2>
-        <div class="grid">${labels}</div>
-        <script>window.onload = () => setTimeout(() => { window.print(); }, 400);<\/script>
-      </body></html>
-    `);
+    win.document.write(`<!DOCTYPE html>
+<html><head><title></title><style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #eee; padding: 4mm; font-family: Arial, sans-serif; }
+  .info { font-size: 9px; color: #666; margin-bottom: 4mm; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 63mm);
+    gap: 0;
+  }
+  .label {
+    width: 63mm;
+    height: 38mm;
+    padding: 2.5mm 3mm;
+    text-align: center;
+    background: #fff;
+    border: 0.5px dashed #aaa;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .lname {
+    font-size: 7.5pt;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    line-height: 1.15;
+    color: #000;
+    max-width: 57mm;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    margin-bottom: 0.5mm;
+  }
+  .lmeta {
+    font-size: 7pt;
+    font-weight: 700;
+    color: #222;
+    margin-bottom: 0.5mm;
+  }
+  .lprice {
+    font-size: 9pt;
+    font-weight: 900;
+    color: #000;
+    margin-bottom: 1mm;
+  }
+  img {
+    width: 56mm;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+  }
+  @media print {
+    body { background: #fff; padding: 5mm; }
+    .info { display: none; }
+    @page { size: A4 portrait; margin: 5mm; }
+  }
+</style></head>
+<body>
+  <div class="info">${formData.name || 'Products'} &mdash; ${variantsWithBarcode.length} labels &mdash; Cut along dashed lines &amp; stick on products</div>
+  <div class="grid">${labels}</div>
+  <script>window.onload=()=>setTimeout(()=>window.print(),350);<\/script>
+</body></html>`);
     win.document.close();
   };
+
 
   return (
     <div className="space-y-12">
@@ -784,41 +797,80 @@ function VariantBarcodeSection({ variant, productName, sellingPrice, onBarcodeCh
     try {
       const canvas = document.createElement('canvas');
       JsBarcode(canvas, variant.barcode, {
-        format: 'EAN13', width: 3, height: 80,
-        displayValue: true, fontSize: 16, margin: 12,
-        background: '#ffffff', lineColor: '#000000'
+        format: 'EAN13',
+        width: 2,
+        height: 55,
+        displayValue: true,
+        fontSize: 11,
+        margin: 6,
+        background: '#ffffff',
+        lineColor: '#000000'
       });
       imgSrc = canvas.toDataURL('image/png');
     } catch(e) { console.warn(e); }
 
-    const win = window.open('', '_blank', 'width=400,height=350');
-    win.document.write(`
-      <html><head><title>Label &mdash; ${variant.color} / ${variant.size}</title>
-      <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-          font-family: Arial, sans-serif;
-          text-align: center;
-          padding: 6mm;
-          background: #fff;
-        }
-        .name { font-size: 12px; font-weight: bold; text-transform: uppercase; margin-bottom: 3px; }
-        .variant { font-size: 11px; color: #333; margin-bottom: 4px; font-weight: 600; }
-        .price { font-size: 18px; font-weight: 900; color: #111; margin-bottom: 6px; }
-        img { width: 100%; max-width: 75mm; height: auto; display: block; margin: 0 auto; }
-        @media print {
-          @page { size: 80mm 50mm; margin: 2mm; }
-          body { padding: 2mm; }
-        }
-      </style></head>
-      <body>
-        <div class="name">${productName || 'Product'}</div>
-        <div class="variant">${variant.color || ''} &bull; Size: ${variant.size || ''}</div>
-        ${sellingPrice ? `<div class="price">&#8377;${sellingPrice}</div>` : ''}
-        ${imgSrc ? `<img src="${imgSrc}" />` : '<p style="color:red">Barcode error</p>'}
-        <script>window.onload = () => setTimeout(() => window.print(), 200);<\/script>
-      </body></html>
-    `);
+    const name = (productName || 'Product').substring(0, 30);
+    const win = window.open('', '_blank', 'width=320,height=220');
+    // EMPTY title = no browser header text on print
+    win.document.write(`<!DOCTYPE html>
+<html><head><title></title><style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 76mm;
+    margin: 0;
+    padding: 0;
+    background: #fff;
+    font-family: Arial, sans-serif;
+  }
+  .label {
+    width: 76mm;
+    padding: 2mm 3mm 2.5mm 3mm;
+    text-align: center;
+  }
+  .name {
+    font-size: 8pt;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    line-height: 1.2;
+    color: #000;
+    margin-bottom: 0.8mm;
+  }
+  .meta {
+    font-size: 7.5pt;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 0.8mm;
+  }
+  .price {
+    font-size: 10pt;
+    font-weight: 900;
+    color: #000;
+    margin-bottom: 1.5mm;
+  }
+  img {
+    width: 68mm;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+  }
+  @page {
+    size: 80mm auto;  /* exact content height, no extra blank space */
+    margin: 0;        /* zero margin removes browser header/footer */
+  }
+  @media print {
+    html, body { width: 80mm; }
+  }
+</style></head>
+<body>
+  <div class="label">
+    <div class="name">${name}</div>
+    <div class="meta">${variant.color || ''} &bull; Size: ${variant.size || ''}</div>
+    ${sellingPrice ? `<div class="price">&#8377;${sellingPrice}</div>` : ''}
+    ${imgSrc ? `<img src="${imgSrc}" />` : '<p style="color:red;font-size:7px">Barcode error</p>'}
+  </div>
+  <script>window.onload=()=>setTimeout(()=>window.print(),200);<\/script>
+</body></html>`);
     win.document.close();
   };
 
