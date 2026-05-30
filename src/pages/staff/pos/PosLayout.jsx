@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
 import { LayoutGrid, ShoppingCart, ListFilter, Printer } from 'lucide-react';
@@ -135,68 +135,123 @@ function PosContent() {
     staleTime: 300000 
   });
 
-  const { data: inventoryData, isLoading } = useQuery({
-    queryKey: ['pos-inventory', selectedCategory, search],
+  // ── Load ALL products upfront (no search param → full inventory for barcode matching) ──
+  const { data: allProducts, isLoading } = useQuery({
+    queryKey: ['pos-inventory', selectedCategory],
     queryFn: () => {
       const params = { limit: 1000, isPOS: 'true' };
       if (selectedCategory !== 'All') params.category = selectedCategory;
-      if (search) params.search = search;
       return productService.getProducts(params).then(r => {
         return r.data?.data?.data || r.data?.data?.products || r.data?.data || [];
       });
     },
+    staleTime: 30000,
     keepPreviousData: true
   });
 
-  // ── BARCODE / SKU AUTO-DETECT (moved out of queryFn for reliable clearing) ──
-  const lastScannedRef = useRef('');
+  // ── Client-side search filter (debounced for display, instant for barcode) ──
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   useEffect(() => {
-    if (!search || !inventoryData || inventoryData.length === 0) return;
-    // Prevent duplicate processing of the same scan
-    if (lastScannedRef.current === search) return;
+    const timer = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
 
-    // Priority 1: Check if scanned value matches a VARIANT barcode
-    let variantDirectMatch = null;
-    for (const item of inventoryData) {
+  const filteredProducts = useMemo(() => {
+    if (!allProducts) return [];
+    if (!debouncedSearch) return allProducts;
+    const q = debouncedSearch.toLowerCase().trim();
+    return allProducts.filter(p =>
+      p.productName?.toLowerCase().includes(q) ||
+      p.name?.toLowerCase().includes(q) ||
+      p.sku?.toLowerCase().includes(q) ||
+      p.barcode?.toLowerCase() === q ||
+      p.variants?.some(v =>
+        v.barcode?.toLowerCase() === q ||
+        v.sku?.toLowerCase() === q
+      )
+    );
+  }, [allProducts, debouncedSearch]);
+
+  // ── Barcode Scanner Detection Engine ──
+  // Handles: rapid numeric input, Enter key, any-length barcodes (EAN-8, EAN-13, custom)
+  const scanTimerRef = useRef(null);
+  const lastScanRef = useRef('');
+
+  const handleBarcodeMatch = useCallback((barcode) => {
+    if (!allProducts || !barcode || lastScanRef.current === barcode) return;
+    const code = barcode.trim().toLowerCase();
+
+    // Search ALL products' variants for barcode match
+    for (const item of allProducts) {
       if (item.variants?.length > 0) {
-        const matchedVariant = item.variants.find(
-          v => v.barcode && v.barcode.toLowerCase() === search.toLowerCase()
+        const matched = item.variants.find(
+          v => v.barcode && v.barcode.toLowerCase() === code
         );
-        if (matchedVariant) {
-          variantDirectMatch = matchedVariant;
-          break;
+        if (matched) {
+          lastScanRef.current = barcode;
+          dispatch({ type: 'SELECT_PRODUCT', payload: matched });
+          dispatch({ type: 'SET_SEARCH', payload: '' });
+          toast.success(`✅ ${matched.productName || matched.name} (${matched.size}/${matched.color})`);
+          setTimeout(() => {
+            document.getElementById('pos-search')?.focus();
+            lastScanRef.current = '';
+          }, 150);
+          return true;
         }
       }
-    }
-
-    if (variantDirectMatch) {
-      lastScannedRef.current = search;
-      dispatch({ type: 'SELECT_PRODUCT', payload: variantDirectMatch });
-      dispatch({ type: 'SET_SEARCH', payload: '' });
-      toast.success(`✅ Scanned: ${variantDirectMatch.productName || variantDirectMatch.name} (${variantDirectMatch.size}/${variantDirectMatch.color})`);
-      // Refocus search for next scan
-      setTimeout(() => {
-        document.getElementById('pos-search')?.focus();
-        lastScannedRef.current = '';
-      }, 100);
-    } else if (inventoryData.length === 1) {
-      // Priority 2: Exact SKU match OR product-level barcode match
-      const match = inventoryData[0];
-      const skuMatch = match.sku?.toLowerCase() === search.toLowerCase();
-      const barcodeMatch = match.barcode?.toLowerCase() === search.toLowerCase();
-
-      if (skuMatch || barcodeMatch) {
-        lastScannedRef.current = search;
-        dispatch({ type: 'SELECT_PRODUCT', payload: match });
+      // Product-level barcode/SKU match
+      if (item.barcode?.toLowerCase() === code || item.sku?.toLowerCase() === code) {
+        lastScanRef.current = barcode;
+        dispatch({ type: 'SELECT_PRODUCT', payload: item });
         dispatch({ type: 'SET_SEARCH', payload: '' });
-        toast.success(`✅ Scanned: ${match.name || match.productName}`);
+        toast.success(`✅ ${item.name || item.productName}`);
         setTimeout(() => {
           document.getElementById('pos-search')?.focus();
-          lastScannedRef.current = '';
-        }, 100);
+          lastScanRef.current = '';
+        }, 150);
+        return true;
       }
     }
-  }, [inventoryData, search, dispatch]);
+    return false;
+  }, [allProducts, dispatch]);
+
+  // Auto-detect barcode: when search looks numeric and stops changing for 400ms
+  useEffect(() => {
+    if (!search || !allProducts) return;
+    clearTimeout(scanTimerRef.current);
+
+    // If it looks like a barcode (all digits, 5+ chars), auto-detect after pause
+    const isNumeric = /^\d{5,}$/.test(search.trim());
+    if (isNumeric) {
+      scanTimerRef.current = setTimeout(() => {
+        const found = handleBarcodeMatch(search);
+        if (!found) {
+          toast.error(`❌ Barcode "${search}" not found in inventory`);
+        }
+      }, 400);
+    }
+
+    return () => clearTimeout(scanTimerRef.current);
+  }, [search, allProducts, handleBarcodeMatch]);
+
+  // Handle Enter key from scanner (immediate barcode lookup)
+  useEffect(() => {
+    const handleScanEnter = (e) => {
+      if (e.key === 'Enter') {
+        const el = document.getElementById('pos-search');
+        if (document.activeElement === el && search.trim()) {
+          e.preventDefault();
+          clearTimeout(scanTimerRef.current);
+          const found = handleBarcodeMatch(search);
+          if (!found) {
+            toast.error(`❌ Barcode "${search}" not found`);
+          }
+        }
+      }
+    };
+    window.addEventListener('keydown', handleScanEnter);
+    return () => window.removeEventListener('keydown', handleScanEnter);
+  }, [search, handleBarcodeMatch]);
 
   const [isSyncing, setIsSyncing] = useState(false);
   const [isOnline, setIsOnline] = useState(window.navigator.onLine);
@@ -456,7 +511,7 @@ function PosContent() {
         </div>
 
         <div className="flex-1 flex overflow-hidden">
-          <ProductBrowser products={inventoryData} categories={categories} isLoading={isLoading} />
+          <ProductBrowser products={filteredProducts} categories={categories} isLoading={isLoading} />
           <CartSection onComplete={handleCompleteTransaction} />
         </div>
       </div>
