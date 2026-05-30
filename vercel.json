@@ -21,7 +21,7 @@
         },
         {
           "key": "Permissions-Policy",
-          "value": "camera=(self), microphone=(), geolocation=(), accelerometer=*, gyroscope=*, magnetometer=*"
+          "value": "camera=*, microphone=(), geolocation=(), accelerometer=*, gyroscope=*, magnetometer=*"
         }
       ]
     },
