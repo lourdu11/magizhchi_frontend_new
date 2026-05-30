@@ -23,6 +23,7 @@
     "date-fns": "^4.1.0",
     "file-type": "^22.0.1",
     "framer-motion": "^12.38.0",
+    "html5-qrcode": "^2.3.8",
     "idb": "^8.0.3",
     "jsbarcode": "^3.12.3",
     "lodash.debounce": "^4.0.8",

@@ -1,5 +1,6 @@
 import { memo, useState, useRef, useEffect, useCallback } from 'react';
-import { Search, LayoutGrid, ListFilter, X, ChevronRight, Scan } from 'lucide-react';
+import { Search, LayoutGrid, ListFilter, X, ChevronRight, Scan, Camera } from 'lucide-react';
+import CameraScanner from './CameraScanner';
 import { usePOS } from './POSContext';
 import SafeImage from '../../../components/common/SafeImage';
 import { resolveAssetURL } from '../../../utils/assetResolver';
@@ -15,6 +16,7 @@ const ProductBrowser = memo(({ products, categories, isLoading }) => {
   const { search, selectedCategory, viewMode } = state;
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [scannerReady, setScannerReady] = useState(false);
+  const [showCameraScanner, setShowCameraScanner] = useState(false);
   const queryClient = useQueryClient();
   const searchRef = useRef(null);
 
@@ -98,19 +100,39 @@ const ProductBrowser = memo(({ products, categories, isLoading }) => {
           </div>
         </div>
 
-        <div className="relative group">
-          <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-premium-gold transition-colors" size={20} />
-          <input 
-            ref={searchRef}
-            id="pos-search"
-            type="text"
-            placeholder="🔫 Scan Barcode or Search Products (F1)..."
-            className="w-full bg-light-bg/50 border-none rounded-[2rem] pl-16 pr-8 py-6 text-sm font-bold focus:ring-4 focus:ring-premium-gold/10 transition-all outline-none"
-            value={search}
-            onChange={(e) => dispatch({ type: 'SET_SEARCH', payload: e.target.value })}
-            onFocus={() => setScannerReady(true)}
-          />
+        <div className="relative group flex items-center gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-premium-gold transition-colors" size={20} />
+            <input 
+              ref={searchRef}
+              id="pos-search"
+              type="text"
+              placeholder="🔫 Scan Barcode or Search Products (F1)..."
+              className="w-full bg-light-bg/50 border-none rounded-[2rem] pl-16 pr-8 py-6 text-sm font-bold focus:ring-4 focus:ring-premium-gold/10 transition-all outline-none"
+              value={search}
+              onChange={(e) => dispatch({ type: 'SET_SEARCH', payload: e.target.value })}
+              onFocus={() => setScannerReady(true)}
+            />
+          </div>
+          <button
+            onClick={() => setShowCameraScanner(true)}
+            className="flex items-center gap-2 px-5 py-[18px] bg-charcoal text-white rounded-2xl hover:bg-premium-gold hover:text-black transition-all font-bold text-xs whitespace-nowrap shadow-lg hover:shadow-xl active:scale-95"
+            title="Open Camera Scanner"
+          >
+            <Camera size={18} />
+            <span className="hidden sm:inline">📷 Scan</span>
+          </button>
         </div>
+
+        {/* Camera Barcode Scanner */}
+        <CameraScanner
+          isOpen={showCameraScanner}
+          onClose={() => setShowCameraScanner(false)}
+          onScan={(barcode) => {
+            dispatch({ type: 'SET_SEARCH', payload: barcode });
+            setShowCameraScanner(false);
+          }}
+        />
 
         {/* Categories */}
         <div className="flex items-center gap-4 overflow-x-auto pb-2 scrollbar-hide">
