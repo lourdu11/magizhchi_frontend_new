@@ -19,37 +19,24 @@
     <link rel="preconnect" href="https://magizhchi-backend-28sx.onrender.com/" crossorigin="use-credentials" />
     <link rel="preconnect" href="https://ik.imagekit.io/" />
     <link rel="preconnect" href="https://images.unsplash.com/" />
-    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
     <!-- Preload Critical Above-the-fold Image (Art-directed for Mobile/Desktop) -->
     <link rel="preload" as="image" media="(max-width: 767px)" href="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-412,h-618,q-80,f-webp" imagesrcset="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-412,h-618,q-80,f-webp 412w, https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-768,h-1152,q-80,f-webp 768w" imagesizes="100vw" fetchpriority="high" />
     <link rel="preload" as="image" media="(min-width: 768px)" href="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-1440,h-960,q-80,f-webp" imagesrcset="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-768,h-512,q-80,f-webp 768w, https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-1440,h-960,q-80,f-webp 1440w" imagesizes="100vw" fetchpriority="high" />
 
     <!-- Preload Critical APIs to beat React Boot time -->
-    <link rel="preload" as="fetch" href="https://magizhchi-backend-28sx.onrender.com/api/v1/banners/active" crossorigin="anonymous" />
-    <link rel="preload" as="fetch" href="https://magizhchi-backend-28sx.onrender.com/api/v1/categories" crossorigin="anonymous" />
-    <link rel="preload" as="fetch" href="https://magizhchi-backend-28sx.onrender.com/api/v1/products?isFeatured=true&limit=8" crossorigin="anonymous" />
-    <link rel="preload" as="fetch" href="https://magizhchi-backend-28sx.onrender.com/api/v1/public/settings" crossorigin="anonymous" />
+    <link rel="preload" as="fetch" href="https://magizhchi-backend-28sx.onrender.com/api/v1/banners/active" crossorigin="use-credentials" />
+    <link rel="preload" as="fetch" href="https://magizhchi-backend-28sx.onrender.com/api/v1/categories" crossorigin="use-credentials" />
+    <link rel="preload" as="fetch" href="https://magizhchi-backend-28sx.onrender.com/api/v1/products?isFeatured=true&limit=8" crossorigin="use-credentials" />
+    <link rel="preload" as="fetch" href="https://magizhchi-backend-28sx.onrender.com/api/v1/public/settings" crossorigin="use-credentials" />
     <link rel="dns-prefetch" href="https://res.cloudinary.com/" />
     <link rel="dns-prefetch" href="https://images.unsplash.com/" />
 
 
 
-    <!-- Fonts and Icons (Self-Hosted for Performance) -->
-    <link rel="preload" href="/fonts/Outfit-Variable.woff2" as="font" type="font/woff2" crossorigin>
-    <style>
-      @font-face {
-        font-family: 'Outfit';
-        src: url('/fonts/Outfit-Variable.woff2') format('woff2');
-        font-display: swap;
-        font-weight: 400 900;
-      }
-      @font-face {
-        font-family: 'Playfair Display';
-        src: url('/fonts/PlayfairDisplay-Bold.woff2') format('woff2');
-        font-display: swap;
-        font-weight: 700;
-      }
-    </style>
+    <!-- Google Fonts (Outfit + Playfair Display) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700&display=swap" />
 
     <!-- Critical Above-The-Fold Inline CSS -->
     <style>

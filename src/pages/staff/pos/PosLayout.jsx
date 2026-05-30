@@ -236,8 +236,7 @@ function PosContent() {
           return true;
         }
       } catch (apiErr) {
-        // API returned 404 or error — barcode truly not found
-        console.warn('Barcode API lookup failed:', apiErr?.response?.status);
+        // Expected 404 when barcode doesn't exist in inventory — silent
       }
 
       return false;

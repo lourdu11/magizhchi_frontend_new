@@ -14,6 +14,9 @@ if (typeof window !== 'undefined') {
     'Third-party cookie',
     'refused to get unsafe header',
     'Violation',
+    'Failed to decode downloaded font',
+    'OTS parsing error',
+    'credentials mode does not match',
   ];
 
   // Only run noise filter in development to keep production main-thread lean
