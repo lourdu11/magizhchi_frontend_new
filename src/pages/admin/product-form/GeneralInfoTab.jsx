@@ -2,6 +2,7 @@ import { useProductForm } from './FormContext';
 import { SectionHeader, InputField } from './Common';
 import { useEffect, useRef, useState } from 'react';
 import { Barcode, RefreshCw, Printer, CheckCircle } from 'lucide-react';
+import JsBarcode from 'jsbarcode';
 
 // ── EAN-13 Generator (Valid check digit) ─────────────────
 function generateEAN13() {
@@ -26,35 +27,21 @@ function BarcodePreview({ value, productName, price }) {
 
   useEffect(() => {
     if (!value || !svgRef.current) return;
-    // Load JsBarcode from CDN if not already loaded
-    const loadAndRender = () => {
-      if (window.JsBarcode) {
-        try {
-          window.JsBarcode(svgRef.current, value, {
-            format: 'EAN13',
-            width: 2,
-            height: 60,
-            displayValue: true,
-            fontSize: 14,
-            fontOptions: 'bold',
-            margin: 8,
-            background: '#ffffff',
-            lineColor: '#000000',
-          });
-          setLoaded(true);
-        } catch (e) {
-          console.error('JsBarcode render error:', e);
-        }
-      }
-    };
-
-    if (window.JsBarcode) {
-      loadAndRender();
-    } else {
-      const script = document.createElement('script');
-      script.src = 'https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js';
-      script.onload = loadAndRender;
-      document.head.appendChild(script);
+    try {
+      JsBarcode(svgRef.current, value, {
+        format: 'EAN13',
+        width: 2,
+        height: 60,
+        displayValue: true,
+        fontSize: 14,
+        fontOptions: 'bold',
+        margin: 8,
+        background: '#ffffff',
+        lineColor: '#000000',
+      });
+      setLoaded(true);
+    } catch (e) {
+      console.error('JsBarcode render error:', e);
     }
   }, [value]);
 

@@ -7,6 +7,7 @@ import { toast } from 'react-hot-toast';
 import { adminService } from '../../../services';
 import SafeImage from '../../../components/common/SafeImage';
 import { resolveAssetURL } from '../../../utils/assetResolver';
+import JsBarcode from 'jsbarcode';
 
 // ── EAN-13 Generator (India prefix 890) ──────────
 function generateEAN13() {
@@ -19,26 +20,16 @@ function generateEAN13() {
   return base + ((10 - (sum % 10)) % 10);
 }
 
-// ── Render barcode SVG using JsBarcode ──────────
+// ── Render barcode SVG using JsBarcode (npm) ──────────
 function renderBarcodeSVG(svgEl, code) {
   if (!svgEl || !code) return;
-  const doRender = () => {
-    try {
-      window.JsBarcode(svgEl, code, {
-        format: 'EAN13', width: 1.5, height: 40,
-        displayValue: true, fontSize: 10, margin: 4,
-        background: '#fff', lineColor: '#000'
-      });
-    } catch(e) { console.warn('Barcode render error', e); }
-  };
-  if (window.JsBarcode) {
-    doRender();
-  } else {
-    const s = document.createElement('script');
-    s.src = 'https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js';
-    s.onload = doRender;
-    document.head.appendChild(s);
-  }
+  try {
+    JsBarcode(svgEl, code, {
+      format: 'EAN13', width: 1.5, height: 40,
+      displayValue: true, fontSize: 10, margin: 4,
+      background: '#fff', lineColor: '#000'
+    });
+  } catch(e) { console.warn('Barcode render error', e); }
 }
 
 const COMMON_SIZES = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL', '30', '32', '34', '36', '38', '40', 'FREE'];
@@ -57,69 +48,53 @@ export default function VariantsTab() {
       return;
     }
 
-    // Load JsBarcode then open print window
-    const doOpen = () => {
-      const win = window.open('', '_blank', 'width=800,height=600');
-      const labels = variantsWithBarcode.map(v => {
-        // Build SVG via JsBarcode using a temp element
-        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        try {
-          window.JsBarcode(svg, v.barcode, {
-            format: 'EAN13', width: 1.8, height: 50,
-            displayValue: true, fontSize: 11, margin: 5,
-            background: '#fff', lineColor: '#000'
-          });
-        } catch(e) { console.warn(e); }
-        return `
-          <div class="label">
-            <div class="pname">${formData.name || 'Product'}</div>
-            <div class="variant">${v.color || ''} • Size: ${v.size || ''}</div>
-            ${formData.sellingPrice ? `<div class="price">₹${formData.sellingPrice}</div>` : ''}
-            ${svg.outerHTML}
-            <div class="barcode-num">${v.barcode}</div>
-          </div>
-        `;
-      }).join('');
+    const win = window.open('', '_blank', 'width=800,height=600');
+    const labels = variantsWithBarcode.map(v => {
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      try {
+        JsBarcode(svg, v.barcode, {
+          format: 'EAN13', width: 1.8, height: 50,
+          displayValue: true, fontSize: 11, margin: 5,
+          background: '#fff', lineColor: '#000'
+        });
+      } catch(e) { console.warn(e); }
+      return `
+        <div class="label">
+          <div class="pname">${formData.name || 'Product'}</div>
+          <div class="variant">${v.color || ''} • Size: ${v.size || ''}</div>
+          ${formData.sellingPrice ? `<div class="price">₹${formData.sellingPrice}</div>` : ''}
+          ${svg.outerHTML}
+          <div class="barcode-num">${v.barcode}</div>
+        </div>
+      `;
+    }).join('');
 
-      win.document.write(`
-        <html><head><title>Barcode Labels — ${formData.name}</title>
-        <style>
-          * { box-sizing: border-box; margin: 0; padding: 0; }
-          body { font-family: Arial, sans-serif; background: #fff; padding: 10mm; }
-          .grid { display: flex; flex-wrap: wrap; gap: 6mm; }
-          .label {
-            width: 60mm; border: 1px solid #ccc; border-radius: 4px;
-            padding: 4mm; text-align: center; page-break-inside: avoid;
-            background: #fff;
-          }
-          .pname { font-size: 9px; font-weight: bold; text-transform: uppercase; margin-bottom: 2px; }
-          .variant { font-size: 8px; color: #555; margin-bottom: 2px; }
-          .price { font-size: 13px; font-weight: black; font-weight: 900; margin-bottom: 3px; }
-          .barcode-num { font-size: 8px; color: #888; margin-top: 2px; letter-spacing: 1px; }
-          svg { max-width: 100%; height: auto; }
-          @media print {
-            body { padding: 5mm; }
-            @page { size: A4; margin: 8mm; }
-          }
-        </style></head>
-        <body>
-          <div style="margin-bottom:6mm; font-size:11px; color:#999; font-weight:bold;">
-            ${formData.name} — ${variantsWithBarcode.length} Barcode Labels — Cut &amp; Stick
-          </div>
-          <div class="grid">${labels}</div>
-          <script>window.onload = () => setTimeout(() => window.print(), 300)<\/script>
-        </body></html>
-      `);
-      win.document.close();
-    };
-
-    if (window.JsBarcode) { doOpen(); }
-    else {
-      const s = document.createElement('script');
-      s.src = 'https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js';
-      s.onload = doOpen;
-      document.head.appendChild(s);
-    }
+    win.document.write(`
+      <html><head><title>Barcode Labels — ${formData.name}</title>
+      <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; background: #fff; padding: 10mm; }
+        .grid { display: flex; flex-wrap: wrap; gap: 6mm; }
+        .label {
+          width: 60mm; border: 1px solid #ccc; border-radius: 4px;
+          padding: 4mm; text-align: center; page-break-inside: avoid; background: #fff;
+        }
+        .pname { font-size: 9px; font-weight: bold; text-transform: uppercase; margin-bottom: 2px; }
+        .variant { font-size: 8px; color: #555; margin-bottom: 2px; }
+        .price { font-size: 13px; font-weight: 900; margin-bottom: 3px; }
+        .barcode-num { font-size: 8px; color: #888; margin-top: 2px; letter-spacing: 1px; }
+        svg { max-width: 100%; height: auto; }
+        @media print { body { padding: 5mm; } @page { size: A4; margin: 8mm; } }
+      </style></head>
+      <body>
+        <div style="margin-bottom:6mm;font-size:11px;color:#999;font-weight:bold;">
+          ${formData.name} — ${variantsWithBarcode.length} Barcode Labels — Cut &amp; Stick
+        </div>
+        <div class="grid">${labels}</div>
+        <script>window.onload=()=>setTimeout(()=>window.print(),300)<\/script>
+      </body></html>
+    `);
+    win.document.close();
   };
 
   return (
