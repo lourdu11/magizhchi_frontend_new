@@ -184,6 +184,18 @@ function PosContent() {
     isScanningRef.current = true;
     const code = barcode.trim().toLowerCase();
 
+    // Helper: add to cart + clear search + refocus
+    const addAndClear = (item, label) => {
+      lastScanRef.current = barcode;
+      dispatch({ type: 'SELECT_PRODUCT', payload: item });
+      dispatch({ type: 'SET_SEARCH', payload: '' });
+      toast.success(`✅ ${label}`);
+      setTimeout(() => {
+        document.getElementById('pos-search')?.focus();
+        lastScanRef.current = '';
+      }, 150);
+    };
+
     try {
       // ── STEP 1: Client-side match against cached products ──
       if (allProducts?.length > 0) {
@@ -193,46 +205,64 @@ function PosContent() {
               v => v.barcode && v.barcode.toLowerCase() === code
             );
             if (matched) {
-              lastScanRef.current = barcode;
-              dispatch({ type: 'SELECT_PRODUCT', payload: matched });
-              dispatch({ type: 'SET_SEARCH', payload: '' });
-              toast.success(`✅ ${matched.productName || matched.name} (${matched.size}/${matched.color})`);
-              setTimeout(() => {
-                document.getElementById('pos-search')?.focus();
-                lastScanRef.current = '';
-              }, 150);
+              addAndClear(matched, `${matched.productName || matched.name} (${matched.size}/${matched.color})`);
               return true;
             }
           }
           if (item.barcode?.toLowerCase() === code || item.sku?.toLowerCase() === code) {
-            lastScanRef.current = barcode;
-            dispatch({ type: 'SELECT_PRODUCT', payload: item });
-            dispatch({ type: 'SET_SEARCH', payload: '' });
-            toast.success(`✅ ${item.name || item.productName}`);
-            setTimeout(() => {
-              document.getElementById('pos-search')?.focus();
-              lastScanRef.current = '';
-            }, 150);
+            addAndClear(item, `${item.name || item.productName}`);
             return true;
           }
         }
       }
 
-      // ── STEP 2: API fallback — dedicated barcode lookup ──
+      // ── STEP 2: Products API search (backend searches barcode/sku fields) ──
+      try {
+        const searchRes = await productService.getProducts({ search: barcode.trim(), limit: 20, isPOS: 'true' });
+        const searchItems = searchRes.data?.data?.data || searchRes.data?.data?.products || searchRes.data?.data || [];
+        
+        // Check returned products for variant barcode match
+        for (const item of searchItems) {
+          if (item.variants?.length > 0) {
+            const matched = item.variants.find(
+              v => v.barcode && v.barcode.toLowerCase() === code
+            );
+            if (matched) {
+              addAndClear(matched, `${matched.productName || matched.name} (${matched.size}/${matched.color})`);
+              queryClient.invalidateQueries({ queryKey: ['pos-inventory'] });
+              return true;
+            }
+          }
+          // Single-variant or product-level barcode
+          if (item.barcode?.toLowerCase() === code || item.sku?.toLowerCase() === code) {
+            addAndClear(item, `${item.name || item.productName}`);
+            queryClient.invalidateQueries({ queryKey: ['pos-inventory'] });
+            return true;
+          }
+        }
+        
+        // If search returned exactly 1 product, auto-select it (backend confirmed match)
+        if (searchItems.length === 1) {
+          const match = searchItems[0];
+          if (match.variants?.length === 1) {
+            addAndClear(match.variants[0], `${match.variants[0].productName || match.productName} (${match.variants[0].size}/${match.variants[0].color})`);
+          } else {
+            addAndClear(match, `${match.name || match.productName}`);
+          }
+          queryClient.invalidateQueries({ queryKey: ['pos-inventory'] });
+          return true;
+        }
+      } catch (searchErr) {
+        // Search API failed, continue to inventory fallback
+      }
+
+      // ── STEP 3: Inventory barcode API fallback ──
       try {
         const res = await inventoryService.getByBarcode(barcode.trim());
         const invItem = res.data?.data;
         if (invItem) {
-          lastScanRef.current = barcode;
-          dispatch({ type: 'SELECT_PRODUCT', payload: invItem });
-          dispatch({ type: 'SET_SEARCH', payload: '' });
-          toast.success(`✅ ${invItem.productName || invItem.name} (${invItem.size}/${invItem.color})`);
-          // Refresh cached products
+          addAndClear(invItem, `${invItem.productName || invItem.name} (${invItem.size}/${invItem.color})`);
           queryClient.invalidateQueries({ queryKey: ['pos-inventory'] });
-          setTimeout(() => {
-            document.getElementById('pos-search')?.focus();
-            lastScanRef.current = '';
-          }, 150);
           return true;
         }
       } catch (apiErr) {
