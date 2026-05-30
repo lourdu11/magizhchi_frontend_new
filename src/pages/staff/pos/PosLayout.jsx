@@ -173,76 +173,114 @@ function PosContent() {
   }, [allProducts, debouncedSearch]);
 
   // ── Barcode Scanner Detection Engine ──
-  // Handles: rapid numeric input, Enter key, any-length barcodes (EAN-8, EAN-13, custom)
+  // Handles: rapid numeric input, Enter key, any-length barcodes
+  // Strategy: client-side match first → API fallback via inventoryService.getByBarcode
   const scanTimerRef = useRef(null);
   const lastScanRef = useRef('');
+  const isScanningRef = useRef(false);
 
-  const handleBarcodeMatch = useCallback((barcode) => {
-    if (!allProducts || !barcode || lastScanRef.current === barcode) return;
+  const handleBarcodeMatch = useCallback(async (barcode) => {
+    if (!barcode || lastScanRef.current === barcode || isScanningRef.current) return false;
+    isScanningRef.current = true;
     const code = barcode.trim().toLowerCase();
 
-    // Search ALL products' variants for barcode match
-    for (const item of allProducts) {
-      if (item.variants?.length > 0) {
-        const matched = item.variants.find(
-          v => v.barcode && v.barcode.toLowerCase() === code
-        );
-        if (matched) {
+    try {
+      // ── STEP 1: Client-side match against cached products ──
+      if (allProducts?.length > 0) {
+        for (const item of allProducts) {
+          if (item.variants?.length > 0) {
+            const matched = item.variants.find(
+              v => v.barcode && v.barcode.toLowerCase() === code
+            );
+            if (matched) {
+              lastScanRef.current = barcode;
+              dispatch({ type: 'SELECT_PRODUCT', payload: matched });
+              dispatch({ type: 'SET_SEARCH', payload: '' });
+              toast.success(`✅ ${matched.productName || matched.name} (${matched.size}/${matched.color})`);
+              setTimeout(() => {
+                document.getElementById('pos-search')?.focus();
+                lastScanRef.current = '';
+              }, 150);
+              return true;
+            }
+          }
+          if (item.barcode?.toLowerCase() === code || item.sku?.toLowerCase() === code) {
+            lastScanRef.current = barcode;
+            dispatch({ type: 'SELECT_PRODUCT', payload: item });
+            dispatch({ type: 'SET_SEARCH', payload: '' });
+            toast.success(`✅ ${item.name || item.productName}`);
+            setTimeout(() => {
+              document.getElementById('pos-search')?.focus();
+              lastScanRef.current = '';
+            }, 150);
+            return true;
+          }
+        }
+      }
+
+      // ── STEP 2: API fallback — dedicated barcode lookup ──
+      try {
+        const res = await inventoryService.getByBarcode(barcode.trim());
+        const invItem = res.data?.data;
+        if (invItem) {
           lastScanRef.current = barcode;
-          dispatch({ type: 'SELECT_PRODUCT', payload: matched });
+          dispatch({ type: 'SELECT_PRODUCT', payload: invItem });
           dispatch({ type: 'SET_SEARCH', payload: '' });
-          toast.success(`✅ ${matched.productName || matched.name} (${matched.size}/${matched.color})`);
+          toast.success(`✅ ${invItem.productName || invItem.name} (${invItem.size}/${invItem.color})`);
+          // Refresh cached products
+          queryClient.invalidateQueries({ queryKey: ['pos-inventory'] });
           setTimeout(() => {
             document.getElementById('pos-search')?.focus();
             lastScanRef.current = '';
           }, 150);
           return true;
         }
+      } catch (apiErr) {
+        // API returned 404 or error — barcode truly not found
+        console.warn('Barcode API lookup failed:', apiErr?.response?.status);
       }
-      // Product-level barcode/SKU match
-      if (item.barcode?.toLowerCase() === code || item.sku?.toLowerCase() === code) {
-        lastScanRef.current = barcode;
-        dispatch({ type: 'SELECT_PRODUCT', payload: item });
-        dispatch({ type: 'SET_SEARCH', payload: '' });
-        toast.success(`✅ ${item.name || item.productName}`);
-        setTimeout(() => {
-          document.getElementById('pos-search')?.focus();
-          lastScanRef.current = '';
-        }, 150);
-        return true;
-      }
+
+      return false;
+    } finally {
+      isScanningRef.current = false;
     }
-    return false;
-  }, [allProducts, dispatch]);
+  }, [allProducts, dispatch, queryClient]);
 
   // Auto-detect barcode: when search looks numeric and stops changing for 400ms
   useEffect(() => {
-    if (!search || !allProducts) return;
+    if (!search) return;
     clearTimeout(scanTimerRef.current);
 
-    // If it looks like a barcode (all digits, 5+ chars), auto-detect after pause
     const isNumeric = /^\d{5,}$/.test(search.trim());
     if (isNumeric) {
-      scanTimerRef.current = setTimeout(() => {
-        const found = handleBarcodeMatch(search);
+      scanTimerRef.current = setTimeout(async () => {
+        if (!allProducts && isLoading) {
+          toast.loading('Inventory loading, please scan again...', { duration: 2000 });
+          return;
+        }
+        const found = await handleBarcodeMatch(search);
         if (!found) {
-          toast.error(`❌ Barcode "${search}" not found in inventory`);
+          toast.error(`❌ Barcode "${search}" not found`);
         }
       }, 400);
     }
 
     return () => clearTimeout(scanTimerRef.current);
-  }, [search, allProducts, handleBarcodeMatch]);
+  }, [search, allProducts, isLoading, handleBarcodeMatch]);
 
   // Handle Enter key from scanner (immediate barcode lookup)
   useEffect(() => {
-    const handleScanEnter = (e) => {
+    const handleScanEnter = async (e) => {
       if (e.key === 'Enter') {
         const el = document.getElementById('pos-search');
         if (document.activeElement === el && search.trim()) {
           e.preventDefault();
           clearTimeout(scanTimerRef.current);
-          const found = handleBarcodeMatch(search);
+          if (!allProducts && isLoading) {
+            toast.loading('Inventory loading...', { duration: 2000 });
+            return;
+          }
+          const found = await handleBarcodeMatch(search);
           if (!found) {
             toast.error(`❌ Barcode "${search}" not found`);
           }
@@ -251,7 +289,7 @@ function PosContent() {
     };
     window.addEventListener('keydown', handleScanEnter);
     return () => window.removeEventListener('keydown', handleScanEnter);
-  }, [search, handleBarcodeMatch]);
+  }, [search, allProducts, isLoading, handleBarcodeMatch]);
 
   const [isSyncing, setIsSyncing] = useState(false);
   const [isOnline, setIsOnline] = useState(window.navigator.onLine);

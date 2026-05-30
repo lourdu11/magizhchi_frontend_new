@@ -46,11 +46,11 @@ export default function VariantsTab() {
       const canvas = document.createElement('canvas');
       JsBarcode(canvas, code, {
         format: 'EAN13',
-        width: 1,
-        height: 25,
+        width: 1.5,
+        height: 35,
         displayValue: true,
-        fontSize: 8,
-        margin: 2,
+        fontSize: 10,
+        margin: 4,
         background: '#ffffff',
         lineColor: '#000000'
       });
@@ -121,7 +121,7 @@ export default function VariantsTab() {
     margin-bottom: 0.3mm;
   }
   img {
-    width: 42mm;
+    width: 44mm;
     height: auto;
     display: block;
     margin: 0 auto;
@@ -587,11 +587,11 @@ function VariantBarcodeSection({ variant, productName, sellingPrice, onBarcodeCh
       const canvas = document.createElement('canvas');
       JsBarcode(canvas, variant.barcode, {
         format: 'EAN13',
-        width: 1.2,
-        height: 30,
+        width: 1.8,
+        height: 40,
         displayValue: true,
-        fontSize: 9,
-        margin: 2,
+        fontSize: 10,
+        margin: 3,
         background: '#ffffff',
         lineColor: '#000000'
       });
@@ -634,7 +634,7 @@ function VariantBarcodeSection({ variant, productName, sellingPrice, onBarcodeCh
     margin-bottom: 0.5mm;
   }
   img {
-    width: 44mm;
+    width: 48mm;
     height: auto;
     display: block;
     margin: 0 auto;
