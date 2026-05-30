@@ -1,5 +1,83 @@
 import { useProductForm } from './FormContext';
 import { SectionHeader, InputField } from './Common';
+import { useEffect, useRef, useState } from 'react';
+import { Barcode, RefreshCw, Printer, CheckCircle } from 'lucide-react';
+
+// ── EAN-13 Generator (Valid check digit) ─────────────────
+function generateEAN13() {
+  // Prefix 890 = India country code
+  const prefix = '890';
+  const mid = Date.now().toString().slice(-6);
+  const rand = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+  const base = prefix + mid + rand; // 12 digits
+  // Calculate check digit
+  let sum = 0;
+  for (let i = 0; i < 12; i++) {
+    sum += parseInt(base[i]) * (i % 2 === 0 ? 1 : 3);
+  }
+  const check = (10 - (sum % 10)) % 10;
+  return base + check;
+}
+
+// ── Barcode SVG renderer using JsBarcode ─────────────────
+function BarcodePreview({ value, productName, price }) {
+  const svgRef = useRef(null);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!value || !svgRef.current) return;
+    // Load JsBarcode from CDN if not already loaded
+    const loadAndRender = () => {
+      if (window.JsBarcode) {
+        try {
+          window.JsBarcode(svgRef.current, value, {
+            format: 'EAN13',
+            width: 2,
+            height: 60,
+            displayValue: true,
+            fontSize: 14,
+            fontOptions: 'bold',
+            margin: 8,
+            background: '#ffffff',
+            lineColor: '#000000',
+          });
+          setLoaded(true);
+        } catch (e) {
+          console.error('JsBarcode render error:', e);
+        }
+      }
+    };
+
+    if (window.JsBarcode) {
+      loadAndRender();
+    } else {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js';
+      script.onload = loadAndRender;
+      document.head.appendChild(script);
+    }
+  }, [value]);
+
+  if (!value) return null;
+
+  return (
+    <div className="mt-4 p-6 bg-white rounded-[2rem] border-2 border-dashed border-premium-gold/30 flex flex-col items-center gap-3">
+      <p className="text-[9px] font-black uppercase tracking-widest text-text-muted">Barcode Preview (Print & Stick on Product)</p>
+      {/* Printable Label */}
+      <div id="barcode-label-preview" className="flex flex-col items-center bg-white border border-gray-200 rounded-xl p-3 shadow-sm" style={{ width: '180px' }}>
+        <p className="text-[10px] font-black text-charcoal uppercase text-center leading-tight mb-1 line-clamp-1">{productName || 'Product Name'}</p>
+        {price > 0 && <p className="text-sm font-black text-charcoal mb-2">₹{price}</p>}
+        <svg ref={svgRef} />
+      </div>
+      {loaded && (
+        <div className="flex items-center gap-2 text-green-600 text-[9px] font-black uppercase tracking-widest">
+          <CheckCircle size={12} />
+          <span>Barcode Ready — Print & Stick!</span>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function GeneralInfoTab({ categories }) {
   const { state, dispatch } = useProductForm();
@@ -52,6 +130,87 @@ export default function GeneralInfoTab({ categories }) {
           onChange={v => setField('sku', v.toUpperCase())} 
           placeholder="REF-0001" 
         />
+      </div>
+
+      {/* ── BARCODE MANAGEMENT SECTION ───────────────────── */}
+      <div className="space-y-4 p-8 bg-light-bg/40 rounded-[2.5rem] border border-border-light">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="bg-premium-gold/10 p-2.5 rounded-xl">
+            <Barcode size={18} className="text-premium-gold" />
+          </div>
+          <div>
+            <h4 className="text-sm font-black text-charcoal uppercase tracking-tight">Barcode Management</h4>
+            <p className="text-[9px] text-text-muted font-bold uppercase tracking-widest mt-0.5">EAN-13 • Retsol LS Scanner Compatible</p>
+          </div>
+        </div>
+
+        <div className="flex gap-4 items-end">
+          <div className="flex-1 space-y-2">
+            <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Barcode Number (EAN-13)</label>
+            <input
+              type="text"
+              className="w-full bg-white border-none rounded-2xl px-8 py-5 font-black text-xs tracking-[0.2em] focus:ring-4 focus:ring-premium-gold/10 transition-all outline-none font-mono"
+              placeholder="Auto-generate or type existing barcode..."
+              value={formData.barcode || ''}
+              onChange={e => setField('barcode', e.target.value)}
+              maxLength={13}
+            />
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              const code = generateEAN13();
+              setField('barcode', code);
+            }}
+            className="flex items-center gap-2 px-6 py-5 bg-premium-gold text-charcoal rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-premium-gold/80 active:scale-95 transition-all shadow-md whitespace-nowrap"
+          >
+            <RefreshCw size={14} />
+            Auto-Generate EAN-13
+          </button>
+        </div>
+
+        {formData.barcode?.length === 13 && (
+          <div className="text-[9px] font-black text-green-600 uppercase tracking-widest flex items-center gap-2 ml-1">
+            <CheckCircle size={12} />
+            Valid EAN-13 — Ready to print & scan!
+          </div>
+        )}
+        {formData.barcode && formData.barcode.length !== 13 && (
+          <div className="text-[9px] font-black text-amber-500 uppercase tracking-widest ml-1">
+            ⚠️ EAN-13 needs exactly 13 digits ({formData.barcode.length}/13)
+          </div>
+        )}
+
+        <BarcodePreview
+          value={formData.barcode?.length === 13 ? formData.barcode : null}
+          productName={formData.name}
+          price={formData.sellingPrice}
+        />
+
+        {formData.barcode?.length === 13 && (
+          <button
+            type="button"
+            onClick={() => {
+              // Print just the barcode label
+              const label = document.getElementById('barcode-label-preview');
+              if (!label) return;
+              const printWin = window.open('', '_blank', 'width=300,height=250');
+              printWin.document.write(`
+                <html><head><title>Barcode Label</title>
+                <style>
+                  body { margin: 0; padding: 8px; font-family: sans-serif; }
+                  @media print { body { margin: 0; } }
+                </style></head>
+                <body>${label.outerHTML}<script>window.onload=()=>window.print()<\/script></body></html>
+              `);
+              printWin.document.close();
+            }}
+            className="flex items-center gap-2 px-6 py-3.5 bg-charcoal text-white rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-charcoal/80 active:scale-95 transition-all"
+          >
+            <Printer size={14} />
+            Print Barcode Label
+          </button>
+        )}
       </div>
 
       <div className="space-y-4">

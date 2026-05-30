@@ -6,7 +6,7 @@ const FormContext = createContext();
 const initialState = {
   formData: {
     name: '', subtitle: '', slug: '', category: '', subcategory: '', brand: 'Magizhchi',
-    sku: '', productType: 'Finished Good', productNature: 'standalone',
+    sku: '', barcode: '', productType: 'Finished Good', productNature: 'standalone',
     supplier: '', procurementSource: '',
     costPrice: 0, sellingPrice: 0, discountedPrice: 0, wholesalePrice: 0, discountPercentage: 0, discountAmount: 0, gstPercentage: 12,
     multiBuyEnabled: false, multiBuyQuantity: 2, multiBuyPrice: 0,

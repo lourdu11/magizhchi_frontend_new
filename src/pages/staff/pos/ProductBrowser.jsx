@@ -1,5 +1,5 @@
-import { memo, useState } from 'react';
-import { Search, LayoutGrid, ListFilter, X, ChevronRight } from 'lucide-react';
+import { memo, useState, useRef, useEffect, useCallback } from 'react';
+import { Search, LayoutGrid, ListFilter, X, ChevronRight, Scan } from 'lucide-react';
 import { usePOS } from './POSContext';
 import SafeImage from '../../../components/common/SafeImage';
 import { resolveAssetURL } from '../../../utils/assetResolver';
@@ -9,13 +9,40 @@ import toast from 'react-hot-toast';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '../../../services/api';
 import { adminService } from '../../../services';
-import { useEffect } from 'react';
 
 const ProductBrowser = memo(({ products, categories, isLoading }) => {
   const { state, dispatch } = usePOS();
   const { search, selectedCategory, viewMode } = state;
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [scannerReady, setScannerReady] = useState(false);
   const queryClient = useQueryClient();
+  const searchRef = useRef(null);
+
+  // Auto-focus search on mount so scanner works immediately
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      searchRef.current?.focus();
+      setScannerReady(true);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Refocus search whenever overlay closes (product added)
+  useEffect(() => {
+    if (!selectedProduct) {
+      setTimeout(() => {
+        searchRef.current?.focus();
+      }, 150);
+    }
+  }, [selectedProduct]);
+
+  // Click anywhere on POS → refocus search (so scanner always captured)
+  const handlePageClick = useCallback((e) => {
+    const tag = e.target.tagName;
+    if (tag !== 'INPUT' && tag !== 'BUTTON' && tag !== 'TEXTAREA' && tag !== 'SELECT') {
+      searchRef.current?.focus();
+    }
+  }, []);
 
   // ── LIVE STOCK SOCKET LISTENER ──
   useEffect(() => {
@@ -44,7 +71,7 @@ const ProductBrowser = memo(({ products, categories, isLoading }) => {
   });
 
   return (
-    <div className="flex-1 flex flex-col min-w-0 bg-white border-r border-border-light relative">
+    <div className="flex-1 flex flex-col min-w-0 bg-white border-r border-border-light relative" onClick={handlePageClick}>
       {/* Header / Search */}
       <div className="p-8 space-y-8 border-b border-border-light">
         <div className="flex items-center justify-between">
@@ -52,7 +79,19 @@ const ProductBrowser = memo(({ products, categories, isLoading }) => {
             <h1 className="text-2xl font-black text-charcoal uppercase tracking-tighter">Magizhchi POS</h1>
             <p className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mt-1">Terminal 01 • Active Session</p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+             {/* Scanner Ready Indicator */}
+             <div className={`flex items-center gap-2 px-4 py-2 rounded-2xl border text-[9px] font-black uppercase tracking-widest transition-all ${
+               scannerReady
+                 ? 'bg-green-50 border-green-200 text-green-600'
+                 : 'bg-gray-50 border-gray-200 text-gray-400'
+             }`}>
+               <div className={`w-2 h-2 rounded-full ${
+                 scannerReady ? 'bg-green-500 animate-pulse' : 'bg-gray-300'
+               }`} />
+               <Scan size={12} />
+               <span>{scannerReady ? 'Scanner Ready' : 'Loading...'}</span>
+             </div>
              <button onClick={() => dispatch({ type: 'SET_VIEW_MODE', payload: viewMode === 'grid' ? 'list' : 'grid' })} className="p-4 bg-light-bg rounded-2xl text-charcoal hover:bg-premium-gold/20 transition-all">
                 {viewMode === 'grid' ? <LayoutGrid size={20} /> : <ListFilter size={20} />}
              </button>
@@ -62,12 +101,15 @@ const ProductBrowser = memo(({ products, categories, isLoading }) => {
         <div className="relative group">
           <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-premium-gold transition-colors" size={20} />
           <input 
+            ref={searchRef}
             id="pos-search"
             type="text"
-            placeholder="Scan Barcode or Search Products (F1)..."
+            placeholder="🔫 Scan Barcode or Search Products (F1)..."
             className="w-full bg-light-bg/50 border-none rounded-[2rem] pl-16 pr-8 py-6 text-sm font-bold focus:ring-4 focus:ring-premium-gold/10 transition-all outline-none"
             value={search}
             onChange={(e) => dispatch({ type: 'SET_SEARCH', payload: e.target.value })}
+            onFocus={() => setScannerReady(true)}
+            onBlur={() => setScannerReady(false)}
           />
         </div>
 

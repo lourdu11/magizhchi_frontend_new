@@ -144,13 +144,36 @@ function PosContent() {
       return productService.getProducts(params).then(r => {
         const rawItems = r.data?.data?.data || r.data?.data?.products || r.data?.data || [];
         
-        // --- BARCODE AUTO-ADD SECURITY FEATURE ---
-        // If search exactly matches a SKU, add instantly
-        if (search && rawItems.length === 1 && rawItems[0].sku?.toLowerCase() === search.toLowerCase()) {
-           const match = rawItems[0];
-           dispatch({ type: 'SELECT_PRODUCT', payload: match });
-           dispatch({ type: 'SET_SEARCH', payload: '' });
-           toast.success(`Scanned: ${match.name}`);
+        // --- BARCODE / SKU AUTO-ADD (Retsol LS Scanner Support) ---
+        // Priority 1: Check if scanned value matches a VARIANT barcode → add that exact variant directly
+        let variantDirectMatch = null;
+        for (const item of rawItems) {
+          if (item.variants?.length > 0) {
+            const matchedVariant = item.variants.find(
+              v => v.barcode && v.barcode.toLowerCase() === search.toLowerCase()
+            );
+            if (matchedVariant) {
+              variantDirectMatch = matchedVariant;
+              break;
+            }
+          }
+        }
+
+        if (variantDirectMatch) {
+          dispatch({ type: 'SELECT_PRODUCT', payload: variantDirectMatch });
+          dispatch({ type: 'SET_SEARCH', payload: '' });
+          toast.success(`✅ Scanned: ${variantDirectMatch.productName || variantDirectMatch.name} (${variantDirectMatch.size}/${variantDirectMatch.color})`);
+        } else if (search && rawItems.length === 1) {
+          // Priority 2: Exact SKU match OR product-level barcode match
+          const match = rawItems[0];
+          const skuMatch = match.sku?.toLowerCase() === search.toLowerCase();
+          const barcodeMatch = match.barcode?.toLowerCase() === search.toLowerCase();
+
+          if (skuMatch || barcodeMatch) {
+            dispatch({ type: 'SELECT_PRODUCT', payload: match });
+            dispatch({ type: 'SET_SEARCH', payload: '' });
+            toast.success(`✅ Scanned: ${match.name || match.productName}`);
+          }
         }
 
         return rawItems;
