@@ -143,10 +143,12 @@ export default function AdminBanners() {
         setFormData(prev => ({
           ...prev,
           desktopImage: desktopUrl,
-          mobileImage: mobileUrl
+          mobileImage: mobileUrl,
+          desktopFit: 'cover',
+          mobileFit: 'cover'
         }));
         setUseCommonImage(false);
-        toast.success('Perfectly cropped images uploaded successfully!');
+        toast.success('Perfectly sized images uploaded! Fit set to COVER automatically.');
       }
     } catch (err) {
       console.error('Upload Error:', err);
