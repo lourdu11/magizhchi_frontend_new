@@ -6,26 +6,22 @@ import { publicService } from '../services';
 import { toast } from 'react-hot-toast';
 
 export default function TrackOrder() {
-  const [query, setQuery] = useState('');
+  const [orderNumber, setOrderNumber] = useState('');
+  const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [order, setOrder] = useState(null);
 
   const handleTrack = async (e) => {
     e.preventDefault();
-    if (!query) return toast.error('Enter your Order ID or Phone Number');
+    if (!orderNumber.trim() || !phone.trim()) return toast.error('Enter your order ID and phone number');
     
     setLoading(true);
     setOrder(null);
     try {
-      // Determine if it's a phone number (just digits, 10 or more) or order ID
-      const cleanQuery = query.trim();
-      const isPhone = /^\d{10}$/.test(cleanQuery.replace(/\s/g, ''));
-      
-      const payload = isPhone 
-        ? { phone: cleanQuery.replace(/\s/g, '') } 
-        : { orderNumber: cleanQuery.toUpperCase() };
-
-      const { data } = await publicService.trackOrder(payload);
+      const { data } = await publicService.trackOrder({
+        orderNumber: orderNumber.trim().toUpperCase(),
+        phone: phone.replace(/\D/g, '')
+      });
       setOrder(data?.data?.order || null);
       toast.success('Order status retrieved!');
     } catch (err) {
@@ -53,21 +49,33 @@ export default function TrackOrder() {
           <div className="text-center mb-10">
           <span className="text-xs font-black tracking-widest text-premium-gold uppercase">Real-Time Updates</span>
           <h1 className="text-4xl font-black text-charcoal mt-3 mb-4 tracking-tighter">Track Your Journey</h1>
-          <p className="text-text-muted max-w-lg mx-auto font-medium">Enter your <strong>Order ID</strong> or <strong>Phone Number</strong> to see exactly where your premium garments are.</p>
+          <p className="text-text-muted max-w-lg mx-auto font-medium">Enter your <strong>Order ID</strong> and <strong>Phone Number</strong> to securely view delivery updates.</p>
         </div>
 
         {/* Tracking Form */}
         <div className="bg-white rounded-3xl border border-border-light p-8 shadow-sm mb-10 max-w-2xl mx-auto">
-          <form onSubmit={handleTrack} className="flex flex-col md:flex-row gap-4 items-stretch">
+          <form onSubmit={handleTrack} className="grid gap-4 md:grid-cols-[1fr_1fr_auto] items-stretch">
             <div className="flex-1">
-              <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-2 block">Order ID or Phone Number</label>
+              <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-2 block">Order ID</label>
               <div className="relative">
-                <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-premium-gold" />
+                <Hash size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-premium-gold" />
                 <input 
                   className="w-full bg-light-bg border border-border-light rounded-xl pl-11 pr-4 py-4 focus:outline-none focus:ring-2 focus:ring-premium-gold/20 text-sm font-bold placeholder:text-text-muted/40" 
-                  placeholder="e.g. ORD-1234 or 9876543210" 
-                  value={query}
-                  onChange={e => setQuery(e.target.value)}
+                  placeholder="e.g. ORD-1234"
+                  value={orderNumber}
+                  onChange={e => setOrderNumber(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="flex-1">
+              <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-2 block">Phone Number</label>
+              <div className="relative">
+                <Phone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-premium-gold" />
+                <input
+                  className="w-full bg-light-bg border border-border-light rounded-xl pl-11 pr-4 py-4 focus:outline-none focus:ring-2 focus:ring-premium-gold/20 text-sm font-bold placeholder:text-text-muted/40"
+                  placeholder="e.g. 9876543210"
+                  value={phone}
+                  onChange={e => setPhone(e.target.value)}
                 />
               </div>
             </div>

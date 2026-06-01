@@ -5,7 +5,6 @@ import { LayoutGrid, ShoppingCart, ListFilter, Printer } from 'lucide-react';
 import { POSProvider, usePOS } from './POSContext';
 import ProductBrowser from './ProductBrowser';
 import CartSection from './CartSection';
-import CheckoutModal from './CheckoutModal';
 import { productService, categoryService, adminService, billService, inventoryService } from '../../../services';
 import { toast } from 'react-hot-toast';
 
@@ -13,11 +12,12 @@ import { useAuthStore } from '../../../store';
 import BillHistory from './BillHistory';
 import ThermalReceipt from './ThermalReceipt';
 import { dbService } from '../../../utils/db';
+import { usePosLock } from '../../../hooks/usePosLock';
 
 function PosContent() {
   const queryClient = useQueryClient();
   const { state, dispatch } = usePOS();
-  const { search, selectedCategory, activeTab, cartSessions, heldBills, activeView, staffMembers } = state;
+  const { search, selectedCategory, activeTab, cartSessions, staffMembers } = state;
   const currentUser = useAuthStore(state => state.user);
   
   const [isHelpOpen, setIsHelpOpen] = useState(false);
@@ -125,9 +125,12 @@ function PosContent() {
 
   const { data: staff } = useQuery({
     queryKey: ['pos-staff'],
-    queryFn: () => adminService.getStaff().then(r => r.data.data || []),
-    onSuccess: (data) => dispatch({ type: 'SET_STAFF', payload: data })
+    queryFn: () => adminService.getPosStaff().then(r => r.data.data || [])
   });
+
+  useEffect(() => {
+    if (staff) dispatch({ type: 'SET_STAFF', payload: staff });
+  }, [dispatch, staff]);
 
   const { data: categories } = useQuery({
     queryKey: ['pos-categories'],
@@ -349,7 +352,7 @@ function PosContent() {
   }, [state.offlineBills]);
 
   // Synchronize offline bills
-  const syncOfflineBills = async () => {
+  async function syncOfflineBills() {
     try {
       const pendingBills = await dbService.getAll('offlineBills');
       if (!pendingBills || pendingBills.length === 0) return;
@@ -364,6 +367,7 @@ function PosContent() {
             items: bill.items,
             customerDetails: bill.customerDetails,
             paymentMethod: bill.paymentMethod,
+            paymentDetails: bill.paymentDetails,
             discount: bill.discount,
             salesStaffId: bill.salesStaffId,
             idempotencyKey: bill.idempotencyKey
@@ -390,7 +394,7 @@ function PosContent() {
       setIsSyncing(false);
       console.error('Sync failed:', err.message);
     }
-  };
+  }
 
   const handleCompleteTransaction = async (overrideData = {}) => {
     const session = state.cartSessions[state.activeTab];
@@ -399,6 +403,12 @@ function PosContent() {
 
     // Automatically assign the logged-in user as the sales staff fallback
     const finalSalesStaffId = salesStaffId || currentUser?._id || currentUser?.id || '';
+    const total = Math.max(0, items.reduce((sum, item) => sum + (item.price * item.quantity), 0) - discount);
+    const paymentDetails = {
+      cashAmount: paymentMethod === 'cash' ? total : 0,
+      cardAmount: paymentMethod === 'card' ? total : 0,
+      upiAmount: paymentMethod === 'upi' ? total : 0
+    };
 
     const billNumber = `OFFLINE-${Date.now().toString().slice(-6)}`;
     const billData = {
@@ -417,6 +427,7 @@ function PosContent() {
       })),
       customerDetails: customer, 
       paymentMethod, 
+      paymentDetails,
       discount, 
       salesStaffId: finalSalesStaffId,
       createdAt: new Date().toISOString(),
@@ -819,6 +830,17 @@ function PosContent() {
 }
 
 export default function PosLayout() {
+  const { isLocked } = usePosLock();
+  if (isLocked) {
+    return (
+      <div className="min-h-dvh flex items-center justify-center bg-[#F8F9FA] p-6 text-center">
+        <div className="max-w-md rounded-3xl border border-amber-200 bg-white p-8 shadow-xl">
+          <h1 className="text-xl font-black text-charcoal">POS is already open</h1>
+          <p className="mt-3 text-sm text-text-muted">Close the other billing tab before using POS here.</p>
+        </div>
+      </div>
+    );
+  }
   return (
     <POSProvider>
       <PosContent />

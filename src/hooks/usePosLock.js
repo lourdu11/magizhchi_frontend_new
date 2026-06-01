@@ -6,12 +6,12 @@ import { useState, useEffect } from 'react';
  */
 export function usePosLock(channelName = 'magizhchi_pos_channel') {
   const [isLocked, setIsLocked] = useState(false);
-  const [isMaster, setIsMaster] = useState(true);
 
   useEffect(() => {
     if (!window.BroadcastChannel) return; // Fallback if unsupported
 
     const channel = new BroadcastChannel(channelName);
+    let isMaster = true;
     
     // Announce presence when opening a new tab
     channel.postMessage({ type: 'POS_OPENED', id: Date.now() });
@@ -28,7 +28,7 @@ export function usePosLock(channelName = 'magizhchi_pos_channel') {
 
       if (type === 'POS_MASTER_EXISTS') {
         // Another tab is already the master, lock this tab
-        setIsMaster(false);
+        isMaster = false;
         setIsLocked(true);
       }
     };
@@ -36,7 +36,7 @@ export function usePosLock(channelName = 'magizhchi_pos_channel') {
     return () => {
       channel.close();
     };
-  }, [channelName, isMaster]);
+  }, [channelName]);
 
   return { isLocked };
 }

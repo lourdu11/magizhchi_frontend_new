@@ -2,8 +2,10 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import process from 'node:process';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const shouldAnalyze = process.env.ANALYZE === 'true';
 
 import viteCompression from 'vite-plugin-compression';
 import { visualizer } from 'rollup-plugin-visualizer';
@@ -15,7 +17,7 @@ export default defineConfig({
     react(),
     viteCompression({ algorithm: 'gzip', ext: '.gz' }),
     viteCompression({ algorithm: 'brotliCompress', ext: '.br' }),
-    visualizer({ filename: './stats.html', open: false }),
+    ...(shouldAnalyze ? [visualizer({ filename: './stats.html', open: false })] : []),
   ],
   resolve: {
     alias: { '@': path.resolve(__dirname, './src') },
@@ -57,4 +59,3 @@ export default defineConfig({
     },
   },
 });
-

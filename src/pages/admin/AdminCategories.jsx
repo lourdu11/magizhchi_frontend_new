@@ -42,13 +42,8 @@ export default function AdminCategories() {
     onError: (err) => toast.error(err.response?.data?.message || 'Failed to delete category'),
   });
 
-  const resetForm = () => { setPreviewMode('laptop'); };
   const startEdit = (cat) => { 
      navigate(`/admin/categories/edit/${cat._id}`);
-  };
-
-  const handleUpload = async (e, field) => {
-    // Moved to form page
   };
 
   return (

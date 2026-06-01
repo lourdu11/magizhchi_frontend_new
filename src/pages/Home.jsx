@@ -88,7 +88,7 @@ export default function Home() {
     id: b._id,
     title: b.title.includes(' ') && !b.title.includes('\n') ? b.title.replace(' ', '\n') : b.title,
     subtitle: b.subtitle || "Premium Quality & Timeless Style",
-    accent: b.accent || "New Collection",
+    accent: b.accent || (b.type === 'hero' ? 'New Arrival' : 'Special Offer'),
     img: b.desktopImage,
     mobileImg: b.mobileImage || b.desktopImage,
     cta: 'Shop Now',
@@ -100,8 +100,7 @@ export default function Home() {
     mobileFit: b.mobileFit || b.desktopFit || 'cover',
     mobilePos: b.mobilePos || b.desktopPos || 'center',
     mobileScale: b.mobileScale || b.desktopScale || 1,
-    mobileGravity: b.mobileGravity || b.desktopGravity || 'auto',
-    accent: b.type === 'hero' ? 'New Arrival' : 'Special Offer'
+    mobileGravity: b.mobileGravity || b.desktopGravity || 'auto'
   })) || [];
 
   const slides = dynamicSlides.length > 0 ? dynamicSlides : DEFAULT_SLIDES;

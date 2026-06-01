@@ -21,7 +21,7 @@ if (typeof window !== 'undefined') {
   ];
 
   // Only run noise filter in development to keep production main-thread lean
-  if (process.env.NODE_ENV === 'development') {
+  if (import.meta.env.DEV) {
     const originalWarn = console.warn;
     const originalError = console.error;
     const originalLog = console.log;

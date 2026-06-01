@@ -59,7 +59,6 @@ export const orderService = {
   getOrder: (id) => api.get(`/orders/${id}`),
   cancelOrder: (id, reason) => api.post(`/orders/${id}/cancel`, { reason }),
   requestReturn: (id, data) => api.post(`/orders/${id}/return`, data),
-  handlePaymentFailed: (id) => api.post(`/orders/${id}/payment-failed`),
 };
 
 export const couponService = {
@@ -86,6 +85,7 @@ export const adminService = {
   deleteCustomer: (id) => api.delete(`/admin/users/${id}`),
   createStaff: (data) => api.post('/admin/staff', data),
   getStaff: () => api.get('/admin/staff'),
+  getPosStaff: () => api.get('/admin/staff-list'),
   updateStaff: (id, data) => api.put(`/admin/staff/${id}`, data),
   deleteStaff: (id) => api.delete(`/admin/staff/${id}`),
   updateReturnStatus: (id, data) => api.put(`/orders/${id}/return-status`, data),
@@ -148,9 +148,8 @@ export const bannerService = {
 
 export const publicService = {
   trackOrder: (data) => api.post('/public/track-order', data),
-  getOrderDetails: (id) => api.get(`/public/order/${id}`),
+  getOrderDetails: (id, token) => api.get(`/public/order/${id}`, { params: { token } }),
   submitContact: (data) => api.post('/contact', data),
-  getStaffList: () => api.get('/public/staff-list'),
 };
 
 export const purchaseService = {

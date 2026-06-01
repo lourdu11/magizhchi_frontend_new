@@ -228,22 +228,23 @@ export default function Checkout() {
       }
 
       const { data } = await orderService.createOrder(payload);
-      const { order, razorpayOrder } = data.data;
+      const { order, checkoutAccessToken, razorpayOrder } = data.data;
+      sessionStorage.setItem(`magizhchi-order-token:${order._id}`, checkoutAccessToken);
 
-      // Clear carts
-      if (!isAuthenticated) {
-        localStorage.removeItem('magizhchi-guest-cart');
-        setLocalCartItems([]);
-        setItemCount(0);
-      }
-
-      // Clear checkout persistence on successful order
-      sessionStorage.removeItem('magizhchi-checkout-step');
-      sessionStorage.removeItem('magizhchi-checkout-address');
-      sessionStorage.removeItem('magizhchi-checkout-guest');
-      sessionStorage.removeItem('magizhchi-checkout-payment');
+      const clearCompletedCheckout = () => {
+        if (!isAuthenticated) {
+          localStorage.removeItem('magizhchi-guest-cart');
+          setLocalCartItems([]);
+          setItemCount(0);
+        }
+        sessionStorage.removeItem('magizhchi-checkout-step');
+        sessionStorage.removeItem('magizhchi-checkout-address');
+        sessionStorage.removeItem('magizhchi-checkout-guest');
+        sessionStorage.removeItem('magizhchi-checkout-payment');
+      };
 
       if (paymentMethod === 'cod') {
+        clearCompletedCheckout();
         toast.success('Order placed!');
         navigate(`/order-confirmation/${order._id}`);
         return;
@@ -269,6 +270,7 @@ export default function Checkout() {
         handler: async (res) => {
           try {
             await orderService.verifyPayment({ orderId: order._id, razorpayOrderId: res.razorpay_order_id, razorpayPaymentId: res.razorpay_payment_id, razorpaySignature: res.razorpay_signature });
+            clearCompletedCheckout();
             toast.success('Payment successful!');
             navigate(`/order-confirmation/${order._id}`);
           } catch { toast.error('Payment verification failed'); }
@@ -277,8 +279,7 @@ export default function Checkout() {
           ondismiss: async () => {
             try {
               console.log('Payment modal closed by user');
-              await orderService.handlePaymentFailed(order._id);
-              toast.error('Payment cancelled or failed.');
+              toast.error('Payment cancelled. Reserved stock will be released automatically.');
             } catch (err) {
               console.error('Failed to handle payment failure:', err);
             }

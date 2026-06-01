@@ -9,7 +9,7 @@ import { useAuthStore } from '../../store';
 
 export default function AdminSettings() {
   const queryClient = useQueryClient();
-  const { user: currentUser, setAuth } = useAuthStore();
+  const { user: currentUser, updateUser } = useAuthStore();
   const [activeTab, setActiveTab] = useState('general');
   const [resetSelections, setResetSelections] = useState({
     dashboard: true,
@@ -28,9 +28,8 @@ export default function AdminSettings() {
   });
 
   const [showResetModal, setShowResetModal] = useState(false);
-  const [isVerified, setIsVerified] = useState(() => {
-    return sessionStorage.getItem('admin_settings_verified') === 'true';
-  });
+  const isVerified = true;
+  const [, setIsVerified] = useState(true);
   const [securityKeyInput, setSecurityKeyInput] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const [shake, setShake] = useState(false);
@@ -39,10 +38,6 @@ export default function AdminSettings() {
   const [saveConfirmInput, setSaveConfirmInput] = useState('');
   // Prevent double-click duplicate email sends
   const [testLoading, setTestLoading] = useState({ order: false, contact: false, stock: false });
-
-  useEffect(() => {
-    // Session isolation: We no longer need to sync verification across tabs.
-  }, []);
 
   const toggleSelection = (key) => {
     setResetSelections(prev => ({ ...prev, [key]: !prev[key] }));
@@ -166,7 +161,7 @@ export default function AdminSettings() {
     onSuccess: (res) => {
       queryClient.invalidateQueries({ queryKey: ['admin-profile'] });
       const updatedUser = { ...currentUser, ...res.data.data };
-      setAuth(updatedUser, localStorage.getItem('accessToken'));
+      updateUser(updatedUser);
       toast.success('Admin profile updated');
     },
     onError: () => toast.error('Failed to update profile'),
@@ -200,7 +195,7 @@ export default function AdminSettings() {
   };
 
   const executeSettingsSave = () => {
-    const confirmPhrase = "Xavi2006";
+    const confirmPhrase = 'SAVE SETTINGS';
     if (saveConfirmInput !== confirmPhrase) {
       return toast.error('Save aborted: Security passkey did not match.', { icon: '🛡️' });
     }
@@ -332,7 +327,7 @@ export default function AdminSettings() {
     setIsVerifying(true);
     
     setTimeout(() => {
-      if (securityKeyInput === 'Xavi2006') {
+      if (securityKeyInput === '__disabled_client_side_gate__') {
         setIsVerified(true);
         sessionStorage.setItem('admin_settings_verified', 'true');
         toast.success('Access Granted! Welcome to Settings.', {
@@ -1295,19 +1290,19 @@ export default function AdminSettings() {
                   🔑 Confirming configuration updates:
                 </p>
                 <p className="text-[10px] text-text-muted font-semibold leading-relaxed">
-                  You are about to modify global store settings, checkout parameters, notifications, or shipping structures. Enter the security key to authorize.
+                  You are about to modify global store settings, checkout parameters, notifications, or shipping structures. Confirm the action to continue.
                 </p>
               </div>
 
               {/* Confirmation Prompt Input */}
               <div className="space-y-3 bg-light-bg p-5 rounded-3xl border border-border-light">
                 <label className="block text-[10px] font-black text-charcoal/70 uppercase tracking-[0.15em] text-center">
-                  Enter the security key <span className="text-premium-gold font-extrabold font-mono">Xavi2006</span> to save settings:
+                  Enter <span className="text-premium-gold font-extrabold font-mono">SAVE SETTINGS</span> to continue:
                 </label>
                 <div className="relative">
                   <input
                     type="text"
-                    placeholder="Type Xavi2006..."
+                    placeholder="Type SAVE SETTINGS..."
                     value={saveConfirmInput}
                     onChange={(e) => setSaveConfirmInput(e.target.value)}
                     className="w-full px-5 py-4 rounded-2xl border border-border-light bg-white focus:border-premium-gold focus:ring-4 focus:ring-premium-gold/10 outline-none font-sans font-bold text-sm tracking-widest text-charcoal transition-all placeholder:text-charcoal/30 placeholder:tracking-normal text-center shadow-inner"
@@ -1326,9 +1321,9 @@ export default function AdminSettings() {
                 </button>
                 <button
                   type="button"
-                  disabled={saveConfirmInput !== 'Xavi2006'}
+                  disabled={saveConfirmInput !== 'SAVE SETTINGS'}
                   onClick={executeSettingsSave}
-                  className={`flex-1 flex items-center justify-center gap-2 font-black text-xs uppercase tracking-widest py-4 rounded-2xl transition-all ${saveConfirmInput === 'Xavi2006' ? 'bg-charcoal text-white hover:bg-premium-gold hover:text-charcoal hover:scale-[1.02] active:scale-95 shadow-lg shadow-charcoal/20' : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'}`}
+                  className={`flex-1 flex items-center justify-center gap-2 font-black text-xs uppercase tracking-widest py-4 rounded-2xl transition-all ${saveConfirmInput === 'SAVE SETTINGS' ? 'bg-charcoal text-white hover:bg-premium-gold hover:text-charcoal hover:scale-[1.02] active:scale-95 shadow-lg shadow-charcoal/20' : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'}`}
                 >
                   <Save size={16} /> Save Changes
                 </button>

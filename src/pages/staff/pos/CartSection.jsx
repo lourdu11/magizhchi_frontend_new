@@ -8,7 +8,7 @@ const CartSection = memo(({ onComplete }) => {
   const { state, dispatch } = usePOS();
   const { activeTab, cartSessions, isMobileCartOpen } = state;
   const currentSession = cartSessions[activeTab];
-  const { items, customer, discount, paymentMethod, salesStaffId } = currentSession;
+  const { items, customer, discount, paymentMethod } = currentSession;
 
   const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const total = Math.max(0, subtotal - discount);

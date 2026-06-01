@@ -8,7 +8,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
-import { billService, productService, categoryService, publicService, adminService, inventoryService } from '../../services';
+import { billService, productService, categoryService, adminService, inventoryService } from '../../services';
 import { useAuthStore } from '../../store';
 import { resolveAssetURL } from '../../utils/assetResolver';
 import SafeImage from '../../components/common/SafeImage';
@@ -272,7 +272,7 @@ export default function StaffCreateBill() {
 
   const { data: staffList } = useQuery({
     queryKey: ['pos-staff-list'],
-    queryFn: () => publicService.getStaffList().then(r => r.data.data || []),
+    queryFn: () => adminService.getPosStaff().then(r => r.data.data || []),
   });
 
 

@@ -140,7 +140,6 @@ const ThermalReceipt = memo(forwardRef(({ bill: propBill }, ref) => {
               width: '85px',
               height: '85px',
               objectFit: 'contain',
-              imageRendering: 'pixelated',
               imageRendering: 'crisp-edges',
               WebkitImageRendering: 'optimize-contrast',
               printColorAdjust: 'exact',

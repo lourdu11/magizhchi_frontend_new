@@ -13,7 +13,8 @@ export default function OrderConfirmation() {
     queryKey: ['order', id],
     queryFn: async () => {
       try {
-        const response = await publicService.getOrderDetails(id);
+        const token = sessionStorage.getItem(`magizhchi-order-token:${id}`);
+        const response = await publicService.getOrderDetails(id, token);
         return response.data.data?.order || response.data.data;
       } catch (err) {
         if (isAuthenticated) {
@@ -117,6 +118,7 @@ export default function OrderConfirmation() {
           <div className="flex justify-between text-sm text-text-muted"><span>Subtotal</span><span>Rs.{order.pricing?.subtotal?.toLocaleString('en-IN')}</span></div>
           {order.pricing?.discount > 0 && <div className="flex justify-between text-sm text-green-600"><span>Discount</span><span>−Rs.{order.pricing?.discount?.toLocaleString('en-IN')}</span></div>}
           <div className="flex justify-between text-sm text-text-muted"><span>Shipping</span><span>{order.pricing?.shippingCharges === 0 ? 'FREE' : `Rs.${order.pricing?.shippingCharges}`}</span></div>
+          {order.pricing?.codCharges > 0 && <div className="flex justify-between text-sm text-text-muted"><span>COD fee</span><span>Rs.{order.pricing.codCharges.toLocaleString('en-IN')}</span></div>}
           <div className="flex justify-between font-bold text-base text-text-primary pt-2 border-t border-border-light"><span>Total Paid</span><span className="text-premium-gold">Rs.{order.pricing?.totalAmount?.toLocaleString('en-IN')}</span></div>
         </div>
       </div>

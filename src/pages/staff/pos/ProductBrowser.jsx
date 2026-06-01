@@ -263,16 +263,13 @@ const ProductBrowser = memo(({ products, categories, isLoading }) => {
 });
 
 const ProductCard = memo(({ product, onSelect }) => {
-  const { dispatch } = usePOS();
-
   return (
     <button 
       onClick={() => {
         const available = product.liveStock?.availableStock ?? product.availableStock;
-        // SaaS flexibility: Allow negative/zero stock billing for manual reconciliations
-        // if (available <= 0) {
-        //   return toast.error('Product is out of stock');
-        // }
+        if (available <= 0) {
+          return toast.error('Product is out of stock');
+        }
         if (product.variants?.length > 1 || product.productNature === 'combo') {
           onSelect();
         } else {

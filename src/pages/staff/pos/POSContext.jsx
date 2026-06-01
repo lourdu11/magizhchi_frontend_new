@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, useEffect } from 'react';
+import { createContext, useContext, useReducer, useEffect, useRef } from 'react';
 import { dbService } from '../../../utils/db';
 
 const POSContext = createContext();
@@ -42,20 +42,20 @@ function posReducer(state, action) {
     case 'SET_VIEW_MODE':
       return { ...state, viewMode: action.payload };
 
-    case 'UPDATE_SESSION':
+    case 'UPDATE_SESSION': {
       const newSessions = [...state.cartSessions];
       newSessions[activeTab] = { ...newSessions[activeTab], ...action.payload };
       return { ...state, cartSessions: newSessions };
+    }
 
-    case 'SELECT_PRODUCT':
+    case 'SELECT_PRODUCT': {
       const invItem = action.payload; 
       const existingItem = currentSession.items.find(i => i.inventoryId === invItem._id);
       
-      // SECURITY: Stock Ceiling Check (Removed to support zero-stock/negative billing for manual reconciliations)
-      // const requestedQty = (existingItem?.quantity || 0) + 1;
-      // if (requestedQty > invItem.availableStock) {
-      //   return state; // Silently prevent or I could toast but reducer is pure
-      // }
+      const requestedQty = (existingItem?.quantity || 0) + 1;
+      if (requestedQty > invItem.availableStock) {
+        return state;
+      }
 
       const newItemsList = [...currentSession.items];
       if (existingItem) {
@@ -71,6 +71,7 @@ function posReducer(state, action) {
           name: invItem.productName,
           image: invItem.images?.[0] || invItem.productRef?.thumbnail || invItem.laptopImage || invItem.tabletImage || invItem.mobileImage,
           price: invItem.sellingPrice,
+          availableStock: invItem.availableStock,
           quantity: 1,
           variantName: `${invItem.size} / ${invItem.color}`,
           sku: invItem.sku,
@@ -82,21 +83,22 @@ function posReducer(state, action) {
       const sessionsWithNewItem = [...state.cartSessions];
       sessionsWithNewItem[activeTab] = { ...currentSession, items: newItemsList };
       return { ...state, cartSessions: sessionsWithNewItem };
+    }
 
-    case 'SET_ITEMS':
+    case 'SET_ITEMS': {
       const itemsAction = action.payload;
       const updatedItems = typeof itemsAction === 'function' ? itemsAction(currentSession.items) : itemsAction;
       
       // SECURITY: Secondary Stock Validation on bulk update
-      const validatedItems = updatedItems.map(item => {
-        // If we have inventory info, we'd check here too. 
-        // For simplicity, we assume individual increments handled the check.
-        return item;
-      });
+      const validatedItems = updatedItems.map(item => ({
+        ...item,
+        quantity: Math.max(1, Math.min(item.quantity, item.availableStock ?? item.quantity))
+      }));
 
       const sessionsWithSetItems = [...state.cartSessions];
       sessionsWithSetItems[activeTab] = { ...currentSession, items: validatedItems };
       return { ...state, cartSessions: sessionsWithSetItems };
+    }
 
     case 'TOGGLE_CHECKOUT':
       return { ...state, isCheckoutOpen: !state.isCheckoutOpen };
@@ -135,10 +137,12 @@ function posReducer(state, action) {
 
 export function POSProvider({ children }) {
   const [state, dispatch] = useReducer(posReducer, initialState);
+  const isHydrated = useRef(false);
 
   // Persistence logic moved here
   useEffect(() => {
     const persist = async () => {
+      if (!isHydrated.current) return;
       await dbService.put('posState', { id: 'cartSessions', value: state.cartSessions });
       await dbService.put('posState', { id: 'activeTab', value: state.activeTab });
       await dbService.put('posState', { id: 'editingBillId', value: state.editingBillId });
@@ -146,19 +150,32 @@ export function POSProvider({ children }) {
     persist();
   }, [state.cartSessions, state.activeTab, state.editingBillId]);
 
-  // Load offline bills from IndexedDB on startup
+  // Restore active carts and pending offline bills before persistence starts.
   useEffect(() => {
-    const loadOfflineBills = async () => {
+    const hydrate = async () => {
       try {
-        const savedOffline = await dbService.getAll('offlineBills');
-        if (savedOffline) {
-          dispatch({ type: 'SET_OFFLINE_BILLS', payload: savedOffline });
-        }
+        const [savedCarts, savedActiveTab, savedEditingBillId, savedOffline] = await Promise.all([
+          dbService.get('posState', 'cartSessions'),
+          dbService.get('posState', 'activeTab'),
+          dbService.get('posState', 'editingBillId'),
+          dbService.getAll('offlineBills')
+        ]);
+        dispatch({
+          type: 'HYDRATE',
+          payload: {
+            cartSessions: savedCarts?.value || initialState.cartSessions,
+            activeTab: savedActiveTab?.value ?? initialState.activeTab,
+            editingBillId: savedEditingBillId?.value ?? null,
+            offlineBills: savedOffline || []
+          }
+        });
       } catch (err) {
-        console.error('Failed to load offline bills:', err.message);
+        console.error('Failed to restore POS state:', err.message);
+      } finally {
+        isHydrated.current = true;
       }
     };
-    loadOfflineBills();
+    hydrate();
   }, []);
 
   return (
