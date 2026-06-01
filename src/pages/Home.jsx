@@ -163,26 +163,49 @@ export default function Home() {
             key={heroIdx}
             className={`absolute inset-0 w-full h-full p-0 m-0 ${heroIdx === 0 ? '' : 'animate-fade-scale-in'}`}
           >
-            <SafeImage 
-              src={isMobile ? (slides[heroIdx]?.mobileImg || slides[heroIdx]?.img) : slides[heroIdx]?.img} 
-              alt="" 
-              className="absolute inset-0 w-full h-full"
-              width={isMobile ? 480 : 1440} 
-              height={isMobile ? 720 : 960}
-              quality={heroIdx === 0 ? (isMobile ? 45 : 60) : 40}
-              fetchPriority="high"
-              loading="eager"
-              style={{ 
-                objectFit: isMobile ? (slides[heroIdx]?.mobileFit || 'cover') : (slides[heroIdx]?.fit || 'cover'),
-                objectPosition: isMobile ? (slides[heroIdx]?.mobilePos || 'center') : (slides[heroIdx]?.pos || 'center'),
-                transform: `scale(${isMobile ? (slides[heroIdx]?.mobileScale || 1) : (slides[heroIdx]?.scale || 1)})`
-              }}
-              crop="fill"
-              gravity={isMobile ? slides[heroIdx]?.mobileGravity : slides[heroIdx]?.gravity}
-              aspect={isMobile ? '4:5' : '21:9'}
-              sizes="100vw"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent" />
+            {(() => {
+              const currentFit = isMobile ? (slides[heroIdx]?.mobileFit || 'cover') : (slides[heroIdx]?.fit || 'cover');
+              const isContain = currentFit === 'contain';
+              const currentSrc = isMobile ? (slides[heroIdx]?.mobileImg || slides[heroIdx]?.img) : slides[heroIdx]?.img;
+              
+              return (
+                <>
+                  {/* Ambient Blurred Background (fills empty black spaces beautifully) */}
+                  {isContain && (
+                    <SafeImage 
+                      src={currentSrc}
+                      alt="" 
+                      className="absolute inset-0 w-full h-full object-cover blur-3xl opacity-60 scale-110"
+                      width={200} 
+                      height={200}
+                      quality={10}
+                    />
+                  )}
+                  
+                  {/* Main Focus Image */}
+                  <SafeImage 
+                    src={currentSrc} 
+                    alt="" 
+                    className="absolute inset-0 w-full h-full"
+                    width={isMobile ? 480 : 1440} 
+                    height={isMobile ? 720 : 960}
+                    quality={heroIdx === 0 ? (isMobile ? 45 : 60) : 40}
+                    fetchPriority="high"
+                    loading="eager"
+                    style={{ 
+                      objectFit: currentFit,
+                      objectPosition: isMobile ? (slides[heroIdx]?.mobilePos || 'center') : (slides[heroIdx]?.pos || 'center'),
+                      transform: `scale(${isMobile ? (slides[heroIdx]?.mobileScale || 1) : (slides[heroIdx]?.scale || 1)})`
+                    }}
+                    crop={isContain ? undefined : 'fill'}
+                    gravity={isMobile ? slides[heroIdx]?.mobileGravity : slides[heroIdx]?.gravity}
+                    aspect={isContain ? undefined : (isMobile ? '4:5' : '21:9')}
+                    sizes="100vw"
+                  />
+                </>
+              );
+            })()}
+            <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent pointer-events-none" />
           </div>
 
         <div className="relative z-10 container-custom h-full flex flex-col justify-center pt-20">
