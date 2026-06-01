@@ -10,7 +10,7 @@ import SafeImage from '../components/common/SafeImage';
 
 const CATEGORIES = [
   { name: 'Shirts', slug: 'shirts', img: 'https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0045.jpg?tr=w-400,h-500,q-80,f-webp', items: '120+ Items' },
-  { name: 'T-Shirts', slug: 't-shirts', img: 'https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0058.jpg?tr=w-400,h-500,q-80,f-webp', items: '80+ Items' },
+  { name: 'T-Shirts', slug: 't-shirts', img: 'https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0045.jpg?tr=w-400,h-500,q-80,f-webp', items: '80+ Items' },
   { name: 'Jeans', slug: 'jeans', img: 'https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0057.jpg?tr=w-400,h-500,q-80,f-webp', items: '50+ Items' },
   { name: 'Formals', slug: 'formals', img: 'https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?tr=w-400,h-500,q-80,f-webp', items: '40+ Items' }
 ];
