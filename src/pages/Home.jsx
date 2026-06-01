@@ -169,20 +169,8 @@ export default function Home() {
               const currentSrc = isMobile ? (slides[heroIdx]?.mobileImg || slides[heroIdx]?.img) : slides[heroIdx]?.img;
               
               return (
-                <>
-                  {/* Ambient Blurred Background (fills empty black spaces beautifully) */}
-                  {isContain && (
-                    <SafeImage 
-                      src={currentSrc}
-                      alt="" 
-                      className="absolute inset-0 w-full h-full object-cover blur-3xl opacity-60 scale-110"
-                      width={200} 
-                      height={200}
-                      quality={10}
-                    />
-                  )}
-                  
-                  {/* Main Focus Image */}
+                  <>
+                    {/* Main Focus Image */}
                   <SafeImage 
                     src={currentSrc} 
                     alt="" 
@@ -376,3 +364,4 @@ export default function Home() {
     </div>
   );
 }
+
