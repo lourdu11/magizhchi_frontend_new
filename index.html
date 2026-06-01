@@ -20,15 +20,7 @@
     <link rel="dns-prefetch" href="https://ik.imagekit.io/" />
     <link rel="dns-prefetch" href="https://images.unsplash.com/" />
     <link rel="dns-prefetch" href="https://res.cloudinary.com/" />
-    <!-- Preload Critical Above-the-fold Image (Art-directed for Mobile/Desktop) -->
-    <link rel="preload" as="image" media="(max-width: 767px)" href="https://images.unsplash.com/photo-1516257984-b1b4d707412e?q=80&w=800&auto=format&fit=crop" fetchpriority="high" />
-    <link rel="preload" as="image" media="(min-width: 768px)" href="https://images.unsplash.com/photo-1516257984-b1b4d707412e?q=80&w=1440&auto=format&fit=crop" fetchpriority="high" />
-
-    <!-- Preload Critical APIs to beat React Boot time -->
-    <link rel="preload" as="fetch" href="https://magizhchi-backend-28sx.onrender.com/api/v1/banners/active" crossorigin="use-credentials" />
-    <link rel="preload" as="fetch" href="https://magizhchi-backend-28sx.onrender.com/api/v1/categories" crossorigin="use-credentials" />
-    <link rel="preload" as="fetch" href="https://magizhchi-backend-28sx.onrender.com/api/v1/products?isFeatured=true&limit=8" crossorigin="use-credentials" />
-    <link rel="preload" as="fetch" href="https://magizhchi-backend-28sx.onrender.com/api/v1/public/settings" crossorigin="use-credentials" />
+    <!-- Preload tags removed to fix console warnings and prevent fetching production APIs in local dev -->
 
 
 
