@@ -93,12 +93,12 @@ export default function AdminSettings() {
 
   useEffect(() => {
     if (settings) {
-      setFormData({
-        ...formData,
+      setFormData(prev => ({
+        ...prev,
         ...settings,
-        store: { ...formData.store, ...(settings.store || {}) },
-        payment: { ...formData.payment, ...(settings.payment || {}) },
-        shipping: { ...formData.shipping, ...(settings.shipping || {}) },
+        store: { ...prev.store, ...(settings.store || {}) },
+        payment: { ...prev.payment, ...(settings.payment || {}) },
+        shipping: { ...prev.shipping, ...(settings.shipping || {}) },
         notifications: {
           email: {
             host: settings.notifications?.email?.host || '',
@@ -123,8 +123,8 @@ export default function AdminSettings() {
             method: settings.notifications?.lowStockAlert?.method || 'both'
           }
         },
-        seo: { ...formData.seo, ...(settings.seo || {}) },
-      });
+        seo: { ...prev.seo, ...(settings.seo || {}) },
+      }));
     }
   }, [settings]);
 
@@ -948,7 +948,7 @@ export default function AdminSettings() {
                              adminService.testNotifications('stock').then(r => { if (!r.data.success) throw new Error(r.data.message); return r; }).finally(() => setTestLoading(p => ({ ...p, stock: false }))),
                              {
                                loading: 'Sending stock test alert...',
-                               success: (r) => `✅ Stock alert sent! Check ${settings?.notifications?.email?.alertEmail}`,
+                               success: () => `✅ Stock alert sent! Check ${settings?.notifications?.email?.alertEmail}`,
                                error: (e) => `❌ ${e.response?.data?.message || e.message}`
                              }
                            )

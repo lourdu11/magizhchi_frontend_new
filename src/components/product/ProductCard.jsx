@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Heart, ShoppingBag, Star, Plus } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { cartService, wishlistService, authService } from '../../services';
+import { wishlistService, authService } from '../../services';
 import { useAuthStore, useWishlistStore } from '../../store';
 import { toast } from 'react-hot-toast';
 import SafeImage from '../common/SafeImage';
@@ -11,7 +11,7 @@ export default function ProductCard({ product }) {
   const { isAuthenticated, setAuth } = useAuthStore();
   const { productIds, toggleId } = useWishlistStore();
   const [isAddingWishlist, setIsAddingWishlist] = useState(false);
-  const [isAddingCart, setIsAddingCart] = useState(false);
+  const [isAddingCart] = useState(false);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   

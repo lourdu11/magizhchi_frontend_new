@@ -29,7 +29,7 @@ export default function Checkout() {
     if (saved) {
       try {
         return JSON.parse(saved);
-      } catch (e) {}
+      } catch (_e) {}
     }
     return { 
       name: user?.name || '', 
@@ -46,7 +46,7 @@ export default function Checkout() {
     if (saved) {
       try {
         return JSON.parse(saved);
-      } catch (e) {}
+      } catch (_e) {}
     }
     return { email: '' };
   });

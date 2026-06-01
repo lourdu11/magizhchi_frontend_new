@@ -1,7 +1,7 @@
 // v1.0.1 - Forced Refresh
 // v1.0.1 - Forced Refresh
 import { Routes, Route } from 'react-router-dom';
-import { Suspense, lazy, useEffect, useState } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 
 // Layouts — UserLayout is eagerly loaded (serves all public users)
 import UserLayout from './components/layout/UserLayout';

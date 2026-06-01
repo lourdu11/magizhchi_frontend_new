@@ -2,7 +2,7 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Package, ShoppingBag, Users, BarChart2, Settings, FileText, Tag, Image, UserCog, Boxes, LogOut, ChevronLeft, ChevronRight, Menu, RefreshCcw, Star, Truck, History, RotateCcw, LayoutGrid, X, Receipt, Smartphone } from 'lucide-react';
 
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../../store';
 import { adminService } from '../../services';
 
@@ -17,7 +17,7 @@ function WhatsAppStatus({ collapsed }) {
         const { data } = await adminService.getHealth();
         setStatus(data.whatsapp || 'Unknown');
         setIsReady(data.whatsapp === 'Ready');
-      } catch (err) {
+      } catch (_err) {
         setStatus('Error');
         setIsReady(false);
       }

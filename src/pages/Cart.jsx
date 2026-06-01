@@ -112,7 +112,6 @@ export default function Cart() {
                 {(Array.isArray(items) ? items : []).map((item, i) => {
                   if (!item) return null;
                   const product = item?.productId;
-                  const price = product?.discountedPrice || product?.sellingPrice || 0;
                   if (!product || !product._id) return null;
                   return (
                     <motion.div key={item._id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}

@@ -12,8 +12,7 @@ const InvoiceTemplate = React.forwardRef(({ order }, ref) => {
     shippingAddress,
     items,
     pricing,
-    paymentMethod,
-    user
+    paymentMethod
   } = order;
 
   // Normalize pricing for both online/offline structures
