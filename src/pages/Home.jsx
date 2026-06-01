@@ -198,7 +198,7 @@ export default function Home() {
                       transform: `scale(${isMobile ? (slides[heroIdx]?.mobileScale || 1) : (slides[heroIdx]?.scale || 1)})`
                     }}
                     crop={isContain ? undefined : 'fill'}
-                    gravity={isMobile ? slides[heroIdx]?.mobileGravity : slides[heroIdx]?.gravity}
+                    gravity={isContain ? undefined : (isMobile ? slides[heroIdx]?.mobileGravity : slides[heroIdx]?.gravity)}
                     aspect={isContain ? undefined : (isMobile ? '4:5' : '21:9')}
                     sizes="100vw"
                   />
