@@ -131,7 +131,7 @@ export default function AdminImageResizer({ isOpen, onClose, file, onSave }) {
       // 2. Compress the blobs
       const compressionOptions = {
         maxSizeMB: 1,
-        useWebWorker: true,
+        useWebWorker: false, // Disabled to prevent CSP blob worker crash
         fileType: 'image/webp'
       };
       
