@@ -5,6 +5,7 @@ import { toast } from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
 import { adminService, bannerService } from '../../services';
 import SafeImage from '../../components/common/SafeImage';
+import AdminImageResizer from '../../components/admin/AdminImageResizer';
 
 const BannerPreview = ({ src, aspect, fit, pos, scale, label }) => {
   const [loading, setLoading] = useState(true);
@@ -44,6 +45,12 @@ const BannerPreview = ({ src, aspect, fit, pos, scale, label }) => {
       )}
       <div className="absolute top-3 left-3 bg-white/80 backdrop-blur-sm px-2 py-1 rounded-md text-[8px] font-black uppercase tracking-widest border border-neutral-200 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-20">
         {aspect} PREVIEW
+        <AdminImageResizer
+          isOpen={isResizerOpen}
+          onClose={() => setIsResizerOpen(false)}
+          file={resizerFile}
+          onSave={handleResizerSave}
+        />
       </div>
     </div>
   );
@@ -69,6 +76,8 @@ export default function AdminBanners() {
     link: '/', displayOrder: 0, isActive: true
   });
   const [useCommonImage, setUseCommonImage] = useState(false);
+  const [resizerFile, setResizerFile] = useState(null);
+  const [isResizerOpen, setIsResizerOpen] = useState(false);
 
   const upsertMutation = useMutation({
     mutationFn: (data) => editingId ? bannerService.updateBanner(editingId, data) : bannerService.createBanner(data),
@@ -115,30 +124,39 @@ export default function AdminBanners() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleFileUpload = async (e, type = 'desktop') => {
+  const handleFileUpload = (e, type = 'desktop') => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setResizerFile(file);
+    setIsResizerOpen(true);
+    e.target.value = null;
+  };
 
+  const handleResizerSave = async ({ desktopFile, mobileFile }) => {
     setIsUploading(true);
-    const fd = new FormData();
-    fd.append('image', file);
-
     try {
-      const res = await adminService.uploadImage(fd);
-      const url = res.data?.url || res.data?.data?.url;
-      if (url) {
-        setFormData(prev => {
-          const next = { ...prev, [type === 'desktop' ? 'desktopImage' : 'mobileImage']: url };
-          if (type === 'desktop' && useCommonImage) next.mobileImage = url;
-          return next;
-        });
-        toast.success('Image uploaded to Cloudinary');
-      } else {
-        throw new Error('No URL in response');
+      const fdDesktop = new FormData();
+      fdDesktop.append('image', desktopFile);
+      const resDesktop = await adminService.uploadImage(fdDesktop);
+      const desktopUrl = resDesktop.data?.url || resDesktop.data?.data?.url;
+
+      const fdMobile = new FormData();
+      fdMobile.append('image', mobileFile);
+      const resMobile = await adminService.uploadImage(fdMobile);
+      const mobileUrl = resMobile.data?.url || resMobile.data?.data?.url;
+
+      if (desktopUrl && mobileUrl) {
+        setFormData(prev => ({
+          ...prev,
+          desktopImage: desktopUrl,
+          mobileImage: mobileUrl
+        }));
+        setUseCommonImage(false);
+        toast.success('Perfectly cropped images uploaded successfully!');
       }
     } catch (err) {
       console.error('Upload Error:', err);
-      toast.error('Upload failed: ' + (err.response?.data?.message || err.message));
+      toast.error('Upload failed: ' + (err.message));
     } finally {
       setIsUploading(false);
     }
@@ -390,6 +408,12 @@ export default function AdminBanners() {
             </div>
           </div>
         ))}
+        <AdminImageResizer
+          isOpen={isResizerOpen}
+          onClose={() => setIsResizerOpen(false)}
+          file={resizerFile}
+          onSave={handleResizerSave}
+        />
       </div>
     </div>
   );
