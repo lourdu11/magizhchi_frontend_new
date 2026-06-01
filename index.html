@@ -17,8 +17,9 @@
     <title>Magizhchi Garments — Premium Men's Wear</title>
     <!-- Performance Optimization -->
     <link rel="preconnect" href="https://magizhchi-backend-28sx.onrender.com/" crossorigin="use-credentials" />
-    <link rel="preconnect" href="https://ik.imagekit.io/" />
-    <link rel="preconnect" href="https://images.unsplash.com/" />
+    <link rel="dns-prefetch" href="https://ik.imagekit.io/" />
+    <link rel="dns-prefetch" href="https://images.unsplash.com/" />
+    <link rel="dns-prefetch" href="https://res.cloudinary.com/" />
     <!-- Preload Critical Above-the-fold Image (Art-directed for Mobile/Desktop) -->
     <link rel="preload" as="image" media="(max-width: 767px)" href="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-412,h-618,q-80,f-webp" imagesrcset="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-412,h-618,q-80,f-webp 412w, https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-768,h-1152,q-80,f-webp 768w" imagesizes="100vw" fetchpriority="high" />
     <link rel="preload" as="image" media="(min-width: 768px)" href="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-1440,h-960,q-80,f-webp" imagesrcset="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-768,h-512,q-80,f-webp 768w, https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?updatedAt=1772379274925&tr=w-1440,h-960,q-80,f-webp 1440w" imagesizes="100vw" fetchpriority="high" />
@@ -28,15 +29,17 @@
     <link rel="preload" as="fetch" href="https://magizhchi-backend-28sx.onrender.com/api/v1/categories" crossorigin="use-credentials" />
     <link rel="preload" as="fetch" href="https://magizhchi-backend-28sx.onrender.com/api/v1/products?isFeatured=true&limit=8" crossorigin="use-credentials" />
     <link rel="preload" as="fetch" href="https://magizhchi-backend-28sx.onrender.com/api/v1/public/settings" crossorigin="use-credentials" />
-    <link rel="dns-prefetch" href="https://res.cloudinary.com/" />
-    <link rel="dns-prefetch" href="https://images.unsplash.com/" />
 
 
 
     <!-- Google Fonts (Outfit + Playfair Display) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700&display=swap" />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700&display=swap" media="print" onload="this.media='all'" />
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700&display=swap" />
+    </noscript>
 
     <!-- Critical Above-The-Fold Inline CSS -->
     <style>

@@ -48,12 +48,18 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
-          // Consolidate ALL lucide-react icons into one chunk (eliminates 20+ tiny HTTP requests)
-          if (id.includes('node_modules/lucide-react')) {
+          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/') || id.includes('node_modules/react-router-dom/')) {
+            return 'react-vendor';
+          }
+          if (id.includes('node_modules/framer-motion/')) {
+            return 'framer-motion';
+          }
+          if (id.includes('node_modules/@tanstack/')) {
+            return 'query-vendor';
+          }
+          if (id.includes('node_modules/lucide-react/')) {
             return 'icons';
           }
-          // Let Rollup handle everything else automatically (React, charts, etc.)
-          // This prevents CJS interop wrappers from leaking into the wrong chunks.
         },
       },
     },
