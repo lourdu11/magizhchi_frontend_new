@@ -166,6 +166,7 @@ export default function Home() {
             <SafeImage 
               src={isMobile ? (slides[heroIdx]?.mobileImg || slides[heroIdx]?.img) : slides[heroIdx]?.img} 
               alt="" 
+              className="absolute inset-0 w-full h-full object-cover"
               width={isMobile ? 480 : 1440} 
               height={isMobile ? 720 : 960}
               quality={heroIdx === 0 ? (isMobile ? 45 : 60) : 40}
