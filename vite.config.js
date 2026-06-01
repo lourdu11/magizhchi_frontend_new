@@ -9,12 +9,14 @@ const shouldAnalyze = process.env.ANALYZE === 'true';
 
 import viteCompression from 'vite-plugin-compression';
 import { visualizer } from 'rollup-plugin-visualizer';
+import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js';
 
 
 
 export default defineConfig({
   plugins: [
     react(),
+    cssInjectedByJsPlugin(),
     viteCompression({ algorithm: 'gzip', ext: '.gz' }),
     viteCompression({ algorithm: 'brotliCompress', ext: '.br' }),
     ...(shouldAnalyze ? [visualizer({ filename: './stats.html', open: false })] : []),
@@ -49,9 +51,6 @@ export default defineConfig({
         manualChunks(id) {
           if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/') || id.includes('node_modules/react-router-dom/')) {
             return 'react-vendor';
-          }
-          if (id.includes('node_modules/framer-motion/')) {
-            return 'framer-motion';
           }
           if (id.includes('node_modules/@tanstack/')) {
             return 'query-vendor';
