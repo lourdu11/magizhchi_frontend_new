@@ -45,12 +45,6 @@ const BannerPreview = ({ src, aspect, fit, pos, scale, label }) => {
       )}
       <div className="absolute top-3 left-3 bg-white/80 backdrop-blur-sm px-2 py-1 rounded-md text-[8px] font-black uppercase tracking-widest border border-neutral-200 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-20">
         {aspect} PREVIEW
-        <AdminImageResizer
-          isOpen={isResizerOpen}
-          onClose={() => setIsResizerOpen(false)}
-          file={resizerFile}
-          onSave={handleResizerSave}
-        />
       </div>
     </div>
   );
@@ -418,3 +412,4 @@ export default function AdminBanners() {
     </div>
   );
 }
+
