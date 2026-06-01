@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { adminService } from '../../../services';
 import SafeImage from '../../../components/common/SafeImage';
+import AdminSingleImageResizer from '../../../components/admin/AdminSingleImageResizer';
 import { resolveAssetURL } from '../../../utils/assetResolver';
 import JsBarcode from 'jsbarcode';
 
@@ -178,6 +179,7 @@ function VariantManagerSection({ productName, variants, basePrice, sellingPrice,
   const [editValues, setEditValues] = useState({ size: '', color: '', sku: '', available: 0, image: '' });
   const [activeVariants, setActiveVariants] = useState([]);
   const [uploadingVariantId, setUploadingVariantId] = useState(null);
+  const [resizerState, setResizerState] = useState({ isOpen: false, file: null, variantId: null });
 
   const handleSaveEdit = (variantId) => {
     if (!editValues.color || !editValues.size) {

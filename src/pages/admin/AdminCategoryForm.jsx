@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import AdminSingleImageResizer from '../../components/admin/AdminSingleImageResizer';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Save, X, Loader2, ImageIcon, Plus, ChevronLeft, Info, Eye, EyeOff, Upload, Link2, Copy, ExternalLink, Check } from 'lucide-react';
@@ -74,6 +75,7 @@ export default function AdminCategoryForm() {
     return EMPTY;
   });
   const [isUploading, setIsUploading] = useState(false);
+  const [resizerState, setResizerState] = useState({ isOpen: false, file: null, field: null });
   const [previewMode, setPreviewMode] = useState('laptop');
   const [catUploadTab, setCatUploadTab] = useState('file');
   const [catUrlInput, setCatUrlInput] = useState('');
@@ -128,26 +130,31 @@ export default function AdminCategoryForm() {
     onError: (err) => toast.error(err.response?.data?.message || 'Failed'),
   });
 
-  const handleUpload = async (file, field = 'all') => {
+  const handleUpload = (file, field = 'all') => {
     if (!file) return;
+    setResizerState({ isOpen: true, file, field });
+  };
+
+  const handleResizerSave = async (blob) => {
+    setResizerState({ isOpen: false, file: null, field: null });
     setIsUploading(true);
     const fd = new FormData();
-    fd.append('image', file);
+    fd.append('image', blob, 'category.webp');
     try {
       const res = await adminService.uploadImage(fd);
       const url = res.data?.url || res.data?.data?.url;
       if (url) {
         setCatLastUrl(url);
-        if (field === 'all') {
-          setForm(prev => ({ ...prev, image: url, tabletImage: url, mobileImage: url }));
-          toast.success('✅ Image applied to all device sizes!');
+        if (resizerState.field === 'all') {
+          setForm(prev => ({ ...prev, image: url, tabletImage: url, mobileImage: url, fit: 'cover' }));
+          toast.success('Perfectly sized image applied to all device sizes!');
         } else {
-          setForm(prev => ({ ...prev, [field]: url }));
-          toast.success('Asset uploaded!');
+          setForm(prev => ({ ...prev, [resizerState.field]: url }));
+          toast.success('Perfectly sized asset uploaded!');
         }
       }
     } catch (err) {
-      toast.error('Upload failed');
+      toast.error('Upload failed: ' + (err.message));
     } finally {
       setIsUploading(false);
     }
@@ -362,6 +369,16 @@ export default function AdminCategoryForm() {
           </p>
         </div>
       </div>
+
+      <AdminSingleImageResizer 
+        isOpen={resizerState.isOpen}
+        onClose={() => setResizerState({ isOpen: false, file: null, field: null })}
+        file={resizerState.file}
+        onSave={handleResizerSave}
+        targetWidth={1080}
+        targetHeight={1350}
+        title="Category Image Resizer"
+      />
     </div>
   );
 }

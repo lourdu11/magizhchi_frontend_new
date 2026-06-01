@@ -8,6 +8,7 @@ import {
   Link2, Copy, ExternalLink
 } from 'lucide-react';
 import SafeImage from '../../../components/common/SafeImage';
+import AdminSingleImageResizer from '../../../components/admin/AdminSingleImageResizer';
 import { adminService } from '../../../services';
 import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -212,6 +213,7 @@ export default function VisualTab() {
 
   const setField = (field, value) => dispatch({ type: 'SET_FIELD', field, value });
   const setUploading = (v) => dispatch({ type: 'SET_UPLOADING', value: v });
+    const [resizerState, setResizerState] = useState({ isOpen: false, file: null, target: null });
 
   // ── Core: Smart single-upload handler ──────────────────────────
   const handleUpload = async (file, target = 'all') => {

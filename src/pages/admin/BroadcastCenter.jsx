@@ -13,11 +13,13 @@ import { broadcastService, adminService } from '../../services';
 import { toast } from 'react-hot-toast';
 import { format } from 'date-fns';
 import { useAuthStore } from '../../store';
+import AdminSingleImageResizer from '../../components/admin/AdminSingleImageResizer';
 
 const BroadcastCenter = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+    const [resizerState, setResizerState] = useState({ isOpen: false, file: null });
   
   // Customers State
   const [customers, setCustomers] = useState([]);
