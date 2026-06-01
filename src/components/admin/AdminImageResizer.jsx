@@ -47,10 +47,37 @@ const getCroppedImg = async (imageSrc, pixelCrop, targetWidth, targetHeight) => 
   });
 };
 
+
+const getStretchedImg = async (imageSrc, targetWidth, targetHeight) => {
+  const image = await new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.src = imageSrc;
+    img.onload = () => resolve(img);
+    img.onerror = (error) => reject(error);
+  });
+
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+
+  canvas.width = targetWidth;
+  canvas.height = targetHeight;
+  ctx.drawImage(image, 0, 0, targetWidth, targetHeight);
+
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (!blob) reject(new Error('Canvas empty'));
+      else resolve(blob);
+    }, 'image/jpeg', 0.9);
+  });
+};
+
 export default function AdminImageResizer({ isOpen, onClose, file, onSave }) {
   const [imageSrc, setImageSrc] = useState(null);
   const [activeTab, setActiveTab] = useState('desktop'); // 'desktop' or 'mobile'
   const [isProcessing, setIsProcessing] = useState(false);
+  const [resizeMode, setResizeMode] = useState('crop'); // 'crop' or 'stretch'
 
   // Desktop Dimensions
   const [desktopWidth, setDesktopWidth] = useState(1920);
@@ -84,16 +111,22 @@ export default function AdminImageResizer({ isOpen, onClose, file, onSave }) {
   }, [activeTab]);
 
   const handleGenerate = async () => {
-    if (!desktopCroppedAreaPixels || !mobileCroppedAreaPixels || !imageSrc) {
+    if (resizeMode === 'crop' && (!desktopCroppedAreaPixels || !mobileCroppedAreaPixels)) {
       alert("Please ensure both desktop and mobile crops are selected.");
       return;
     }
+    if (!imageSrc) return;
     
     setIsProcessing(true);
     try {
-      // 1. Generate Raw Blobs
-      const desktopBlob = await getCroppedImg(imageSrc, desktopCroppedAreaPixels, desktopWidth, desktopHeight);
-      const mobileBlob = await getCroppedImg(imageSrc, mobileCroppedAreaPixels, mobileWidth, mobileHeight);
+      let desktopBlob, mobileBlob;
+      if (resizeMode === 'stretch') {
+        desktopBlob = await getStretchedImg(imageSrc, desktopWidth, desktopHeight);
+        mobileBlob = await getStretchedImg(imageSrc, mobileWidth, mobileHeight);
+      } else {
+        desktopBlob = await getCroppedImg(imageSrc, desktopCroppedAreaPixels, desktopWidth, desktopHeight);
+        mobileBlob = await getCroppedImg(imageSrc, mobileCroppedAreaPixels, mobileWidth, mobileHeight);
+      }
 
       // 2. Compress the blobs
       const compressionOptions = {
@@ -150,6 +183,25 @@ export default function AdminImageResizer({ isOpen, onClose, file, onSave }) {
           {/* Left Panel: Controls */}
           <div className="w-full md:w-80 bg-black/40 p-6 flex flex-col gap-6 border-r border-white/10 overflow-y-auto">
             
+            {/* Mode Selection */}
+            <div className="space-y-2">
+              <h3 className="text-white font-medium text-sm">Resize Mode</h3>
+              <div className="grid grid-cols-2 gap-2">
+                <button 
+                  onClick={() => setResizeMode('crop')}
+                  className={`py-2 px-2 rounded-lg text-xs font-bold transition-all ${resizeMode === 'crop' ? 'bg-premium-gold text-black' : 'bg-black/40 text-gray-400 hover:text-white'}`}
+                >
+                  Smart Crop (Preserve)
+                </button>
+                <button 
+                  onClick={() => setResizeMode('stretch')}
+                  className={`py-2 px-2 rounded-lg text-xs font-bold transition-all ${resizeMode === 'stretch' ? 'bg-premium-gold text-black' : 'bg-black/40 text-gray-400 hover:text-white'}`}
+                >
+                  Force Fit (Stretch)
+                </button>
+              </div>
+            </div>
+
             {/* Tabs */}
             <div className="flex gap-2 p-1 bg-white/5 rounded-xl">
               <button 
@@ -209,18 +261,40 @@ export default function AdminImageResizer({ isOpen, onClose, file, onSave }) {
           </div>
 
           {/* Right Panel: Cropper */}
-          <div className="flex-1 relative bg-black/90 min-h-[300px]">
+          <div className="flex-1 relative bg-black/90 min-h-[300px] flex items-center justify-center p-8">
             {imageSrc ? (
-              <Cropper
-                image={imageSrc}
-                crop={currentCrop}
-                zoom={currentZoom}
-                aspect={currentAspect}
-                onCropChange={setCrop}
-                onCropComplete={onCropComplete}
-                onZoomChange={setZoom}
-                objectFit="contain"
-              />
+              resizeMode === 'stretch' ? (
+                <div 
+                  className="relative overflow-hidden bg-white/5 border-2 border-premium-gold/50 border-dashed"
+                  style={{ 
+                    aspectRatio: currentAspect, 
+                    width: '100%', 
+                    maxHeight: '100%',
+                    maxWidth: currentAspect > 1 ? '100%' : `calc(100vh * ${currentAspect})`
+                  }}
+                >
+                  <img 
+                    src={imageSrc} 
+                    alt="Preview" 
+                    className="absolute inset-0 w-full h-full"
+                    style={{ objectFit: 'fill' }} 
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 hover:opacity-100 transition-opacity">
+                    <span className="text-white font-bold text-lg bg-black/50 px-4 py-2 rounded-xl">Stretched Preview</span>
+                  </div>
+                </div>
+              ) : (
+                <Cropper
+                  image={imageSrc}
+                  crop={currentCrop}
+                  zoom={currentZoom}
+                  aspect={currentAspect}
+                  onCropChange={setCrop}
+                  onCropComplete={onCropComplete}
+                  onZoomChange={setZoom}
+                  objectFit="contain"
+                />
+              )
             ) : (
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="animate-spin text-premium-gold"><RefreshCw size={24} /></div>
