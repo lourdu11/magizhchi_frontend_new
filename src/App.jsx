@@ -13,9 +13,9 @@ import PageLoader from './components/common/PageLoader';
 
 // Eagerly loaded pages
 import { Navigate } from 'react-router-dom';
+import Home from './pages/Home';
 
 // Lazily loaded pages
-const Home = lazy(() => import('./pages/Home'));
 const Collections = lazy(() => import('./pages/Collections'));
 const ProductDetails = lazy(() => import('./pages/ProductDetails'));
 const Cart = lazy(() => import('./pages/Cart'));
