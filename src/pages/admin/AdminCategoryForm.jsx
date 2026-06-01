@@ -8,52 +8,12 @@ import { toast } from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 
+import { LivePreview } from '../../components/admin/AdminVisualManager';
+
 const EMPTY = { 
   name: '', description: '', image: '', tabletImage: '', mobileImage: '', 
   fit: 'cover', position: 'center', scale: 1, gravity: 'auto',
   isActive: true
-};
-
-const BannerPreview = ({ src, aspect, fit, pos, scale, label }) => {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
-  useEffect(() => {
-    if (src) { setLoading(true); setError(false); }
-  }, [src]);
-
-  return (
-    <div className="relative w-full overflow-hidden rounded-[2rem] bg-neutral-100 border border-neutral-200 shadow-inner group transition-all duration-300" style={{ aspectRatio: aspect }}>
-      {loading && src && (
-        <div className="absolute inset-0 flex items-center justify-center bg-neutral-50 z-10">
-          <Loader2 className="animate-spin text-neutral-300" size={24} />
-        </div>
-      )}
-      {!src || error ? (
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-neutral-400 bg-neutral-50">
-          <ImageIcon size={32} strokeWidth={1.5} />
-          <span className="text-[10px] font-bold mt-2 uppercase tracking-widest">{error ? 'Load Failed' : `No ${label} Image`}</span>
-        </div>
-      ) : (
-        <img
-          src={src}
-          alt={`${label} Preview`}
-          className={`w-full h-full block transition-all duration-700 ${loading ? 'opacity-0 scale-105 blur-sm' : 'opacity-100 scale-100 blur-0'}`}
-          style={{
-            objectFit: fit || 'cover',
-            objectPosition: pos || 'center',
-            transform: `scale(${scale || 1})`
-          }}
-          onLoad={() => setLoading(false)}
-          onError={() => { setLoading(false); setError(true); }}
-          decoding="async"
-        />
-      )}
-      <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border border-neutral-200 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-20">
-        {label} VIEW
-      </div>
-    </div>
-  );
 };
 
 export default function AdminCategoryForm() {
@@ -271,11 +231,11 @@ export default function AdminCategoryForm() {
                 </div>
 
                 <div className="relative group">
-                  <BannerPreview 
+                  <LivePreview 
                     src={form[getField(previewMode)]} 
                     aspect={previewMode === 'laptop' ? '16 / 9' : previewMode === 'tablet' ? '4 / 3' : '1 / 1'} 
                     fit={form.fit} 
-                    pos={form.position} 
+                    position={form.position} 
                     scale={form.scale}
                     label={previewMode.toUpperCase()}
                   />

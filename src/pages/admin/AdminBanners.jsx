@@ -7,48 +7,7 @@ import { adminService, bannerService } from '../../services';
 import SafeImage from '../../components/common/SafeImage';
 import AdminImageResizer from '../../components/admin/AdminImageResizer';
 
-const BannerPreview = ({ src, aspect, fit, pos, scale, label }) => {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
-  // Reset states when src changes
-  useState(() => {
-    if (src) { setLoading(true); setError(false); }
-  }, [src]);
-
-  return (
-    <div className="relative w-full overflow-hidden rounded-xl bg-neutral-100 border border-neutral-200 shadow-inner group transition-all duration-300" style={{ aspectRatio: aspect }}>
-      {loading && src && (
-        <div className="absolute inset-0 flex items-center justify-center bg-neutral-50 z-10">
-          <Loader2 className="animate-spin text-neutral-300" size={24} />
-        </div>
-      )}
-      {!src || error ? (
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-neutral-400 bg-neutral-50">
-          <ImageIcon size={32} strokeWidth={1.5} />
-          <span className="text-[10px] font-bold mt-2 uppercase tracking-widest">{error ? 'Load Failed' : `No ${label} Image`}</span>
-        </div>
-      ) : (
-        <img
-          src={src}
-          alt={`${label} Preview`}
-          className={`w-full h-full block transition-all duration-700 ${loading ? 'opacity-0 scale-105 blur-sm' : 'opacity-100 scale-100 blur-0'}`}
-          style={{
-            objectFit: fit || 'cover',
-            objectPosition: pos || 'center',
-            transform: `scale(${scale || 1})`
-          }}
-          onLoad={() => setLoading(false)}
-          onError={() => { setLoading(false); setError(true); }}
-          decoding="async"
-        />
-      )}
-      <div className="absolute top-3 left-3 bg-white/80 backdrop-blur-sm px-2 py-1 rounded-md text-[8px] font-black uppercase tracking-widest border border-neutral-200 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-20">
-        {aspect} PREVIEW
-      </div>
-    </div>
-  );
-};
+import { LivePreview } from '../../components/admin/AdminVisualManager';
 
 export default function AdminBanners() {
   const [showForm, setShowForm] = useState(false);
@@ -239,11 +198,11 @@ export default function AdminBanners() {
                   </div>
                   <div className="grid md:grid-cols-2 gap-4">
                      <div className="relative group">
-                       <BannerPreview 
+                       <LivePreview 
                           src={formData.desktopImage} 
                           aspect="21 / 9" 
                           fit={formData.desktopFit} 
-                          pos={formData.desktopPos} 
+                          position={formData.desktopPos} 
                           scale={formData.desktopScale}
                           label="Desktop"
                        />
@@ -309,11 +268,11 @@ export default function AdminBanners() {
                      </div>
                      <div className="grid md:grid-cols-2 gap-4">
                         <div className="relative group">
-                          <BannerPreview 
+                          <LivePreview 
                              src={formData.mobileImage} 
                              aspect="4 / 5" 
                              fit={formData.mobileFit} 
-                             pos={formData.mobilePos} 
+                             position={formData.mobilePos} 
                              scale={formData.mobileScale}
                              label="Mobile"
                           />
