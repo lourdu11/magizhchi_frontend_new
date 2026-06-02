@@ -112,13 +112,13 @@ export default function AdminSingleImageResizer({
         finalBlob = await getCroppedImg(imageSrc, croppedAreaPixels, width, height);
       }
 
-      // Compress — keep high quality for zoom sharpness
+      // Compress — keep ultra-high quality for Flipkart-style crisp zoom
       const compressionOptions = {
-        maxSizeMB: 4,           // Allow up to 4MB so zoom stays crisp
-        maxWidthOrHeight: 3000, // Cap at 3000px (beyond 8K screen needs)
-        useWebWorker: false,    // Disabled to prevent CSP crash
+        maxSizeMB: 15,          // Allow up to 15MB to preserve massive resolution
+        maxWidthOrHeight: 6000, // Allow up to 6000px resolution
+        useWebWorker: false,    
         fileType: 'image/webp',
-        initialQuality: 0.92,   // High quality WebP
+        initialQuality: 1,   // 100% Lossless WebP
       };
       
       const compressedBlob = await imageCompression(new File([finalBlob], 'image.webp', { type: 'image/webp' }), compressionOptions);
