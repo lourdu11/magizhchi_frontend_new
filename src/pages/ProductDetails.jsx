@@ -57,8 +57,6 @@ export default function ProductDetails() {
   const [isAddingCart, setIsAddingCart] = useState(false);
 
   // ── Image Zoom ──────────────────────────────────────────────────
-  const [isZooming, setIsZooming] = useState(false);
-  const [zoomOrigin, setZoomOrigin] = useState({ x: 50, y: 50 });
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const imgContainerRef = useRef(null);
 
@@ -120,14 +118,6 @@ export default function ProductDetails() {
       } catch { return src; }
     }
     return src;
-  }, []);
-
-  const handleMouseMove = useCallback((e) => {
-    if (!imgContainerRef.current) return;
-    const rect = imgContainerRef.current.getBoundingClientRect();
-    const x = Math.min(100, Math.max(0, ((e.clientX - rect.left) / rect.width) * 100));
-    const y = Math.min(100, Math.max(0, ((e.clientY - rect.top) / rect.height) * 100));
-    setZoomOrigin({ x, y });
   }, []);
 
   const { data, isLoading } = useQuery({
@@ -333,11 +323,7 @@ export default function ProductDetails() {
             {/* Main Image */}
             <div
               ref={imgContainerRef}
-              className="relative aspect-[4/5] rounded-[2.5rem] md:rounded-[3.5rem] overflow-hidden border border-border-light shadow-xl shadow-black/5 bg-white select-none cursor-crosshair group"
-              style={{ cursor: isZooming ? 'zoom-in' : 'crosshair' }}
-              onMouseMove={handleMouseMove}
-              onMouseEnter={() => setIsZooming(true)}
-              onMouseLeave={() => setIsZooming(false)}
+              className="relative aspect-[4/5] rounded-[2.5rem] md:rounded-[3.5rem] overflow-hidden border border-border-light shadow-xl shadow-black/5 bg-white select-none cursor-pointer group"
               onClick={() => setLightboxOpen(true)}
             >
               <motion.div
@@ -347,16 +333,12 @@ export default function ProductDetails() {
                 className="w-full h-full relative"
               >
                 <img
-                  src={getUltraResUrl(images[selectedImage])} // Use ultra res for main image so hover zoom is crisp
+                  src={getHighResUrl(images[selectedImage])} // Standard high-res for page load speed
                   alt={product.name}
-                  className="w-full h-full transition-transform duration-100 ease-out relative z-10"
+                  className="w-full h-full transition-transform duration-300 ease-out relative z-10 group-hover:scale-105"
                   style={{
                     objectFit: product.detailFit || 'contain',
                     objectPosition: product.position || 'center',
-                    transform: isZooming
-                      ? `scale(${(product.scale || 1) * 2.8})` // Flipkart-style deep zoom
-                      : `scale(${product.scale || 1})`,
-                    transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%`,
                     padding: (product.detailFit || 'contain') === 'contain' ? '12px' : '0',
                     willChange: 'transform',
                   }}
@@ -364,10 +346,14 @@ export default function ProductDetails() {
                 />
               </motion.div>
 
-              {/* Gradient overlay - hidden when zooming */}
-              {!isZooming && (
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none z-20" />
-              )}
+              {/* Gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+              {/* Click to Expand hint */}
+              <div className="absolute top-4 right-4 z-30 flex items-center gap-1.5 px-3 py-1.5 bg-black/60 backdrop-blur-md text-white text-[9px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <Maximize2 size={12} strokeWidth={2.5} />
+                Click to Expand
+              </div>
 
               {/* Image Nav Dots */}
               <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-30 pointer-events-auto">
