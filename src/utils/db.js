@@ -44,3 +44,4 @@ export const dbService = {
     return db.clear(storeName);
   }
 };
+/* dummy */
