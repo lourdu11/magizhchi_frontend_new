@@ -9,10 +9,10 @@ import SkeletonCard from '../components/product/SkeletonCard';
 import SafeImage from '../components/common/SafeImage';
 
 const CATEGORIES = [
-  { name: 'Shirts', slug: 'shirts', img: 'https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0045.jpg?tr=w-400,h-500,q-80,f-webp', items: '120+ Items' },
-  { name: 'T-Shirts', slug: 't-shirts', img: 'https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0045.jpg?tr=w-400,h-500,q-80,f-webp', items: '80+ Items' },
-  { name: 'Jeans', slug: 'jeans', img: 'https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0057.jpg?tr=w-400,h-500,q-80,f-webp', items: '50+ Items' },
-  { name: 'Formals', slug: 'formals', img: 'https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?tr=w-400,h-500,q-80,f-webp', items: '40+ Items' }
+  { name: 'Shirts', slug: 'shirts', img: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?q=80&w=600&auto=format&fit=crop', items: '120+ Items' },
+  { name: 'T-Shirts', slug: 't-shirts', img: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=600&auto=format&fit=crop', items: '80+ Items' },
+  { name: 'Jeans', slug: 'jeans', img: 'https://images.unsplash.com/photo-1542272604-787c3835535d?q=80&w=600&auto=format&fit=crop', items: '50+ Items' },
+  { name: 'Formals', slug: 'formals', img: 'https://images.unsplash.com/photo-1594938298596-168a7b1cb914?q=80&w=600&auto=format&fit=crop', items: '40+ Items' }
 ];
 
 const DEFAULT_SLIDES = [];
