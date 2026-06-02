@@ -442,7 +442,8 @@ export default function VisualTab() {
         onSave={handleResizerSave}
         targetWidth={2000}
         targetHeight={2500}
-        title="Product Image Resizer"
+        defaultMode={resizerState.target === 'gallery' ? 'original' : 'crop'}
+        title={resizerState.target === 'gallery' ? "Gallery Image Uploader" : "Product Main Image Resizer"}
       />
     </div>
   );
