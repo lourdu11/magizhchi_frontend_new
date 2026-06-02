@@ -15,26 +15,7 @@ const CATEGORIES = [
   { name: 'Formals', slug: 'formals', img: 'https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0054.jpg?tr=w-400,h-500,q-80,f-webp', items: '40+ Items' }
 ];
 
-const DEFAULT_SLIDES = [
-  {
-    id: "default-hero",
-    title: "Premium Casual\nPants Collection",
-    subtitle: "Modern comfort and effortless style for everyday wear.",
-    accent: "New Arrival",
-    img: "https://images.unsplash.com/photo-1516257984-b1b4d707412e?q=80&w=1440&auto=format&fit=crop",
-    mobileImg: "https://images.unsplash.com/photo-1516257984-b1b4d707412e?q=80&w=800&auto=format&fit=crop",
-    cta: 'Shop Now',
-    ctaLink: '/collections/pants',
-    fit: 'cover',
-    pos: 'top',
-    scale: 1,
-    gravity: 'north',
-    mobileFit: 'cover',
-    mobilePos: 'center',
-    mobileScale: 1,
-    mobileGravity: 'auto'
-  }
-];
+const DEFAULT_SLIDES = [];
 
 export default function Home() {
   const [heroIdx, setHeroIdx] = useState(0);
@@ -158,10 +139,40 @@ export default function Home() {
 
       {/* ── Hero Section ── */}
       {loadingBanners ? (
-        <section className="relative h-[65vh] md:h-[80vh] w-full bg-charcoal overflow-hidden flex items-center justify-center">
-          <div className="flex flex-col items-center gap-4 text-center">
-            <Loader2 className="w-12 h-12 text-premium-gold animate-spin" />
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 animate-pulse">Loading Hero Banner...</p>
+        <section className="relative h-[65vh] md:h-[80vh] w-full bg-gradient-to-br from-charcoal via-charcoal/95 to-black/90 overflow-hidden p-0 m-0 flex items-center">
+          {/* Ambient Glowing Gold Background Light */}
+          <div className="absolute top-1/4 right-1/4 w-[300px] md:w-[600px] h-[300px] md:h-[600px] bg-premium-gold/5 rounded-full blur-[100px] animate-pulse duration-[3000ms]" />
+          
+          <div className="relative z-10 container-custom w-full">
+            <div className="max-w-3xl space-y-6">
+              {/* Tag/Accent Skeleton */}
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-[1px] bg-premium-gold/30" />
+                <div className="h-3 w-28 bg-premium-gold/10 rounded-full animate-pulse" />
+              </div>
+              
+              {/* Title Skeleton */}
+              <div className="space-y-3">
+                <div className="h-10 md:h-16 w-3/4 bg-white/5 rounded-2xl animate-pulse" />
+                <div className="h-10 md:h-16 w-1/2 bg-white/5 rounded-2xl animate-pulse" />
+              </div>
+              
+              {/* Subtitle Skeleton */}
+              <div className="h-4 w-2/3 bg-white/5 rounded-full animate-pulse mt-4" />
+              
+              {/* Buttons Skeleton */}
+              <div className="flex flex-col sm:flex-row gap-4 pt-6">
+                <div className="h-14 w-48 bg-premium-gold/20 rounded-2xl animate-pulse" />
+                <div className="h-14 w-36 bg-white/5 rounded-2xl border border-white/10 animate-pulse" />
+              </div>
+            </div>
+          </div>
+          
+          {/* Bottom navigation dots skeleton */}
+          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-3">
+            <div className="w-8 h-1.5 bg-premium-gold/30 rounded-full animate-pulse" />
+            <div className="w-2 h-1.5 bg-white/10 rounded-full" />
+            <div className="w-2 h-1.5 bg-white/10 rounded-full" />
           </div>
         </section>
       ) : (
@@ -262,10 +273,20 @@ export default function Home() {
               Array(4).fill(0).map((_, i) => (
                 <div 
                   key={i} 
-                  className="relative aspect-[4/5] rounded-[3rem] overflow-hidden bg-charcoal/5 animate-pulse w-full h-full border border-border-light flex items-center justify-center"
+                  className="relative aspect-[4/5] rounded-[3rem] overflow-hidden bg-gradient-to-b from-light-bg to-light-bg/40 border border-border-light/60 flex flex-col justify-end p-10 animate-pulse"
+                  style={{ animationDelay: `${i * 150}ms` }}
                 >
-                  <div className="flex flex-col items-center gap-2">
-                    <Loader2 className="w-6 h-6 text-charcoal/20 animate-spin" />
+                  {/* Centered Premium Gold Sparkle/Spinner Glow */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-full bg-premium-gold/5 border border-premium-gold/10 flex items-center justify-center">
+                      <div className="w-4 h-4 rounded-full border-2 border-premium-gold/15 border-t-premium-gold animate-spin" />
+                    </div>
+                  </div>
+
+                  {/* Category Title & Badge Skeletons at the bottom */}
+                  <div className="space-y-3 relative z-10">
+                    <div className="h-6 w-24 bg-charcoal/5 rounded-lg" />
+                    <div className="h-4 w-16 bg-premium-gold/25 rounded-full" />
                   </div>
                 </div>
               ))
