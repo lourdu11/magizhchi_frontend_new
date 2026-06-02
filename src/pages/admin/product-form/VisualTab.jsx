@@ -25,8 +25,6 @@ export default function VisualTab() {
   const [uploadTab, setUploadTab] = useState('file'); // 'file' | 'url'
   const [urlInput, setUrlInput] = useState('');
   const [lastUploadedUrl, setLastUploadedUrl] = useState('');
-  const [galleryUrlInput, setGalleryUrlInput] = useState('');
-  const [lastGalleryUrl, setLastGalleryUrl] = useState('');
 
   const setField = (field, value) => dispatch({ type: 'SET_FIELD', field, value });
   const setUploading = (v) => dispatch({ type: 'SET_UPLOADING', value: v });
@@ -50,12 +48,6 @@ export default function VisualTab() {
       const url = res.data?.url || res.data?.data?.url;
       if (!url) throw new Error('No URL returned from upload');
 
-      if (target === 'gallery') {
-        setLastGalleryUrl(url);
-        setField('images', [...(formData.images || []), url]);
-        toast.success('Gallery image added!');
-        return;
-      }
 
       // Show the Cloudinary URL
       setLastUploadedUrl(url);
@@ -82,21 +74,7 @@ export default function VisualTab() {
     }
   };
 
-  const handleRemoveGalleryImage = async (e, index, url) => {
-    e.stopPropagation();
-    // Remove from UI immediately
-    setField('images', formData.images.filter((_, idx) => idx !== index));
-    
-    // Clean up from Cloudinary immediately
-    if (url && url.includes('res.cloudinary.com')) {
-      try {
-        await adminService.deleteMedia(url);
-        toast.success('Image permanently deleted from Cloudinary');
-      } catch (err) {
-        console.error('Failed to delete Cloudinary asset', err);
-      }
-    }
-  };
+
 
   const masterImage = formData.laptopImage || formData.mobileImage || formData.images?.[0];
   const fit = formData.detailFit || 'contain';
@@ -301,99 +279,6 @@ export default function VisualTab() {
         </div>
       </div>
 
-
-
-      {/* ── GALLERY ─────────────────────────────────────────────── */}
-      <div className="p-8 bg-white rounded-[2.5rem] border border-border-light shadow-sm">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-premium-gold/10 flex items-center justify-center">
-              <Plus size={18} className="text-premium-gold" />
-            </div>
-            <div>
-              <h3 className="text-sm font-black text-charcoal uppercase tracking-wider">Product Gallery</h3>
-              <p className="text-[9px] text-text-muted font-bold uppercase tracking-widest mt-0.5">
-                Additional product angles & lifestyle shots
-              </p>
-            </div>
-          </div>
-          
-          <div className="flex-1 max-w-sm flex gap-2">
-            <input 
-              type="url" 
-              value={galleryUrlInput} 
-              onChange={e => setGalleryUrlInput(e.target.value)}
-              placeholder="Paste Cloudinary / S3 URL..."
-              className="flex-1 bg-light-bg border border-border-light rounded-xl px-4 py-2 text-[10px] font-bold focus:outline-none focus:border-premium-gold transition-all"
-            />
-            <button 
-              type="button" 
-              onClick={() => {
-                if (!galleryUrlInput.trim()) return toast.error('Enter URL');
-                setField('images', [...(formData.images || []), galleryUrlInput.trim()]);
-                setLastGalleryUrl(galleryUrlInput.trim());
-                setGalleryUrlInput('');
-                toast.success('✅ URL added to gallery!');
-              }}
-              className="px-4 py-2 bg-charcoal text-white rounded-xl text-[9px] font-black uppercase hover:bg-premium-gold hover:text-charcoal transition-all"
-            >
-              Add URL
-            </button>
-          </div>
-        </div>
-
-        {lastGalleryUrl && (
-          <div className="mb-6 p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between">
-             <div className="flex items-center gap-2 overflow-hidden mr-4">
-               <Check size={12} className="text-emerald-600 shrink-0" />
-               <span className="text-[9px] font-black text-emerald-700 uppercase tracking-widest shrink-0">Uploaded URL:</span>
-               <span className="text-[9px] font-mono text-emerald-700 truncate">{lastGalleryUrl}</span>
-             </div>
-             <div className="flex gap-1 shrink-0">
-               <button type="button" onClick={() => { navigator.clipboard.writeText(lastGalleryUrl); toast.success('URL copied!'); }} className="p-1.5 bg-white border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-all text-emerald-600"><Copy size={12} /></button>
-               <a href={lastGalleryUrl} target="_blank" rel="noopener noreferrer" className="p-1.5 bg-white border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-all text-emerald-600"><ExternalLink size={12} /></a>
-             </div>
-          </div>
-        )}
-
-        <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
-          {(formData.images || []).map((img, i) => (
-            <div
-              key={i}
-              className="relative aspect-square rounded-2xl overflow-hidden border border-border-light group bg-light-bg cursor-pointer"
-              onClick={() => setFullPreview({ src: img, label: `Gallery ${i + 1}` })}
-            >
-              <img src={img} alt={`gallery-${i}`} className="w-full h-full object-contain" />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-center justify-center">
-                <Eye size={18} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-              </div>
-              <button
-                type="button"
-                onClick={e => handleRemoveGalleryImage(e, i, img)}
-                className="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10"
-              >
-                <X size={10} />
-              </button>
-              {i === 0 && (
-                <div className="absolute bottom-2 left-2 bg-premium-gold text-charcoal text-[7px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">Main</div>
-              )}
-            </div>
-          ))}
-
-          {/* Add gallery image */}
-          <label className="aspect-square bg-light-bg border-2 border-dashed border-border-light rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-premium-gold hover:bg-premium-gold/5 transition-all group">
-            <input type="file" accept="image/*" className="hidden" onChange={e => handleUpload(e.target.files[0], 'gallery')} />
-            {isUploading ? (
-              <Loader2 size={20} className="animate-spin text-premium-gold" />
-            ) : (
-              <>
-                <Plus size={20} className="text-text-muted group-hover:text-premium-gold transition-colors" />
-                <span className="text-[8px] font-black text-text-muted uppercase tracking-wider mt-1.5">Add File</span>
-              </>
-            )}
-          </label>
-        </div>
-      </div>
 
       {/* ── FULL SCREEN PREVIEW MODAL ───────────────────────────── */}
       <AnimatePresence>

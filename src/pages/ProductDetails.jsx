@@ -356,31 +356,35 @@ export default function ProductDetails() {
               </div>
 
               {/* Image Nav Dots */}
-              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-30 pointer-events-auto">
-                {Array.isArray(images) && images.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={(e) => { e.stopPropagation(); setSelectedImage(i); }}
-                    aria-label={`View product image ${i + 1}`}
-                    className={`h-1.5 rounded-full transition-all ${i === selectedImage ? 'w-8 bg-premium-gold' : 'w-2 bg-white/40 hover:bg-white/60'}`}
-                  />
-                ))}
-              </div>
+              {Array.isArray(images) && images.length > 1 && (
+                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-30 pointer-events-auto">
+                  {images.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={(e) => { e.stopPropagation(); setSelectedImage(i); }}
+                      aria-label={`View product image ${i + 1}`}
+                      className={`h-1.5 rounded-full transition-all ${i === selectedImage ? 'w-8 bg-premium-gold' : 'w-2 bg-white/40 hover:bg-white/60'}`}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Thumbnail Strip */}
-            <div className="hidden md:flex gap-4 overflow-x-auto pb-2 no-scrollbar">
-              {Array.isArray(images) && images.map((img, i) => (
-                <button
-                  key={i}
-                  onClick={() => setSelectedImage(i)}
-                  aria-label={`Switch to product image ${i + 1}`}
-                  className={`w-24 aspect-square rounded-2xl overflow-hidden border-2 transition-all shrink-0 ${selectedImage === i ? 'border-premium-gold scale-95 shadow-lg shadow-premium-gold/20' : 'border-transparent hover:border-border-light'}`}
-                >
-                  <SafeImage src={img} width={150} quality={70} alt="" className="w-full h-full object-cover" />
-                </button>
-              ))}
-            </div>
+            {Array.isArray(images) && images.length > 1 && (
+              <div className="hidden md:flex gap-4 overflow-x-auto pb-2 no-scrollbar">
+                {images.map((img, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setSelectedImage(i)}
+                    aria-label={`Switch to product image ${i + 1}`}
+                    className={`w-24 aspect-square rounded-2xl overflow-hidden border-2 transition-all shrink-0 ${selectedImage === i ? 'border-premium-gold scale-95 shadow-lg shadow-premium-gold/20' : 'border-transparent hover:border-border-light'}`}
+                  >
+                    <SafeImage src={img} width={150} quality={70} alt="" className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* ── Full-Screen Lightbox (mobile tap / desktop click) ── */}
@@ -395,17 +399,19 @@ export default function ProductDetails() {
               >
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 shrink-0" onClick={(e) => e.stopPropagation()}>
-                  <div className="flex gap-2 overflow-x-auto no-scrollbar">
-                    {Array.isArray(images) && images.map((img, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setSelectedImage(i)}
-                        className={`w-12 h-12 rounded-xl overflow-hidden border-2 shrink-0 transition-all ${selectedImage === i ? 'border-premium-gold' : 'border-white/20'}`}
-                      >
-                        <img src={img} alt="" className="w-full h-full object-cover" />
-                      </button>
-                    ))}
-                  </div>
+                  {Array.isArray(images) && images.length > 1 ? (
+                    <div className="flex gap-2 overflow-x-auto no-scrollbar">
+                      {images.map((img, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setSelectedImage(i)}
+                          className={`w-12 h-12 rounded-xl overflow-hidden border-2 shrink-0 transition-all ${selectedImage === i ? 'border-premium-gold' : 'border-white/20'}`}
+                        >
+                          <img src={img} alt="" className="w-full h-full object-cover" />
+                        </button>
+                      ))}
+                    </div>
+                  ) : <div />}
                   <button
                     onClick={() => setLightboxOpen(false)}
                     className="w-10 h-10 rounded-2xl bg-white/10 text-white flex items-center justify-center hover:bg-white/20 transition-all shrink-0 ml-4"
