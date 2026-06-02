@@ -26,7 +26,8 @@ export default function VisualTab() {
   const [urlInput, setUrlInput] = useState('');
   const [lastUploadedUrl, setLastUploadedUrl] = useState('');
   const [galleryUrlInput, setGalleryUrlInput] = useState('');
-  const [lastGalleryUrl, setLastGalleryUrl] = useState('');
+  const [multiUploadingFiles, setMultiUploadingFiles] = useState([]);
+  const fileInputRef = useRef(null);
 
   const setField = (field, value) => dispatch({ type: 'SET_FIELD', field, value });
   const setUploading = (v) => dispatch({ type: 'SET_UPLOADING', value: v });
@@ -54,28 +55,15 @@ export default function VisualTab() {
       // Show the Cloudinary URL
       setLastUploadedUrl(url);
 
-      if (target === 'gallery') {
-        const currentImages = Array.isArray(formData.images) ? formData.images : [];
-        if (currentImages.includes(url)) {
-          toast.error('Image is already in the gallery!');
-          return;
-        }
-        setLastGalleryUrl(url);
-        setField('images', [...currentImages, url]);
-        toast.success('Gallery image added!');
-        return;
-      }
-
       // ONE upload → auto-fill ALL device slots unless targeting specific
       if (target === 'all') {
         setField('laptopImage', url);
         setField('tabletImage', url);
         setField('mobileImage', url);
-        
-        let currentImages = Array.isArray(formData.images) ? [...formData.images] : [];
-        currentImages = currentImages.filter(img => img !== url);
-        setField('images', [url, ...currentImages]);
-        
+        // Also set as primary product image if not set
+        if (!formData.images?.length) {
+          setField('images', [url]);
+        }
         toast.success('✅ Image uploaded! Auto-applied to all device sizes.', { duration: 4000 });
       } else {
         setField(target, url);
@@ -89,53 +77,102 @@ export default function VisualTab() {
     }
   };
 
-  const handleMoveImage = (index, direction) => {
-    const currentImages = [...(formData.images || [])];
-    const targetIndex = index + direction;
-    if (targetIndex < 0 || targetIndex >= currentImages.length) return;
-    
-    // Swap
-    const temp = currentImages[index];
-    currentImages[index] = currentImages[targetIndex];
-    currentImages[targetIndex] = temp;
-    
-    setField('images', currentImages);
-    toast.success('Image reordered!');
+  const handleUrlAdd = () => {
+    if (!galleryUrlInput.trim()) return toast.error('Enter URL');
+    const url = galleryUrlInput.trim();
+    const currentImages = formData.images || [];
+    if (currentImages.includes(url)) {
+      toast.error('This URL is already in the showcase gallery!');
+      return;
+    }
+    setField('images', [...currentImages, url]);
+    setGalleryUrlInput('');
+    toast.success('✅ URL added to showcase gallery!');
   };
 
-  const handleSetMainImage = (url) => {
-    if (!url) return;
-    const currentImages = [...(formData.images || [])];
-    const index = currentImages.indexOf(url);
-    if (index > -1) {
-      currentImages.splice(index, 1);
-      currentImages.unshift(url);
-      setField('images', currentImages);
+  const handleMultiDrop = (e) => {
+    e.preventDefault();
+    if (e.dataTransfer.files) {
+      handleMultiUpload(e.dataTransfer.files);
+    }
+  };
+
+  const handleMultiUpload = async (files) => {
+    if (!files || files.length === 0) return;
+    const fileArray = Array.from(files);
+    
+    // Show loading state
+    setMultiUploadingFiles(prev => [...prev, ...fileArray]);
+    
+    let successCount = 0;
+    const newUrls = [];
+    
+    for (const file of fileArray) {
+      try {
+        const fd = new FormData();
+        fd.append('image', file);
+        const res = await adminService.uploadImage(fd);
+        const url = res.data?.url || res.data?.data?.url;
+        if (url) {
+          newUrls.push(url);
+          successCount++;
+        }
+      } catch (err) {
+        console.error('Failed to upload file:', file.name, err);
+        toast.error(`Failed to upload ${file.name}`);
+      } finally {
+        setMultiUploadingFiles(prev => prev.filter(f => f.name !== file.name));
+      }
     }
     
-    setField('laptopImage', url);
-    setField('tabletImage', url);
-    setField('mobileImage', url);
-    toast.success('✅ Set as Main cover image!');
+    if (newUrls.length > 0) {
+      const currentImages = formData.images || [];
+      const merged = [...currentImages];
+      newUrls.forEach(url => {
+        if (!merged.includes(url)) {
+          merged.push(url);
+        }
+      });
+      setField('images', merged);
+      toast.success(`Successfully uploaded ${successCount} showcase image(s)!`);
+    }
   };
 
-  const handleRemoveGalleryImage = async (e, index, url) => {
-    e.stopPropagation();
-    const currentImages = (formData.images || []).filter((_, idx) => idx !== index);
+  const handleMove = (index, direction) => {
+    const currentImages = [...(formData.images || [])];
+    if (direction === 'left' && index > 0) {
+      const temp = currentImages[index];
+      currentImages[index] = currentImages[index - 1];
+      currentImages[index - 1] = temp;
+    } else if (direction === 'right' && index < currentImages.length - 1) {
+      const temp = currentImages[index];
+      currentImages[index] = currentImages[index + 1];
+      currentImages[index + 1] = temp;
+    }
     setField('images', currentImages);
-    
-    const nextMaster = currentImages[0] || '';
-    if (formData.laptopImage === url) setField('laptopImage', nextMaster);
-    if (formData.tabletImage === url) setField('tabletImage', nextMaster);
-    if (formData.mobileImage === url) setField('mobileImage', nextMaster);
+  };
 
-    toast.success('Image removed from gallery');
+  const handleMakeMain = (index) => {
+    const currentImages = [...(formData.images || [])];
+    const mainImg = currentImages[index];
+    currentImages.splice(index, 1);
+    currentImages.unshift(mainImg);
+    setField('images', currentImages);
+    toast.success('Main image updated!');
+  };
+
+  const handleRemoveImage = async (index, url) => {
+    if (!window.confirm('Are you sure you want to remove this showcase image?')) return;
+    const currentImages = [...(formData.images || [])];
+    currentImages.splice(index, 1);
+    setField('images', currentImages);
     
     if (url && url.includes('res.cloudinary.com')) {
       try {
         await adminService.deleteMedia(url);
+        toast.success('Permanently deleted from Cloudinary');
       } catch (err) {
-        console.error('Failed to delete Cloudinary asset', err);
+        console.error('Failed to delete asset from Cloudinary:', err);
       }
     }
   };
@@ -223,16 +260,11 @@ export default function VisualTab() {
                     type="button"
                     onClick={() => {
                       if (!urlInput.trim()) return toast.error('Please enter a URL');
-                      const url = urlInput.trim();
-                      setField('laptopImage', url);
-                      setField('tabletImage', url);
-                      setField('mobileImage', url);
-                      
-                      let currentImages = Array.isArray(formData.images) ? [...formData.images] : [];
-                      currentImages = currentImages.filter(img => img !== url);
-                      setField('images', [url, ...currentImages]);
-                      
-                      setLastUploadedUrl(url);
+                      setField('laptopImage', urlInput.trim());
+                      setField('tabletImage', urlInput.trim());
+                      setField('mobileImage', urlInput.trim());
+                      if (!formData.images?.length) setField('images', [urlInput.trim()]);
+                      setLastUploadedUrl(urlInput.trim());
                       setUrlInput('');
                       toast.success('✅ URL applied to all device sizes!');
                     }}
@@ -318,22 +350,36 @@ export default function VisualTab() {
             )}
           </div>
 
-          {/* Right: Live Previews */}
-          <div className="space-y-4">
-            <p className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em]">Live Preview — All Devices</p>
+          {/* Right: Live Previews & Specific Uploads */}
+          <div className="space-y-6">
+            <p className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em]">Live Preview & Specific Uploads</p>
             {devices.map(dev => (
-              <div key={dev.key} className="space-y-1.5">
+              <div key={dev.key} className="space-y-2 p-4 bg-light-bg/20 border border-border-light rounded-3xl">
                 <div className="flex items-center justify-between">
                   <span className="text-[9px] font-black text-charcoal uppercase tracking-wider">{dev.label}</span>
-                  {formData[dev.key] && (
-                    <button
-                      type="button"
-                      onClick={() => setFullPreview({ src: formData[dev.key], label: dev.label })}
-                      className="text-[8px] font-black text-premium-gold uppercase tracking-widest flex items-center gap-1 hover:underline"
-                    >
-                      <Eye size={10} /> Full View
-                    </button>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {formData[dev.key] && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => setFullPreview({ src: formData[dev.key], label: dev.label })}
+                          className="text-[8px] font-black text-premium-gold uppercase tracking-widest flex items-center gap-1 hover:underline mr-2"
+                        >
+                          <Eye size={10} /> Full View
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setField(dev.key, '');
+                            toast.success(`Cleared ${dev.label} image`);
+                          }}
+                          className="text-[8px] font-black text-red-500 uppercase tracking-widest flex items-center gap-1 hover:underline"
+                        >
+                          Clear
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
                 <LivePreview
                   src={formData[dev.key]}
@@ -344,149 +390,175 @@ export default function VisualTab() {
                   label={dev.label}
                   aspect={dev.aspect}
                 />
+                
+                {/* Specific Upload Button */}
+                <div className="mt-2.5">
+                  <label className="flex items-center justify-center gap-2 w-full py-2 border border-dashed border-border-light hover:border-premium-gold hover:bg-premium-gold/5 bg-white text-text-muted hover:text-charcoal rounded-xl text-[8px] font-black uppercase tracking-widest cursor-pointer transition-all">
+                    <Upload size={10} /> Upload for {dev.label}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={e => handleUpload(e.target.files[0], dev.key)}
+                    />
+                  </label>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* ── PRODUCT GALLERY ──────────────────────────────────────── */}
-      <div className="p-8 bg-white rounded-[2.5rem] border border-border-light shadow-sm">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-6">
+      {/* ── SHOWCASE GALLERY (MULTI-IMAGE) ────────────────────── */}
+      <div className="p-8 bg-white rounded-[2.5rem] border border-border-light shadow-sm space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-premium-gold/10 flex items-center justify-center">
               <ImageIcon size={18} className="text-premium-gold" />
             </div>
             <div>
-              <h3 className="text-sm font-black text-charcoal uppercase tracking-wider">Product Gallery</h3>
+              <h3 className="text-sm font-black text-charcoal uppercase tracking-wider">Showcase Gallery</h3>
               <p className="text-[9px] text-text-muted font-bold uppercase tracking-widest mt-0.5">
-                Upload secondary angles & alternate colors (Duplicates auto-merged)
+                Upload multiple lifestyle photos, details, and color angles
               </p>
             </div>
           </div>
           
-          <div className="flex-1 max-w-sm flex gap-2">
+          <div className="flex items-center gap-3">
             <input 
               type="url" 
               value={galleryUrlInput} 
               onChange={e => setGalleryUrlInput(e.target.value)}
-              placeholder="Paste image URL here..."
-              className="flex-1 bg-light-bg border border-border-light rounded-xl px-4 py-2 text-[10px] font-bold focus:outline-none focus:border-premium-gold transition-all"
+              placeholder="Paste Cloudinary / direct image URL..."
+              className="bg-light-bg border border-border-light rounded-xl px-4 py-2 text-[10px] font-bold focus:outline-none focus:border-premium-gold transition-all w-60"
             />
             <button 
               type="button" 
-              onClick={() => {
-                const url = galleryUrlInput.trim();
-                if (!url) return toast.error('Enter URL');
-                const currentImages = Array.isArray(formData.images) ? formData.images : [];
-                if (currentImages.includes(url)) {
-                  return toast.error('This image is already in the gallery');
-                }
-                setField('images', [...currentImages, url]);
-                setLastGalleryUrl(url);
-                setGalleryUrlInput('');
-                toast.success('✅ URL added to gallery!');
-              }}
-              className="px-4 py-2 bg-charcoal text-white rounded-xl text-[9px] font-black uppercase hover:bg-premium-gold hover:text-charcoal transition-all"
+              onClick={handleUrlAdd}
+              className="px-4 py-2 bg-charcoal text-white rounded-xl text-[9px] font-black uppercase hover:bg-premium-gold hover:text-charcoal transition-all whitespace-nowrap"
             >
               Add URL
             </button>
           </div>
         </div>
 
-        {lastGalleryUrl && (
-          <div className="mb-6 p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between">
-             <div className="flex items-center gap-2 overflow-hidden mr-4">
-               <Check size={12} className="text-emerald-600 shrink-0" />
-               <span className="text-[9px] font-black text-emerald-700 uppercase tracking-widest shrink-0">Added URL:</span>
-               <span className="text-[9px] font-mono text-emerald-700 truncate">{lastGalleryUrl}</span>
-             </div>
-             <div className="flex gap-1 shrink-0">
-               <button type="button" onClick={() => { navigator.clipboard.writeText(lastGalleryUrl); toast.success('URL copied!'); }} className="p-1.5 bg-white border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-all text-emerald-600"><Copy size={12} /></button>
-               <a href={lastGalleryUrl} target="_blank" rel="noopener noreferrer" className="p-1.5 bg-white border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-all text-emerald-600"><ExternalLink size={12} /></a>
-             </div>
+        {/* Premium Drag and Drop Zone for Multi-File */}
+        <div 
+          className="border-2 border-dashed border-border-light rounded-3xl p-8 text-center bg-light-bg/20 hover:bg-premium-gold/5 hover:border-premium-gold transition-all cursor-pointer relative"
+          onDragOver={e => e.preventDefault()}
+          onDrop={handleMultiDrop}
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <input 
+            type="file" 
+            ref={fileInputRef}
+            multiple 
+            accept="image/*" 
+            className="hidden" 
+            onChange={e => handleMultiUpload(e.target.files)} 
+          />
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-12 h-12 rounded-full bg-white border border-border-light flex items-center justify-center shadow-sm">
+              <Upload size={18} className="text-text-muted" />
+            </div>
+            <div>
+              <p className="text-[10px] font-black text-charcoal uppercase tracking-widest">Drag & Drop Multiple Files here</p>
+              <p className="text-[8px] font-bold text-text-muted uppercase tracking-wider mt-1">or click to browse your computer</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Uploading Progress Indicators */}
+        {multiUploadingFiles.length > 0 && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-amber-50/50 border border-amber-100 rounded-2xl">
+            {multiUploadingFiles.map((file, idx) => (
+              <div key={idx} className="flex items-center gap-3 bg-white p-3 rounded-xl border border-border-light shadow-sm">
+                <Loader2 size={16} className="animate-spin text-premium-gold shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-[8px] font-black text-charcoal truncate uppercase">{file.name}</p>
+                  <p className="text-[7px] font-bold text-text-muted uppercase">Uploading...</p>
+                </div>
+              </div>
+            ))}
           </div>
         )}
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4">
-          {(formData.images || []).map((img, i) => (
-            <div
-              key={i}
-              className="relative aspect-[4/5] rounded-2xl overflow-hidden border border-border-light group bg-light-bg cursor-pointer flex flex-col"
-              onClick={() => setFullPreview({ src: img, label: `Gallery Image ${i + 1}` })}
-            >
-              <img src={img} alt={`gallery-${i}`} className="w-full h-full object-contain" />
-              
-              {/* Overlay with options */}
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2">
-                <div className="flex items-center justify-between">
-                  {i === 0 ? (
-                    <span className="bg-premium-gold text-charcoal text-[7px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">Main</span>
-                  ) : (
+        {/* Gallery Thumbnails List */}
+        {formData.images?.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+            {formData.images.map((img, i) => (
+              <div
+                key={i}
+                className="group relative aspect-[3/4] rounded-3xl overflow-hidden border border-border-light bg-light-bg transition-all hover:shadow-xl hover:border-premium-gold/50 flex flex-col"
+              >
+                {/* Image */}
+                <div className="relative flex-1 bg-white overflow-hidden cursor-pointer" onClick={() => setFullPreview({ src: img, label: `Showcase Image ${i + 1}` })}>
+                  <img src={img} alt={`gallery-${i}`} className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300" />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center">
+                    <Eye size={20} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  {i === 0 && (
+                    <span className="absolute top-3 left-3 bg-premium-gold text-charcoal text-[7px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm z-10">Main Image</span>
+                  )}
+                </div>
+
+                {/* Control Panel */}
+                <div className="p-2.5 bg-white border-t border-border-light flex items-center justify-between gap-1.5">
+                  <div className="flex gap-1">
+                    {/* Left Reorder */}
                     <button
                       type="button"
-                      onClick={(e) => { e.stopPropagation(); handleSetMainImage(img); }}
-                      className="bg-white/90 hover:bg-white text-charcoal text-[7px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shadow"
+                      disabled={i === 0}
+                      onClick={() => handleMove(i, 'left')}
+                      className="p-1.5 bg-light-bg rounded-lg hover:bg-premium-gold/10 hover:text-premium-gold transition-all disabled:opacity-30 disabled:hover:bg-light-bg disabled:hover:text-text-muted"
+                      title="Move Left"
                     >
-                      Make Main
+                      <ChevronLeft size={12} />
                     </button>
-                  )}
-                  <button
-                    type="button"
-                    onClick={e => handleRemoveGalleryImage(e, i, img)}
-                    className="w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center shadow-lg transition-colors"
-                  >
-                    <X size={10} />
-                  </button>
-                </div>
+                    {/* Right Reorder */}
+                    <button
+                      type="button"
+                      disabled={i === formData.images.length - 1}
+                      onClick={() => handleMove(i, 'right')}
+                      className="p-1.5 bg-light-bg rounded-lg hover:bg-premium-gold/10 hover:text-premium-gold transition-all disabled:opacity-30 disabled:hover:bg-light-bg disabled:hover:text-text-muted"
+                      title="Move Right"
+                    >
+                      <ChevronRight size={12} />
+                    </button>
+                  </div>
 
-                {/* Move order buttons */}
-                <div className="flex gap-1.5 justify-center w-full bg-black/20 backdrop-blur-sm rounded-lg p-1" onClick={e => e.stopPropagation()}>
-                  <button
-                    type="button"
-                    disabled={i === 0}
-                    onClick={() => handleMoveImage(i, -1)}
-                    className={`p-1 rounded-md text-white ${i === 0 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white/20'}`}
-                    title="Move Left"
-                  >
-                    <ChevronLeft size={12} />
-                  </button>
-                  <span className="text-[8px] font-black text-white/70 uppercase tracking-widest flex items-center">
-                    {i + 1}
-                  </span>
-                  <button
-                    type="button"
-                    disabled={i === (formData.images || []).length - 1}
-                    onClick={() => handleMoveImage(i, 1)}
-                    className={`p-1 rounded-md text-white ${i === (formData.images || []).length - 1 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white/20'}`}
-                    title="Move Right"
-                  >
-                    <ChevronRight size={12} />
-                  </button>
+                  <div className="flex items-center gap-1.5">
+                    {/* Make Main Button */}
+                    {i > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => handleMakeMain(i)}
+                        className="px-2 py-1 bg-premium-gold/10 text-premium-gold rounded-lg text-[7px] font-black uppercase hover:bg-premium-gold hover:text-charcoal transition-all"
+                      >
+                        Set Main
+                      </button>
+                    )}
+                    {/* Delete */}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveImage(i, img)}
+                      className="p-1.5 bg-red-50 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all"
+                      title="Delete Image"
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
                 </div>
               </div>
-              
-              {i === 0 && (
-                <div className="absolute bottom-2 left-2 bg-premium-gold text-charcoal text-[7px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider group-hover:opacity-0 transition-opacity">Main</div>
-              )}
-            </div>
-          ))}
-
-          {/* Add gallery image file slot */}
-          <label className="aspect-[4/5] bg-light-bg border-2 border-dashed border-border-light rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-premium-gold hover:bg-premium-gold/5 transition-all group">
-            <input type="file" accept="image/*" className="hidden" onChange={e => handleUpload(e.target.files[0], 'gallery')} />
-            {isUploading ? (
-              <Loader2 size={20} className="animate-spin text-premium-gold" />
-            ) : (
-              <>
-                <Plus size={20} className="text-text-muted group-hover:text-premium-gold transition-colors" />
-                <span className="text-[8px] font-black text-text-muted uppercase tracking-wider mt-1.5">Add Gallery File</span>
-              </>
-            )}
-          </label>
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 border border-dashed border-border-light rounded-3xl bg-light-bg/10">
+            <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">No Showcase Images Uploaded</p>
+            <p className="text-[8px] font-bold text-text-muted uppercase mt-1">Upload files above to populate the product's image display</p>
+          </div>
+        )}
       </div>
-
 
       {/* ── FULL SCREEN PREVIEW MODAL ───────────────────────────── */}
       <AnimatePresence>
