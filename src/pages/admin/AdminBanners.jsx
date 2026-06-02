@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Image as ImageIcon, Plus, Trash2, ExternalLink, Loader2, Save, X, ToggleLeft, ToggleRight, Edit3, Upload } from 'lucide-react';
+import { Image as ImageIcon, Plus, Trash2, ExternalLink, Loader2, Save, X, ToggleLeft, ToggleRight, Edit3, Upload, Check } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
 import { adminService, bannerService } from '../../services';
