@@ -76,7 +76,7 @@ export default function ProductDetails() {
              after = after.substring(firstPart.length + 1);
            }
          }
-         return `${parts[0]}/upload/f_auto,q_90,w_2000/${after}`;
+         return `${parts[0]}/upload/f_auto,q_90,w_2000,e_improve/${after}`;
       }
     }
     // ImageKit: request w-2000
@@ -106,7 +106,7 @@ export default function ProductDetails() {
              after = after.substring(firstPart.length + 1);
            }
          }
-         return `${parts[0]}/upload/f_auto,q_100,w_4000/${after}`;
+         return `${parts[0]}/upload/f_auto,q_100,w_4000,e_improve/${after}`;
       }
     }
     // ImageKit: request w-4000
