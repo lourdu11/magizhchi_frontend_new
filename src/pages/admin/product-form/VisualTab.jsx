@@ -25,7 +25,6 @@ export default function VisualTab() {
   const [uploadTab, setUploadTab] = useState('file'); // 'file' | 'url'
   const [urlInput, setUrlInput] = useState('');
   const [lastUploadedUrl, setLastUploadedUrl] = useState('');
-  const [galleryUrlInput, setGalleryUrlInput] = useState('');
   const [multiUploadingFiles, setMultiUploadingFiles] = useState([]);
   const fileInputRef = useRef(null);
 
@@ -78,15 +77,15 @@ export default function VisualTab() {
   };
 
   const handleUrlAdd = () => {
-    if (!galleryUrlInput.trim()) return toast.error('Enter URL');
-    const url = galleryUrlInput.trim();
+    if (!urlInput.trim()) return toast.error('Enter URL');
+    const url = urlInput.trim();
     const currentImages = formData.images || [];
     if (currentImages.includes(url)) {
       toast.error('This URL is already in the showcase gallery!');
       return;
     }
     setField('images', [...currentImages, url]);
-    setGalleryUrlInput('');
+    setUrlInput('');
     toast.success('✅ URL added to showcase gallery!');
   };
 
@@ -193,25 +192,20 @@ export default function VisualTab() {
 
   return (
     <div className="space-y-10">
-      <SectionHeader title="Visual Identity" subtitle="Upload once — auto-fits all device sizes" />
+      <SectionHeader title="Visual Identity" subtitle="Manage showcase gallery and device-specific layouts" />
 
-      {/* ── MASTER UPLOAD ZONE ─────────────────────────────────── */}
+      {/* ── SHOWCASE GALLERY UPLOADER ───────────────────────────── */}
       <div className="p-8 bg-white rounded-[2.5rem] border-2 border-border-light shadow-sm">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-2xl bg-premium-gold/10 flex items-center justify-center">
             <ImageIcon size={20} className="text-premium-gold" />
           </div>
           <div>
-            <h3 className="text-sm font-black text-charcoal uppercase tracking-wider">Master Image Upload</h3>
+            <h3 className="text-sm font-black text-charcoal uppercase tracking-wider">Showcase Gallery Upload</h3>
             <p className="text-[9px] text-text-muted font-bold uppercase tracking-widest mt-0.5">
-              Upload once → automatically applied to all device sizes
+              Upload multiple lifestyle photos and color angles into the Showcase Gallery
             </p>
           </div>
-          {masterImage && (
-            <div className="ml-auto flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-full text-[9px] font-black uppercase tracking-wider border border-emerald-100">
-              <Check size={10} /> Image Set
-            </div>
-          )}
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8 items-start">
@@ -221,7 +215,7 @@ export default function VisualTab() {
             {/* Upload mode switcher */}
             <div className="flex gap-1 p-1 bg-light-bg rounded-2xl border border-border-light">
               {[
-                { id: 'file', label: '📁 Upload File', icon: Upload },
+                { id: 'file', label: '📁 Upload Files', icon: Upload },
                 { id: 'url', label: '🔗 Paste URL', icon: Link2 },
               ].map(tab => (
                 <button
@@ -237,12 +231,30 @@ export default function VisualTab() {
 
             {/* File upload */}
             {uploadTab === 'file' && (
-              <DropZone
-                onFile={(file) => handleUpload(file, 'all')}
-                loading={isUploading}
-                hasImage={!!masterImage}
-                label="Recommended: 1200×1200px or larger · JPG, PNG, WebP"
-              />
+              <div 
+                className="border-2 border-dashed border-border-light rounded-[2rem] p-10 text-center bg-light-bg/20 hover:bg-premium-gold/5 hover:border-premium-gold transition-all cursor-pointer relative"
+                onDragOver={e => e.preventDefault()}
+                onDrop={handleMultiDrop}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <input 
+                  type="file" 
+                  ref={fileInputRef}
+                  multiple 
+                  accept="image/*" 
+                  className="hidden" 
+                  onChange={e => handleMultiUpload(e.target.files)} 
+                />
+                <div className="flex flex-col items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-white border border-border-light flex items-center justify-center shadow-sm">
+                    <Upload size={18} className="text-charcoal" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black text-charcoal uppercase tracking-widest">Drag & Drop Multiple Files here</p>
+                    <p className="text-[8px] font-bold text-text-muted uppercase tracking-wider mt-1">or click to browse your computer</p>
+                  </div>
+                </div>
+              </div>
             )}
 
             {/* URL paste */}
@@ -258,19 +270,10 @@ export default function VisualTab() {
                   />
                   <button
                     type="button"
-                    onClick={() => {
-                      if (!urlInput.trim()) return toast.error('Please enter a URL');
-                      setField('laptopImage', urlInput.trim());
-                      setField('tabletImage', urlInput.trim());
-                      setField('mobileImage', urlInput.trim());
-                      if (!formData.images?.length) setField('images', [urlInput.trim()]);
-                      setLastUploadedUrl(urlInput.trim());
-                      setUrlInput('');
-                      toast.success('✅ URL applied to all device sizes!');
-                    }}
+                    onClick={handleUrlAdd}
                     className="px-5 py-3 bg-charcoal text-white rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-premium-gold hover:text-charcoal transition-all whitespace-nowrap"
                   >
-                    Apply
+                    Add URL
                   </button>
                 </div>
                 <p className="text-[8px] text-text-muted font-bold pl-1">Paste any public image URL — Cloudinary, S3, or direct link</p>
@@ -411,60 +414,15 @@ export default function VisualTab() {
 
       {/* ── SHOWCASE GALLERY (MULTI-IMAGE) ────────────────────── */}
       <div className="p-8 bg-white rounded-[2.5rem] border border-border-light shadow-sm space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-premium-gold/10 flex items-center justify-center">
-              <ImageIcon size={18} className="text-premium-gold" />
-            </div>
-            <div>
-              <h3 className="text-sm font-black text-charcoal uppercase tracking-wider">Showcase Gallery</h3>
-              <p className="text-[9px] text-text-muted font-bold uppercase tracking-widest mt-0.5">
-                Upload multiple lifestyle photos, details, and color angles
-              </p>
-            </div>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-premium-gold/10 flex items-center justify-center">
+            <ImageIcon size={18} className="text-premium-gold" />
           </div>
-          
-          <div className="flex items-center gap-3">
-            <input 
-              type="url" 
-              value={galleryUrlInput} 
-              onChange={e => setGalleryUrlInput(e.target.value)}
-              placeholder="Paste Cloudinary / direct image URL..."
-              className="bg-light-bg border border-border-light rounded-xl px-4 py-2 text-[10px] font-bold focus:outline-none focus:border-premium-gold transition-all w-60"
-            />
-            <button 
-              type="button" 
-              onClick={handleUrlAdd}
-              className="px-4 py-2 bg-charcoal text-white rounded-xl text-[9px] font-black uppercase hover:bg-premium-gold hover:text-charcoal transition-all whitespace-nowrap"
-            >
-              Add URL
-            </button>
-          </div>
-        </div>
-
-        {/* Premium Drag and Drop Zone for Multi-File */}
-        <div 
-          className="border-2 border-dashed border-border-light rounded-3xl p-8 text-center bg-light-bg/20 hover:bg-premium-gold/5 hover:border-premium-gold transition-all cursor-pointer relative"
-          onDragOver={e => e.preventDefault()}
-          onDrop={handleMultiDrop}
-          onClick={() => fileInputRef.current?.click()}
-        >
-          <input 
-            type="file" 
-            ref={fileInputRef}
-            multiple 
-            accept="image/*" 
-            className="hidden" 
-            onChange={e => handleMultiUpload(e.target.files)} 
-          />
-          <div className="flex flex-col items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-white border border-border-light flex items-center justify-center shadow-sm">
-              <Upload size={18} className="text-text-muted" />
-            </div>
-            <div>
-              <p className="text-[10px] font-black text-charcoal uppercase tracking-widest">Drag & Drop Multiple Files here</p>
-              <p className="text-[8px] font-bold text-text-muted uppercase tracking-wider mt-1">or click to browse your computer</p>
-            </div>
+          <div>
+            <h3 className="text-sm font-black text-charcoal uppercase tracking-wider">Showcase Gallery</h3>
+            <p className="text-[9px] text-text-muted font-bold uppercase tracking-widest mt-0.5">
+              View, reorder, and configure your product showcase gallery below
+            </p>
           </div>
         </div>
 
@@ -491,6 +449,16 @@ export default function VisualTab() {
                 key={i}
                 className="group relative aspect-[3/4] rounded-3xl overflow-hidden border border-border-light bg-light-bg transition-all hover:shadow-xl hover:border-premium-gold/50 flex flex-col"
               >
+                {/* Floating Absolute Remove Button */}
+                <button
+                  type="button"
+                  onClick={() => handleRemoveImage(i, img)}
+                  className="absolute top-3 right-3 z-20 w-7 h-7 rounded-full bg-white/90 hover:bg-red-500 hover:text-white text-red-500 flex items-center justify-center shadow-md transition-all opacity-0 group-hover:opacity-100"
+                  title="Remove Image"
+                >
+                  <X size={14} />
+                </button>
+
                 {/* Image */}
                 <div className="relative flex-1 bg-white overflow-hidden cursor-pointer" onClick={() => setFullPreview({ src: img, label: `Showcase Image ${i + 1}` })}>
                   <img src={img} alt={`gallery-${i}`} className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300" />
