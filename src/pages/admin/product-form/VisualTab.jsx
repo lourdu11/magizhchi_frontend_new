@@ -33,17 +33,19 @@ export default function VisualTab() {
     const [resizerState, setResizerState] = useState({ isOpen: false, file: null, target: null });
 
   // ── Core: Smart single-upload handler ──────────────────────────
-  const handleUpload = async (file, target = 'all') => {
+  const handleUpload = (file, target = 'all') => {
     if (!file) return;
+    setResizerState({ isOpen: true, file, target });
+  };
+
+  const handleResizerSave = async (blob) => {
+    const target = resizerState.target;
+    setResizerState({ isOpen: false, file: null, target: null });
     setUploading(true);
 
     try {
-      const { optimizeImage } = await import('../../../utils/imageOptimizer');
-
-      // Upload ONE master copy
-      const optimized = await optimizeImage(file, { maxWidth: 1920, maxHeight: 1920, quality: 0.85 });
       const fd = new FormData();
-      fd.append('image', optimized);
+      fd.append('image', blob, 'product.webp');
       const res = await adminService.uploadImage(fd);
       const url = res.data?.url || res.data?.data?.url;
       if (!url) throw new Error('No URL returned from upload');
@@ -453,6 +455,17 @@ export default function VisualTab() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* ── IMAGE RESIZER MODAL ─────────────────────────────────── */}
+      <AdminSingleImageResizer 
+        isOpen={resizerState.isOpen}
+        onClose={() => setResizerState({ isOpen: false, file: null, target: null })}
+        file={resizerState.file}
+        onSave={handleResizerSave}
+        targetWidth={1080}
+        targetHeight={1350}
+        title="Product Image Resizer"
+      />
     </div>
   );
 }
