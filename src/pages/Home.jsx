@@ -59,7 +59,7 @@ export default function Home() {
     enabled: !loadingFeatured && (!featuredData || (Array.isArray(featuredData) && featuredData.length === 0)),
   });
 
-  const { data: bannersData } = useQuery({
+  const { data: bannersData, isLoading: loadingBanners } = useQuery({
     queryKey: ['banners', 'active'],
     queryFn: () => bannerService.getActiveBanners().then(r => r.data.data),
     select: (data) => (data || [])
@@ -67,7 +67,7 @@ export default function Home() {
       .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0)),
   });
 
-  const { data: catsData } = useQuery({
+  const { data: catsData, isLoading: loadingCats } = useQuery({
     queryKey: ['categories'],
     queryFn: () => categoryService.getCategories().then(r => r.data.data?.categories || r.data.data || []),
   });
@@ -157,81 +157,89 @@ export default function Home() {
 
 
       {/* ── Hero Section ── */}
-      {slides.length > 0 && (
-        <section className="relative h-[65vh] md:h-[80vh] w-full bg-charcoal overflow-hidden p-0 m-0">
-          <div 
-            key={heroIdx}
-            className={`absolute inset-0 w-full h-full p-0 m-0 ${heroIdx === 0 ? '' : 'animate-fade-scale-in'}`}
-          >
-            {(() => {
-              const currentFit = isMobile ? (slides[heroIdx]?.mobileFit || 'cover') : (slides[heroIdx]?.fit || 'cover');
-              const isContain = currentFit === 'contain';
-              const currentSrc = isMobile ? (slides[heroIdx]?.mobileImg || slides[heroIdx]?.img) : slides[heroIdx]?.img;
-              
-              return (
-                  <>
-                    {/* Main Focus Image */}
-                  <SafeImage 
-                    src={currentSrc} 
-                    alt="" 
-                    className="absolute inset-0 w-full h-full"
-                    width={isMobile ? 480 : 1440} 
-                    height={isMobile ? 720 : 960}
-                    quality={heroIdx === 0 ? (isMobile ? 45 : 60) : 40}
-                    fetchPriority="high"
-                    loading="eager"
-                    style={{ 
-                      objectFit: currentFit,
-                      objectPosition: isMobile ? (slides[heroIdx]?.mobilePos || 'center') : (slides[heroIdx]?.pos || 'center'),
-                      transform: `scale(${isMobile ? (slides[heroIdx]?.mobileScale || 1) : (slides[heroIdx]?.scale || 1)})`
-                    }}
-                    crop={isContain ? undefined : 'fill'}
-                    gravity={isContain ? undefined : (isMobile ? slides[heroIdx]?.mobileGravity : slides[heroIdx]?.gravity)}
-                    aspect={isContain ? undefined : (isMobile ? '4:5' : '21:9')}
-                    sizes="100vw"
-                  />
-                </>
-              );
-            })()}
-            <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent pointer-events-none" />
+      {loadingBanners ? (
+        <section className="relative h-[65vh] md:h-[80vh] w-full bg-charcoal overflow-hidden flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4 text-center">
+            <Loader2 className="w-12 h-12 text-premium-gold animate-spin" />
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 animate-pulse">Loading Hero Banner...</p>
           </div>
-
-        <div className="relative z-10 container-custom h-full flex flex-col justify-center pt-20">
-          <div className="max-w-3xl hover:scale-[1.02] transition-transform duration-500">
-            <div className="flex items-center gap-2 mb-6" style={{ transform: "translateZ(30px)" }}>
-              <div className="w-10 h-[1px] bg-premium-gold" />
-              <span className="text-premium-gold font-black uppercase tracking-[0.4em] text-[10px]">{slides[heroIdx]?.accent}</span>
+        </section>
+      ) : (
+        slides.length > 0 && (
+          <section className="relative h-[65vh] md:h-[80vh] w-full bg-charcoal overflow-hidden p-0 m-0">
+            <div 
+              key={heroIdx}
+              className={`absolute inset-0 w-full h-full p-0 m-0 ${heroIdx === 0 ? '' : 'animate-fade-scale-in'}`}
+            >
+              {(() => {
+                const currentFit = isMobile ? (slides[heroIdx]?.mobileFit || 'cover') : (slides[heroIdx]?.fit || 'cover');
+                const isContain = currentFit === 'contain';
+                const currentSrc = isMobile ? (slides[heroIdx]?.mobileImg || slides[heroIdx]?.img) : slides[heroIdx]?.img;
+                
+                return (
+                    <>
+                      {/* Main Focus Image */}
+                    <SafeImage 
+                      src={currentSrc} 
+                      alt="" 
+                      className="absolute inset-0 w-full h-full"
+                      width={isMobile ? 480 : 1440} 
+                      height={isMobile ? 720 : 960}
+                      quality={heroIdx === 0 ? (isMobile ? 45 : 60) : 40}
+                      fetchPriority="high"
+                      loading="eager"
+                      style={{ 
+                        objectFit: currentFit,
+                        objectPosition: isMobile ? (slides[heroIdx]?.mobilePos || 'center') : (slides[heroIdx]?.pos || 'center'),
+                        transform: `scale(${isMobile ? (slides[heroIdx]?.mobileScale || 1) : (slides[heroIdx]?.scale || 1)})`
+                      }}
+                      crop={isContain ? undefined : 'fill'}
+                      gravity={isContain ? undefined : (isMobile ? slides[heroIdx]?.mobileGravity : slides[heroIdx]?.gravity)}
+                      aspect={isContain ? undefined : (isMobile ? '4:5' : '21:9')}
+                      sizes="100vw"
+                    />
+                  </>
+                );
+              })()}
+              <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent pointer-events-none" />
             </div>
-            <h1 className="text-5xl md:text-8xl font-black text-white leading-[0.9] mb-8 whitespace-pre-line tracking-tighter" style={{ transform: "translateZ(60px)" }}>
-              {slides[heroIdx]?.title}
-            </h1>
-            <p className="text-white/80 text-base md:text-xl mb-10 max-w-lg leading-relaxed font-medium" style={{ transform: "translateZ(80px)" }}>
-              {slides[heroIdx]?.subtitle}
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4" style={{ transform: "translateZ(100px)" }}>
-              <Link to="/collections" className="btn-gold group">
-                Shop The Collection <ArrowRight size={18} className="inline ml-2 group-hover:translate-x-1 transition-transform" />
-              </Link>
-              <Link to="/about" className="px-8 py-4 bg-white/10 backdrop-blur-md text-white font-bold rounded-2xl border border-white/20 hover:bg-white/20 transition-all text-center">
-                Our Story
-              </Link>
+
+            <div className="relative z-10 container-custom h-full flex flex-col justify-center pt-20">
+              <div className="max-w-3xl hover:scale-[1.02] transition-transform duration-500">
+                <div className="flex items-center gap-2 mb-6" style={{ transform: "translateZ(30px)" }}>
+                  <div className="w-10 h-[1px] bg-premium-gold" />
+                  <span className="text-premium-gold font-black uppercase tracking-[0.4em] text-[10px]">{slides[heroIdx]?.accent}</span>
+                </div>
+                <h1 className="text-5xl md:text-8xl font-black text-white leading-[0.9] mb-8 whitespace-pre-line tracking-tighter" style={{ transform: "translateZ(60px)" }}>
+                  {slides[heroIdx]?.title}
+                </h1>
+                <p className="text-white/80 text-base md:text-xl mb-10 max-w-lg leading-relaxed font-medium" style={{ transform: "translateZ(80px)" }}>
+                  {slides[heroIdx]?.subtitle}
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4" style={{ transform: "translateZ(100px)" }}>
+                  <Link to="/collections" className="btn-gold group">
+                    Shop The Collection <ArrowRight size={18} className="inline ml-2 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                  <Link to="/about" className="px-8 py-4 bg-white/10 backdrop-blur-md text-white font-bold rounded-2xl border border-white/20 hover:bg-white/20 transition-all text-center">
+                    Our Story
+                  </Link>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
 
-
-        {/* Hero Nav */}
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-4 z-20">
-          {slides.map((_, i) => (
-            <button 
-              key={i} 
-              onClick={() => setHeroIdx(i)} 
-              aria-label={`Go to slide ${i + 1}`}
-              className={`h-1.5 w-3 rounded-full transition-all duration-500 origin-center ${i === heroIdx ? 'scale-x-[4] bg-premium-gold' : 'bg-white/30'}`} 
-            />
-          ))}
-        </div>
-      </section>
+            {/* Hero Nav */}
+            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-4 z-20">
+              {slides.map((_, i) => (
+                <button 
+                  key={i} 
+                  onClick={() => setHeroIdx(i)} 
+                  aria-label={`Go to slide ${i + 1}`}
+                  className={`h-1.5 w-3 rounded-full transition-all duration-500 origin-center ${i === heroIdx ? 'scale-x-[4] bg-premium-gold' : 'bg-white/30'}`} 
+                />
+              ))}
+            </div>
+          </section>
+        )
       )}
 
       {/* ── Category Spotlight ── */}
@@ -250,30 +258,43 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-            {homeCategories.map((cat, i) => (
-              <Link
-                key={cat.slug || cat._id}
-                to={`/collections/${cat.slug}`}
-                className="group relative block aspect-[4/5] rounded-[3rem] overflow-hidden bg-light-bg perspective-2000 w-full h-full animate-fade-in-up hover:scale-[1.05] hover:-translate-y-2 transition-all duration-500"
-                style={{ animationDelay: `${i * 100}ms` }}
-              >
-                <SafeImage 
-                  src={cat.image || cat.img} 
-                  alt={cat.name} 
-                  width={400} 
-                  height={500} 
-                  sizes="(max-width: 640px) 40vw, (max-width: 1024px) 20vw, 240px"
-                  className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" 
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80" />
-                <div className="absolute bottom-10 left-8" style={isMobile ? {} : { transform: "translateZ(50px)" }}>
-                  <p className="text-white font-black text-3xl tracking-tighter mb-1 uppercase">{cat.name}</p>
-                  <div className="inline-block px-4 py-1.5 bg-premium-gold rounded-full">
-                    <p className="text-charcoal text-[8px] font-black uppercase tracking-[0.2em]">{cat.items || 'Explore'}</p>
+            {loadingCats ? (
+              Array(4).fill(0).map((_, i) => (
+                <div 
+                  key={i} 
+                  className="relative aspect-[4/5] rounded-[3rem] overflow-hidden bg-charcoal/5 animate-pulse w-full h-full border border-border-light flex items-center justify-center"
+                >
+                  <div className="flex flex-col items-center gap-2">
+                    <Loader2 className="w-6 h-6 text-charcoal/20 animate-spin" />
                   </div>
                 </div>
-              </Link>
-            ))}
+              ))
+            ) : (
+              homeCategories.map((cat, i) => (
+                <Link
+                  key={cat.slug || cat._id}
+                  to={`/collections/${cat.slug}`}
+                  className="group relative block aspect-[4/5] rounded-[3rem] overflow-hidden bg-light-bg perspective-2000 w-full h-full animate-fade-in-up hover:scale-[1.05] hover:-translate-y-2 transition-all duration-500"
+                  style={{ animationDelay: `${i * 100}ms` }}
+                >
+                  <SafeImage 
+                    src={cat.image || cat.img} 
+                    alt={cat.name} 
+                    width={400} 
+                    height={500} 
+                    sizes="(max-width: 640px) 40vw, (max-width: 1024px) 20vw, 240px"
+                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" 
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80" />
+                  <div className="absolute bottom-10 left-8" style={isMobile ? {} : { transform: "translateZ(50px)" }}>
+                    <p className="text-white font-black text-3xl tracking-tighter mb-1 uppercase">{cat.name}</p>
+                    <div className="inline-block px-4 py-1.5 bg-premium-gold rounded-full">
+                      <p className="text-charcoal text-[8px] font-black uppercase tracking-[0.2em]">{cat.items || 'Explore'}</p>
+                    </div>
+                  </div>
+                </Link>
+              ))
+            )}
           </div>
         </div>
       </section>
