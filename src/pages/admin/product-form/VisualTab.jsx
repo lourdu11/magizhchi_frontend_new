@@ -285,45 +285,7 @@ export default function VisualTab() {
         </div>
       </div>
 
-      {/* ── INDIVIDUAL DEVICE OVERRIDES ─────────────────────────── */}
-      <div className="p-8 bg-light-bg/50 rounded-[2.5rem] border border-border-light">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-2xl bg-charcoal/5 flex items-center justify-center">
-            <Maximize2 size={18} className="text-charcoal" />
-          </div>
-          <div>
-            <h3 className="text-sm font-black text-charcoal uppercase tracking-wider">Device-Specific Overrides</h3>
-            <p className="text-[9px] text-text-muted font-bold uppercase tracking-widest mt-0.5">
-              Optional — upload different images per device
-            </p>
-          </div>
-        </div>
-        <div className="grid md:grid-cols-3 gap-6">
-          {devices.map(dev => (
-            <div key={dev.key} className="space-y-3">
-              <p className="text-[9px] font-black text-charcoal uppercase tracking-widest flex items-center gap-2">
-                {dev.label}
-                {formData[dev.key] && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />}
-              </p>
-              <DropZone
-                onFile={(file) => handleUpload(file, dev.key)}
-                loading={isUploading}
-                hasImage={!!formData[dev.key]}
-                label={`${dev.label} specific image`}
-              />
-              {formData[dev.key] && (
-                <button
-                  type="button"
-                  onClick={() => setField(dev.key, '')}
-                  className="w-full py-2 text-[8px] font-black text-red-500 uppercase tracking-widest hover:bg-red-50 rounded-xl border border-red-100 transition-all flex items-center justify-center gap-1"
-                >
-                  <X size={10} /> Remove Override
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
+
 
       {/* ── GALLERY ─────────────────────────────────────────────── */}
       <div className="p-8 bg-white rounded-[2.5rem] border border-border-light shadow-sm">

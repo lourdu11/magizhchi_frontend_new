@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Image as ImageIcon, Plus, Trash2, ExternalLink, Loader2, Save, X, ToggleLeft, ToggleRight, Edit3, Upload, Check } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
+import { motion } from 'framer-motion';
 import { adminService, bannerService } from '../../services';
 import SafeImage from '../../components/common/SafeImage';
 import AdminImageResizer from '../../components/admin/AdminImageResizer';
