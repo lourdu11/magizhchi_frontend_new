@@ -84,13 +84,8 @@ export default function ProductCard({ product }) {
             alt={product.name}
             width={375}
             height={500}
-            className="w-full h-full relative z-10 transition-all duration-500"
-            style={{
-              objectFit: product.cardFit || 'cover',
-              objectPosition: product.position || 'center',
-              transform: `scale(${product.scale || 1})`,
-              padding: product.cardFit === 'contain' ? '12px' : '0'
-            }}
+            className="w-full h-full object-cover relative z-10 transition-transform duration-700 group-hover:scale-105"
+            style={{ objectPosition: 'center' }}
             loading="lazy"
           />
 
