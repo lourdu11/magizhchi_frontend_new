@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, Truck, RefreshCw, Shield, Heart, ShoppingBag, ChevronLeft, ChevronRight, Check, Loader2, MessageCircle, ThumbsUp, ThumbsDown, CheckCircle, Camera } from 'lucide-react';
+import { Star, Truck, RefreshCw, Shield, Heart, ShoppingBag, ChevronLeft, ChevronRight, Check, Loader2, MessageCircle, ThumbsUp, ThumbsDown, CheckCircle, Camera, Maximize2 } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { toast } from 'react-hot-toast';
 import { productService, cartService, wishlistService, reviewService, authService, adminService } from '../services';
@@ -57,8 +57,6 @@ export default function ProductDetails() {
   const [isAddingCart, setIsAddingCart] = useState(false);
 
   // ── Image Zoom ──────────────────────────────────────────────────
-  const [isZooming, setIsZooming] = useState(false);
-  const [zoomOrigin, setZoomOrigin] = useState({ x: 50, y: 50 });
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const imgContainerRef = useRef(null);
 
@@ -92,12 +90,34 @@ export default function ProductDetails() {
     return src;
   }, []);
 
-  const handleMouseMove = useCallback((e) => {
-    if (!imgContainerRef.current) return;
-    const rect = imgContainerRef.current.getBoundingClientRect();
-    const x = Math.min(100, Math.max(0, ((e.clientX - rect.left) / rect.width) * 100));
-    const y = Math.min(100, Math.max(0, ((e.clientY - rect.top) / rect.height) * 100));
-    setZoomOrigin({ x, y });
+  const getUltraResUrl = useCallback((src) => {
+    if (!src || typeof src !== 'string') return src;
+    // Cloudinary: upgrade to w_4000, q_100 for ultra-crisp zoom
+    if (src.includes('res.cloudinary.com') && src.includes('/upload/')) {
+      const parts = src.split('/upload/');
+      if (parts.length === 2) {
+         let after = parts[1];
+         const versionMatch = after.match(/v\d+\//);
+         if (versionMatch) {
+           after = after.substring(after.indexOf(versionMatch[0]));
+         } else {
+           const firstPart = after.split('/')[0];
+           if (firstPart.includes('_') && (firstPart.includes('w_') || firstPart.includes('c_') || firstPart.includes('q_') || firstPart.includes('f_'))) {
+             after = after.substring(firstPart.length + 1);
+           }
+         }
+         return `${parts[0]}/upload/f_auto,q_100,w_4000/${after}`;
+      }
+    }
+    // ImageKit: request w-4000
+    if (src.includes('ik.imagekit.io')) {
+      try {
+        const u = new URL(src);
+        u.searchParams.set('tr', 'w-4000,q-100,f-auto');
+        return u.toString().replace(/%2C/g, ',');
+      } catch { return src; }
+    }
+    return src;
   }, []);
 
   const { data, isLoading } = useQuery({
@@ -300,14 +320,10 @@ export default function ProductDetails() {
           {/* ── Image Gallery ── */}
           <div className="space-y-6 min-w-0">
 
-            {/* Main Image with Zoom Magnifier */}
+            {/* Main Image */}
             <div
               ref={imgContainerRef}
-              className="relative aspect-[4/5] rounded-[2.5rem] md:rounded-[3.5rem] overflow-hidden border border-border-light shadow-xl shadow-black/5 bg-white select-none"
-              style={{ cursor: isZooming ? 'zoom-in' : 'default' }}
-              onMouseMove={handleMouseMove}
-              onMouseEnter={() => setIsZooming(true)}
-              onMouseLeave={() => setIsZooming(false)}
+              className="relative aspect-[4/5] rounded-[2.5rem] md:rounded-[3.5rem] overflow-hidden border border-border-light shadow-xl shadow-black/5 bg-white select-none cursor-pointer group"
               onClick={() => setLightboxOpen(true)}
             >
               <motion.div
@@ -316,18 +332,13 @@ export default function ProductDetails() {
                 animate={{ opacity: 1, scale: 1 }}
                 className="w-full h-full relative"
               >
-                {/* High-res image — zooms in on hover via transform-origin */}
                 <img
                   src={getHighResUrl(images[selectedImage])}
                   alt={product.name}
-                  className="w-full h-full transition-transform duration-100 ease-out relative z-10"
+                  className="w-full h-full transition-transform duration-300 ease-out relative z-10 group-hover:scale-105"
                   style={{
                     objectFit: product.detailFit || 'contain',
                     objectPosition: product.position || 'center',
-                    transform: isZooming
-                      ? `scale(${(product.scale || 1) * 2.5})`
-                      : `scale(${product.scale || 1})`,
-                    transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%`,
                     padding: (product.detailFit || 'contain') === 'contain' ? '12px' : '0',
                     willChange: 'transform',
                   }}
@@ -335,15 +346,13 @@ export default function ProductDetails() {
                 />
               </motion.div>
 
-              {/* Gradient overlay — hidden while zooming so it doesn't dim the zoom */}
-              {!isZooming && (
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none z-20" />
-              )}
+              {/* Gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none z-20 transition-opacity duration-300 group-hover:opacity-70" />
 
               {/* Zoom hint badge */}
-              <div className={`absolute top-4 right-4 z-30 flex items-center gap-1.5 px-3 py-1.5 bg-black/50 backdrop-blur-sm text-white text-[9px] font-black uppercase tracking-widest rounded-full transition-opacity duration-300 ${isZooming ? 'opacity-0' : 'opacity-100'}`}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
-                Hover to Zoom
+              <div className="absolute top-4 right-4 z-30 flex items-center gap-1.5 px-3 py-1.5 bg-black/60 backdrop-blur-md text-white text-[9px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-black/20 group-hover:bg-premium-gold group-hover:text-charcoal transition-colors duration-300">
+                <Maximize2 size={12} strokeWidth={2.5} />
+                Click to Zoom
               </div>
 
               {/* Image Nav Dots */}
@@ -405,13 +414,12 @@ export default function ProductDetails() {
                   </button>
                 </div>
 
-                {/* Full-res image — native pinch-to-zoom on mobile */}
+                {/* Full-res image — native pinch-to-zoom on mobile / desktop scroll */}
                 <div className="flex-1 flex items-center justify-center p-4 overflow-hidden" onClick={(e) => e.stopPropagation()}>
                   <img
-                    src={getHighResUrl(images[selectedImage])}
+                    src={getUltraResUrl(images[selectedImage])}
                     alt={product.name}
                     className="max-w-full max-h-full object-contain rounded-2xl"
-                    style={{ touchAction: 'pinch-zoom' }}
                   />
                 </div>
 
