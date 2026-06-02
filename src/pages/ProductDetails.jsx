@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -55,6 +55,50 @@ export default function ProductDetails() {
   const [activeTab, setActiveTab] = useState('details');
   const [isAddingWishlist, setIsAddingWishlist] = useState(false);
   const [isAddingCart, setIsAddingCart] = useState(false);
+
+  // ── Image Zoom ──────────────────────────────────────────────────
+  const [isZooming, setIsZooming] = useState(false);
+  const [zoomOrigin, setZoomOrigin] = useState({ x: 50, y: 50 });
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const imgContainerRef = useRef(null);
+
+  const getHighResUrl = useCallback((src) => {
+    if (!src || typeof src !== 'string') return src;
+    // Cloudinary: upgrade to w_2000, q_90 for crisp zoom
+    if (src.includes('res.cloudinary.com') && src.includes('/upload/')) {
+      const parts = src.split('/upload/');
+      if (parts.length === 2) {
+         let after = parts[1];
+         const versionMatch = after.match(/v\d+\//);
+         if (versionMatch) {
+           after = after.substring(after.indexOf(versionMatch[0]));
+         } else {
+           const firstPart = after.split('/')[0];
+           if (firstPart.includes('_') && (firstPart.includes('w_') || firstPart.includes('c_') || firstPart.includes('q_') || firstPart.includes('f_'))) {
+             after = after.substring(firstPart.length + 1);
+           }
+         }
+         return `${parts[0]}/upload/f_auto,q_90,w_2000/${after}`;
+      }
+    }
+    // ImageKit: request w-2000
+    if (src.includes('ik.imagekit.io')) {
+      try {
+        const u = new URL(src);
+        u.searchParams.set('tr', 'w-2000,q-90,f-auto');
+        return u.toString().replace(/%2C/g, ',');
+      } catch { return src; }
+    }
+    return src;
+  }, []);
+
+  const handleMouseMove = useCallback((e) => {
+    if (!imgContainerRef.current) return;
+    const rect = imgContainerRef.current.getBoundingClientRect();
+    const x = Math.min(100, Math.max(0, ((e.clientX - rect.left) / rect.width) * 100));
+    const y = Math.min(100, Math.max(0, ((e.clientY - rect.top) / rect.height) * 100));
+    setZoomOrigin({ x, y });
+  }, []);
 
   const { data, isLoading } = useQuery({
     queryKey: ['product', slug],
@@ -255,56 +299,128 @@ export default function ProductDetails() {
           
           {/* ── Image Gallery ── */}
           <div className="space-y-6 min-w-0">
-            <div className="relative aspect-[4/5] rounded-[2.5rem] md:rounded-[3.5rem] overflow-hidden border border-border-light group shadow-xl shadow-black/5 bg-white">
+
+            {/* Main Image with Zoom Magnifier */}
+            <div
+              ref={imgContainerRef}
+              className="relative aspect-[4/5] rounded-[2.5rem] md:rounded-[3.5rem] overflow-hidden border border-border-light shadow-xl shadow-black/5 bg-white select-none"
+              style={{ cursor: isZooming ? 'zoom-in' : 'default' }}
+              onMouseMove={handleMouseMove}
+              onMouseEnter={() => setIsZooming(true)}
+              onMouseLeave={() => setIsZooming(false)}
+              onClick={() => setLightboxOpen(true)}
+            >
               <motion.div
                 key={selectedImage}
                 initial={{ opacity: 0, scale: 1.05 }}
                 animate={{ opacity: 1, scale: 1 }}
                 className="w-full h-full relative"
               >
-                {/* Main Product Image — contain by default so full image always shows */}
-                <SafeImage 
-                  src={images[selectedImage]} 
-                  width={800}
-                  quality={90}
-                  alt="" 
-                  className="w-full h-full relative z-10 transition-all duration-700" 
+                {/* High-res image — zooms in on hover via transform-origin */}
+                <img
+                  src={getHighResUrl(images[selectedImage])}
+                  alt={product.name}
+                  className="w-full h-full transition-transform duration-100 ease-out relative z-10"
                   style={{
                     objectFit: product.detailFit || 'contain',
                     objectPosition: product.position || 'center',
-                    transform: `scale(${product.scale || 1})`,
-                    padding: (product.detailFit || 'contain') === 'contain' ? '12px' : '0'
+                    transform: isZooming
+                      ? `scale(${(product.scale || 1) * 2.5})`
+                      : `scale(${product.scale || 1})`,
+                    transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%`,
+                    padding: (product.detailFit || 'contain') === 'contain' ? '12px' : '0',
+                    willChange: 'transform',
                   }}
+                  draggable={false}
                 />
               </motion.div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
-              
+
+              {/* Gradient overlay — hidden while zooming so it doesn't dim the zoom */}
+              {!isZooming && (
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none z-20" />
+              )}
+
+              {/* Zoom hint badge */}
+              <div className={`absolute top-4 right-4 z-30 flex items-center gap-1.5 px-3 py-1.5 bg-black/50 backdrop-blur-sm text-white text-[9px] font-black uppercase tracking-widest rounded-full transition-opacity duration-300 ${isZooming ? 'opacity-0' : 'opacity-100'}`}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                Hover to Zoom
+              </div>
+
               {/* Image Nav Dots */}
-              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-30 pointer-events-auto">
                 {Array.isArray(images) && images.map((_, i) => (
-                  <button 
-                    key={i} 
-                    onClick={() => setSelectedImage(i)} 
+                  <button
+                    key={i}
+                    onClick={(e) => { e.stopPropagation(); setSelectedImage(i); }}
                     aria-label={`View product image ${i + 1}`}
-                    className={`h-1.5 rounded-full transition-all ${i === selectedImage ? 'w-8 bg-premium-gold' : 'w-2 bg-white/40 hover:bg-white/60'}`} 
+                    className={`h-1.5 rounded-full transition-all ${i === selectedImage ? 'w-8 bg-premium-gold' : 'w-2 bg-white/40 hover:bg-white/60'}`}
                   />
                 ))}
               </div>
             </div>
-            
+
+            {/* Thumbnail Strip */}
             <div className="hidden md:flex gap-4 overflow-x-auto pb-2 no-scrollbar">
               {Array.isArray(images) && images.map((img, i) => (
-                <button 
-                  key={i} 
-                  onClick={() => setSelectedImage(i)} 
+                <button
+                  key={i}
+                  onClick={() => setSelectedImage(i)}
                   aria-label={`Switch to product image ${i + 1}`}
-                  className={`w-24 aspect-square rounded-2xl overflow-hidden border-2 transition-all ${selectedImage === i ? 'border-premium-gold scale-95 shadow-lg shadow-premium-gold/20' : 'border-transparent hover:border-border-light'}`}
+                  className={`w-24 aspect-square rounded-2xl overflow-hidden border-2 transition-all shrink-0 ${selectedImage === i ? 'border-premium-gold scale-95 shadow-lg shadow-premium-gold/20' : 'border-transparent hover:border-border-light'}`}
                 >
                   <SafeImage src={img} width={150} quality={70} alt="" className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>
           </div>
+
+          {/* ── Full-Screen Lightbox (mobile tap / desktop click) ── */}
+          <AnimatePresence>
+            {lightboxOpen && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[300] bg-black/95 backdrop-blur-md flex flex-col"
+                onClick={() => setLightboxOpen(false)}
+              >
+                {/* Header */}
+                <div className="flex items-center justify-between p-4 shrink-0" onClick={(e) => e.stopPropagation()}>
+                  <div className="flex gap-2 overflow-x-auto no-scrollbar">
+                    {Array.isArray(images) && images.map((img, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setSelectedImage(i)}
+                        className={`w-12 h-12 rounded-xl overflow-hidden border-2 shrink-0 transition-all ${selectedImage === i ? 'border-premium-gold' : 'border-white/20'}`}
+                      >
+                        <img src={img} alt="" className="w-full h-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => setLightboxOpen(false)}
+                    className="w-10 h-10 rounded-2xl bg-white/10 text-white flex items-center justify-center hover:bg-white/20 transition-all shrink-0 ml-4"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                  </button>
+                </div>
+
+                {/* Full-res image — native pinch-to-zoom on mobile */}
+                <div className="flex-1 flex items-center justify-center p-4 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+                  <img
+                    src={getHighResUrl(images[selectedImage])}
+                    alt={product.name}
+                    className="max-w-full max-h-full object-contain rounded-2xl"
+                    style={{ touchAction: 'pinch-zoom' }}
+                  />
+                </div>
+
+                <p className="text-white/30 text-[9px] font-bold uppercase tracking-widest text-center pb-4 shrink-0">
+                  Pinch to zoom · Tap outside to close
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* ── Product Details ── */}
           <div className="space-y-8 min-w-0">

@@ -82,6 +82,22 @@ export default function VisualTab() {
     }
   };
 
+  const handleRemoveGalleryImage = async (e, index, url) => {
+    e.stopPropagation();
+    // Remove from UI immediately
+    setField('images', formData.images.filter((_, idx) => idx !== index));
+    
+    // Clean up from Cloudinary immediately
+    if (url && url.includes('res.cloudinary.com')) {
+      try {
+        await adminService.deleteMedia(url);
+        toast.success('Image permanently deleted from Cloudinary');
+      } catch (err) {
+        console.error('Failed to delete Cloudinary asset', err);
+      }
+    }
+  };
+
   const masterImage = formData.laptopImage || formData.mobileImage || formData.images?.[0];
   const fit = formData.detailFit || 'contain';
   const position = formData.position || 'center';
@@ -353,7 +369,7 @@ export default function VisualTab() {
               </div>
               <button
                 type="button"
-                onClick={e => { e.stopPropagation(); setField('images', formData.images.filter((_, idx) => idx !== i)); }}
+                onClick={e => handleRemoveGalleryImage(e, i, img)}
                 className="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10"
               >
                 <X size={10} />
@@ -424,8 +440,8 @@ export default function VisualTab() {
         onClose={() => setResizerState({ isOpen: false, file: null, target: null })}
         file={resizerState.file}
         onSave={handleResizerSave}
-        targetWidth={1080}
-        targetHeight={1350}
+        targetWidth={2000}
+        targetHeight={2500}
         title="Product Image Resizer"
       />
     </div>

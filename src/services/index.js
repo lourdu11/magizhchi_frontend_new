@@ -108,6 +108,7 @@ export const adminService = {
   createWastage: (data) => api.post('/admin/wastage', data),
   reconcileStock: (data) => api.post('/admin/inventory/reconcile', data),
   testNotifications: (type) => api.post('/admin/test-notifications-v2', { type }),
+  deleteMedia: (url) => api.delete('/media', { data: { url } }),
 };
 
 export const reviewService = {

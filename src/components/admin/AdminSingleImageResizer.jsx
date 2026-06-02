@@ -36,7 +36,7 @@ const getCroppedImg = async (imageSrc, pixelCrop, targetWidth, targetHeight) => 
     canvas.toBlob((blob) => {
       if (!blob) reject(new Error('Canvas is empty'));
       else resolve(blob);
-    }, 'image/jpeg', 0.9);
+    }, 'image/jpeg', 0.95);
   });
 };
 
@@ -61,7 +61,7 @@ const getStretchedImg = async (imageSrc, targetWidth, targetHeight) => {
     canvas.toBlob((blob) => {
       if (!blob) reject(new Error('Canvas empty'));
       else resolve(blob);
-    }, 'image/jpeg', 0.9);
+    }, 'image/jpeg', 0.95);
   });
 };
 
@@ -70,8 +70,8 @@ export default function AdminSingleImageResizer({
   onClose, 
   file, 
   onSave, 
-  targetWidth: initialWidth = 1080, 
-  targetHeight: initialHeight = 1350,
+  targetWidth: initialWidth = 2000, 
+  targetHeight: initialHeight = 2500,
   title = "Smart Image Resizer"
 }) {
   const [imageSrc, setImageSrc] = useState(null);
@@ -112,11 +112,13 @@ export default function AdminSingleImageResizer({
         finalBlob = await getCroppedImg(imageSrc, croppedAreaPixels, width, height);
       }
 
-      // Compress
+      // Compress — keep high quality for zoom sharpness
       const compressionOptions = {
-        maxSizeMB: 1,
-        useWebWorker: false, // Disabled to prevent CSP crash
-        fileType: 'image/webp'
+        maxSizeMB: 4,           // Allow up to 4MB so zoom stays crisp
+        maxWidthOrHeight: 3000, // Cap at 3000px (beyond 8K screen needs)
+        useWebWorker: false,    // Disabled to prevent CSP crash
+        fileType: 'image/webp',
+        initialQuality: 0.92,   // High quality WebP
       };
       
       const compressedBlob = await imageCompression(new File([finalBlob], 'image.webp', { type: 'image/webp' }), compressionOptions);
