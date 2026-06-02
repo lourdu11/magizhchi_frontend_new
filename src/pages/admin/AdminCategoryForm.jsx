@@ -8,7 +8,7 @@ import { toast } from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 
-import { LivePreview } from '../../components/admin/AdminVisualManager';
+import { LivePreview, DropZone, FitSelector, PositionPicker, ScaleControl } from '../../components/admin/AdminVisualManager';
 
 const EMPTY = { 
   name: '', description: '', image: '', tabletImage: '', mobileImage: '', 
@@ -36,16 +36,9 @@ export default function AdminCategoryForm() {
   });
   const [isUploading, setIsUploading] = useState(false);
   const [resizerState, setResizerState] = useState({ isOpen: false, file: null, field: null });
-  const [previewMode, setPreviewMode] = useState('laptop');
   const [catUploadTab, setCatUploadTab] = useState('file');
   const [catUrlInput, setCatUrlInput] = useState('');
   const [catLastUrl, setCatLastUrl] = useState('');
-
-  const getField = (mode) => {
-    if (mode === 'mobile') return 'mobileImage';
-    if (mode === 'tablet') return 'tabletImage';
-    return 'image';
-  };
 
   const { data: category, isLoading: isFetching } = useQuery({
     queryKey: ['category', id],
@@ -202,110 +195,149 @@ export default function AdminCategoryForm() {
               </label>
             </div>
 
+            {/* ── MASTER IMAGE UPLOAD ─────────────────────────────────── */}
             <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Visual Identity</span>
-                <div className="flex bg-light-bg p-1 rounded-xl gap-1">
-                  {['laptop', 'tablet', 'mobile'].map(m => (
-                    <button
-                      key={m}
-                      type="button"
-                      onClick={() => setPreviewMode(m)}
-                      className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${previewMode === m ? 'bg-white text-charcoal shadow-sm' : 'text-text-muted hover:text-charcoal'}`}
-                    >
-                      {m}
-                    </button>
-                  ))}
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-premium-gold/10 flex items-center justify-center">
+                  <ImageIcon size={20} className="text-premium-gold" />
                 </div>
-              </div>
-
-              <div className="space-y-4">
-                {/* Upload tabs */}
-                <div className="flex gap-1 p-1 bg-light-bg rounded-2xl border border-border-light">
-                  {[{id:'file',label:'📁 Upload'},{id:'url',label:'🔗 URL'}].map(t => (
-                    <button key={t.id} type="button" onClick={() => setCatUploadTab(t.id)}
-                      className={`flex-1 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${catUploadTab === t.id ? 'bg-charcoal text-white' : 'text-text-muted'}`}>
-                      {t.label}
-                    </button>
-                  ))}
+                <div>
+                  <h3 className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">Visual Identity</h3>
+                  <p className="text-xs font-bold text-charcoal uppercase tracking-widest mt-0.5">
+                    Master Image Upload
+                  </p>
                 </div>
-
-                <div className="relative group">
-                  <LivePreview 
-                    src={form[getField(previewMode)]} 
-                    aspect={previewMode === 'laptop' ? '16 / 9' : previewMode === 'tablet' ? '4 / 3' : '1 / 1'} 
-                    fit={form.fit} 
-                    position={form.position} 
-                    scale={form.scale}
-                    label={previewMode.toUpperCase()}
-                  />
-                  {catUploadTab === 'file' && (
-                    <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer rounded-[2rem] z-20 gap-2">
-                      <input type="file" className="hidden" accept="image/*" onChange={e => handleUpload(e.target.files[0], 'all')} disabled={isUploading} />
-                      {isUploading ? <Loader2 className="animate-spin text-white" /> : <Upload className="text-white" size={24} />}
-                      <span className="text-white text-[9px] font-black uppercase tracking-wider">{isUploading ? 'Uploading...' : 'Upload — fills all sizes'}</span>
-                    </label>
-                  )}
-                </div>
-
-                {/* URL input */}
-                {catUploadTab === 'url' && (
-                  <div className="flex gap-2">
-                    <input type="url" value={catUrlInput} onChange={e => setCatUrlInput(e.target.value)}
-                      placeholder="Paste image URL (Cloudinary, S3, etc)..."
-                      className="flex-1 bg-light-bg border border-border-light rounded-2xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-premium-gold transition-all" />
-                    <button type="button" onClick={() => applyUrl(catUrlInput)}
-                      className="px-4 py-2.5 bg-charcoal text-white rounded-2xl text-[9px] font-black uppercase hover:bg-premium-gold hover:text-charcoal transition-all">
-                      Apply
-                    </button>
+                {form.image && (
+                  <div className="ml-auto flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-full text-[9px] font-black uppercase tracking-wider border border-emerald-100">
+                    <Check size={10} /> Image Set
                   </div>
                 )}
+              </div>
 
-                {/* Cloudinary URL display */}
-                {catLastUrl && (
-                  <div className="p-3 bg-emerald-50 border border-emerald-100 rounded-2xl space-y-1.5">
-                    <p className="text-[8px] font-black text-emerald-700 uppercase tracking-widest flex items-center gap-1"><Check size={9} /> Uploaded URL</p>
-                    <div className="flex items-center gap-2">
-                      <p className="text-[8px] font-mono text-emerald-700 truncate flex-1">{catLastUrl}</p>
-                      <button type="button" onClick={() => { navigator.clipboard.writeText(catLastUrl); toast.success('Copied!'); }}
-                        className="p-1.5 bg-white border border-emerald-100 rounded-lg hover:bg-emerald-100 transition-all">
-                        <Copy size={10} className="text-emerald-600" />
+              <div className="space-y-6">
+                {/* Upload mode switcher */}
+                <div className="flex gap-1 p-1 bg-light-bg rounded-2xl border border-border-light">
+                  {[
+                    { id: 'file', label: '📁 Upload File' },
+                    { id: 'url', label: '🔗 Paste URL' },
+                  ].map(tab => (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setCatUploadTab(tab.id)}
+                      className={`flex-1 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${catUploadTab === tab.id ? 'bg-charcoal text-white shadow-md' : 'text-text-muted hover:text-charcoal'}`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* File upload */}
+                {catUploadTab === 'file' && (
+                  <DropZone
+                    onFile={(file) => handleUpload(file, 'all')}
+                    loading={isUploading}
+                    hasImage={!!form.image}
+                    label="Recommended: 1080×1350px · JPG, PNG, WebP"
+                  />
+                )}
+
+                {/* URL paste */}
+                {catUploadTab === 'url' && (
+                  <div className="space-y-3">
+                    <div className="flex gap-2">
+                      <input
+                        type="url"
+                        value={catUrlInput}
+                        onChange={e => setCatUrlInput(e.target.value)}
+                        placeholder="Paste image URL here..."
+                        className="flex-1 bg-light-bg border border-border-light rounded-2xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-premium-gold transition-all"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => applyUrl(catUrlInput)}
+                        className="px-5 py-3 bg-charcoal text-white rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-premium-gold hover:text-charcoal transition-all whitespace-nowrap"
+                      >
+                        Apply
                       </button>
                     </div>
                   </div>
                 )}
 
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
-                  <select className="bg-light-bg border-none rounded-xl px-3 py-2 text-[9px] font-black uppercase tracking-widest outline-none cursor-pointer" value={form.fit} onChange={e => setForm({...form, fit: e.target.value})}>
-                    <option value="cover">COVER</option>
-                    <option value="contain">CONTAIN</option>
-                  </select>
-                  <select className="bg-light-bg border-none rounded-xl px-3 py-2 text-[9px] font-black uppercase tracking-widest outline-none cursor-pointer" value={form.position} onChange={e => setForm({...form, position: e.target.value})}>
-                    <option value="top">TOP</option>
-                    <option value="center">CENTER</option>
-                    <option value="bottom">BOTTOM</option>
-                  </select>
-                  <select className="bg-light-bg border-none rounded-xl px-3 py-2 text-[9px] font-black uppercase tracking-widest outline-none cursor-pointer" value={form.gravity} onChange={e => setForm({...form, gravity: e.target.value})}>
-                    <option value="auto">AI AUTO</option>
-                    <option value="faces">FACES</option>
-                    <option value="center">CENTER</option>
-                  </select>
-                  <select className="bg-light-bg border-none rounded-xl px-3 py-2 text-[9px] font-black uppercase tracking-widest outline-none cursor-pointer" value={form.scale} onChange={e => setForm({...form, scale: parseFloat(e.target.value)})}>
-                    <option value="1">100%</option>
-                    <option value="1.1">110%</option>
-                    <option value="1.2">120%</option>
-                    <option value="1.5">150%</option>
-                  </select>
-                </div>
+                {/* Uploaded URL display */}
+                {catLastUrl && (
+                  <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl space-y-2">
+                    <p className="text-[9px] font-black text-emerald-700 uppercase tracking-widest flex items-center gap-1.5">
+                      <Check size={10} /> Uploaded URL
+                    </p>
+                    <div className="flex gap-2 items-center">
+                      <p className="text-[9px] text-emerald-700 font-mono truncate flex-1">{catLastUrl}</p>
+                      <button
+                        type="button"
+                        onClick={() => { navigator.clipboard.writeText(catLastUrl); toast.success('URL copied!'); }}
+                        className="shrink-0 p-2 bg-white border border-emerald-200 rounded-xl hover:bg-emerald-100 transition-all"
+                        title="Copy URL"
+                      >
+                        <Copy size={12} className="text-emerald-600" />
+                      </button>
+                      <a
+                        href={catLastUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="shrink-0 p-2 bg-white border border-emerald-200 rounded-xl hover:bg-emerald-100 transition-all"
+                        title="Open in browser"
+                      >
+                        <ExternalLink size={12} className="text-emerald-600" />
+                      </a>
+                    </div>
+                  </div>
+                )}
 
-                <div className="space-y-2">
-                  <span className="text-[9px] font-black text-text-muted uppercase tracking-widest ml-1">{previewMode.toUpperCase()} Asset URL</span>
-                  <input 
-                    className="w-full bg-light-bg border-none rounded-xl px-4 py-3 text-[10px] font-bold focus:ring-1 focus:ring-premium-gold/30" 
-                    placeholder="https://..." 
-                    value={form[getField(previewMode)]} 
-                    onChange={e => setForm({...form, [getField(previewMode)]: e.target.value})} 
-                  />
+                {/* Image Controls */}
+                {form.image && (
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-5 p-6 bg-light-bg rounded-3xl border border-border-light">
+                    <p className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em] flex items-center gap-2">
+                      Image Display Controls
+                    </p>
+
+                    <FitSelector value={form.fit} onChange={v => setForm({...form, fit: v})} />
+                    <PositionPicker value={form.position} onChange={v => setForm({...form, position: v})} />
+                    <ScaleControl value={form.scale} onChange={v => setForm({...form, scale: v})} />
+                    
+                    <div className="space-y-2">
+                      <span className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em]">AI Auto Gravity</span>
+                      <select className="w-full bg-white border border-border-light rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer" value={form.gravity} onChange={e => setForm({...form, gravity: e.target.value})}>
+                        <option value="auto">AI AUTO</option>
+                        <option value="faces">FACES</option>
+                        <option value="center">CENTER</option>
+                      </select>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Live Previews */}
+                <div className="space-y-4 pt-4 border-t border-border-light">
+                  <p className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em]">Live Preview — All Devices</p>
+                  
+                  {[
+                    { key: 'image', label: 'Desktop', aspect: '16/9' },
+                    { key: 'tabletImage', label: 'Tablet', aspect: '4/3' },
+                    { key: 'mobileImage', label: 'Mobile', aspect: '1/1' },
+                  ].map(dev => (
+                    <div key={dev.key} className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[9px] font-black text-charcoal uppercase tracking-wider">{dev.label}</span>
+                      </div>
+                      <LivePreview
+                        src={form[dev.key]}
+                        fit={form.fit}
+                        position={form.position}
+                        scale={form.scale}
+                        label={dev.label}
+                        aspect={dev.aspect}
+                      />
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>

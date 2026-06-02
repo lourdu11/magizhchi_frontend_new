@@ -7,7 +7,7 @@ import { adminService, bannerService } from '../../services';
 import SafeImage from '../../components/common/SafeImage';
 import AdminImageResizer from '../../components/admin/AdminImageResizer';
 
-import { LivePreview } from '../../components/admin/AdminVisualManager';
+import { LivePreview, DropZone, FitSelector, PositionPicker, ScaleControl } from '../../components/admin/AdminVisualManager';
 
 export default function AdminBanners() {
   const [showForm, setShowForm] = useState(false);
@@ -28,9 +28,10 @@ export default function AdminBanners() {
     mobileFit: 'cover', mobilePos: 'center', mobileScale: 1, mobileGravity: 'auto',
     link: '/', displayOrder: 0, isActive: true
   });
-  const [useCommonImage, setUseCommonImage] = useState(false);
   const [resizerFile, setResizerFile] = useState(null);
   const [isResizerOpen, setIsResizerOpen] = useState(false);
+  const [uploadTab, setUploadTab] = useState('file');
+  const [urlInput, setUrlInput] = useState('');
 
   const upsertMutation = useMutation({
     mutationFn: (data) => editingId ? bannerService.updateBanner(editingId, data) : bannerService.createBanner(data),
@@ -60,7 +61,6 @@ export default function AdminBanners() {
       mobileFit: 'cover', mobilePos: 'center', mobileScale: 1, mobileGravity: 'auto',
       link: '/', displayOrder: 0, isActive: true 
     });
-    setUseCommonImage(false);
   };
 
   const handleEdit = (banner) => {
@@ -71,18 +71,15 @@ export default function AdminBanners() {
       mobileFit: banner.mobileFit || 'cover',
       mobilePos: banner.mobilePos || 'center'
     });
-    setUseCommonImage(banner.desktopImage === banner.mobileImage);
     setEditingId(banner._id);
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleFileUpload = (e, type = 'desktop') => {
-    const file = e.target.files?.[0];
+  const handleUpload = (file) => {
     if (!file) return;
     setResizerFile(file);
     setIsResizerOpen(true);
-    e.target.value = null;
   };
 
   const handleResizerSave = async ({ desktopFile, mobileFile }) => {
@@ -106,7 +103,6 @@ export default function AdminBanners() {
           desktopFit: 'cover',
           mobileFit: 'cover'
         }));
-        setUseCommonImage(false);
         toast.success('Perfectly sized images uploaded! Fit set to COVER automatically.');
       }
     } catch (err) {
@@ -152,153 +148,135 @@ export default function AdminBanners() {
                 <textarea rows="2" className="w-full bg-light-bg border-none rounded-2xl px-5 py-3.5 focus:ring-2 focus:ring-premium-gold/30 font-medium resize-none" placeholder="e.g. Discover the art of perfect tailoring." value={formData.subtitle} onChange={e => setFormData({...formData, subtitle: e.target.value})} />
               </label>
               
-              <div className="flex items-center justify-between px-1">
-                <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">Asset Configuration</span>
-                <label className="flex items-center gap-2 cursor-pointer group">
-                  <input type="checkbox" className="hidden" checked={useCommonImage} onChange={e => {
-                    setUseCommonImage(e.target.checked);
-                    if(e.target.checked && formData.desktopImage) setFormData({...formData, mobileImage: formData.desktopImage});
-                  }} />
-                  <div className={`w-8 h-4 rounded-full relative transition-colors ${useCommonImage ? 'bg-indigo-500' : 'bg-gray-300'}`}>
-                    <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${useCommonImage ? 'left-4.5' : 'left-0.5'}`} />
+              {/* ── MASTER IMAGE UPLOAD ─────────────────────────────────── */}
+              <div className="col-span-1 md:col-span-2 space-y-6 pt-4 border-t border-border-light">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-premium-gold/10 flex items-center justify-center">
+                    <ImageIcon size={20} className="text-premium-gold" />
                   </div>
-                  <span className="text-[9px] font-black text-charcoal uppercase tracking-widest">Mirror Desktop</span>
-                </label>
-              </div>
-
-              <div className="grid grid-cols-1 gap-6">
-                {/* Desktop Asset */}
-                <div className="bg-light-bg/40 p-4 rounded-3xl border border-border-light/50 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-black text-charcoal uppercase tracking-widest">Desktop View (21:9)</span>
-                    <div className="flex gap-2">
-                       <select className="text-[9px] font-black bg-white border-none rounded-lg px-2 py-1 outline-none" value={formData.desktopFit} onChange={e => setFormData({...formData, desktopFit: e.target.value})}>
-                          <option value="cover">COVER</option>
-                          <option value="contain">CONTAIN</option>
-                       </select>
-                       <select className="text-[9px] font-black bg-white border-none rounded-lg px-2 py-1 outline-none" value={formData.desktopPos} onChange={e => setFormData({...formData, desktopPos: e.target.value})}>
-                          <option value="top">TOP</option>
-                          <option value="center">CENTER</option>
-                          <option value="bottom">BOTTOM</option>
-                       </select>
-                       <select className="text-[9px] font-black bg-white border-none rounded-lg px-2 py-1 outline-none" value={formData.desktopGravity} onChange={e => setFormData({...formData, desktopGravity: e.target.value})} title="AI Focus Area">
-                          <option value="auto">AI AUTO</option>
-                          <option value="faces">FACES</option>
-                          <option value="center">CENTER</option>
-                          <option value="north">TOP</option>
-                          <option value="south">BOTTOM</option>
-                       </select>
-                       <select className="text-[9px] font-black bg-white border-none rounded-lg px-2 py-1 outline-none" value={formData.desktopScale} onChange={e => setFormData({...formData, desktopScale: parseFloat(e.target.value)})}>
-                          <option value="1">100%</option>
-                          <option value="1.1">110%</option>
-                          <option value="1.2">120%</option>
-                          <option value="1.5">150%</option>
-                       </select>
+                  <div>
+                    <h3 className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">Visual Identity</h3>
+                    <p className="text-xs font-bold text-charcoal uppercase tracking-widest mt-0.5">
+                      Master Image Upload
+                    </p>
+                  </div>
+                  {(formData.desktopImage || formData.mobileImage) && (
+                    <div className="ml-auto flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-full text-[9px] font-black uppercase tracking-wider border border-emerald-100">
+                      <Check size={10} /> Image Set
                     </div>
-                  </div>
-                  <div className="grid md:grid-cols-2 gap-4">
-                     <div className="relative group">
-                       <LivePreview 
-                          src={formData.desktopImage} 
-                          aspect="21 / 9" 
-                          fit={formData.desktopFit} 
-                          position={formData.desktopPos} 
-                          scale={formData.desktopScale}
-                          label="Desktop"
-                       />
-                       <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer rounded-xl z-20">
-                         <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'desktop')} disabled={isUploading} />
-                         {isUploading ? <Loader2 className="animate-spin text-white" /> : <Upload className="text-white" />}
-                       </label>
-                     </div>
-                     <div className="space-y-3">
-                        <div className="space-y-1.5">
-                           <p className="text-[8px] font-black text-text-muted uppercase tracking-widest ml-1">Direct URL (Desktop)</p>
-                           <input 
-                              className="w-full bg-white border border-neutral-200 rounded-xl px-4 py-3 text-[10px] font-bold focus:ring-1 focus:ring-premium-gold/30 transition-all" 
-                              placeholder="https://images.unsplash.com/..." 
-                              value={formData.desktopImage} 
-                              onChange={e => {
-                                const val = e.target.value;
-                                setFormData(prev => {
-                                  const next = { ...prev, desktopImage: val };
-                                  if(useCommonImage) next.mobileImage = val;
-                                  return next;
-                                });
-                              }} 
-                           />
-                        </div>
-                        <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-100">
-                          <p className="text-[9px] font-bold text-text-muted leading-relaxed uppercase tracking-tighter">Recommended Strategy</p>
-                          <p className="text-[8px] font-medium text-neutral-400 mt-1">Wide Hero: 1920x820px. Use "FACES" focus for portraits.</p>
-                        </div>
-                     </div>
-                  </div>
+                  )}
                 </div>
 
-                {/* Mobile Asset */}
-                {!useCommonImage && (
-                   <div className="bg-light-bg/40 p-4 rounded-3xl border border-border-light/50 space-y-4">
-                     <div className="flex items-center justify-between">
-                       <span className="text-[10px] font-black text-charcoal uppercase tracking-widest">Mobile View (4:5)</span>
-                       <div className="flex gap-2">
-                          <select className="text-[9px] font-black bg-white border border-neutral-200 rounded-lg px-2 py-1 outline-none cursor-pointer hover:bg-neutral-50 transition-colors" value={formData.mobileFit} onChange={e => setFormData({...formData, mobileFit: e.target.value})}>
-                             <option value="cover">COVER</option>
-                             <option value="contain">CONTAIN</option>
-                          </select>
-                          <select className="text-[9px] font-black bg-white border border-neutral-200 rounded-lg px-2 py-1 outline-none cursor-pointer hover:bg-neutral-50 transition-colors" value={formData.mobilePos} onChange={e => setFormData({...formData, mobilePos: e.target.value})}>
-                             <option value="top">TOP</option>
-                             <option value="center">CENTER</option>
-                             <option value="bottom">BOTTOM</option>
-                          </select>
-                          <select className="text-[9px] font-black bg-white border border-neutral-200 rounded-lg px-2 py-1 outline-none cursor-pointer hover:bg-neutral-50 transition-colors" value={formData.mobileGravity} onChange={e => setFormData({...formData, mobileGravity: e.target.value})} title="AI Focus Area">
-                             <option value="auto">AI AUTO</option>
-                             <option value="faces">FACES</option>
-                             <option value="center">CENTER</option>
-                             <option value="north">TOP</option>
-                             <option value="south">BOTTOM</option>
-                          </select>
-                          <select className="text-[9px] font-black bg-white border border-neutral-200 rounded-lg px-2 py-1 outline-none cursor-pointer hover:bg-neutral-50 transition-colors" value={formData.mobileScale} onChange={e => setFormData({...formData, mobileScale: parseFloat(e.target.value)})}>
-                             <option value="1">100%</option>
-                             <option value="1.1">110%</option>
-                             <option value="1.2">120%</option>
-                             <option value="1.5">150%</option>
-                          </select>
-                       </div>
-                     </div>
-                     <div className="grid md:grid-cols-2 gap-4">
-                        <div className="relative group">
-                          <LivePreview 
-                             src={formData.mobileImage} 
-                             aspect="4 / 5" 
-                             fit={formData.mobileFit} 
-                             position={formData.mobilePos} 
-                             scale={formData.mobileScale}
-                             label="Mobile"
+                <div className="grid lg:grid-cols-2 gap-8 items-start">
+                  {/* Left: Upload Controls */}
+                  <div className="space-y-6">
+                    {/* Upload mode switcher */}
+                    <div className="flex gap-1 p-1 bg-light-bg rounded-2xl border border-border-light">
+                      {[
+                        { id: 'file', label: '📁 Upload File' },
+                        { id: 'url', label: '🔗 Paste URL' },
+                      ].map(tab => (
+                        <button
+                          key={tab.id}
+                          type="button"
+                          onClick={() => setUploadTab(tab.id)}
+                          className={`flex-1 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${uploadTab === tab.id ? 'bg-charcoal text-white shadow-md' : 'text-text-muted hover:text-charcoal'}`}
+                        >
+                          {tab.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* File upload */}
+                    {uploadTab === 'file' && (
+                      <DropZone
+                        onFile={handleUpload}
+                        loading={isUploading}
+                        hasImage={!!formData.desktopImage}
+                        label="Recommended: High-res Landscape · JPG, PNG, WebP"
+                      />
+                    )}
+
+                    {/* URL paste */}
+                    {uploadTab === 'url' && (
+                      <div className="space-y-3">
+                        <div className="flex gap-2">
+                          <input
+                            type="url"
+                            value={urlInput}
+                            onChange={e => setUrlInput(e.target.value)}
+                            placeholder="Paste image URL here..."
+                            className="flex-1 bg-light-bg border border-border-light rounded-2xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-premium-gold transition-all"
                           />
-                          <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer rounded-xl z-20">
-                            <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'mobile')} disabled={isUploading} />
-                            {isUploading ? <Loader2 className="animate-spin text-white" /> : <Upload className="text-white" />}
-                          </label>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (!urlInput.trim()) return toast.error('Enter URL');
+                              setFormData(prev => ({...prev, desktopImage: urlInput.trim(), mobileImage: urlInput.trim()}));
+                              setUrlInput('');
+                              toast.success('URL applied to all views!');
+                            }}
+                            className="px-5 py-3 bg-charcoal text-white rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-premium-gold hover:text-charcoal transition-all whitespace-nowrap"
+                          >
+                            Apply
+                          </button>
                         </div>
-                        <div className="space-y-3">
-                           <div className="space-y-1.5">
-                              <p className="text-[8px] font-black text-text-muted uppercase tracking-widest ml-1">Direct URL (Mobile)</p>
-                              <input 
-                                 className="w-full bg-white border border-neutral-200 rounded-xl px-4 py-3 text-[10px] font-bold focus:ring-1 focus:ring-premium-gold/30 transition-all" 
-                                 placeholder="https://images.unsplash.com/..." 
-                                 value={formData.mobileImage} 
-                                 onChange={e => setFormData({...formData, mobileImage: e.target.value})} 
-                              />
-                           </div>
-                           <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-100">
-                              <p className="text-[9px] font-bold text-text-muted leading-relaxed uppercase tracking-tighter">Mobile Optimization</p>
-                              <p className="text-[8px] font-medium text-neutral-400 mt-1">Use vertical shots (4:5). 1080x1350px recommended.</p>
-                           </div>
-                        </div>
-                     </div>
-                   </div>
-                )}
+                      </div>
+                    )}
+
+                    {/* Image Controls */}
+                    {(formData.desktopImage || formData.mobileImage) && (
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-5 p-6 bg-light-bg rounded-3xl border border-border-light">
+                        <p className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em]">Desktop Controls (21:9)</p>
+                        <FitSelector value={formData.desktopFit} onChange={v => setFormData({...formData, desktopFit: v})} />
+                        <PositionPicker value={formData.desktopPos} onChange={v => setFormData({...formData, desktopPos: v})} />
+                        <ScaleControl value={formData.desktopScale} onChange={v => setFormData({...formData, desktopScale: v})} />
+                        
+                        <div className="h-px bg-border-light my-4"></div>
+                        
+                        <p className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em]">Mobile Controls (4:5)</p>
+                        <FitSelector value={formData.mobileFit} onChange={v => setFormData({...formData, mobileFit: v})} />
+                        <PositionPicker value={formData.mobilePos} onChange={v => setFormData({...formData, mobilePos: v})} />
+                        <ScaleControl value={formData.mobileScale} onChange={v => setFormData({...formData, mobileScale: v})} />
+                      </motion.div>
+                    )}
+                  </div>
+
+                  {/* Right: Live Previews */}
+                  <div className="space-y-6">
+                    <p className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em]">Live Preview</p>
+                    
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[9px] font-black text-charcoal uppercase tracking-wider">Desktop View (21:9)</span>
+                      </div>
+                      <LivePreview
+                        src={formData.desktopImage}
+                        fit={formData.desktopFit}
+                        position={formData.desktopPos}
+                        scale={formData.desktopScale}
+                        label="Desktop"
+                        aspect="21/9"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[9px] font-black text-charcoal uppercase tracking-wider">Mobile View (4:5)</span>
+                      </div>
+                      <div className="max-w-[200px] mx-auto">
+                        <LivePreview
+                          src={formData.mobileImage}
+                          fit={formData.mobileFit}
+                          position={formData.mobilePos}
+                          scale={formData.mobileScale}
+                          label="Mobile"
+                          aspect="4/5"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
