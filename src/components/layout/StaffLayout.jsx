@@ -14,8 +14,8 @@ export default function StaffLayout() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-dvh bg-light-bg flex">
-      <aside className="w-52 shrink-0 bg-charcoal flex flex-col fixed h-full z-30">
+    <div className="min-h-dvh print:min-h-0 print:h-auto print:block bg-light-bg flex">
+      <aside className="w-52 shrink-0 bg-charcoal flex flex-col fixed h-full z-30 print:hidden">
         <div className="px-5 py-5 border-b border-white/10">
           <div className="font-display text-lg font-bold text-white tracking-widest">MAGIZHCHI</div>
           <div className="text-[9px] text-white/30 tracking-[0.4em]">STAFF PANEL</div>
@@ -49,7 +49,7 @@ export default function StaffLayout() {
           </button>
         </div>
       </aside>
-      <main className="flex-1 ml-52 p-6 min-h-dvh">
+      <main className="flex-1 ml-52 p-6 min-h-dvh print:min-h-0 print:h-auto print:m-0 print:p-0 print:block">
         <Outlet />
       </main>
     </div>

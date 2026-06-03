@@ -77,9 +77,9 @@ export default function AdminLayout() {
   };
 
   return (
-    <div className="min-h-dvh bg-[#F8F9FA] font-sans">
+    <div className="min-h-dvh print:min-h-0 print:h-auto print:block bg-[#F8F9FA] font-sans">
       {/* Mobile Header (Fixed at top) */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-[#DADCE0] px-6 flex items-center justify-between z-[60]">
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-[#DADCE0] px-6 flex items-center justify-between z-[60] print:hidden">
         <div className="flex items-center gap-2">
           <span className="font-black text-[#202124] text-sm tracking-tighter leading-none uppercase">MAGIZHCHI</span>
           <span className="w-1.5 h-1.5 rounded-full bg-[#4285F4]" />
@@ -110,7 +110,7 @@ export default function AdminLayout() {
         <aside className={`
           ${collapsed ? 'w-16' : 'w-64'} 
           ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-          shrink-0 bg-white border-r border-[#DADCE0] flex flex-col transition-all duration-300 fixed lg:sticky top-0 h-dvh z-[80] shadow-xl lg:shadow-none
+          shrink-0 bg-white border-r border-[#DADCE0] flex flex-col transition-all duration-300 fixed lg:sticky top-0 h-dvh z-[80] shadow-xl lg:shadow-none print:hidden
         `}>
           {/* Logo */}
           <div className={`flex items-center ${collapsed ? 'justify-center' : 'justify-between'} px-6 py-5 border-b border-[#F1F3F4]`}>
@@ -171,8 +171,8 @@ export default function AdminLayout() {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 min-h-dvh pt-16 lg:pt-0">
-          <div className="p-4 md:p-10 max-w-[1600px] mx-auto">
+        <main className="flex-1 min-h-dvh print:min-h-0 print:h-auto print:m-0 print:p-0 print:block pt-16 lg:pt-0">
+          <div className="p-4 md:p-10 print:p-0 print:m-0 max-w-[1600px] print:max-w-none mx-auto">
             <Outlet />
           </div>
         </main>
