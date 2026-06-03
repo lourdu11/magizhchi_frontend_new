@@ -131,7 +131,7 @@ export default function AdminDashboard() {
     <div className="space-y-8 pb-20">
 
       {/* ── HERO HEADER ─────────────────────────────────────────── */}
-      <div className="bg-charcoal rounded-[2.5rem] p-4 md:p-4 md:p-8 md:p-5 md:p-10 relative overflow-hidden">
+      <div className="bg-charcoal rounded-[2.5rem] p-5 sm:p-8 md:p-10 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-charcoal via-charcoal to-black" />
         <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-premium-gold/5 blur-[80px] -mr-48 -mt-48" />
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
@@ -143,9 +143,9 @@ export default function AdminDashboard() {
             <h1 className="text-3xl md:text-4xl font-black text-white tracking-tighter leading-none uppercase">Business Pulse</h1>
             <p className="text-[10px] text-white/40 font-bold uppercase tracking-[0.3em] mt-2">Magizhchi ERP — Command Center</p>
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 w-full md:w-auto">
             <LiveClock />
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-2 sm:gap-3">
               <button
                 onClick={() => navigate('/admin/catalog')}
                 className="px-5 py-3 bg-white/10 text-white border border-white/10 rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-white/20 transition-all flex items-center gap-2"
@@ -170,7 +170,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Today Revenue Hero Number */}
-        <div className="relative z-10 mt-8 pt-8 border-t border-white/10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="relative z-10 mt-8 pt-8 border-t border-white/10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {[
             { label: "Today's Revenue", value: fmt(d?.revenue?.today), icon: IndianRupee, color: '#D4AF37', good: (d?.revenue?.today || 0) >= 0 },
             { label: "Today's Profit", value: fmt(d?.revenue?.todayProfit), icon: TrendingUp, color: '#10B981', good: (d?.revenue?.todayProfit || 0) >= 0 },
@@ -186,7 +186,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* ── KPI GRID ────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
         <KpiCard icon={IndianRupee} label="This Month" value={fmt(d?.revenue?.month)} sub="Month-to-date" trend="up" trendVal={growth > 0 ? `+${growth}%` : `${growth}%`} color="#D4AF37" bgColor="#D4AF37" delay={0} />
         <KpiCard icon={Truck} label="Delivered" value={fmtNum(d?.orders?.delivered)} sub="Completed orders" color="#10B981" bgColor="#10B981" delay={0.05} />
         <KpiCard icon={ShoppingCart} label="Pending" value={fmtNum(d?.orders?.pending)} sub="Awaiting dispatch" color="#F59E0B" bgColor="#F59E0B" delay={0.1} />
@@ -199,7 +199,7 @@ export default function AdminDashboard() {
       <div className="grid lg:grid-cols-3 gap-6">
 
         {/* Revenue Trend Chart */}
-        <div className="lg:col-span-2 bg-white rounded-[2.5rem] border border-border-light p-4 md:p-4 md:p-8 shadow-sm">
+        <div className="lg:col-span-2 bg-white rounded-[2.5rem] border border-border-light p-5 sm:p-8 shadow-sm">
           <SectionHeader icon={TrendingUp} title="30-Day Revenue Trend" sub="Combined online orders + POS bills" />
           {chartReady && salesTrend.length > 0 ? (
             <Suspense fallback={<div className="h-[280px] w-full bg-light-bg/50 rounded-2xl animate-pulse" />}>
@@ -221,7 +221,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Low Stock Panel */}
-        <div className="bg-white rounded-[2.5rem] border border-red-100 p-4 md:p-4 md:p-8 shadow-sm">
+        <div className="bg-white rounded-[2.5rem] border border-red-100 p-5 sm:p-8 shadow-sm">
           <SectionHeader
             icon={AlertCircle}
             title="Low Stock Alert"
