@@ -211,17 +211,47 @@ export default function VisualTab() {
         <div className="grid lg:grid-cols-2 gap-8 items-start">
           {/* Left: Master Upload + Controls */}
           <div className="space-y-6">
-            <div className="p-6 border-2 border-dashed border-border-light rounded-[2rem] text-center bg-light-bg/20 hover:bg-premium-gold/5 hover:border-premium-gold transition-all flex flex-col items-center">
-               <h4 className="text-[10px] font-black text-charcoal uppercase tracking-widest mb-3">Upload Master Image</h4>
-               <label className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-charcoal text-white hover:bg-premium-gold hover:text-charcoal rounded-xl text-[9px] font-black uppercase tracking-widest cursor-pointer transition-all shadow-md">
-                  <Upload size={14} /> Select Image
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={e => handleUpload(e.target.files[0], 'all')}
-                  />
-               </label>
+            <div className="p-6 border-2 border-dashed border-border-light rounded-[2rem] text-center bg-light-bg/20 hover:bg-premium-gold/5 hover:border-premium-gold transition-all flex flex-col items-center relative overflow-hidden">
+               {masterImage ? (
+                 <div className="w-full aspect-[4/3] relative mb-4 rounded-xl overflow-hidden border border-border-light group">
+                   <LivePreview
+                     src={masterImage}
+                     fit={fit}
+                     position={position}
+                     scale={scale}
+                     bgStyle={bgStyle}
+                     label="Master"
+                     aspect="4/3"
+                   />
+                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center z-30">
+                     <label className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-premium-gold text-charcoal hover:bg-white rounded-xl text-[9px] font-black uppercase tracking-widest cursor-pointer transition-all shadow-md">
+                        <Upload size={14} /> Replace Image
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={e => handleUpload(e.target.files[0], 'all')}
+                        />
+                     </label>
+                   </div>
+                 </div>
+               ) : (
+                 <div className="mb-4">
+                   <h4 className="text-[10px] font-black text-charcoal uppercase tracking-widest mb-3">Upload Master Image</h4>
+                 </div>
+               )}
+
+               {!masterImage && (
+                 <label className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-charcoal text-white hover:bg-premium-gold hover:text-charcoal rounded-xl text-[9px] font-black uppercase tracking-widest cursor-pointer transition-all shadow-md">
+                    <Upload size={14} /> Select Image
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={e => handleUpload(e.target.files[0], 'all')}
+                    />
+                 </label>
+               )}
                <p className="text-[8px] font-bold text-text-muted uppercase tracking-wider mt-3">Auto-applies to Desktop, Tablet, & Mobile views</p>
             </div>
 
