@@ -134,19 +134,46 @@ function PosContent() {
 
   const { data: categories } = useQuery({
     queryKey: ['pos-categories'],
-    queryFn: () => categoryService.getCategories().then(r => r.data.data?.categories || []),
+    queryFn: async () => {
+      try {
+        const cats = await categoryService.getCategories().then(r => r.data.data?.categories || []);
+        if (cats.length > 0) {
+          await dbService.put('posCategories', { id: 'master_categories', data: cats });
+        }
+        return cats;
+      } catch (err) {
+        const cached = await dbService.get('posCategories', 'master_categories');
+        return cached?.data || [];
+      }
+    },
     staleTime: 300000 
   });
 
   // ── Load ALL products upfront (no search param → full inventory for barcode matching) ──
   const { data: allProducts, isLoading } = useQuery({
     queryKey: ['pos-inventory', selectedCategory],
-    queryFn: () => {
-      const params = { limit: 1000, isPOS: 'true' };
-      if (selectedCategory !== 'All') params.category = selectedCategory;
-      return productService.getProducts(params).then(r => {
-        return r.data?.data?.data || r.data?.data?.products || r.data?.data || [];
-      });
+    queryFn: async () => {
+      try {
+        const params = { limit: 1000, isPOS: 'true' };
+        if (selectedCategory !== 'All') params.category = selectedCategory;
+        const products = await productService.getProducts(params).then(r => {
+          return r.data?.data?.data || r.data?.data?.products || r.data?.data || [];
+        });
+        
+        if (selectedCategory === 'All' && products.length > 0) {
+          await dbService.put('posInventory', { id: 'master_inventory', data: products });
+        }
+        return products;
+      } catch (err) {
+        console.warn('Network unreachable. Loading inventory from offline database.');
+        const cached = await dbService.get('posInventory', 'master_inventory');
+        let offlineProducts = cached?.data || [];
+        
+        if (selectedCategory !== 'All') {
+           offlineProducts = offlineProducts.filter(p => p.category?.name === selectedCategory || p.category === selectedCategory);
+        }
+        return offlineProducts;
+      }
     },
     staleTime: 30000,
     keepPreviousData: true

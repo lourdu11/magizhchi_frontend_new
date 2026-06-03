@@ -1,7 +1,7 @@
 import { openDB } from 'idb';
 
 const DB_NAME = 'MagizhchiOfflineDB';
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 
 export const initDB = async () => {
   return openDB(DB_NAME, DB_VERSION, {
@@ -17,6 +17,12 @@ export const initDB = async () => {
       }
       if (!db.objectStoreNames.contains('offlineBills')) {
         db.createObjectStore('offlineBills', { keyPath: 'id' });
+      }
+      if (!db.objectStoreNames.contains('posInventory')) {
+        db.createObjectStore('posInventory', { keyPath: 'id' }); // 'id' will just be 'master_inventory'
+      }
+      if (!db.objectStoreNames.contains('posCategories')) {
+        db.createObjectStore('posCategories', { keyPath: 'id' }); // 'id' will just be 'master_categories'
       }
     },
   });

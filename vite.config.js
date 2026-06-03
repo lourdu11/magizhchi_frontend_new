@@ -10,13 +10,55 @@ const shouldAnalyze = process.env.ANALYZE === 'true';
 import viteCompression from 'vite-plugin-compression';
 import { visualizer } from 'rollup-plugin-visualizer';
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js';
-
-
+import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
   plugins: [
     react(),
     cssInjectedByJsPlugin(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      manifest: {
+        name: 'Magizhchi POS',
+        short_name: 'Magizhchi',
+        description: 'Magizhchi Garments POS and E-Commerce System',
+        theme_color: '#ffffff',
+        icons: [
+          {
+            src: 'https://via.placeholder.com/192',
+            sizes: '192x192',
+            type: 'image/png'
+          },
+          {
+            src: 'https://via.placeholder.com/512',
+            sizes: '512x512',
+            type: 'image/png'
+          }
+        ]
+      },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,ttf}'],
+        cleanupOutdatedCaches: true,
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/magizhchi-backend-28sx\.onrender\.com\/api\/v1\/.*/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'api-cache',
+              networkTimeoutSeconds: 5,
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 24 * 60 * 60 // 24 hours
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          }
+        ]
+      }
+    }),
     viteCompression({ algorithm: 'gzip', ext: '.gz' }),
     viteCompression({ algorithm: 'brotliCompress', ext: '.br' }),
     ...(shouldAnalyze ? [visualizer({ filename: './stats.html', open: false })] : []),
