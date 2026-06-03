@@ -71,7 +71,7 @@ const StaffDailyReport = lazy(() => import('./pages/staff/StaffDailyReport'));
 
 import ScrollToTop from './components/layout/ScrollToTop';
 import { useAuthStore } from './store';
-import { checkAuthSession } from './services';
+import { checkAuthSession, setToken } from './services/api';
 
 export default function App() {
   const logout = useAuthStore((state) => state.logout);
@@ -79,6 +79,10 @@ export default function App() {
 
   useEffect(() => {
     const initAuth = async () => {
+      const persistedToken = useAuthStore.getState().token;
+      if (persistedToken) {
+        setToken(persistedToken);
+      }
       if (isAuthenticated) {
         const success = await checkAuthSession();
         if (!success) {

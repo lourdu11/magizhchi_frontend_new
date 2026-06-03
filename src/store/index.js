@@ -8,22 +8,23 @@ export const useAuthStore = create(
   persist(
     (set) => ({
       user: null,
+      token: null,
       isAuthenticated: false,
       setAuth: (user, accessToken) => {
         setToken(accessToken);
-        set({ user, isAuthenticated: true });
+        set({ user, token: accessToken, isAuthenticated: true });
       },
       logout: () => {
         clearToken();
         sessionStorage.removeItem('admin_settings_verified');
-        set({ user: null, isAuthenticated: false });
+        set({ user: null, token: null, isAuthenticated: false });
       },
       updateUser: (updates) => set((state) => ({ user: { ...state.user, ...updates } })),
     }),
     {
       name: 'magizhchi-auth',
       storage: createJSONStorage(() => sessionStorage),
-      partialize: (state) => ({ user: state.user, isAuthenticated: state.isAuthenticated })
+      partialize: (state) => ({ user: state.user, token: state.token, isAuthenticated: state.isAuthenticated })
     }
   )
 );
