@@ -276,7 +276,7 @@ export default function ProductDetails() {
 
   if (!product) {
     return (
-      <div className="min-h-dvh flex flex-col items-center justify-center bg-white p-6 text-center">
+      <div className="min-h-dvh flex flex-col items-center justify-center bg-white p-4 sm:p-6 text-center">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -308,7 +308,7 @@ export default function ProductDetails() {
       <Helmet><title>{product.name} — Magizhchi</title></Helmet>
 
       {/* Breadcrumb */}
-      <div className="hidden md:block py-6 border-b border-border-light">
+      <div className="hidden md:block py-4 sm:py-6 border-b border-border-light">
         <div className="container-custom flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-text-muted">
           <Link to="/" className="hover:text-premium-gold">Home</Link>
           <ChevronRight size={10} />
@@ -318,7 +318,7 @@ export default function ProductDetails() {
         </div>
       </div>
 
-      <div className="container-custom py-8 md:py-20">
+      <div className="container-custom py-4 md:py-8 md:py-20">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-24 items-start">
           
           {/* ── Image Gallery ── */}
@@ -500,7 +500,7 @@ export default function ProductDetails() {
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-premium-gold">Bundle Architecture</p>
                 <div className="space-y-6">
                   {Array.isArray(product?.comboSlots) && product.comboSlots.map((slot, sIdx) => (
-                    <div key={slot?.id || sIdx} className="p-6 bg-light-bg/30 rounded-[2rem] border border-border-light space-y-4">
+                    <div key={slot?.id || sIdx} className="p-4 sm:p-6 bg-light-bg/30 rounded-[2rem] border border-border-light space-y-4">
                       <p className="text-[9px] font-black text-charcoal uppercase tracking-widest">{slot?.name}</p>
                       {Array.isArray(slot?.products) && slot.products.map(p => (
                         <div key={p?._id} className="space-y-3">
@@ -726,7 +726,7 @@ function ReviewSection({ productId, slug, averageRating = 0, totalCount = 0 }) {
   return (
     <div className="space-y-12 md:space-y-16" id="reviews-section">
       {/* ── Header ── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 bg-charcoal p-8 md:p-16 rounded-[3rem] md:rounded-[4rem] text-white shadow-2xl relative overflow-hidden group">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 bg-charcoal p-4 md:p-8 md:p-16 rounded-[3rem] md:rounded-[4rem] text-white shadow-2xl relative overflow-hidden group">
         <div className="relative z-10">
           {currentTotalReviews > 0 ? (
             <>
@@ -753,7 +753,7 @@ function ReviewSection({ productId, slug, averageRating = 0, totalCount = 0 }) {
 
         <button 
           onClick={() => navigate(`/product/${slug}/write-review`)}
-          className="w-full md:w-auto relative z-10 px-8 md:px-12 py-5 md:py-6 bg-premium-gold text-charcoal font-black rounded-[2rem] md:rounded-[2.5rem] text-[10px] md:text-xs uppercase tracking-[0.3em] hover:bg-white transition-all shadow-xl hover:scale-105 active:scale-95"
+          className="w-full md:w-auto relative z-10 px-4 md:px-8 md:px-12 py-5 md:py-4 sm:py-6 bg-premium-gold text-charcoal font-black rounded-[2rem] md:rounded-[2.5rem] text-[10px] md:text-xs uppercase tracking-[0.3em] hover:bg-white transition-all shadow-xl hover:scale-105 active:scale-95"
         >
           WRITE A REVIEW
         </button>
@@ -763,7 +763,7 @@ function ReviewSection({ productId, slug, averageRating = 0, totalCount = 0 }) {
       </div>
 
       {/* Ratings Breakdown & Gallery Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center bg-white p-10 rounded-[3rem] border border-border-light shadow-xl">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center bg-white p-5 md:p-10 rounded-[3rem] border border-border-light shadow-xl">
         <div className="space-y-6">
           <h4 className="text-sm font-black text-charcoal uppercase tracking-[0.2em]">Rating Breakdown</h4>
           <div className="space-y-3">
@@ -826,7 +826,7 @@ function ReviewSection({ productId, slug, averageRating = 0, totalCount = 0 }) {
           </div>
         ) : (
           reviews.map(review => (
-            <div key={review?._id} className="p-6 md:p-10 bg-white rounded-[3rem] border border-border-light hover:shadow-2xl transition-all space-y-6">
+            <div key={review?._id} className="p-4 sm:p-6 md:p-5 md:p-10 bg-white rounded-[3rem] border border-border-light hover:shadow-2xl transition-all space-y-6">
               {/* Card Header */}
               <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                 <div className="flex items-center gap-4">
@@ -900,7 +900,7 @@ function ReviewSection({ productId, slug, averageRating = 0, totalCount = 0 }) {
 
               {/* Admin Reply */}
               {review.adminReply?.message && (
-                <div className="mt-8 p-6 bg-light-bg rounded-[2rem] border-l-4 border-premium-gold relative">
+                <div className="mt-8 p-4 sm:p-6 bg-light-bg rounded-[2rem] border-l-4 border-premium-gold relative">
                   <p className="text-[9px] font-black text-premium-gold uppercase tracking-[0.2em] mb-2">Magizhchi Official Team Response</p>
                   <p className="text-sm text-charcoal font-bold leading-relaxed">{review.adminReply.message}</p>
                 </div>

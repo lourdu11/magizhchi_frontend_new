@@ -73,7 +73,7 @@ export default function PricingStockTab() {
         <div className="grid grid-cols-2 gap-6">
           <div className="space-y-2">
             <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Net Price (Auto)</label>
-            <div className="w-full bg-charcoal text-premium-gold rounded-2xl px-4 sm:px-6 py-5 font-black text-lg shadow-inner">
+            <div className="w-full bg-charcoal text-premium-gold rounded-2xl px-4 sm:px-4 sm:px-6 py-5 font-black text-lg shadow-inner">
               ₹{Number(formData.discountedPrice || (formData.sellingPrice - formData.discountAmount)).toLocaleString()}
             </div>
           </div>
@@ -95,7 +95,7 @@ export default function PricingStockTab() {
           <button
             type="button"
             onClick={() => setField('multiBuyEnabled', !formData.multiBuyEnabled)}
-            className={`p-4 md:p-8 rounded-[2.5rem] border-2 text-left flex flex-col gap-4 group transition-all relative overflow-hidden ${
+            className={`p-4 md:p-4 md:p-8 rounded-[2.5rem] border-2 text-left flex flex-col gap-4 group transition-all relative overflow-hidden ${
               formData.multiBuyEnabled
                 ? 'border-charcoal bg-white shadow-xl'
                 : 'border-border-light bg-light-bg/30 grayscale opacity-60 hover:opacity-100 hover:grayscale-0'
@@ -120,7 +120,7 @@ export default function PricingStockTab() {
             <motion.div 
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
-              className="md:col-span-2 grid grid-cols-2 gap-6 bg-light-bg/20 p-4 md:p-8 rounded-[2.5rem] border border-border-light"
+              className="md:col-span-2 grid grid-cols-2 gap-6 bg-light-bg/20 p-4 md:p-4 md:p-8 rounded-[2.5rem] border border-border-light"
             >
               <InputField 
                 type="number" 
@@ -140,7 +140,7 @@ export default function PricingStockTab() {
               />
             </motion.div>
           ) : (
-            <div className="md:col-span-2 p-4 md:p-8 rounded-[2.5rem] border border-dashed border-border-light flex flex-col justify-center text-center min-h-[140px]">
+            <div className="md:col-span-2 p-4 md:p-4 md:p-8 rounded-[2.5rem] border border-dashed border-border-light flex flex-col justify-center text-center min-h-[140px]">
               <p className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">Promotion Inactive</p>
               <p className="text-[9px] text-text-muted/60 font-bold uppercase tracking-widest mt-2 leading-relaxed">
                 Enable multi-buy to specify pricing rules for customers purchasing multiples of this product.

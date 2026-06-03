@@ -317,7 +317,7 @@ export default function AdminOrders() {
 
 function OrderDetailsModal({ order, onClose, onUpdateStatus, onPrint, isUpdating, onResendWhatsApp }) {
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-4 sm:p-6">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-4 sm:p-4 sm:p-6">
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -333,7 +333,7 @@ function OrderDetailsModal({ order, onClose, onUpdateStatus, onPrint, isUpdating
         className="relative w-full max-w-5xl bg-white rounded-[2rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
       >
         {/* Header */}
-        <div className="px-4 md:px-8 py-4 sm:py-6 border-b border-border-light flex items-center justify-between bg-white sticky top-0 z-10">
+        <div className="px-4 md:px-4 md:px-8 py-4 sm:py-4 sm:py-6 border-b border-border-light flex items-center justify-between bg-white sticky top-0 z-10">
           <div className="flex items-center flex-wrap gap-4">
             <div className="w-12 h-12 rounded-2xl bg-premium-gold/10 flex items-center justify-center text-premium-gold">
               <Package size={24} />
@@ -375,7 +375,7 @@ function OrderDetailsModal({ order, onClose, onUpdateStatus, onPrint, isUpdating
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-4 md:p-4 md:p-8 custom-scrollbar">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
             {/* Left Column: Items */}
@@ -461,7 +461,7 @@ function OrderDetailsModal({ order, onClose, onUpdateStatus, onPrint, isUpdating
             {/* Right Column: Customer & Pricing */}
             <div className="space-y-8">
               {/* Customer Info */}
-              <div className="bg-light-bg/20 rounded-3xl p-4 sm:p-6 border border-border-light space-y-6">
+              <div className="bg-light-bg/20 rounded-3xl p-4 sm:p-4 sm:p-6 border border-border-light space-y-6">
                 <div>
                   <h3 className="text-xs font-black uppercase tracking-[0.2em] text-text-muted mb-4 flex items-center gap-2">
                     <User size={14} className="text-premium-gold" /> Customer Profile
@@ -525,7 +525,7 @@ function OrderDetailsModal({ order, onClose, onUpdateStatus, onPrint, isUpdating
               </div>
 
               {/* Pricing Breakdown */}
-              <div className="bg-charcoal text-white rounded-3xl p-4 md:p-8 shadow-xl shadow-charcoal/20 relative overflow-hidden group">
+              <div className="bg-charcoal text-white rounded-3xl p-4 md:p-4 md:p-8 shadow-xl shadow-charcoal/20 relative overflow-hidden group">
                 <div className="absolute top-[-10%] right-[-10%] w-32 h-32 bg-premium-gold/10 rounded-full blur-2xl group-hover:bg-premium-gold/20 transition-colors" />
                 
                 <h3 className="text-xs font-black uppercase tracking-[0.2em] text-white/40 mb-6">Financial Summary</h3>
@@ -559,7 +559,7 @@ function OrderDetailsModal({ order, onClose, onUpdateStatus, onPrint, isUpdating
 
               {/* Admin Actions Quick Toggle */}
               {!['delivered', 'cancelled', 'returned'].includes(order.orderStatus) && (
-                <div className="bg-white border border-border-light rounded-3xl p-4 sm:p-6 space-y-4">
+                <div className="bg-white border border-border-light rounded-3xl p-4 sm:p-4 sm:p-6 space-y-4">
                   <h3 className="text-xs font-black uppercase tracking-[0.2em] text-text-muted flex items-center gap-2">
                     <Zap size={14} className="text-premium-gold" /> Update status
                   </h3>

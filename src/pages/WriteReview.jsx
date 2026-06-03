@@ -71,7 +71,7 @@ export default function WriteReview() {
 
         <div className="bg-white rounded-[3rem] shadow-2xl overflow-hidden border border-border-light">
           {/* Product Quick Info Header */}
-          <div className="p-8 md:p-10 bg-charcoal text-white flex flex-col md:flex-row items-center gap-8 border-b border-white/10">
+          <div className="p-4 md:p-8 md:p-5 md:p-10 bg-charcoal text-white flex flex-col md:flex-row items-center gap-8 border-b border-white/10">
             <div className="w-24 h-24 bg-white rounded-2xl p-2 flex-shrink-0">
               <img src={product?.images?.[0] || '/placeholder.jpg'} alt={product?.name} className="w-full h-full object-contain" />
             </div>
@@ -88,7 +88,7 @@ export default function WriteReview() {
           </div>
 
           {/* Review Form Area */}
-          <div className="p-8 md:p-16 space-y-12">
+          <div className="p-4 md:p-8 md:p-16 space-y-12">
             {/* Rating Selection */}
             <div className="text-center space-y-6">
               <h2 className="text-sm font-black text-charcoal uppercase tracking-[0.3em]">How would you rate it?</h2>
@@ -124,7 +124,7 @@ export default function WriteReview() {
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-4">Review Title</label>
                 <input 
-                  className="w-full bg-light-bg border-2 border-transparent focus:border-green-600 rounded-2xl px-8 py-5 text-charcoal font-black text-sm placeholder:text-text-muted/40 transition-all uppercase tracking-widest outline-none"
+                  className="w-full bg-light-bg border-2 border-transparent focus:border-green-600 rounded-2xl px-4 md:px-8 py-5 text-charcoal font-black text-sm placeholder:text-text-muted/40 transition-all uppercase tracking-widest outline-none"
                   placeholder="Summarize your experience..."
                   value={title}
                   onChange={e => setTitle(e.target.value)}
@@ -134,7 +134,7 @@ export default function WriteReview() {
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-4">Detailed Feedback</label>
                 <textarea 
-                  className="w-full bg-light-bg border-2 border-transparent focus:border-green-600 rounded-[2.5rem] p-8 text-charcoal placeholder:text-text-muted/40 focus:ring-0 font-medium resize-none transition-all outline-none"
+                  className="w-full bg-light-bg border-2 border-transparent focus:border-green-600 rounded-[2.5rem] p-4 md:p-8 text-charcoal placeholder:text-text-muted/40 focus:ring-0 font-medium resize-none transition-all outline-none"
                   rows="6"
                   placeholder="What did you like or dislike? How was the quality?"
                   value={comment}
@@ -145,7 +145,7 @@ export default function WriteReview() {
               {/* Photo Upload Area */}
               <div className="space-y-4">
                 <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-4">Add Photos (Optional)</label>
-                <div className="p-10 bg-light-bg rounded-[3rem] border-2 border-dashed border-border-light hover:border-green-600/30 transition-all group relative overflow-hidden text-center">
+                <div className="p-5 md:p-10 bg-light-bg rounded-[3rem] border-2 border-dashed border-border-light hover:border-green-600/30 transition-all group relative overflow-hidden text-center">
                   <input 
                     type="file" 
                     id="review-images" 
@@ -194,7 +194,7 @@ export default function WriteReview() {
               <button 
                 onClick={() => submitMutation.mutate({ rating, comment, title })}
                 disabled={submitMutation.isPending || uploading || !comment.trim()}
-                className="w-full md:w-auto min-w-[240px] bg-charcoal text-white py-6 px-12 rounded-full font-black tracking-[0.3em] uppercase text-[10px] hover:bg-green-600 transition-all flex items-center justify-center gap-4 shadow-2xl disabled:opacity-50 hover:scale-105 active:scale-95"
+                className="w-full md:w-auto min-w-[240px] bg-charcoal text-white py-4 sm:py-6 px-12 rounded-full font-black tracking-[0.3em] uppercase text-[10px] hover:bg-green-600 transition-all flex items-center justify-center gap-4 shadow-2xl disabled:opacity-50 hover:scale-105 active:scale-95"
               >
                 {submitMutation.isPending || uploading ? (
                   <>

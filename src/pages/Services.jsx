@@ -105,7 +105,7 @@ export default function Services() {
         <div className="container-custom">
           <div className="bg-[#F8F8F6] rounded-[4rem] p-12 md:p-20 flex flex-col lg:flex-row items-center gap-16">
             <div className="flex-1 space-y-8 text-center lg:text-left">
-              <div className="inline-flex items-center gap-3 px-6 py-2 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-black uppercase tracking-widest">
+              <div className="inline-flex items-center gap-3 px-4 sm:px-6 py-2 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-black uppercase tracking-widest">
                 <Truck size={16} /> Pan-India Shipping
               </div>
               <h2 className="font-serif text-4xl md:text-6xl text-charcoal font-bold tracking-tight">Post Delivery</h2>
@@ -133,7 +133,7 @@ export default function Services() {
               Ready for a Style <span className="italic text-premium-gold">Revolution?</span>
             </h2>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-               <Link to="/contact" className="btn-gold px-16 py-6 rounded-2xl shadow-2xl w-full sm:w-auto">Start Consultation</Link>
+               <Link to="/contact" className="btn-gold px-16 py-4 sm:py-6 rounded-2xl shadow-2xl w-full sm:w-auto">Start Consultation</Link>
                <Link to="/collections" className="text-charcoal font-black uppercase tracking-widest text-sm hover:text-premium-gold transition-colors underline decoration-premium-gold decoration-2 underline-offset-8">Explore Catalog</Link>
             </div>
           </div>

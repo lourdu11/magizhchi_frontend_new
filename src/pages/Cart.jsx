@@ -87,7 +87,7 @@ export default function Cart() {
   return (
     <>
       <Helmet><title>Cart — Magizhchi Garments</title></Helmet>
-      <div className="min-h-dvh bg-cream-bg py-8">
+      <div className="min-h-dvh bg-cream-bg py-4 md:py-8">
         <div className="container-custom">
           <div className="flex items-center justify-between mb-8">
             <h1 className="section-title">Shopping Cart <span className="text-text-muted text-xl font-sans font-normal">({items.length} items)</span></h1>

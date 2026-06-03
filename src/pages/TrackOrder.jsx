@@ -53,7 +53,7 @@ export default function TrackOrder() {
         </div>
 
         {/* Tracking Form */}
-        <div className="bg-white rounded-3xl border border-border-light p-8 shadow-sm mb-10 max-w-2xl mx-auto">
+        <div className="bg-white rounded-3xl border border-border-light p-4 md:p-8 shadow-sm mb-10 max-w-2xl mx-auto">
           <form onSubmit={handleTrack} className="grid gap-4 md:grid-cols-[1fr_1fr_auto] items-stretch">
             <div className="flex-1">
               <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-2 block">Order ID</label>
@@ -82,7 +82,7 @@ export default function TrackOrder() {
             <button 
               type="submit" 
               disabled={loading}
-              className="btn-dark px-8 py-4 rounded-xl flex items-center justify-center gap-2 text-xs font-black tracking-widest md:mt-6 transition-all active:scale-95"
+              className="btn-dark px-4 md:px-8 py-4 rounded-xl flex items-center justify-center gap-2 text-xs font-black tracking-widest md:mt-6 transition-all active:scale-95"
             >
               {loading ? 'Searching...' : 'TRACK ORDER'}
             </button>
@@ -97,7 +97,7 @@ export default function TrackOrder() {
               className="space-y-6"
             >
               {/* Status Tracker */}
-              <div className="bg-white rounded-3xl border border-border-light p-10 shadow-lg">
+              <div className="bg-white rounded-3xl border border-border-light p-5 md:p-10 shadow-lg">
                 <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
                   <div>
                     <div className="flex items-center gap-2 mb-1">
@@ -107,7 +107,7 @@ export default function TrackOrder() {
                     <p className="text-xs text-text-muted mt-1 font-bold">Estimated Delivery: {order.estimatedDeliveryDate ? new Date(order.estimatedDeliveryDate).toDateString() : 'TBA'}</p>
                   </div>
                   {order.trackingInfo?.trackingNumber && (
-                    <div className="bg-light-bg px-6 py-3 rounded-2xl border border-border-light text-center">
+                    <div className="bg-light-bg px-4 sm:px-6 py-3 rounded-2xl border border-border-light text-center">
                       <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-1">Tracking ID</p>
                       <p className="font-black text-charcoal">{order.trackingInfo.trackingNumber}</p>
                     </div>
@@ -142,7 +142,7 @@ export default function TrackOrder() {
 
               {/* Order Details Grid */}
               <div className="grid md:grid-cols-2 gap-6">
-                <div className="bg-white rounded-3xl border border-border-light p-8">
+                <div className="bg-white rounded-3xl border border-border-light p-4 md:p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <MapPin className="text-premium-gold" size={20} />
                     <h4 className="font-black text-charcoal uppercase tracking-widest text-xs">Shipping Address</h4>
@@ -154,7 +154,7 @@ export default function TrackOrder() {
                   </p>
                 </div>
 
-                <div className="bg-white rounded-3xl border border-border-light p-8">
+                <div className="bg-white rounded-3xl border border-border-light p-4 md:p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <ShoppingBag className="text-premium-gold" size={20} />
                     <h4 className="font-black text-charcoal uppercase tracking-widest text-xs">Items Summary</h4>

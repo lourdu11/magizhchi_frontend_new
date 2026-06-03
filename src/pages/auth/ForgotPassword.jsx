@@ -160,7 +160,7 @@ export default function ForgotPassword() {
           </Link>
 
           {/* Card */}
-          <div className="bg-white rounded-2xl shadow-sm border border-border-light p-8">
+          <div className="bg-white rounded-2xl shadow-sm border border-border-light p-4 md:p-8">
 
             {/* ── Step Indicators ── */}
             <div className="flex items-center gap-2 mb-8">

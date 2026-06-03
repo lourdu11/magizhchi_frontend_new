@@ -287,7 +287,7 @@ const BroadcastCenter = () => {
     <div className="min-h-dvh bg-[#FAFAFA] font-sans pb-20">
       {/* 🧭 Guided Progress Bar */}
       <div className="bg-white border-b sticky top-0 z-50">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-4 sm:px-4 sm:px-6 h-20 flex items-center justify-between">
           <div className="flex items-center flex-wrap gap-4">
             <div className="w-10 h-10 bg-[#1A73E8] rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-100">
               <Zap size={20} fill="currentColor" />
@@ -332,7 +332,7 @@ const BroadcastCenter = () => {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto p-4 sm:p-6 mt-8">
+      <div className="max-w-5xl mx-auto p-4 sm:p-4 sm:p-6 mt-8">
         <AnimatePresence mode="wait">
           
           {/* STEP 1: SELECT AUDIENCE */}
@@ -356,7 +356,7 @@ const BroadcastCenter = () => {
                     key={seg.id}
                     onClick={() => selectSegment(seg.id)}
                     className={`
-                      p-4 sm:p-6 rounded-[2rem] border-2 text-left transition-all relative group
+                      p-4 sm:p-4 sm:p-6 rounded-[2rem] border-2 text-left transition-all relative group
                       ${filters.segment === seg.id ? 'bg-white border-[#1A73E8] shadow-xl shadow-blue-50 -translate-y-1' : 'bg-white border-transparent hover:border-[#DADCE0] shadow-sm'}
                     `}
                   >
@@ -375,7 +375,7 @@ const BroadcastCenter = () => {
               </div>
 
               {/* Custom Manual Recipient Card (Direct Number Entry) */}
-              <div className="bg-white rounded-[2.5rem] border border-[#DADCE0] shadow-sm p-4 md:p-8 flex flex-col gap-6 mt-10">
+              <div className="bg-white rounded-[2.5rem] border border-[#DADCE0] shadow-sm p-4 md:p-4 md:p-8 flex flex-col gap-6 mt-10">
                 <div className="flex items-center flex-wrap gap-3">
                   <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#1A73E8] flex items-center justify-center">
                     <Plus size={16} />
@@ -393,7 +393,7 @@ const BroadcastCenter = () => {
                       <textarea 
                         placeholder="Paste numbers separated by commas (e.g. 9876543210, 9123456789)"
                         rows={2}
-                        className="w-full bg-[#F8F9FA] px-4 sm:px-6 py-3 rounded-2xl border border-[#DADCE0] outline-none font-bold focus:ring-4 focus:ring-blue-100 text-sm resize-none"
+                        className="w-full bg-[#F8F9FA] px-4 sm:px-4 sm:px-6 py-3 rounded-2xl border border-[#DADCE0] outline-none font-bold focus:ring-4 focus:ring-blue-100 text-sm resize-none"
                         value={customPhone}
                         onChange={(e) => setCustomPhone(e.target.value.replace(/[^0-9,\s\n+]/g, ''))}
                       />
@@ -403,7 +403,7 @@ const BroadcastCenter = () => {
                       <input 
                         type="text" 
                         placeholder="e.g., Lourdu Custom"
-                        className="w-full bg-[#F8F9FA] px-4 sm:px-6 py-3 rounded-2xl border border-[#DADCE0] outline-none font-bold focus:ring-4 focus:ring-blue-100 text-sm"
+                        className="w-full bg-[#F8F9FA] px-4 sm:px-4 sm:px-6 py-3 rounded-2xl border border-[#DADCE0] outline-none font-bold focus:ring-4 focus:ring-blue-100 text-sm"
                         value={customName}
                         onChange={(e) => setCustomName(e.target.value)}
                       />
@@ -411,7 +411,7 @@ const BroadcastCenter = () => {
                   </div>
                   <button 
                     onClick={handleAddCustomRecipient}
-                    className="w-full md:w-auto bg-black text-white hover:bg-white hover:text-black hover:border-black border border-transparent px-4 md:px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 whitespace-nowrap"
+                    className="w-full md:w-auto bg-black text-white hover:bg-white hover:text-black hover:border-black border border-transparent px-4 md:px-4 md:px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 whitespace-nowrap"
                   >
                     <Plus size={16} /> Add Direct Numbers
                   </button>
@@ -441,7 +441,7 @@ const BroadcastCenter = () => {
 
               {/* Table List */}
               <div className="bg-white rounded-[2.5rem] border border-[#DADCE0] shadow-sm overflow-hidden mt-10">
-                <div className="p-4 md:p-8 border-b flex flex-col md:flex-row gap-6 justify-between items-center bg-[#F8F9FA]">
+                <div className="p-4 md:p-4 md:p-8 border-b flex flex-col md:flex-row gap-6 justify-between items-center bg-[#F8F9FA]">
                     <div className="relative w-full md:w-96">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#5F6368]" size={18} />
                         <input 
@@ -470,11 +470,11 @@ const BroadcastCenter = () => {
                     <table className="w-full min-w-[700px]">
                         <thead className="bg-[#F8F9FA] sticky top-0 z-10">
                             <tr className="text-[9px] font-black text-[#5F6368] uppercase tracking-[0.2em] border-b">
-                                <th className="px-4 md:px-8 py-4 w-12"></th>
-                                <th className="px-4 md:px-8 py-4">Customer</th>
-                                <th className="px-4 md:px-8 py-4">History</th>
-                                <th className="px-4 md:px-8 py-4">Value</th>
-                                <th className="px-4 md:px-8 py-4 text-right">Action</th>
+                                <th className="px-4 md:px-4 md:px-8 py-4 w-12"></th>
+                                <th className="px-4 md:px-4 md:px-8 py-4">Customer</th>
+                                <th className="px-4 md:px-4 md:px-8 py-4">History</th>
+                                <th className="px-4 md:px-4 md:px-8 py-4">Value</th>
+                                <th className="px-4 md:px-4 md:px-8 py-4 text-right">Action</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[#F1F3F4]">
@@ -484,12 +484,12 @@ const BroadcastCenter = () => {
                                     onClick={() => toggleRecipient(c)}
                                     className={`group hover:bg-[#F8F9FA] transition-colors cursor-pointer ${selectedRecipients.some(r => r.phone === c.phone) ? 'bg-blue-50/30' : ''}`}
                                 >
-                                    <td className="px-4 md:px-8 py-5">
+                                    <td className="px-4 md:px-4 md:px-8 py-5">
                                         <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${selectedRecipients.some(r => r.phone === c.phone) ? 'bg-[#1A73E8] border-[#1A73E8]' : 'border-[#DADCE0]'}`}>
                                             {selectedRecipients.some(r => r.phone === c.phone) && <CheckCircle size={12} className="text-white" />}
                                         </div>
                                     </td>
-                                    <td className="px-4 md:px-8 py-5">
+                                    <td className="px-4 md:px-4 md:px-8 py-5">
                                         <div className="flex items-center flex-wrap gap-3">
                                             <div className={`w-10 h-10 rounded-full flex items-center justify-center text-[10px] font-black text-white ${c.type === 'online' ? 'bg-[#1A73E8]' : 'bg-[#F4B400]'}`}>
                                                 {c.name.charAt(0)}
@@ -500,7 +500,7 @@ const BroadcastCenter = () => {
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-4 md:px-8 py-5">
+                                    <td className="px-4 md:px-4 md:px-8 py-5">
                                         <div className="flex items-center gap-2">
                                             <Calendar size={12} className="text-[#BDC1C6]" />
                                             <span className="text-[10px] font-black text-[#5F6368] uppercase">
@@ -508,13 +508,13 @@ const BroadcastCenter = () => {
                                             </span>
                                         </div>
                                     </td>
-                                    <td className="px-4 md:px-8 py-5">
+                                    <td className="px-4 md:px-4 md:px-8 py-5">
                                         <div className="flex flex-col">
                                             <span className="text-sm font-black text-[#202124]">₹{Math.round(c.totalSpent).toLocaleString()}</span>
                                             <span className="text-[9px] text-[#5F6368] font-bold uppercase">{c.billCount} Bills</span>
                                         </div>
                                     </td>
-                                    <td className="px-4 md:px-8 py-5 text-right">
+                                    <td className="px-4 md:px-4 md:px-8 py-5 text-right">
                                         <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${c.type === 'online' ? 'bg-blue-50 text-blue-600' : 'bg-yellow-50 text-yellow-700'}`}>
                                             {c.type}
                                         </span>
@@ -545,12 +545,12 @@ const BroadcastCenter = () => {
                     <h2 className="text-3xl font-black text-[#202124] tracking-tighter uppercase">What's the message?</h2>
                   </div>
 
-                  <div className="bg-white rounded-[2.5rem] border border-[#DADCE0] p-10 shadow-sm space-y-8">
+                  <div className="bg-white rounded-[2.5rem] border border-[#DADCE0] p-5 md:p-10 shadow-sm space-y-8">
                       <div>
                           <label className="text-[10px] font-black text-[#5F6368] uppercase tracking-[0.2em] mb-3 block">Internal Title</label>
                           <input 
                             type="text" 
-                            className="w-full bg-[#F8F9FA] border border-[#DADCE0] rounded-2xl px-4 sm:px-6 py-4 focus:ring-4 focus:ring-blue-100 outline-none font-bold"
+                            className="w-full bg-[#F8F9FA] border border-[#DADCE0] rounded-2xl px-4 sm:px-4 sm:px-6 py-4 focus:ring-4 focus:ring-blue-100 outline-none font-bold"
                             placeholder="e.g., Festival Offer 2026"
                             value={broadcastData.title}
                             onChange={(e) => setBroadcastData({...broadcastData, title: e.target.value})}
@@ -569,14 +569,14 @@ const BroadcastCenter = () => {
                           </div>
                           <textarea 
                             rows={8}
-                            className="w-full bg-[#F8F9FA] border border-[#DADCE0] rounded-2xl px-4 sm:px-6 py-4 focus:ring-4 focus:ring-blue-100 outline-none font-medium text-lg leading-relaxed"
+                            className="w-full bg-[#F8F9FA] border border-[#DADCE0] rounded-2xl px-4 sm:px-4 sm:px-6 py-4 focus:ring-4 focus:ring-blue-100 outline-none font-medium text-lg leading-relaxed"
                             placeholder="Type your magic here..."
                             value={broadcastData.message}
                             onChange={(e) => setBroadcastData({...broadcastData, message: e.target.value})}
                           />
                       </div>
 
-                      <div className="p-4 md:p-8 bg-[#F8F9FA] rounded-[2rem] border-2 border-dashed border-[#DADCE0] space-y-6">
+                      <div className="p-4 md:p-4 md:p-8 bg-[#F8F9FA] rounded-[2rem] border-2 border-dashed border-[#DADCE0] space-y-6">
                           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                               <div className="flex items-center flex-wrap gap-4">
                                   <ImageIcon size={24} className="text-[#1A73E8]" />
@@ -584,7 +584,7 @@ const BroadcastCenter = () => {
                               </div>
                               <div className="flex gap-2 w-full md:w-auto">
                                   <input type="file" className="hidden" ref={fileInputRef} onChange={handleImageUpload} />
-                                  <button onClick={() => fileInputRef.current.click()} className="bg-white px-4 sm:px-6 py-2.5 rounded-xl border border-[#DADCE0] text-[9px] font-black uppercase tracking-widest flex-1 md:flex-none">
+                                  <button onClick={() => fileInputRef.current.click()} className="bg-white px-4 sm:px-4 sm:px-6 py-2.5 rounded-xl border border-[#DADCE0] text-[9px] font-black uppercase tracking-widest flex-1 md:flex-none">
                                       {uploading ? <Loader2 size={14} className="animate-spin inline" /> : 'Upload File'}
                                   </button>
                               </div>
@@ -605,7 +605,7 @@ const BroadcastCenter = () => {
                                    setBroadcastUrlInput('');
                                    toast.success('URL applied!');
                                 }}
-                                className="bg-[#202124] text-white px-4 sm:px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest"
+                                className="bg-[#202124] text-white px-4 sm:px-4 sm:px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest"
                              >
                                 Apply
                              </button>
@@ -640,7 +640,7 @@ const BroadcastCenter = () => {
               <div className="lg:col-span-5 space-y-6 pt-24">
                   <h3 className="text-[10px] font-black text-[#5F6368] uppercase tracking-widest mb-4">Magic Templates</h3>
                   {templates.length === 0 ? (
-                      <div className="bg-white p-4 md:p-8 rounded-[2rem] border border-[#DADCE0] text-center italic text-[#BDC1C6] text-sm">
+                      <div className="bg-white p-4 md:p-4 md:p-8 rounded-[2rem] border border-[#DADCE0] text-center italic text-[#BDC1C6] text-sm">
                           No templates found. Go to 'Creative' tab to build some!
                       </div>
                   ) : (
@@ -649,7 +649,7 @@ const BroadcastCenter = () => {
                               <button 
                                 key={t._id}
                                 onClick={() => setBroadcastData({...broadcastData, message: t.content, title: t.name})}
-                                className="w-full p-4 sm:p-6 bg-white border border-[#DADCE0] rounded-[1.5rem] text-left hover:border-[#1A73E8] hover:bg-blue-50 transition-all group"
+                                className="w-full p-4 sm:p-4 sm:p-6 bg-white border border-[#DADCE0] rounded-[1.5rem] text-left hover:border-[#1A73E8] hover:bg-blue-50 transition-all group"
                               >
                                   <h4 className="font-black text-[#202124] text-xs uppercase tracking-tight group-hover:text-[#1A73E8]">{t.name}</h4>
                                   <p className="text-[10px] text-[#5F6368] font-medium line-clamp-2 mt-2">{t.content}</p>
@@ -676,7 +676,7 @@ const BroadcastCenter = () => {
               </div>
 
               {/* Phone Mockup */}
-              <div className="bg-[#121212] rounded-[3.5rem] p-10 shadow-2xl relative border-[12px] border-[#202124] max-w-sm mx-auto">
+              <div className="bg-[#121212] rounded-[3.5rem] p-5 md:p-10 shadow-2xl relative border-[12px] border-[#202124] max-w-sm mx-auto">
                     <div className="flex justify-between items-center mb-10 px-4 text-white/50 text-xs">
                         <span>9:41</span>
                         <div className="w-20 h-6 bg-black rounded-full" />
@@ -692,7 +692,7 @@ const BroadcastCenter = () => {
                     </div>
               </div>
 
-              <div className="bg-white rounded-[3rem] border border-[#DADCE0] p-10 shadow-sm space-y-8">
+              <div className="bg-white rounded-[3rem] border border-[#DADCE0] p-5 md:p-10 shadow-sm space-y-8">
                   <div className="grid grid-cols-2 gap-8">
                       <div>
                           <p className="text-[10px] font-black text-[#5F6368] uppercase tracking-widest mb-1">Target</p>
@@ -709,7 +709,7 @@ const BroadcastCenter = () => {
                         onClick={handleSendBroadcast}
                         disabled={loading || selectedRecipients.length === 0}
                         className={`
-                            w-full py-4 sm:py-6 rounded-[2rem] font-black uppercase tracking-[0.4em] text-sm transition-all shadow-xl flex items-center justify-center gap-4
+                            w-full py-4 sm:py-4 sm:py-6 rounded-[2rem] font-black uppercase tracking-[0.4em] text-sm transition-all shadow-xl flex items-center justify-center gap-4
                             ${(loading || selectedRecipients.length === 0) ? 'bg-[#F1F3F4] text-[#BDC1C6]' : 'bg-[#1A73E8] text-white shadow-blue-200 hover:bg-[#185ABC] hover:-translate-y-1'}
                         `}
                       >
@@ -781,7 +781,7 @@ const BroadcastCenter = () => {
                               onChange={(e) => setHistorySearch(e.target.value)}
                             />
                         </div>
-                        <button onClick={() => setCurrentStep(1)} className="bg-[#1A73E8] text-white px-4 md:px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 whitespace-nowrap shadow-lg shadow-blue-100">
+                        <button onClick={() => setCurrentStep(1)} className="bg-[#1A73E8] text-white px-4 md:px-4 md:px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 whitespace-nowrap shadow-lg shadow-blue-100">
                             <Plus size={16} /> New Campaign
                         </button>
                     </div>
@@ -789,7 +789,7 @@ const BroadcastCenter = () => {
 
                 <div className="grid gap-6">
                     {history.filter(h => h.title.toLowerCase().includes(historySearch.toLowerCase())).map(item => (
-                        <div key={item._id} className="bg-white p-4 md:p-8 rounded-[2.5rem] border border-[#DADCE0] shadow-sm hover:border-[#1A73E8] transition-all group cursor-pointer relative overflow-hidden" onClick={() => fetchDetails(item)}>
+                        <div key={item._id} className="bg-white p-4 md:p-4 md:p-8 rounded-[2.5rem] border border-[#DADCE0] shadow-sm hover:border-[#1A73E8] transition-all group cursor-pointer relative overflow-hidden" onClick={() => fetchDetails(item)}>
                             {item.status === 'processing' && (
                               <div className="absolute bottom-0 left-0 h-1 bg-blue-500 transition-all duration-1000" style={{ width: `${(item.stats.sent / item.totalRecipients) * 100}%` }} />
                             )}
@@ -851,7 +851,7 @@ const BroadcastCenter = () => {
 
               {whatsappStatus.ready ? (
                 /* Connected State Card */
-                <div className="bg-white rounded-[2.5rem] border border-[#DADCE0] shadow-xl p-10 flex flex-col items-center text-center gap-6 relative overflow-hidden">
+                <div className="bg-white rounded-[2.5rem] border border-[#DADCE0] shadow-xl p-5 md:p-10 flex flex-col items-center text-center gap-6 relative overflow-hidden">
                   <div className="absolute top-0 inset-x-0 h-2 bg-emerald-500" />
                   
                   <div className="w-20 h-20 rounded-[2rem] bg-emerald-50 text-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-50 animate-pulse">
@@ -866,7 +866,7 @@ const BroadcastCenter = () => {
                     </p>
                   </div>
 
-                  <div className="w-full bg-[#F8F9FA] rounded-3xl p-4 sm:p-6 border border-[#DADCE0] flex flex-col gap-3 text-left">
+                  <div className="w-full bg-[#F8F9FA] rounded-3xl p-4 sm:p-4 sm:p-6 border border-[#DADCE0] flex flex-col gap-3 text-left">
                     <div className="flex justify-between items-center text-xs font-bold border-b border-[#DADCE0]/60 pb-3">
                       <span className="text-[#5F6368]">Integration Engine</span>
                       <span className="text-[#202124]">Baileys (WebSockets)</span>
@@ -895,7 +895,7 @@ const BroadcastCenter = () => {
                 </div>
               ) : (
                 /* Disconnected / Scanning QR Code State Card */
-                <div className="bg-white rounded-[2.5rem] border border-[#DADCE0] shadow-xl p-10 flex flex-col md:flex-row gap-10 items-center">
+                <div className="bg-white rounded-[2.5rem] border border-[#DADCE0] shadow-xl p-5 md:p-10 flex flex-col md:flex-row gap-10 items-center">
                   
                   <div className="flex-1 space-y-6">
                     <div className="flex items-center flex-wrap gap-3">
@@ -971,7 +971,7 @@ const BroadcastCenter = () => {
       {/* DETAIL MODAL OVERLAY */}
       <AnimatePresence>
         {selectedBroadcast && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-end p-0 md:p-4 sm:p-6">
+          <div className="fixed inset-0 z-[100] flex items-center justify-end p-0 md:p-4 sm:p-4 sm:p-6">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedBroadcast(null)} className="absolute inset-0 bg-[#202124]/80 backdrop-blur-md" />
             <motion.div 
               initial={{ x: '100%' }} 
@@ -979,7 +979,7 @@ const BroadcastCenter = () => {
               exit={{ x: '100%' }} 
               className="relative w-full max-w-2xl h-full bg-[#FAFAFA] md:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col"
             >
-                <div className="p-10 bg-white border-b border-[#DADCE0]">
+                <div className="p-5 md:p-10 bg-white border-b border-[#DADCE0]">
                   <div className="flex justify-between items-start mb-6">
                     <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${selectedBroadcast.status === 'completed' ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600'}`}>
                       {selectedBroadcast.status}
@@ -989,7 +989,7 @@ const BroadcastCenter = () => {
                   <h2 className="text-3xl font-black text-[#202124] tracking-tighter uppercase">{selectedBroadcast.title}</h2>
                   
                   {/* WhatsApp Style Preview */}
-                  <div className="mt-6 bg-[#E7FFDB] p-4 sm:p-6 rounded-2xl rounded-tl-none border border-[#D0EBC1] relative shadow-sm max-w-[90%]">
+                  <div className="mt-6 bg-[#E7FFDB] p-4 sm:p-4 sm:p-6 rounded-2xl rounded-tl-none border border-[#D0EBC1] relative shadow-sm max-w-[90%]">
                       <div className="absolute -left-2 top-0 w-4 h-4 bg-[#E7FFDB] rotate-45 border-l border-t border-[#D0EBC1]" style={{ clipPath: 'polygon(0 0, 100% 0, 0 100%)' }} />
                       <p className="text-[#202124] text-sm whitespace-pre-wrap leading-relaxed">{selectedBroadcast.message}</p>
                       <div className="flex justify-end items-center gap-1 mt-2">
@@ -999,7 +999,7 @@ const BroadcastCenter = () => {
                   </div>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-10 custom-scrollbar">
+                <div className="flex-1 overflow-y-auto p-5 md:p-10 custom-scrollbar">
                   {loadingDetails ? (
                     <div className="flex flex-col items-center justify-center h-full opacity-50">
                       <Loader2 size={40} className="animate-spin text-[#1A73E8] mb-4" />
@@ -1009,7 +1009,7 @@ const BroadcastCenter = () => {
                     <div className="space-y-4">
                       <h4 className="text-[10px] font-black text-[#5F6368] uppercase tracking-[0.3em] mb-6">Transmission Ledger</h4>
                       {broadcastDetails?.map((log, i) => (
-                        <div key={i} className="bg-white p-4 sm:p-6 rounded-3xl border border-[#DADCE0] flex items-center justify-between group hover:border-[#1A73E8] transition-all">
+                        <div key={i} className="bg-white p-4 sm:p-4 sm:p-6 rounded-3xl border border-[#DADCE0] flex items-center justify-between group hover:border-[#1A73E8] transition-all">
                           <div className="flex items-center flex-wrap gap-4">
                             <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${['sent', 'delivered'].includes(log.status) ? 'bg-emerald-50 text-emerald-600' : log.status === 'failed' ? 'bg-red-50 text-red-600' : 'bg-gray-50 text-gray-400'}`}>
                               {['sent', 'delivered'].includes(log.status) ? <CheckCircle size={18} /> : log.status === 'failed' ? <AlertCircle size={18} /> : <Clock size={18} />}

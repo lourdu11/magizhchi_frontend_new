@@ -79,7 +79,7 @@ const ProductBrowser = memo(({ products, categories, isLoading }) => {
   return (
     <div className="flex-1 flex flex-col min-w-0 bg-white border-r border-border-light relative" onClick={handlePageClick}>
       {/* Header / Search */}
-      <div className="p-8 space-y-8 border-b border-border-light">
+      <div className="p-4 md:p-8 space-y-8 border-b border-border-light">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-black text-charcoal uppercase tracking-tighter">Magizhchi POS</h1>
@@ -112,7 +112,7 @@ const ProductBrowser = memo(({ products, categories, isLoading }) => {
               id="pos-search"
               type="text"
               placeholder="🔫 Scan Barcode or Search Products (F1)..."
-              className="w-full bg-light-bg/50 border-none rounded-[2rem] pl-16 pr-8 py-6 text-sm font-bold focus:ring-4 focus:ring-premium-gold/10 transition-all outline-none"
+              className="w-full bg-light-bg/50 border-none rounded-[2rem] pl-16 pr-8 py-4 sm:py-6 text-sm font-bold focus:ring-4 focus:ring-premium-gold/10 transition-all outline-none"
               value={search}
               onChange={(e) => dispatch({ type: 'SET_SEARCH', payload: e.target.value })}
               onFocus={() => setScannerReady(true)}
@@ -142,7 +142,7 @@ const ProductBrowser = memo(({ products, categories, isLoading }) => {
         <div className="flex items-center gap-4 overflow-x-auto pb-2 scrollbar-hide">
           <button 
             onClick={() => dispatch({ type: 'SET_CATEGORY', payload: 'All' })}
-            className={`px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all ${selectedCategory === 'All' ? 'bg-charcoal text-white shadow-xl shadow-charcoal/20' : 'bg-light-bg text-text-muted hover:text-charcoal'}`}
+            className={`px-4 md:px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all ${selectedCategory === 'All' ? 'bg-charcoal text-white shadow-xl shadow-charcoal/20' : 'bg-light-bg text-text-muted hover:text-charcoal'}`}
           >
             All Items
           </button>
@@ -150,7 +150,7 @@ const ProductBrowser = memo(({ products, categories, isLoading }) => {
             <button 
               key={cat._id}
               onClick={() => dispatch({ type: 'SET_CATEGORY', payload: cat.name })}
-              className={`px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all ${selectedCategory === cat.name ? 'bg-charcoal text-white shadow-xl shadow-charcoal/20' : 'bg-light-bg text-text-muted hover:text-charcoal'}`}
+              className={`px-4 md:px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all ${selectedCategory === cat.name ? 'bg-charcoal text-white shadow-xl shadow-charcoal/20' : 'bg-light-bg text-text-muted hover:text-charcoal'}`}
             >
               {cat.name}
             </button>
@@ -159,7 +159,7 @@ const ProductBrowser = memo(({ products, categories, isLoading }) => {
       </div>
 
       {/* Product List */}
-      <div className="flex-1 overflow-y-auto p-8 bg-light-bg/20">
+      <div className="flex-1 overflow-y-auto p-4 md:p-8 bg-light-bg/20">
         {isLoading ? (
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
             {Array.from({ length: 10 }).map((_, i) => <PosProductSkeleton key={i} />)}
@@ -196,9 +196,9 @@ const ProductBrowser = memo(({ products, categories, isLoading }) => {
 
       {/* Variant Selector Overlay */}
       {selectedProduct && (
-        <div className="absolute inset-0 bg-charcoal/60 backdrop-blur-md z-50 flex items-center justify-center p-8">
+        <div className="absolute inset-0 bg-charcoal/60 backdrop-blur-md z-50 flex items-center justify-center p-4 md:p-8">
            <div className="bg-white rounded-[3rem] w-full max-w-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
-              <div className="p-8 border-b border-border-light flex items-center justify-between">
+              <div className="p-4 md:p-8 border-b border-border-light flex items-center justify-between">
                  <div className="flex items-center gap-4">
                     <div className="w-16 h-16 bg-light-bg rounded-2xl overflow-hidden border border-border-light">
                        <SafeImage src={resolveAssetURL(selectedProduct.thumbnail || selectedProduct.images?.[0])} className="w-full h-full object-cover" />
@@ -213,7 +213,7 @@ const ProductBrowser = memo(({ products, categories, isLoading }) => {
                  </button>
               </div>
 
-              <div className="p-8 space-y-6">
+              <div className="p-4 md:p-8 space-y-6">
                  <p className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">Select Variant</p>
                  <div className="grid grid-cols-1 gap-3 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin">
                     {isVariantsLoading ? (
@@ -233,7 +233,7 @@ const ProductBrowser = memo(({ products, categories, isLoading }) => {
                             });
                             setSelectedProduct(null);
                           }}
-                          className={`flex items-center justify-between p-6 bg-light-bg/50 rounded-2xl border-2 border-transparent hover:border-premium-gold hover:bg-white transition-all group ${v.availableStock <= 0 ? 'opacity-70' : ''}`}
+                          className={`flex items-center justify-between p-4 sm:p-6 bg-light-bg/50 rounded-2xl border-2 border-transparent hover:border-premium-gold hover:bg-white transition-all group ${v.availableStock <= 0 ? 'opacity-70' : ''}`}
                         >
                         <div className="flex items-center gap-4">
                            <div className="w-12 h-12 bg-white rounded-xl overflow-hidden flex items-center justify-center text-xs font-black text-charcoal border border-border-light uppercase shrink-0">

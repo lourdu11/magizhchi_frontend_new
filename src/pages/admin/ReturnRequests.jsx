@@ -62,31 +62,31 @@ export default function ReturnRequests() {
         <table className="w-full min-w-[700px] text-left border-collapse">
           <thead>
             <tr className="bg-light-bg border-b border-border-light">
-              <th className="px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase">Order #</th>
-              <th className="px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase hidden md:table-cell">Customer</th>
-              <th className="px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase">Reason</th>
-              <th className="px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase">Status</th>
-              <th className="px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase text-right">Actions</th>
+              <th className="px-4 sm:px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase">Order #</th>
+              <th className="px-4 sm:px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase hidden md:table-cell">Customer</th>
+              <th className="px-4 sm:px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase">Reason</th>
+              <th className="px-4 sm:px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase">Status</th>
+              <th className="px-4 sm:px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border-light">
             {orders?.length === 0 && (
-              <tr><td colSpan="5" className="px-4 sm:px-6 py-12 text-center text-text-muted">No return requests found.</td></tr>
+              <tr><td colSpan="5" className="px-4 sm:px-4 sm:px-6 py-12 text-center text-text-muted">No return requests found.</td></tr>
             )}
             {orders?.map(order => (
               <tr key={order._id} className="hover:bg-light-bg/50 transition-colors group">
-                <td className="px-4 sm:px-6 py-4 font-bold text-text-primary">#{order.orderNumber}</td>
-                <td className="px-4 sm:px-6 py-4 hidden md:table-cell">
+                <td className="px-4 sm:px-4 sm:px-6 py-4 font-bold text-text-primary">#{order.orderNumber}</td>
+                <td className="px-4 sm:px-4 sm:px-6 py-4 hidden md:table-cell">
                   <p className="text-sm font-medium">{order.userId?.name || order.guestDetails?.name || 'Guest'}</p>
                   <p className="text-xs text-text-muted">{order.userId?.phone || order.guestDetails?.phone}</p>
                 </td>
-                <td className="px-4 sm:px-6 py-4">
+                <td className="px-4 sm:px-4 sm:px-6 py-4">
                   <div className="flex items-start gap-2 max-w-xs">
                     <AlertCircle size={14} className="text-amber-500 mt-0.5 shrink-0" />
                     <p className="text-sm text-text-primary italic line-clamp-2">"{order.returnRequest?.reason}"</p>
                   </div>
                 </td>
-                <td className="px-4 sm:px-6 py-4">
+                <td className="px-4 sm:px-4 sm:px-6 py-4">
                   <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase ${
                     order.returnRequest?.status === 'pending' ? 'bg-amber-50 text-amber-700'
                     : order.returnRequest?.status === 'approved' ? 'bg-green-50 text-green-700'
@@ -95,7 +95,7 @@ export default function ReturnRequests() {
                     {order.returnRequest?.status}
                   </span>
                 </td>
-                <td className="px-4 sm:px-6 py-4 text-right">
+                <td className="px-4 sm:px-4 sm:px-6 py-4 text-right">
                   <div className="flex items-center justify-end gap-2">
                     {order.returnRequest?.status === 'pending' && (
                       <>

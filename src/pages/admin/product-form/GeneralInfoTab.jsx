@@ -48,7 +48,7 @@ function BarcodePreview({ value, productName, price }) {
   if (!value) return null;
 
   return (
-    <div className="mt-4 p-4 sm:p-6 bg-white rounded-[2rem] border-2 border-dashed border-premium-gold/30 flex flex-col items-center gap-3">
+    <div className="mt-4 p-4 sm:p-4 sm:p-6 bg-white rounded-[2rem] border-2 border-dashed border-premium-gold/30 flex flex-col items-center gap-3">
       <p className="text-[9px] font-black uppercase tracking-widest text-text-muted">Barcode Preview (Print & Stick on Product)</p>
       {/* Printable Label */}
       <div id="barcode-label-preview" className="flex flex-col items-center bg-white border border-gray-200 rounded-xl p-3 shadow-sm" style={{ width: '180px' }}>
@@ -79,13 +79,13 @@ export default function GeneralInfoTab({ categories }) {
         <div className="flex bg-light-bg p-1 rounded-2xl">
           <button 
             onClick={() => setField('productNature', 'standalone')} 
-            className={`px-4 sm:px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${formData.productNature === 'standalone' ? 'bg-white text-charcoal shadow-sm' : 'text-text-muted hover:text-charcoal'}`}
+            className={`px-4 sm:px-4 sm:px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${formData.productNature === 'standalone' ? 'bg-white text-charcoal shadow-sm' : 'text-text-muted hover:text-charcoal'}`}
           >
             Standalone
           </button>
           <button 
             onClick={() => setField('productNature', 'combo')} 
-            className={`px-4 sm:px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${formData.productNature === 'combo' ? 'bg-white text-charcoal shadow-sm' : 'text-text-muted hover:text-charcoal'}`}
+            className={`px-4 sm:px-4 sm:px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${formData.productNature === 'combo' ? 'bg-white text-charcoal shadow-sm' : 'text-text-muted hover:text-charcoal'}`}
           >
             Combo/Bundle
           </button>
@@ -103,7 +103,7 @@ export default function GeneralInfoTab({ categories }) {
         <div className="space-y-2">
           <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Category Master</label>
           <select 
-            className="w-full bg-light-bg/50 border-none rounded-2xl px-4 sm:px-6 py-5 font-black text-xs uppercase focus:ring-4 focus:ring-premium-gold/10 transition-all outline-none" 
+            className="w-full bg-light-bg/50 border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-5 font-black text-xs uppercase focus:ring-4 focus:ring-premium-gold/10 transition-all outline-none" 
             value={formData.category} 
             onChange={e => setField('category', e.target.value)}
           >
@@ -120,7 +120,7 @@ export default function GeneralInfoTab({ categories }) {
       </div>
 
       {/* ── BARCODE MANAGEMENT SECTION ───────────────────── */}
-      <div className="space-y-4 p-4 md:p-8 bg-light-bg/40 rounded-[2.5rem] border border-border-light">
+      <div className="space-y-4 p-4 md:p-4 md:p-8 bg-light-bg/40 rounded-[2.5rem] border border-border-light">
         <div className="flex items-center gap-3 mb-2">
           <div className="bg-premium-gold/10 p-2.5 rounded-xl">
             <Barcode size={18} className="text-premium-gold" />
@@ -136,7 +136,7 @@ export default function GeneralInfoTab({ categories }) {
             <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Barcode Number (EAN-13)</label>
             <input
               type="text"
-              className="w-full bg-white border-none rounded-2xl px-4 md:px-8 py-5 font-black text-xs tracking-[0.2em] focus:ring-4 focus:ring-premium-gold/10 transition-all outline-none font-mono"
+              className="w-full bg-white border-none rounded-2xl px-4 md:px-4 md:px-8 py-5 font-black text-xs tracking-[0.2em] focus:ring-4 focus:ring-premium-gold/10 transition-all outline-none font-mono"
               placeholder="Auto-generate or type existing barcode..."
               value={formData.barcode || ''}
               onChange={e => setField('barcode', e.target.value)}
@@ -149,7 +149,7 @@ export default function GeneralInfoTab({ categories }) {
               const code = generateEAN13();
               setField('barcode', code);
             }}
-            className="flex items-center gap-2 px-4 sm:px-6 py-5 bg-premium-gold text-charcoal rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-premium-gold/80 active:scale-95 transition-all shadow-md whitespace-nowrap"
+            className="flex items-center gap-2 px-4 sm:px-4 sm:px-6 py-5 bg-premium-gold text-charcoal rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-premium-gold/80 active:scale-95 transition-all shadow-md whitespace-nowrap"
           >
             <RefreshCw size={14} />
             Auto-Generate EAN-13
@@ -192,7 +192,7 @@ export default function GeneralInfoTab({ categories }) {
               `);
               printWin.document.close();
             }}
-            className="flex items-center gap-2 px-4 sm:px-6 py-3.5 bg-charcoal text-white rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-charcoal/80 active:scale-95 transition-all"
+            className="flex items-center gap-2 px-4 sm:px-4 sm:px-6 py-3.5 bg-charcoal text-white rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-charcoal/80 active:scale-95 transition-all"
           >
             <Printer size={14} />
             Print Barcode Label
@@ -204,7 +204,7 @@ export default function GeneralInfoTab({ categories }) {
         <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Product Description</label>
         <textarea 
           rows={6} 
-          className="w-full bg-light-bg/50 border-none rounded-[2.5rem] p-4 md:p-8 text-sm font-medium focus:ring-4 focus:ring-premium-gold/10 transition-all resize-none outline-none" 
+          className="w-full bg-light-bg/50 border-none rounded-[2.5rem] p-4 md:p-4 md:p-8 text-sm font-medium focus:ring-4 focus:ring-premium-gold/10 transition-all resize-none outline-none" 
           placeholder="Engaging story or details..." 
           value={formData.description} 
           onChange={e => setField('description', e.target.value)} 

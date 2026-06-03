@@ -104,13 +104,13 @@ export default function AdminBills() {
         <table className="w-full text-left border-collapse relative">
           <thead>
             <tr className="sticky top-0 z-10 border-b border-border-light shadow-sm">
-              <th className="bg-light-bg px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase">Bill #</th>
-              <th className="bg-light-bg px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase hidden md:table-cell">Customer</th>
-              <th className="bg-light-bg px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase hidden lg:table-cell">Staff</th>
-              <th className="bg-light-bg px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase">Amount</th>
-              <th className="bg-light-bg px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase hidden md:table-cell">Payment</th>
-              <th className="bg-light-bg px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase hidden lg:table-cell">Date</th>
-              <th className="bg-light-bg px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase text-right">Actions</th>
+              <th className="bg-light-bg px-4 sm:px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase">Bill #</th>
+              <th className="bg-light-bg px-4 sm:px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase hidden md:table-cell">Customer</th>
+              <th className="bg-light-bg px-4 sm:px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase hidden lg:table-cell">Staff</th>
+              <th className="bg-light-bg px-4 sm:px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase">Amount</th>
+              <th className="bg-light-bg px-4 sm:px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase hidden md:table-cell">Payment</th>
+              <th className="bg-light-bg px-4 sm:px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase hidden lg:table-cell">Date</th>
+              <th className="bg-light-bg px-4 sm:px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border-light">
@@ -133,7 +133,7 @@ export default function AdminBills() {
                       data-index={virtualRow.index}
                       className={`hover:bg-light-bg/50 transition-colors group ${bill.status === 'voided' ? 'opacity-60 grayscale-[0.3]' : ''}`}
                     >
-                      <td className="px-4 sm:px-6 py-4">
+                      <td className="px-4 sm:px-4 sm:px-6 py-4">
                         <div className="flex items-center gap-2">
                           <p className={`font-bold text-sm ${bill.status === 'voided' ? 'text-red-600 line-through' : 'text-text-primary'}`}>#{bill.billNumber}</p>
                           {bill.status === 'voided' && (
@@ -142,23 +142,23 @@ export default function AdminBills() {
                         </div>
                         <p className="text-[10px] text-text-muted">{bill.items?.length} item{bill.items?.length !== 1 ? 's' : ''}</p>
                       </td>
-                      <td className="px-4 sm:px-6 py-4 hidden md:table-cell">
+                      <td className="px-4 sm:px-4 sm:px-6 py-4 hidden md:table-cell">
                         <p className="text-sm font-medium text-text-primary">{bill.customerDetails?.name || 'Walk-in'}</p>
                         <p className="text-xs text-text-muted">{bill.customerDetails?.phone || '—'}</p>
                       </td>
-                      <td className="px-4 sm:px-6 py-4 hidden lg:table-cell">
+                      <td className="px-4 sm:px-4 sm:px-6 py-4 hidden lg:table-cell">
                         <p className="text-sm text-text-muted">{bill.staffId?.name || '—'}</p>
                       </td>
-                      <td className="px-4 sm:px-6 py-4">
+                      <td className="px-4 sm:px-4 sm:px-6 py-4">
                         <p className={`font-bold ${bill.status === 'voided' ? 'text-text-muted' : 'text-premium-gold'}`}>Rs.{(bill.pricing?.totalAmount / 100).toLocaleString('en-IN')}</p>
                       </td>
-                      <td className="px-4 sm:px-6 py-4 hidden md:table-cell">
+                      <td className="px-4 sm:px-4 sm:px-6 py-4 hidden md:table-cell">
                         <span className={`text-xs font-bold px-2.5 py-1 rounded-full uppercase ${bill.status === 'voided' ? 'bg-gray-100 text-gray-500' : 'bg-blue-50 text-blue-700'}`}>{bill.paymentMethod}</span>
                       </td>
-                      <td className="px-4 sm:px-6 py-4 hidden lg:table-cell">
+                      <td className="px-4 sm:px-4 sm:px-6 py-4 hidden lg:table-cell">
                         <p className="text-sm text-text-muted">{new Date(bill.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
                       </td>
-                      <td className="px-4 sm:px-6 py-4 text-right flex justify-end gap-2">
+                      <td className="px-4 sm:px-4 sm:px-6 py-4 text-right flex justify-end gap-2">
                         <button onClick={() => window.print()} title="Print Bill" className="p-2 text-text-muted hover:text-premium-gold transition-colors opacity-0 group-hover:opacity-100">
                           <Printer size={16} />
                         </button>
@@ -191,7 +191,7 @@ export default function AdminBills() {
         {deletingBill && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setDeletingBill(null)} className="absolute inset-0 bg-charcoal/40 backdrop-blur-sm" />
-            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="relative bg-white rounded-3xl p-4 md:p-8 max-w-md w-full shadow-2xl border border-border-light">
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="relative bg-white rounded-3xl p-4 md:p-4 md:p-8 max-w-md w-full shadow-2xl border border-border-light">
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-12 h-12 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center border border-red-100">
                   <Trash2 size={24} />

@@ -167,7 +167,7 @@ export default function AdminPurchases() {
           <h1 className="text-3xl font-black text-charcoal tracking-tighter uppercase mb-1">Purchase Bills</h1>
           <p className="text-xs text-text-muted font-bold uppercase tracking-widest">Supplier Stock Entry → Inventory Auto-Sync</p>
         </div>
-        <button onClick={() => setShowForm(true)} className="px-4 sm:px-6 py-3 bg-charcoal text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-premium-gold hover:text-charcoal transition-all flex items-center gap-2 shadow-xl">
+        <button onClick={() => setShowForm(true)} className="px-4 sm:px-4 sm:px-6 py-3 bg-charcoal text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-premium-gold hover:text-charcoal transition-all flex items-center gap-2 shadow-xl">
           <Plus size={14} /> New Purchase Bill
         </button>
       </div>
@@ -194,7 +194,7 @@ export default function AdminPurchases() {
             <thead>
               <tr className="bg-light-bg/50 border-b border-border-light">
                 {['Purchase #', 'Date', 'Supplier', 'Items', 'Total Amount', 'Payment', 'Inventory'].map(h => (
-                  <th key={h} className="px-4 sm:px-6 py-5 text-[10px] font-black text-text-muted uppercase tracking-widest whitespace-nowrap">{h}</th>
+                  <th key={h} className="px-4 sm:px-4 sm:px-6 py-5 text-[10px] font-black text-text-muted uppercase tracking-widest whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -205,13 +205,13 @@ export default function AdminPurchases() {
                 <tr><td colSpan="7" className="py-20 text-center text-xs font-bold text-text-muted uppercase tracking-widest">No purchase bills yet. Add your first supplier bill!</td></tr>
               ) : purchases.map(p => (
                 <tr key={p._id} className={`hover:bg-light-bg/20 transition-all ${p.isDeleted ? 'opacity-50 grayscale-[0.3]' : ''}`}>
-                  <td className="px-4 sm:px-6 py-5">
+                  <td className="px-4 sm:px-4 sm:px-6 py-5">
                     <div className={`font-black text-charcoal text-sm ${p.isDeleted ? 'line-through text-text-muted' : ''}`}>{p.purchaseNumber}</div>
                     {p.billNumber && <div className="text-[10px] text-text-muted font-bold mt-0.5">Supplier Bill: {p.billNumber}</div>}
                     {p.isDeleted && <span className="mt-1 inline-block px-2 py-0.5 bg-red-100 text-red-600 text-[8px] font-black uppercase rounded-md tracking-tighter">Archived / Stock Reverted</span>}
                   </td>
-                  <td className="px-4 sm:px-6 py-5 text-xs font-bold text-text-muted">{formatDate(p.purchaseDate || p.createdAt)}</td>
-                  <td className="px-4 sm:px-6 py-5">
+                  <td className="px-4 sm:px-4 sm:px-6 py-5 text-xs font-bold text-text-muted">{formatDate(p.purchaseDate || p.createdAt)}</td>
+                  <td className="px-4 sm:px-4 sm:px-6 py-5">
                     <div className="flex items-center gap-2 group/s">
                       <div>
                         <div className={`font-bold text-charcoal text-sm ${p.isDeleted || p.supplierId?.isDeleted ? 'text-text-muted' : ''}`}>
@@ -228,7 +228,7 @@ export default function AdminPurchases() {
                       )}
                     </div>
                   </td>
-                  <td className="px-4 sm:px-6 py-5">
+                  <td className="px-4 sm:px-4 sm:px-6 py-5">
                     <div className="space-y-1">
                       {(p.items || []).slice(0, 2).map((item, i) => (
                         <div key={i} className={`text-[11px] font-bold text-charcoal ${p.isDeleted ? 'text-text-muted' : ''}`}>
@@ -240,18 +240,18 @@ export default function AdminPurchases() {
                       {(p.items || []).length > 2 && <div className="text-[10px] text-text-muted font-bold">+{p.items.length - 2} more</div>}
                     </div>
                   </td>
-                  <td className="px-4 sm:px-6 py-5">
+                  <td className="px-4 sm:px-4 sm:px-6 py-5">
                     <div className={`font-black text-charcoal ${p.isDeleted ? 'line-through text-text-muted' : ''}`}>{formatCurrency(p.pricing?.totalAmount)}</div>
                     <div className="text-[10px] text-text-muted font-bold mt-0.5">{p.items?.reduce((s, i) => s + i.quantity, 0)} pcs total</div>
                   </td>
-                  <td className="px-4 sm:px-6 py-5">
+                  <td className="px-4 sm:px-4 sm:px-6 py-5">
                     {p.isDeleted ? (
                       <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-gray-100 text-gray-500">Cancelled</span>
                     ) : (
                       statusBadge(p.paymentStatus)
                     )}
                   </td>
-                  <td className="px-4 sm:px-6 py-5">
+                  <td className="px-4 sm:px-4 sm:px-6 py-5">
                     {p.isDeleted ? (
                       <span className="flex items-center gap-1.5 text-[10px] font-black text-red-600 bg-red-50 px-3 py-1.5 rounded-full w-fit">
                         <X size={12} /> Stock Reverted
@@ -279,7 +279,7 @@ export default function AdminPurchases() {
               className="relative bg-white w-full admin-modal-container max-w-6xl rounded-[3rem] shadow-2xl border border-border-light mb-8"
             >
               {/* Modal Header */}
-              <div className="flex items-center justify-between p-4 md:p-8 border-b border-border-light bg-light-bg/50 rounded-t-[3rem]">
+              <div className="flex items-center justify-between p-4 md:p-4 md:p-8 border-b border-border-light bg-light-bg/50 rounded-t-[3rem]">
                 <div>
                   <h2 className="text-xl font-black text-charcoal uppercase tracking-tight">New Purchase Bill</h2>
                   <p className="text-xs text-text-muted font-bold uppercase tracking-widest mt-1">Supplier Stock Entry</p>
@@ -287,7 +287,7 @@ export default function AdminPurchases() {
                 <button onClick={resetForm} className="p-3 hover:bg-white rounded-full text-text-muted hover:text-charcoal transition-all"><X size={22} /></button>
               </div>
 
-              <form onSubmit={handleSubmit} className="p-4 md:p-8 space-y-8">
+              <form onSubmit={handleSubmit} className="p-4 md:p-4 md:p-8 space-y-8">
                 {/* Bill Header Info */}
                 <div className="grid md:grid-cols-3 gap-6">
                   {/* Supplier */}
@@ -386,7 +386,7 @@ export default function AdminPurchases() {
                         </div>
 
                         {expandedRow === idx && (
-                           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="col-span-full mt-4 bg-white rounded-2xl border border-indigo-100 p-4 sm:p-6 space-y-6">
+                           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="col-span-full mt-4 bg-white rounded-2xl border border-indigo-100 p-4 sm:p-4 sm:p-6 space-y-6">
                               <div className="flex items-center justify-between">
                                  <div>
                                     <h4 className="text-xs font-black text-charcoal uppercase tracking-widest flex items-center gap-2">
@@ -408,7 +408,7 @@ export default function AdminPurchases() {
                                           value={tempImageUrl}
                                           onChange={e => setTempImageUrl(e.target.value)}
                                        />
-                                       <button type="button" onClick={() => handleAddExternalImage(idx)} className="px-4 sm:px-6 py-3 bg-charcoal text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-indigo-600 transition-all">Add</button>
+                                       <button type="button" onClick={() => handleAddExternalImage(idx)} className="px-4 sm:px-4 sm:px-6 py-3 bg-charcoal text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-indigo-600 transition-all">Add</button>
                                     </div>
                                  </div>
 
@@ -417,7 +417,7 @@ export default function AdminPurchases() {
                                     <label className="text-[9px] font-black text-text-muted uppercase tracking-widest ml-1">Upload from System</label>
                                     <div className="relative">
                                        <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" onChange={e => handleFileUpload(idx, e)} />
-                                       <div className="w-full bg-light-bg border-2 border-dashed border-indigo-100 rounded-xl px-4 sm:px-6 py-3 flex items-center justify-center gap-3 text-text-muted group hover:border-indigo-600 hover:text-indigo-600 transition-all">
+                                       <div className="w-full bg-light-bg border-2 border-dashed border-indigo-100 rounded-xl px-4 sm:px-4 sm:px-6 py-3 flex items-center justify-center gap-3 text-text-muted group hover:border-indigo-600 hover:text-indigo-600 transition-all">
                                           {isUploading ? <Loader2 size={16} className="animate-spin text-indigo-600" /> : <Upload size={16} />}
                                           <span className="text-[9px] font-black uppercase tracking-widest">{isUploading ? 'Uploading...' : 'Browse Local Files'}</span>
                                        </div>
@@ -449,7 +449,7 @@ export default function AdminPurchases() {
 
                 {/* Totals */}
                 <div className="grid md:grid-cols-2 gap-6">
-                  <div className="bg-light-bg/50 rounded-[2rem] p-4 sm:p-6 space-y-3">
+                  <div className="bg-light-bg/50 rounded-[2rem] p-4 sm:p-4 sm:p-6 space-y-3">
                     <div className="flex justify-between text-xs font-bold text-text-muted">
                       <span>Total Pieces</span>
                       <span className="font-black text-charcoal">{rows.reduce((s, r) => s + (Number(r.quantity) || 0), 0)} pcs</span>
@@ -468,7 +468,7 @@ export default function AdminPurchases() {
                     </div>
                   </div>
 
-                  <div className="bg-green-50/60 border border-green-100 rounded-[2rem] p-4 sm:p-6 flex flex-col justify-center">
+                  <div className="bg-green-50/60 border border-green-100 rounded-[2rem] p-4 sm:p-4 sm:p-6 flex flex-col justify-center">
                     <div className="text-[10px] font-black text-green-800 uppercase tracking-widest mb-3">After Save, System Will:</div>
                     {['Add stock to Master Inventory', 'Auto-generate barcodes', 'Set default selling prices', 'Make items ready to sell'].map((t, i) => (
                       <div key={i} className="flex items-center gap-2 text-xs font-bold text-green-700 mb-1.5">

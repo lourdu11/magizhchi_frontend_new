@@ -129,7 +129,7 @@ const CameraScanner = ({ isOpen, onClose, onScan }) => {
   if (!cameraReady) {
     return (
       <div className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-sm flex items-center justify-center">
-        <div className="bg-charcoal rounded-2xl p-8 text-center">
+        <div className="bg-charcoal rounded-2xl p-4 md:p-8 text-center">
           <div className="w-10 h-10 border-[3px] border-premium-gold border-t-transparent rounded-full animate-spin mx-auto mb-3" />
           <p className="text-white text-sm font-bold">Opening Camera...</p>
           <p className="text-gray-400 text-xs mt-1">Tap "Allow" if prompted</p>

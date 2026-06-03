@@ -93,7 +93,7 @@ export default function AdminSuppliers() {
       <Helmet><title>Financial Ledger — Admin</title></Helmet>
 
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white p-4 sm:p-6 md:p-4 md:p-8 rounded-[2.5rem] md:rounded-[3rem] border border-border-light shadow-sm">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white p-4 sm:p-4 sm:p-6 md:p-4 md:p-4 md:p-8 rounded-[2.5rem] md:rounded-[3rem] border border-border-light shadow-sm">
         <div>
           <h1 className="text-3xl font-black text-charcoal tracking-tight uppercase">Supplier Ledger</h1>
           <p className="text-text-muted text-sm font-medium tracking-tight">Payables tracking & credit management</p>
@@ -101,14 +101,14 @@ export default function AdminSuppliers() {
         <div className="flex gap-3">
           <button 
             onClick={() => setShowArchived(!showArchived)}
-            className={`px-4 md:px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 border ${
+            className={`px-4 md:px-4 md:px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 border ${
               showArchived ? 'bg-amber-100 text-amber-700 border-amber-200' : 'bg-white text-text-muted border-border-light'
             }`}
           >
             <History size={16} />
             {showArchived ? 'Archive Vault' : 'Show Archived'}
           </button>
-          <button onClick={() => setShowAddModal(true)} className="bg-charcoal text-white px-4 md:px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all flex items-center gap-2 shadow-xl shadow-charcoal/20">
+          <button onClick={() => setShowAddModal(true)} className="bg-charcoal text-white px-4 md:px-4 md:px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all flex items-center gap-2 shadow-xl shadow-charcoal/20">
             <Plus size={16} /> New Supplier
           </button>
         </div>
@@ -121,7 +121,7 @@ export default function AdminSuppliers() {
           { label: 'Settled Value', value: formatCurrency(totals.paid), icon: CheckCircle2, color: 'text-green-600', bg: 'bg-green-50' },
           { label: 'Net Payables', value: formatCurrency(totals.outstanding), icon: AlertCircle, color: totals.outstanding > 0 ? 'text-red-600' : 'text-green-600', bg: totals.outstanding > 0 ? 'bg-red-50' : 'bg-green-50' }
         ].map((stat, i) => (
-          <div key={i} className={`p-10 rounded-[3rem] border border-border-light bg-white shadow-sm flex items-center gap-8`}>
+          <div key={i} className={`p-5 md:p-10 rounded-[3rem] border border-border-light bg-white shadow-sm flex items-center gap-8`}>
             <div className={`w-16 h-16 rounded-[1.5rem] ${stat.bg} ${stat.color} flex items-center justify-center shadow-inner`}>
               <stat.icon size={28} />
             </div>
@@ -151,7 +151,7 @@ export default function AdminSuppliers() {
             <thead>
               <tr className="bg-light-bg/50 border-b border-border-light">
                 {['Establishment', 'Tax ID', 'Procured', 'Settled', 'Payables', 'Control'].map(h => (
-                  <th key={h} className="px-10 py-4 md:py-8 text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">{h}</th>
+                  <th key={h} className="px-10 py-4 md:py-4 md:py-8 text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -160,7 +160,7 @@ export default function AdminSuppliers() {
                 <tr><td colSpan="6" className="py-32 text-center"><Loader2 className="animate-spin text-premium-gold mx-auto" size={48} /></td></tr>
               ) : filteredSuppliers.map(s => (
                 <tr key={s._id} className="hover:bg-light-bg/20 transition-all group">
-                  <td className="px-10 py-4 md:py-8">
+                  <td className="px-10 py-4 md:py-4 md:py-8">
                     <div className="font-black text-charcoal text-base tracking-tight">{s.name}</div>
                     <div className="text-[10px] text-text-muted font-bold flex items-center gap-1.5 mt-1 uppercase tracking-widest"><Phone size={12} /> {s.phone}</div>
                     {s.settledValue > 0 && s.procuredVolume === 0 && (
@@ -169,21 +169,21 @@ export default function AdminSuppliers() {
                       </div>
                     )}
                   </td>
-                  <td className="px-10 py-4 md:py-8 text-[11px] font-black text-text-muted tracking-widest uppercase">{s.gstin || '—'}</td>
-                  <td className="px-10 py-4 md:py-8 font-black text-charcoal text-sm">{formatCurrency(s.procuredVolume)}</td>
-                  <td className="px-10 py-4 md:py-8 font-black text-green-600 text-sm">{formatCurrency(s.settledValue)}</td>
-                  <td className="px-10 py-4 md:py-8">
+                  <td className="px-10 py-4 md:py-4 md:py-8 text-[11px] font-black text-text-muted tracking-widest uppercase">{s.gstin || '—'}</td>
+                  <td className="px-10 py-4 md:py-4 md:py-8 font-black text-charcoal text-sm">{formatCurrency(s.procuredVolume)}</td>
+                  <td className="px-10 py-4 md:py-4 md:py-8 font-black text-green-600 text-sm">{formatCurrency(s.settledValue)}</td>
+                  <td className="px-10 py-4 md:py-4 md:py-8">
                     <div className={`flex items-center gap-2 font-black text-sm ${s.netPayables > 0 ? 'text-red-600' : 'text-green-600'}`}>
                        {formatCurrency(s.netPayables)}
                        {s.netPayables > 0 && <AlertCircle size={14} className="animate-pulse" />}
                     </div>
                   </td>
-                  <td className="px-10 py-4 md:py-8">
+                  <td className="px-10 py-4 md:py-4 md:py-8">
                     <div className="flex items-center flex-wrap gap-3">
                        {s.isDeleted ? (
                          <button 
                             onClick={() => restoreSupplierMutation.mutate(s._id)}
-                            className="px-4 sm:px-6 py-4 bg-charcoal text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-premium-gold transition-all"
+                            className="px-4 sm:px-4 sm:px-6 py-4 bg-charcoal text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-premium-gold transition-all"
                          >
                             <Plus size={16} className="inline mr-2" /> Restore Partner
                          </button>
@@ -244,15 +244,15 @@ export default function AdminSuppliers() {
                 </div>
 
                 <div className="grid grid-cols-3 gap-6 mb-10 flex-none">
-                   <div className="p-4 sm:p-6 bg-light-bg rounded-[2rem]">
+                   <div className="p-4 sm:p-4 sm:p-6 bg-light-bg rounded-[2rem]">
                       <p className="text-[9px] font-black text-text-muted uppercase tracking-widest mb-1">Procured Volume</p>
                       <p className="text-xl font-black text-charcoal tracking-tight">{formatCurrency(selectedSupplier?.procuredVolume)}</p>
                    </div>
-                   <div className="p-4 sm:p-6 bg-green-50 rounded-[2rem]">
+                   <div className="p-4 sm:p-4 sm:p-6 bg-green-50 rounded-[2rem]">
                       <p className="text-[9px] font-black text-green-600 uppercase tracking-widest mb-1">Settled Value</p>
                       <p className="text-xl font-black text-green-700 tracking-tight">{formatCurrency(selectedSupplier?.settledValue)}</p>
                    </div>
-                   <div className="p-4 sm:p-6 bg-red-50 rounded-[2rem]">
+                   <div className="p-4 sm:p-4 sm:p-6 bg-red-50 rounded-[2rem]">
                       <p className="text-[9px] font-black text-red-600 uppercase tracking-widest mb-1">Net Payables</p>
                       <p className="text-xl font-black text-red-700 tracking-tight">{formatCurrency(selectedSupplier?.netPayables)}</p>
                    </div>
@@ -265,7 +265,7 @@ export default function AdminSuppliers() {
                       <div className="py-20 text-center text-xs font-bold text-text-muted uppercase tracking-widest opacity-30">No payments recorded yet.</div>
                     ) : (
                       selectedSupplier?.payments.map((p, i) => (
-                        <div key={i} className="bg-white border border-border-light/60 p-4 sm:p-6 rounded-[2rem] flex items-center justify-between group hover:border-premium-gold transition-all shadow-sm hover:shadow-lg">
+                        <div key={i} className="bg-white border border-border-light/60 p-4 sm:p-4 sm:p-6 rounded-[2rem] flex items-center justify-between group hover:border-premium-gold transition-all shadow-sm hover:shadow-lg">
                             <div className="flex items-center gap-6">
                               <div className="w-12 h-12 bg-light-bg rounded-2xl flex items-center justify-center text-text-muted group-hover:bg-premium-gold group-hover:text-charcoal transition-all">
                                   <CreditCard size={20} />
@@ -348,11 +348,11 @@ export default function AdminSuppliers() {
                 <div className="grid grid-cols-2 gap-6">
                    <div className="space-y-2">
                      <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Amount (₹)</label>
-                     <input type="number" className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 font-black text-xl" placeholder="0.00" value={paymentData.amount} onChange={e => setPaymentData({...paymentData, amount: e.target.value})} />
+                     <input type="number" className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 font-black text-xl" placeholder="0.00" value={paymentData.amount} onChange={e => setPaymentData({...paymentData, amount: e.target.value})} />
                    </div>
                    <div className="space-y-2">
                      <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Payment Method</label>
-                     <select className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 font-bold" value={paymentData.method} onChange={e => setPaymentData({...paymentData, method: e.target.value})}>
+                     <select className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 font-bold" value={paymentData.method} onChange={e => setPaymentData({...paymentData, method: e.target.value})}>
                         {['Cash', 'UPI', 'Bank', 'Cheque'].map(m => <option key={m} value={m}>{m}</option>)}
                      </select>
                    </div>
@@ -360,23 +360,23 @@ export default function AdminSuppliers() {
                 <div className="grid grid-cols-2 gap-6">
                    <div className="space-y-2">
                      <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Value Date</label>
-                     <input type="date" className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 font-bold" value={paymentData.date} onChange={e => setPaymentData({...paymentData, date: e.target.value})} />
+                     <input type="date" className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 font-bold" value={paymentData.date} onChange={e => setPaymentData({...paymentData, date: e.target.value})} />
                    </div>
                    <div className="space-y-2">
                      <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Ref / Trans #</label>
-                     <input className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 font-bold" placeholder="e.g. TXN998877" value={paymentData.referenceId} onChange={e => setPaymentData({...paymentData, referenceId: e.target.value})} />
+                     <input className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 font-bold" placeholder="e.g. TXN998877" value={paymentData.referenceId} onChange={e => setPaymentData({...paymentData, referenceId: e.target.value})} />
                    </div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Memorandum / Notes</label>
-                  <textarea rows={3} className="w-full bg-light-bg border-none rounded-[2rem] px-4 sm:px-6 py-4 sm:py-6 focus:ring-2 focus:ring-premium-gold/30 font-bold resize-none" placeholder="Enter transaction details..." value={paymentData.note} onChange={e => setPaymentData({...paymentData, note: e.target.value})} />
+                  <textarea rows={3} className="w-full bg-light-bg border-none rounded-[2rem] px-4 sm:px-4 sm:px-6 py-4 sm:py-4 sm:py-6 focus:ring-2 focus:ring-premium-gold/30 font-bold resize-none" placeholder="Enter transaction details..." value={paymentData.note} onChange={e => setPaymentData({...paymentData, note: e.target.value})} />
                 </div>
               </div>
 
               <button 
                 onClick={() => recordPaymentMutation.mutate({ id: selectedSupplier._id, data: paymentData })}
                 disabled={recordPaymentMutation.isPending}
-                className="w-full mt-10 bg-charcoal text-white py-4 sm:py-6 rounded-[2rem] font-black text-xs uppercase tracking-[0.3em] shadow-2xl hover:bg-premium-gold hover:text-charcoal transition-all flex items-center justify-center gap-3"
+                className="w-full mt-10 bg-charcoal text-white py-4 sm:py-4 sm:py-6 rounded-[2rem] font-black text-xs uppercase tracking-[0.3em] shadow-2xl hover:bg-premium-gold hover:text-charcoal transition-all flex items-center justify-center gap-3"
               >
                 {recordPaymentMutation.isPending ? <Loader2 size={20} className="animate-spin" /> : <><Save size={20} /> Commit Transaction</>}
               </button>
@@ -465,7 +465,7 @@ export default function AdminSuppliers() {
         {showDeleteModal && (
           <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-charcoal/60 backdrop-blur-md" onClick={() => setShowDeleteModal(false)} />
-            <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative bg-white w-full admin-modal-container max-w-md rounded-[3rem] shadow-2xl p-10 border border-red-100 overflow-hidden text-center">
+            <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative bg-white w-full admin-modal-container max-w-md rounded-[3rem] shadow-2xl p-5 md:p-10 border border-red-100 overflow-hidden text-center">
                <div className="w-20 h-20 bg-red-50 text-red-600 rounded-[1.5rem] flex items-center justify-center mx-auto mb-6 shadow-inner">
                   <AlertTriangle size={40} strokeWidth={2.5} className="animate-bounce" />
                </div>

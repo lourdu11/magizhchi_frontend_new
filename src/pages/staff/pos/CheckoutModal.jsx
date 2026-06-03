@@ -38,7 +38,7 @@ const CheckoutModal = memo(({ onComplete }) => {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[100] flex items-center justify-center p-8">
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -54,7 +54,7 @@ const CheckoutModal = memo(({ onComplete }) => {
           className="relative bg-white w-full admin-modal-container max-w-5xl h-[95vh] md:h-[85vh] rounded-t-[3rem] md:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col md:flex-row"
         >
            {/* Left: Summary & Split Payment */}
-           <div className="flex-1 p-6 md:p-12 overflow-y-auto border-r border-border-light bg-[#FAFBFC]">
+           <div className="flex-1 p-4 sm:p-6 md:p-12 overflow-y-auto border-r border-border-light bg-[#FAFBFC]">
               <div className="flex items-center justify-between mb-12">
                  <div>
                     <h2 className="text-3xl font-black text-charcoal uppercase tracking-tighter">Enterprise Checkout</h2>
@@ -78,7 +78,7 @@ const CheckoutModal = memo(({ onComplete }) => {
                           <div className="absolute left-6 top-1/2 -translate-y-1/2 text-charcoal/20 group-focus-within:text-premium-gold transition-colors font-black text-xl">₹</div>
                           <input 
                              type="number"
-                             className="w-full bg-white border-2 border-border-light rounded-[2rem] pl-12 pr-48 py-6 text-2xl font-black focus:border-premium-gold focus:ring-4 focus:ring-premium-gold/5 transition-all outline-none shadow-sm"
+                             className="w-full bg-white border-2 border-border-light rounded-[2rem] pl-12 pr-48 py-4 sm:py-6 text-2xl font-black focus:border-premium-gold focus:ring-4 focus:ring-premium-gold/5 transition-all outline-none shadow-sm"
                              value={localSplit.cash}
                              onChange={(e) => setLocalSplit({...localSplit, cash: Number(e.target.value)})}
                           />
@@ -99,7 +99,7 @@ const CheckoutModal = memo(({ onComplete }) => {
                              <div className="absolute left-6 top-1/2 -translate-y-1/2 text-charcoal/20 font-black text-xl">₹</div>
                              <input 
                                 type="number"
-                                className="w-full bg-white border-2 border-border-light rounded-[2rem] pl-12 pr-6 py-6 text-2xl font-black focus:border-premium-gold transition-all outline-none shadow-sm"
+                                className="w-full bg-white border-2 border-border-light rounded-[2rem] pl-12 pr-6 py-4 sm:py-6 text-2xl font-black focus:border-premium-gold transition-all outline-none shadow-sm"
                                 value={localSplit.upi}
                                 onChange={(e) => setLocalSplit({...localSplit, upi: Number(e.target.value)})}
                              />
@@ -113,7 +113,7 @@ const CheckoutModal = memo(({ onComplete }) => {
                              <div className="absolute left-6 top-1/2 -translate-y-1/2 text-charcoal/20 font-black text-xl">₹</div>
                              <input 
                                 type="number"
-                                className="w-full bg-white border-2 border-border-light rounded-[2rem] pl-12 pr-6 py-6 text-2xl font-black focus:border-premium-gold transition-all outline-none shadow-sm"
+                                className="w-full bg-white border-2 border-border-light rounded-[2rem] pl-12 pr-6 py-4 sm:py-6 text-2xl font-black focus:border-premium-gold transition-all outline-none shadow-sm"
                                 value={localSplit.card}
                                 onChange={(e) => setLocalSplit({...localSplit, card: Number(e.target.value)})}
                              />
@@ -123,7 +123,7 @@ const CheckoutModal = memo(({ onComplete }) => {
                  </div>
 
                  {/* Customer Enrichment */}
-                 <div className="p-10 bg-white rounded-[3rem] border-2 border-border-light shadow-sm">
+                 <div className="p-5 md:p-10 bg-white rounded-[3rem] border-2 border-border-light shadow-sm">
                     <h3 className="text-[10px] font-black text-charcoal uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
                        <User size={12} className="text-premium-gold" /> Loyalty & Customer Profile
                     </h3>
@@ -159,7 +159,7 @@ const CheckoutModal = memo(({ onComplete }) => {
 
            {/* Right: Review & Pay (Premium Sidebar) */}
            <div className="w-full md:w-[400px] bg-charcoal p-12 flex flex-col justify-between text-white relative">
-              <div className="absolute top-0 right-0 p-8 opacity-10">
+              <div className="absolute top-0 right-0 p-4 md:p-8 opacity-10">
                  <ShoppingCart size={120} />
               </div>
 
@@ -198,7 +198,7 @@ const CheckoutModal = memo(({ onComplete }) => {
                     </div>
                  </div>
 
-                 <div className="bg-white/5 p-8 rounded-[2rem] border border-white/10 space-y-4">
+                 <div className="bg-white/5 p-4 md:p-8 rounded-[2rem] border border-white/10 space-y-4">
                     <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest">
                        <span className="text-white/40">Total Collected</span>
                        <span className={`transition-colors ${totalPaid >= total ? 'text-green-400' : 'text-red-400'}`}>₹{totalPaid.toLocaleString()}</span>
@@ -216,7 +216,7 @@ const CheckoutModal = memo(({ onComplete }) => {
               </div>
 
               <div className="space-y-6 relative z-10">
-                 <div className="bg-white/5 p-6 rounded-[2rem] border border-white/10 space-y-4">
+                 <div className="bg-white/5 p-4 sm:p-6 rounded-[2rem] border border-white/10 space-y-4">
                     <label className="text-[10px] font-black text-white/40 uppercase tracking-widest block ml-1">Assigned Sales Executive</label>
                     <select 
                        className="w-full bg-charcoal border border-white/20 rounded-xl px-4 py-3 text-xs font-bold text-white outline-none focus:border-premium-gold transition-all"

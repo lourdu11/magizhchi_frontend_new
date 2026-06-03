@@ -91,7 +91,7 @@ export default function Register() {
         </div>
 
         {/* Right */}
-        <div className="flex-1 flex flex-col justify-center items-center px-6 py-12">
+        <div className="flex-1 flex flex-col justify-center items-center px-4 sm:px-6 py-12">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
             <Link to="/login" className="flex items-center gap-2 text-text-muted hover:text-text-primary text-sm mb-8">
               <ArrowLeft size={16} /> Back to Login
@@ -99,7 +99,7 @@ export default function Register() {
 
             {/* Step Done */}
             {step === STEPS.DONE ? (
-              <div className="text-center py-8">
+              <div className="text-center py-4 md:py-8">
                 <CheckCircle size={56} className="text-stock-in mx-auto mb-4" />
                 <h2 className="text-2xl font-bold text-text-primary mb-2">Account Created!</h2>
                 <p className="text-text-muted">Welcome to Magizhchi Garments. Redirecting...</p>

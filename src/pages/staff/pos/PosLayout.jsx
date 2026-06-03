@@ -553,7 +553,7 @@ function PosContent() {
       
       <div className="flex-1 flex flex-col min-w-0 print:hidden">
         {/* Top Workspace Header (Admin Friendly & Simple) */}
-        <div className="h-20 bg-white border-b border-border-light flex items-center px-8 justify-between">
+        <div className="h-20 bg-white border-b border-border-light flex items-center px-4 md:px-8 justify-between">
            <div className="flex items-center gap-4">
               <div className="bg-premium-gold/10 p-3 rounded-2xl">
                  <ShoppingCart className="text-premium-gold" size={24} />
@@ -579,7 +579,7 @@ function PosContent() {
                  <button 
                    onClick={syncOfflineBills}
                    disabled={isSyncing || !isOnline}
-                   className="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white rounded-2xl text-[9px] font-black uppercase tracking-widest flex items-center gap-3 shadow-lg shadow-amber-500/20 active:scale-95 transition-all flex items-center"
+                   className="px-4 sm:px-6 py-2.5 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white rounded-2xl text-[9px] font-black uppercase tracking-widest flex items-center gap-3 shadow-lg shadow-amber-500/20 active:scale-95 transition-all flex items-center"
                  >
                     <span className="font-bold">{state.offlineBills.length} Pending Bills</span>
                     <span className="w-2 h-2 rounded-full bg-white animate-ping"></span>
@@ -609,7 +609,7 @@ function PosContent() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm print:hidden">
           <div className="bg-[#1C1C1C] border border-[#C5A85A]/30 rounded-3xl w-full max-w-3xl max-h-[85vh] overflow-hidden flex flex-col shadow-2xl animate-fade-in font-sans animate-duration-300">
             {/* Modal Header */}
-            <div className="p-6 border-b border-[#C5A85A]/10 flex items-center justify-between bg-black/40">
+            <div className="p-4 sm:p-6 border-b border-[#C5A85A]/10 flex items-center justify-between bg-black/40">
               <div className="flex items-center gap-3">
                 <div className="bg-[#C5A85A]/10 p-2.5 rounded-xl border border-[#C5A85A]/20">
                   <Printer className="text-[#C5A85A]" size={20} />
@@ -628,7 +628,7 @@ function PosContent() {
             </div>
 
             {/* Modal Content - Scrollable step-by-step list */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6 text-sm text-gray-300">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 text-sm text-gray-300">
               
               {/* Introduction Card */}
               <div className="p-4 rounded-2xl bg-black/30 border border-[#C5A85A]/10 flex items-start gap-4">
@@ -737,7 +737,7 @@ function PosContent() {
             </div>
 
             {/* Modal Footer */}
-            <div className="p-6 border-t border-[#C5A85A]/10 bg-black/40 flex justify-between items-center">
+            <div className="p-4 sm:p-6 border-t border-[#C5A85A]/10 bg-black/40 flex justify-between items-center">
               <span className="text-[9px] text-[#C5A85A] uppercase font-bold tracking-widest">⚡ Powered by Magizhchi SaaS ERP</span>
               <div className="flex items-center gap-3">
                 <button 
@@ -763,13 +763,13 @@ function PosContent() {
                       window.print();
                     }, 200);
                   }}
-                  className="px-6 py-2.5 bg-gradient-to-r from-[#C5A85A] to-[#E5C77A] text-charcoal rounded-2xl text-[9px] font-black uppercase tracking-widest active:scale-95 transition-all shadow-lg shadow-[#C5A85A]/10 border-0"
+                  className="px-4 sm:px-6 py-2.5 bg-gradient-to-r from-[#C5A85A] to-[#E5C77A] text-charcoal rounded-2xl text-[9px] font-black uppercase tracking-widest active:scale-95 transition-all shadow-lg shadow-[#C5A85A]/10 border-0"
                 >
                   🖨️ Print Test Receipt
                 </button>
                 <button 
                   onClick={() => setIsHelpOpen(false)}
-                  className="px-6 py-2.5 bg-white/5 hover:bg-white/10 text-white rounded-2xl text-[9px] font-black uppercase tracking-widest active:scale-95 transition-all border-0"
+                  className="px-4 sm:px-6 py-2.5 bg-white/5 hover:bg-white/10 text-white rounded-2xl text-[9px] font-black uppercase tracking-widest active:scale-95 transition-all border-0"
                 >
                   Close
                 </button>
@@ -785,7 +785,7 @@ function PosContent() {
           <div className="bg-[#1C1C1C] border border-[#C5A85A]/30 rounded-3xl w-full max-w-md overflow-hidden flex flex-col shadow-2xl animate-fade-in animate-duration-300 font-sans">
             
             {/* Visual confirmation icon */}
-            <div className="p-8 text-center bg-black/20 border-b border-[#C5A85A]/10">
+            <div className="p-4 md:p-8 text-center bg-black/20 border-b border-[#C5A85A]/10">
               <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 rounded-full mx-auto flex items-center justify-center text-emerald-500 mb-4 animate-bounce">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-8 h-8">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
@@ -796,7 +796,7 @@ function PosContent() {
             </div>
 
             {/* Summary info */}
-            <div className="p-6 space-y-4 text-gray-300">
+            <div className="p-4 sm:p-6 space-y-4 text-gray-300">
               <div className="flex justify-between items-center text-xs border-b border-white/5 pb-2">
                 <span className="text-gray-400 uppercase tracking-wider">Bill Number</span>
                 <span className="font-bold text-white text-sm">#{state.lastBill.billNumber ? state.lastBill.billNumber.split('-').pop() : 'OFFLINE'}</span>
@@ -812,7 +812,7 @@ function PosContent() {
             </div>
 
             {/* Buttons */}
-            <div className="p-6 border-t border-[#C5A85A]/10 bg-black/40 flex flex-col gap-3">
+            <div className="p-4 sm:p-6 border-t border-[#C5A85A]/10 bg-black/40 flex flex-col gap-3">
               <button 
                 onClick={() => {
                   toast.success('Spooling receipt...');
@@ -841,8 +841,8 @@ export default function PosLayout() {
   const { isLocked } = usePosLock();
   if (isLocked) {
     return (
-      <div className="min-h-dvh flex items-center justify-center bg-[#F8F9FA] p-6 text-center">
-        <div className="max-w-md rounded-3xl border border-amber-200 bg-white p-8 shadow-xl">
+      <div className="min-h-dvh flex items-center justify-center bg-[#F8F9FA] p-4 sm:p-6 text-center">
+        <div className="max-w-md rounded-3xl border border-amber-200 bg-white p-4 md:p-8 shadow-xl">
           <h1 className="text-xl font-black text-charcoal">POS is already open</h1>
           <p className="mt-3 text-sm text-text-muted">Close the other billing tab before using POS here.</p>
         </div>

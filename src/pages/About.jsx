@@ -64,7 +64,7 @@ export default function About() {
                    </div>
                 </div>
               </div>
-              <div className="absolute -bottom-10 -right-10 w-48 h-48 bg-premium-gold rounded-[2.5rem] flex flex-col items-center justify-center shadow-2xl p-6 text-center z-20">
+              <div className="absolute -bottom-10 -right-10 w-48 h-48 bg-premium-gold rounded-[2.5rem] flex flex-col items-center justify-center shadow-2xl p-4 sm:p-6 text-center z-20">
                 <p className="text-4xl font-black text-charcoal tracking-tighter">#1</p>
                 <p className="text-[10px] font-black text-charcoal uppercase tracking-widest mt-1">Fashion Destination<br/>in Thanjavur</p>
               </div>
@@ -141,7 +141,7 @@ export default function About() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="bg-white p-10 rounded-[3rem] border border-border-light shadow-xl hover:shadow-2xl transition-all group"
+                className="bg-white p-5 md:p-10 rounded-[3rem] border border-border-light shadow-xl hover:shadow-2xl transition-all group"
               >
                 <div className="w-16 h-16 bg-premium-gold/10 text-premium-gold rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
                   <v.icon size={32} />

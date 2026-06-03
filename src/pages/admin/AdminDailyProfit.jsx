@@ -47,7 +47,7 @@ export default function AdminDailyProfit() {
       <Helmet><title>Profit Report — Admin</title></Helmet>
 
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-4 md:p-8 rounded-[3rem] border border-border-light shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-4 md:p-4 md:p-8 rounded-[3rem] border border-border-light shadow-sm">
         <div>
           <h1 className="text-3xl font-black text-charcoal tracking-tight">Daily Profit Report</h1>
           <p className="text-text-muted text-sm font-medium">Financial performance for {new Date(selectedDate).toLocaleDateString(undefined, { dateStyle: 'full' })}</p>
@@ -60,7 +60,7 @@ export default function AdminDailyProfit() {
               type="date" 
               value={selectedDate} 
               onChange={e => setSelectedDate(e.target.value)}
-              className="bg-white px-4 sm:px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest border-none shadow-sm cursor-pointer"
+              className="bg-white px-4 sm:px-4 sm:px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest border-none shadow-sm cursor-pointer"
             />
           </div>
           <button onClick={() => changeDate(1)} className="p-3 hover:bg-white rounded-xl transition-all"><ChevronRight size={20} /></button>
@@ -70,7 +70,7 @@ export default function AdminDailyProfit() {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {stats.map((stat, i) => (
-          <div key={i} className="bg-white p-4 md:p-8 rounded-[2.5rem] border border-border-light shadow-sm hover:shadow-xl transition-all">
+          <div key={i} className="bg-white p-4 md:p-4 md:p-8 rounded-[2.5rem] border border-border-light shadow-sm hover:shadow-xl transition-all">
             <div className={`w-12 h-12 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center mb-6`}>
               <stat.icon size={24} />
             </div>
@@ -82,7 +82,7 @@ export default function AdminDailyProfit() {
 
       <div className="grid lg:grid-cols-2 gap-8">
         {/* Category Breakdown */}
-        <div className="bg-white p-10 rounded-[3rem] border border-border-light shadow-sm">
+        <div className="bg-white p-5 md:p-10 rounded-[3rem] border border-border-light shadow-sm">
           <h3 className="text-xs font-black text-charcoal uppercase tracking-[0.2em] mb-10 flex items-center gap-3">
             <Layers size={18} className="text-premium-gold" /> Profit by Category
           </h3>
@@ -103,7 +103,7 @@ export default function AdminDailyProfit() {
         </div>
 
         {/* Top Profitable Products */}
-        <div className="bg-white p-10 rounded-[3rem] border border-border-light shadow-sm">
+        <div className="bg-white p-5 md:p-10 rounded-[3rem] border border-border-light shadow-sm">
           <h3 className="text-xs font-black text-charcoal uppercase tracking-[0.2em] mb-10 flex items-center gap-3">
             <TrendingUp size={18} className="text-premium-gold" /> Most Profitable Today
           </h3>

@@ -109,7 +109,7 @@ function Profile() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-light-bg rounded-2xl p-6 flex items-center gap-5">
+      <div className="bg-light-bg rounded-2xl p-4 sm:p-6 flex items-center gap-5">
         <div className="w-20 h-20 rounded-2xl bg-dark-gradient flex items-center justify-center text-premium-gold text-3xl font-bold">
           {user?.name?.[0]?.toUpperCase()}
         </div>
@@ -122,7 +122,7 @@ function Profile() {
       </div>
 
       {editing && (
-        <div className="bg-white rounded-2xl border border-border-light p-6 space-y-4">
+        <div className="bg-white rounded-2xl border border-border-light p-4 sm:p-6 space-y-4">
           <h4 className="font-bold text-text-primary">Edit Profile</h4>
           <div className="grid md:grid-cols-2 gap-4">
             <label className="block"><span className="text-xs font-bold text-text-muted uppercase mb-1 block">Full Name</span>
@@ -130,14 +130,14 @@ function Profile() {
             <label className="block"><span className="text-xs font-bold text-text-muted uppercase mb-1 block">Phone</span>
               <input className="w-full bg-light-bg border border-border-light rounded-xl px-4 py-2.5" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} /></label>
           </div>
-          <button onClick={() => updateMutation.mutate(form)} disabled={updateMutation.isPending} className="btn-dark flex items-center gap-2 px-6 py-2.5">
+          <button onClick={() => updateMutation.mutate(form)} disabled={updateMutation.isPending} className="btn-dark flex items-center gap-2 px-4 sm:px-6 py-2.5">
             {updateMutation.isPending ? <Loader2 className="animate-spin" size={14} /> : <><Check size={14} /> Save</>}
           </button>
         </div>
       )}
 
       {!user?.email?.startsWith('guest_') && (
-        <div className="bg-white rounded-2xl border border-border-light p-6 space-y-4">
+        <div className="bg-white rounded-2xl border border-border-light p-4 sm:p-6 space-y-4">
           <h4 className="font-bold text-text-primary flex items-center gap-2"><Lock size={16} /> Change Password</h4>
           <div className="grid md:grid-cols-2 gap-4">
             <label className="block"><span className="text-xs font-bold text-text-muted uppercase mb-1 block">Current Password</span>
@@ -145,7 +145,7 @@ function Profile() {
             <label className="block"><span className="text-xs font-bold text-text-muted uppercase mb-1 block">New Password</span>
               <input type="password" className="w-full bg-light-bg border border-border-light rounded-xl px-4 py-2.5" value={pwForm.newPassword} onChange={e => setPwForm({...pwForm, newPassword: e.target.value})} /></label>
           </div>
-          <button onClick={() => pwMutation.mutate(pwForm)} disabled={pwMutation.isPending} className="btn-dark flex items-center gap-2 px-6 py-2.5">
+          <button onClick={() => pwMutation.mutate(pwForm)} disabled={pwMutation.isPending} className="btn-dark flex items-center gap-2 px-4 sm:px-6 py-2.5">
             {pwMutation.isPending ? <Loader2 className="animate-spin" size={14} /> : 'Change Password'}
           </button>
         </div>
@@ -188,7 +188,7 @@ function Addresses() {
             ))}
           </div>
           <div className="flex gap-3">
-            <button onClick={() => addMutation.mutate(form)} disabled={addMutation.isPending} className="btn-dark px-6 py-2.5 flex items-center gap-2">
+            <button onClick={() => addMutation.mutate(form)} disabled={addMutation.isPending} className="btn-dark px-4 sm:px-6 py-2.5 flex items-center gap-2">
               {addMutation.isPending ? <Loader2 className="animate-spin" size={14} /> : 'Save Address'}
             </button>
             <button onClick={() => setAdding(false)} className="text-sm text-text-muted">Cancel</button>
@@ -341,13 +341,13 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="container-custom py-8">
+    <div className="container-custom py-4 md:py-8">
       <Helmet><title>My Account — Magizhchi</title></Helmet>
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Sidebar */}
         <aside className="lg:w-64 shrink-0">
           <div className="bg-white rounded-2xl border border-border-light overflow-hidden shadow-sm">
-            <div className="p-6 bg-dark-gradient">
+            <div className="p-4 sm:p-6 bg-dark-gradient">
               <div className="w-14 h-14 rounded-xl bg-premium-gold/20 flex items-center justify-center text-premium-gold text-2xl font-bold mb-3">
                 {user?.name?.[0]?.toUpperCase()}
               </div>

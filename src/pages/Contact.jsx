@@ -52,7 +52,7 @@ export default function Contact() {
       <div className="grid lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
         {/* Contact Info */}
         <div className="space-y-6">
-          <div className="bg-dark-gradient rounded-2xl p-8 text-white">
+          <div className="bg-dark-gradient rounded-2xl p-4 md:p-8 text-white">
             <h2 className="text-xl font-bold text-premium-gold mb-6">Contact Information</h2>
             <div className="space-y-5">
               <a href={`tel:${store.phone.replace(/ /g, '')}`} className="flex items-center gap-4 group">
@@ -98,7 +98,7 @@ export default function Contact() {
               href={`https://wa.me/${store.phone.replace(/[^0-9]/g, '')}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-8 w-full flex items-center justify-center gap-3 bg-[#25D366] text-white py-3.5 px-6 rounded-xl font-bold hover:bg-[#20BA5A] transition-colors"
+              className="mt-8 w-full flex items-center justify-center gap-3 bg-[#25D366] text-white py-3.5 px-4 sm:px-6 rounded-xl font-bold hover:bg-[#20BA5A] transition-colors"
             >
               <MessageCircle size={20} /> Chat on WhatsApp
             </a>
@@ -120,7 +120,7 @@ export default function Contact() {
         </div>
 
         {/* Contact Form */}
-        <div className="bg-white rounded-2xl border border-border-light p-8 shadow-sm">
+        <div className="bg-white rounded-2xl border border-border-light p-4 md:p-8 shadow-sm">
           <h2 className="text-xl font-bold text-text-primary mb-6">Send Us a Message</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid md:grid-cols-2 gap-4">

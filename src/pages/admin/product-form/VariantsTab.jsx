@@ -150,7 +150,7 @@ export default function VariantsTab() {
           <button
             type="button"
             onClick={handlePrintAllBarcodes}
-            className="flex items-center gap-2 px-4 sm:px-6 py-3 bg-charcoal text-white rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-premium-gold hover:text-charcoal active:scale-95 transition-all shadow-lg"
+            className="flex items-center gap-2 px-4 sm:px-4 sm:px-6 py-3 bg-charcoal text-white rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-premium-gold hover:text-charcoal active:scale-95 transition-all shadow-lg"
           >
             <Printer size={14} />
             Print All Barcodes (A4)
@@ -308,19 +308,19 @@ function VariantManagerSection({ productName, variants, basePrice, sellingPrice,
   return (
     <div className="space-y-10">
       <div className="flex bg-light-bg p-1 rounded-2xl w-fit">
-        <button type="button" onClick={() => setMultiMode(true)} className={`px-4 sm:px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${multiMode ? 'bg-white text-charcoal shadow-sm' : 'text-text-muted hover:text-charcoal'}`}>Multi-Select Mode</button>
-        <button type="button" onClick={() => setMultiMode(false)} className={`px-4 sm:px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${!multiMode ? 'bg-white text-charcoal shadow-sm' : 'text-text-muted hover:text-charcoal'}`}>Individual Add</button>
+        <button type="button" onClick={() => setMultiMode(true)} className={`px-4 sm:px-4 sm:px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${multiMode ? 'bg-white text-charcoal shadow-sm' : 'text-text-muted hover:text-charcoal'}`}>Multi-Select Mode</button>
+        <button type="button" onClick={() => setMultiMode(false)} className={`px-4 sm:px-4 sm:px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${!multiMode ? 'bg-white text-charcoal shadow-sm' : 'text-text-muted hover:text-charcoal'}`}>Individual Add</button>
       </div>
 
       {multiMode ? (
-        <div className="p-10 bg-light-bg/30 rounded-[3rem] border border-border-light space-y-10 text-left">
+        <div className="p-5 md:p-10 bg-light-bg/30 rounded-[3rem] border border-border-light space-y-10 text-left">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Color Palette</label>
                 {colors.length > 0 && <button onClick={() => setColors([])} className="text-[8px] font-black text-red-500 uppercase tracking-widest hover:underline">Clear All</button>}
               </div>
-              <div className="flex flex-wrap gap-2 p-4 sm:p-6 bg-white rounded-3xl border border-border-light min-h-[80px] shadow-inner">
+              <div className="flex flex-wrap gap-2 p-4 sm:p-4 sm:p-6 bg-white rounded-3xl border border-border-light min-h-[80px] shadow-inner">
                 {colors.map(c => (
                   <motion.span initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} key={c} className="px-4 py-2 bg-charcoal text-white rounded-full text-[10px] font-black uppercase tracking-tighter flex items-center gap-2 group">
                     {c} <X size={12} className="cursor-pointer hover:text-premium-gold transition-colors" onClick={() => setColors(colors.filter(x => x !== c))} />
@@ -344,7 +344,7 @@ function VariantManagerSection({ productName, variants, basePrice, sellingPrice,
                 <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Size Matrix (Select Multiple)</label>
                 {sizes.length > 0 && <button onClick={() => setSizes([])} className="text-[8px] font-black text-red-500 uppercase tracking-widest hover:underline">Deselect All</button>}
               </div>
-              <div className="grid grid-cols-5 gap-3 p-4 sm:p-6 bg-white rounded-3xl border border-border-light shadow-inner">
+              <div className="grid grid-cols-5 gap-3 p-4 sm:p-4 sm:p-6 bg-white rounded-3xl border border-border-light shadow-inner">
                 {COMMON_SIZES.map(s => (
                   <button
                     key={s}
@@ -370,10 +370,10 @@ function VariantManagerSection({ productName, variants, basePrice, sellingPrice,
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-end bg-light-bg/30 p-10 rounded-[3rem] border border-border-light text-left shadow-inner">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-end bg-light-bg/30 p-5 md:p-10 rounded-[3rem] border border-border-light text-left shadow-inner">
           <div className="space-y-2">
             <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Size Option</label>
-            <select className="w-full bg-white border border-border-light rounded-2xl px-4 sm:px-6 py-5 font-black text-xs uppercase outline-none focus:ring-4 focus:ring-premium-gold/10 transition-all shadow-sm" value={newV.size} onChange={e => setNewV({...newV, size: e.target.value})}>
+            <select className="w-full bg-white border border-border-light rounded-2xl px-4 sm:px-4 sm:px-6 py-5 font-black text-xs uppercase outline-none focus:ring-4 focus:ring-premium-gold/10 transition-all shadow-sm" value={newV.size} onChange={e => setNewV({...newV, size: e.target.value})}>
               <option value="">Select Size...</option>
               {COMMON_SIZES.map(s => <option key={s} value={s}>{s}</option>)}
               <option value="CUSTOM">Custom...</option>
@@ -381,11 +381,11 @@ function VariantManagerSection({ productName, variants, basePrice, sellingPrice,
           </div>
           <div className="space-y-2">
             <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Color Shade</label>
-            <input className="w-full bg-white border border-border-light rounded-2xl px-4 sm:px-6 py-5 font-black text-xs uppercase outline-none focus:ring-4 focus:ring-premium-gold/10 transition-all shadow-sm" placeholder="e.g. Slate Gray" value={newV.color} onChange={e => setNewV({...newV, color: e.target.value})} />
+            <input className="w-full bg-white border border-border-light rounded-2xl px-4 sm:px-4 sm:px-6 py-5 font-black text-xs uppercase outline-none focus:ring-4 focus:ring-premium-gold/10 transition-all shadow-sm" placeholder="e.g. Slate Gray" value={newV.color} onChange={e => setNewV({...newV, color: e.target.value})} />
           </div>
           <div className="space-y-2">
             <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Initial Qty</label>
-            <input type="number" className="w-full bg-white border border-border-light rounded-2xl px-4 sm:px-6 py-5 font-black text-xs uppercase outline-none focus:ring-4 focus:ring-premium-gold/10 transition-all shadow-sm" placeholder="0" value={newV.available} onChange={e => setNewV({...newV, available: Number(e.target.value)})} />
+            <input type="number" className="w-full bg-white border border-border-light rounded-2xl px-4 sm:px-4 sm:px-6 py-5 font-black text-xs uppercase outline-none focus:ring-4 focus:ring-premium-gold/10 transition-all shadow-sm" placeholder="0" value={newV.available} onChange={e => setNewV({...newV, available: Number(e.target.value)})} />
           </div>
           <button type="button" onClick={handleAdd} className="h-[68px] bg-charcoal text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:bg-premium-gold hover:text-charcoal transition-all">Add To Catalog</button>
         </div>
@@ -402,7 +402,7 @@ function VariantManagerSection({ productName, variants, basePrice, sellingPrice,
             <motion.div 
               layout 
               key={v._id || idx} 
-              className="bg-white p-4 md:p-8 rounded-[2.5rem] border border-border-light shadow-sm hover:border-premium-gold hover:shadow-xl transition-all group relative min-h-[180px] flex flex-col justify-between"
+              className="bg-white p-4 md:p-4 md:p-8 rounded-[2.5rem] border border-border-light shadow-sm hover:border-premium-gold hover:shadow-xl transition-all group relative min-h-[180px] flex flex-col justify-between"
             >
               {editingId === v._id ? (
                 <div className="space-y-4 w-full">

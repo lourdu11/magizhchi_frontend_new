@@ -264,7 +264,7 @@ export default function Collections() {
           </div>
         </div>
 
-        <div className="container-custom py-8">
+        <div className="container-custom py-4 md:py-8">
           <div className="flex gap-8">
             {/* Desktop Sidebar */}
             <aside className="hidden lg:block w-56 shrink-0">
@@ -355,7 +355,7 @@ export default function Collections() {
               {/* Load More - cursor pagination */}
               {pagination?.hasMore && (
                 <div className="flex justify-center mt-10">
-                  <button onClick={() => updateParams({ page: page + 1 })} className="btn-ghost border border-border-light px-8 py-3 font-semibold hover:border-premium-gold transition-all">
+                  <button onClick={() => updateParams({ page: page + 1 })} className="btn-ghost border border-border-light px-4 md:px-8 py-3 font-semibold hover:border-premium-gold transition-all">
                     Load More
                   </button>
                 </div>

@@ -19,7 +19,7 @@ const MEDALS = ['🥇', '🥈', '🥉'];
 
 function SectionCard({ title, icon: Icon, sub, children, className = '' }) {
   return (
-    <div className={`bg-white rounded-[2.5rem] border border-border-light p-4 md:p-8 shadow-sm ${className}`}>
+    <div className={`bg-white rounded-[2.5rem] border border-border-light p-4 md:p-4 md:p-8 shadow-sm ${className}`}>
       <div className="flex items-center gap-3 mb-6">
         <div className="w-9 h-9 rounded-xl bg-premium-gold/10 flex items-center justify-center">
           <Icon size={18} className="text-premium-gold" />
@@ -107,7 +107,7 @@ export default function AdminAnalytics() {
     <div className="space-y-8 pb-20">
 
       {/* ── HEADER ──────────────────────────────────────────────── */}
-      <div className="bg-white rounded-[2.5rem] border border-border-light p-4 md:p-8 shadow-sm">
+      <div className="bg-white rounded-[2.5rem] border border-border-light p-4 md:p-4 md:p-8 shadow-sm">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div>
             <div className="flex items-center gap-3 mb-2">
@@ -181,7 +181,7 @@ export default function AdminAnalytics() {
         {/* Category Mix */}
         <SectionCard icon={Layers} title="Category Mix" sub="Revenue by category">
           {catData.length === 0 ? (
-            <div className="text-center py-4 md:py-8 text-[10px] font-black text-text-muted uppercase tracking-widest opacity-40">No category data</div>
+            <div className="text-center py-4 md:py-4 md:py-8 text-[10px] font-black text-text-muted uppercase tracking-widest opacity-40">No category data</div>
           ) : (
             <div className="space-y-4">
               {catData.slice(0, 6).map((cat, i) => {
@@ -213,7 +213,7 @@ export default function AdminAnalytics() {
         {/* Payment Methods */}
         <SectionCard icon={CreditCard} title="Payment Methods" sub="How customers pay">
           {payData.length === 0 ? (
-            <div className="text-center py-4 md:py-8 text-[10px] font-black text-text-muted uppercase tracking-widest opacity-40">No payment data</div>
+            <div className="text-center py-4 md:py-4 md:py-8 text-[10px] font-black text-text-muted uppercase tracking-widest opacity-40">No payment data</div>
           ) : ready && (
             <Suspense fallback={<div className="h-[220px] bg-light-bg rounded-2xl animate-pulse" />}>
               <AnalyticsBarChart data={payData} />
@@ -224,7 +224,7 @@ export default function AdminAnalytics() {
         {/* Regional Sales */}
         <SectionCard icon={MapPin} title="Regional Sales" sub="Orders by state">
           {regionData.length === 0 ? (
-            <div className="text-center py-4 md:py-8 text-[10px] font-black text-text-muted uppercase tracking-widest opacity-40">No regional data</div>
+            <div className="text-center py-4 md:py-4 md:py-8 text-[10px] font-black text-text-muted uppercase tracking-widest opacity-40">No regional data</div>
           ) : (
             <div className="space-y-3">
               {regionData.slice(0, 6).map((r, i) => {
@@ -353,7 +353,7 @@ export default function AdminAnalytics() {
         {/* Stock Aging */}
         <SectionCard icon={Package} title="Stock Aging Buckets" sub="Inventory by age — lock capital risk">
           {stockAging.length === 0 ? (
-            <div className="text-center py-4 md:py-8 text-[10px] font-black text-text-muted uppercase tracking-widest opacity-40">No aging data</div>
+            <div className="text-center py-4 md:py-4 md:py-8 text-[10px] font-black text-text-muted uppercase tracking-widest opacity-40">No aging data</div>
           ) : (
             <div className="space-y-4">
               {stockAging.map((bucket, i) => {

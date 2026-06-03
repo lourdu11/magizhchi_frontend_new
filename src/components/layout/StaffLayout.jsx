@@ -49,7 +49,7 @@ export default function StaffLayout() {
           </button>
         </div>
       </aside>
-      <main className="flex-1 ml-52 p-6 min-h-dvh print:min-h-0 print:h-auto print:m-0 print:p-0 print:block">
+      <main className="flex-1 ml-52 p-4 sm:p-6 min-h-dvh print:min-h-0 print:h-auto print:m-0 print:p-0 print:block">
         <Outlet />
       </main>
     </div>

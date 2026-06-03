@@ -5,7 +5,7 @@ import { Globe, ShoppingCart, CheckCircle2 } from 'lucide-react';
 const ChannelCard = ({ icon: Icon, title, desc, active, onToggle, color }) => (
   <button 
     onClick={onToggle}
-    className={`p-10 rounded-[3rem] border-2 transition-all text-left flex flex-col gap-6 group relative overflow-hidden ${active ? 'border-charcoal bg-white shadow-2xl' : 'border-border-light bg-light-bg/30 grayscale opacity-60'}`}
+    className={`p-5 md:p-10 rounded-[3rem] border-2 transition-all text-left flex flex-col gap-6 group relative overflow-hidden ${active ? 'border-charcoal bg-white shadow-2xl' : 'border-border-light bg-light-bg/30 grayscale opacity-60'}`}
   >
     <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${color} shadow-inner group-hover:scale-110 transition-transform`}>
       <Icon size={24} />

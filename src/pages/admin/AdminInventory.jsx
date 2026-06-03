@@ -168,7 +168,7 @@ export default function AdminInventory() {
           <p className="text-xs text-text-muted font-bold uppercase tracking-widest">Live Stock Control — Every item tracked here</p>
         </div>
         <div className="flex items-center flex-wrap gap-3">
-           <button onClick={() => setLinkItem('new')} className="px-4 sm:px-6 py-3 bg-charcoal text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-premium-gold hover:text-charcoal transition-all flex items-center gap-2 shadow-lg shadow-charcoal/10">
+           <button onClick={() => setLinkItem('new')} className="px-4 sm:px-4 sm:px-6 py-3 bg-charcoal text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-premium-gold hover:text-charcoal transition-all flex items-center gap-2 shadow-lg shadow-charcoal/10">
               <Plus size={16} /> Add Manually
            </button>
         </div>
@@ -177,7 +177,7 @@ export default function AdminInventory() {
       {/* Stats and filters... */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         {stats.map(s => (
-          <div key={s.label} className="bg-white rounded-[2rem] border border-border-light p-4 sm:p-6 shadow-sm">
+          <div key={s.label} className="bg-white rounded-[2rem] border border-border-light p-4 sm:p-4 sm:p-6 shadow-sm">
             <div className={`text-2xl font-black ${s.color}`}>{s.value}</div>
             <div className="text-[10px] text-text-muted font-bold uppercase tracking-widest mt-1">{s.label}</div>
           </div>
@@ -186,7 +186,7 @@ export default function AdminInventory() {
 
       {/* Low Stock Alerts */}
       {lowStockItems.length > 0 && (
-        <div className="bg-red-50 border border-red-200 rounded-[2rem] p-4 sm:p-6">
+        <div className="bg-red-50 border border-red-200 rounded-[2rem] p-4 sm:p-4 sm:p-6">
           <div className="flex items-center gap-3 mb-4">
             <AlertTriangle size={20} className="text-red-600" />
             <span className="text-sm font-black text-red-800 uppercase tracking-tight">Low / Out of Stock — {lowStockItems.length} items need restocking!</span>
@@ -356,7 +356,7 @@ export default function AdminInventory() {
 
         {/* Pagination UI */}
         {inventoryData?.pagination && inventoryData.pagination.pages > 1 && (
-          <div className="bg-light-bg/30 px-4 sm:px-6 py-4 border-t border-border-light flex items-center justify-between">
+          <div className="bg-light-bg/30 px-4 sm:px-4 sm:px-6 py-4 border-t border-border-light flex items-center justify-between">
             <div className="text-[10px] font-black text-text-muted uppercase tracking-widest">
               Showing page {page} of {inventoryData.pagination.pages}
             </div>
@@ -399,7 +399,7 @@ export default function AdminInventory() {
         {adjustItem && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-charcoal/50 backdrop-blur-sm" onClick={() => setAdjustItem(null)} />
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative bg-white w-full admin-modal-container max-w-md rounded-[3rem] shadow-2xl border border-border-light p-4 md:p-8">
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative bg-white w-full admin-modal-container max-w-md rounded-[3rem] shadow-2xl border border-border-light p-4 md:p-4 md:p-8">
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h3 className="text-lg font-black text-charcoal uppercase tracking-tight">Adjust Stock</h3>
@@ -446,7 +446,7 @@ export default function AdminInventory() {
         {linkItem && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-charcoal/50 backdrop-blur-sm" onClick={() => setLinkItem(null)} />
-             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative bg-white w-full admin-modal-container max-w-md rounded-[3rem] shadow-2xl border border-border-light p-4 md:p-8 flex flex-col max-h-[80vh]">
+             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative bg-white w-full admin-modal-container max-w-md rounded-[3rem] shadow-2xl border border-border-light p-4 md:p-4 md:p-8 flex flex-col max-h-[80vh]">
                 <div className="flex-none flex items-center justify-between mb-6">
                    <div>
                       <h3 className="text-lg font-black text-charcoal uppercase tracking-tight">
@@ -548,7 +548,7 @@ export default function AdminInventory() {
         {historyItem && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-charcoal/50 backdrop-blur-sm" onClick={() => setHistoryItem(null)} />
-             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative bg-white w-full admin-modal-container max-w-2xl rounded-[3rem] shadow-2xl border border-border-light p-4 md:p-8 flex flex-col max-h-[85vh]">
+             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative bg-white w-full admin-modal-container max-w-2xl rounded-[3rem] shadow-2xl border border-border-light p-4 md:p-4 md:p-8 flex flex-col max-h-[85vh]">
                 <div className="flex-none flex items-center justify-between mb-8">
                    <div>
                       <h3 className="text-xl font-black text-charcoal uppercase tracking-tight">Stock Movement Ledger</h3>
@@ -611,7 +611,7 @@ export default function AdminInventory() {
           <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-charcoal/90 backdrop-blur-md" onClick={() => setViewBillImage(null)} />
              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative bg-white w-full admin-modal-container max-w-4xl rounded-[3rem] shadow-2xl overflow-hidden border border-white/10 flex flex-col max-h-[90vh]">
-                <div className="flex-none p-4 sm:p-6 flex items-center justify-between border-b border-border-light">
+                <div className="flex-none p-4 sm:p-4 sm:p-6 flex items-center justify-between border-b border-border-light">
                    <h3 className="text-sm font-black text-charcoal uppercase tracking-widest">Linked Purchase Invoice</h3>
                    <button onClick={() => setViewBillImage(null)} className="p-3 hover:bg-light-bg rounded-full text-text-muted transition-colors"><X size={20} /></button>
                 </div>
@@ -619,7 +619,7 @@ export default function AdminInventory() {
                    <img src={viewBillImage} className="max-w-full rounded-2xl shadow-lg border border-border-light" alt="Bill" />
                 </div>
                 <div className="flex-none p-4 bg-white border-t border-border-light flex justify-center gap-4">
-                   <a href={viewBillImage} download className="btn-primary py-3 px-4 md:px-8 text-[10px] rounded-2xl">Download Proof</a>
+                   <a href={viewBillImage} download className="btn-primary py-3 px-4 md:px-4 md:px-8 text-[10px] rounded-2xl">Download Proof</a>
                 </div>
              </motion.div>
           </div>
@@ -631,7 +631,7 @@ export default function AdminInventory() {
         {deleteItem && (
           <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-charcoal/50 backdrop-blur-sm" onClick={() => setDeleteItem(null)} />
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative bg-white w-full admin-modal-container max-w-sm rounded-[2.5rem] shadow-2xl border border-border-light p-4 md:p-8 text-center">
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative bg-white w-full admin-modal-container max-w-sm rounded-[2.5rem] shadow-2xl border border-border-light p-4 md:p-4 md:p-8 text-center">
               <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-5 border border-red-100">
                 <Trash2 size={28} className="text-red-500" />
               </div>

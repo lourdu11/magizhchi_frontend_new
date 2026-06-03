@@ -18,7 +18,7 @@ export default function NotFound() {
         <div className="absolute inset-0 opacity-5 bg-[linear-gradient(to_right,#00000005_1px,transparent_1px),linear-gradient(to_bottom,#00000005_1px,transparent_1px)] bg-[size:4rem_4rem]" />
 
         {/* Main Content Card Container */}
-        <div className="relative z-10 max-w-xl w-full bg-white/80 border border-premium-gold/25 backdrop-blur-md rounded-[32px] p-8 md:p-12 text-center shadow-2xl relative overflow-hidden group">
+        <div className="relative z-10 max-w-xl w-full bg-white/80 border border-premium-gold/25 backdrop-blur-md rounded-[32px] p-4 md:p-8 md:p-12 text-center shadow-2xl relative overflow-hidden group">
           {/* Inner Light Sweep Effect */}
           <div className="absolute top-0 -left-[100%] w-[50%] h-full bg-gradient-to-r from-transparent via-charcoal/5 to-transparent skew-x-12 transition-all duration-1000 group-hover:left-[150%]" />
 
@@ -63,14 +63,14 @@ export default function NotFound() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link 
               to="/" 
-              className="w-full sm:w-auto px-6 py-3 rounded-full bg-gradient-to-r from-premium-gold via-gold-light to-premium-gold hover:from-gold-light hover:to-premium-gold text-charcoal font-black text-xs uppercase tracking-widest transition-all duration-300 shadow-lg shadow-premium-gold/15 flex items-center justify-center gap-2 group/btn"
+              className="w-full sm:w-auto px-4 sm:px-6 py-3 rounded-full bg-gradient-to-r from-premium-gold via-gold-light to-premium-gold hover:from-gold-light hover:to-premium-gold text-charcoal font-black text-xs uppercase tracking-widest transition-all duration-300 shadow-lg shadow-premium-gold/15 flex items-center justify-center gap-2 group/btn"
             >
               <ArrowLeft size={14} className="transition-transform group-hover/btn:-translate-x-1" />
               Go Home
             </Link>
             <Link 
               to="/collections" 
-              className="w-full sm:w-auto px-6 py-3 rounded-full bg-charcoal/5 border border-charcoal/10 hover:border-premium-gold/30 hover:bg-charcoal/10 text-charcoal font-bold text-xs uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-4 sm:px-6 py-3 rounded-full bg-charcoal/5 border border-charcoal/10 hover:border-premium-gold/30 hover:bg-charcoal/10 text-charcoal font-bold text-xs uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2"
             >
               <ShoppingBag size={14} className="text-premium-gold" />
               Browse Products

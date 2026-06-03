@@ -308,7 +308,7 @@ export default function Checkout() {
   return (
     <>
       <Helmet><title>Checkout — Magizhchi Garments</title></Helmet>
-      <div className="min-h-dvh bg-cream-bg py-8 pb-36 lg:pb-8">
+      <div className="min-h-dvh bg-cream-bg py-4 md:py-8 pb-36 lg:pb-8">
         <div className="container-custom max-w-5xl">
           
           {/* Progress Header */}
@@ -344,7 +344,7 @@ export default function Checkout() {
                     exit={{ opacity: 0, x: 20 }}
                     className="space-y-6"
                   >
-                    <div className="bg-white rounded-3xl border border-border-light p-8 shadow-xl shadow-black/5">
+                    <div className="bg-white rounded-3xl border border-border-light p-4 md:p-8 shadow-xl shadow-black/5">
                       <div className="flex items-center gap-3 mb-8">
                         <div className="w-10 h-10 rounded-2xl bg-premium-gold/10 flex items-center justify-center text-premium-gold">
                           <MapPin size={20} />
@@ -467,7 +467,7 @@ export default function Checkout() {
                     className="space-y-6"
                   >
                     {/* Items Summary */}
-                    <div className="bg-white rounded-3xl border border-border-light p-8 shadow-xl shadow-black/5">
+                    <div className="bg-white rounded-3xl border border-border-light p-4 md:p-8 shadow-xl shadow-black/5">
                       <div className="flex items-center justify-between mb-8">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-2xl bg-premium-gold/10 flex items-center justify-center text-premium-gold">
@@ -529,7 +529,7 @@ export default function Checkout() {
                     </div>
 
                     {/* Payment Selection */}
-                    <div className="bg-white rounded-3xl border border-border-light p-8 shadow-xl shadow-black/5">
+                    <div className="bg-white rounded-3xl border border-border-light p-4 md:p-8 shadow-xl shadow-black/5">
                       <div className="flex items-center gap-3 mb-8">
                         <div className="w-10 h-10 rounded-2xl bg-premium-gold/10 flex items-center justify-center text-premium-gold">
                           <CreditCard size={20} />
@@ -541,7 +541,7 @@ export default function Checkout() {
                         {dynamicPaymentMethods.map(({ id, label, desc, icon: Icon }) => {
                           const isDisabled = id === 'cod' && !canUseCod;
                           return (
-                            <label key={id} className={`flex items-start gap-5 p-6 rounded-[2rem] border-2 transition-all ${isDisabled ? 'opacity-40 grayscale cursor-not-allowed' : 'cursor-pointer hover:border-premium-gold/50'} ${paymentMethod === id ? 'border-premium-gold bg-gold-soft ring-4 ring-premium-gold/5' : 'border-border-light bg-light-bg/20'}`}>
+                            <label key={id} className={`flex items-start gap-5 p-4 sm:p-6 rounded-[2rem] border-2 transition-all ${isDisabled ? 'opacity-40 grayscale cursor-not-allowed' : 'cursor-pointer hover:border-premium-gold/50'} ${paymentMethod === id ? 'border-premium-gold bg-gold-soft ring-4 ring-premium-gold/5' : 'border-border-light bg-light-bg/20'}`}>
                               <input type="radio" disabled={isDisabled} checked={paymentMethod === id} onChange={() => setPaymentMethod(id)} className="mt-1.5 accent-premium-gold w-6 h-6" />
                               <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-charcoal border border-border-light shadow-sm">
                                 <Icon size={24} className={paymentMethod === id ? 'text-premium-gold' : 'text-text-muted opacity-40'} />
@@ -562,7 +562,7 @@ export default function Checkout() {
 
             {/* Sidebar: Order Summary */}
             <div className="lg:col-span-4">
-              <div className="bg-charcoal text-white rounded-[2.5rem] p-8 sticky top-24 shadow-2xl shadow-charcoal/30 overflow-hidden group">
+              <div className="bg-charcoal text-white rounded-[2.5rem] p-4 md:p-8 sticky top-24 shadow-2xl shadow-charcoal/30 overflow-hidden group">
                 <div className="absolute top-[-20%] right-[-20%] w-64 h-64 bg-premium-gold/5 rounded-full blur-[100px] group-hover:bg-premium-gold/10 transition-colors" />
                 
                 <h3 className="font-black uppercase tracking-[0.3em] text-[10px] text-white/40 mb-8 flex items-center gap-2">

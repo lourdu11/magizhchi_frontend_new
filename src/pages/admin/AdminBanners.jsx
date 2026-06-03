@@ -134,7 +134,7 @@ export default function AdminBanners() {
       </div>
 
       {showForm && (
-        <div className="bg-white p-4 md:p-8 rounded-[2.5rem] border border-border-light shadow-2xl">
+        <div className="bg-white p-4 md:p-4 md:p-8 rounded-[2.5rem] border border-border-light shadow-2xl">
           <h3 className="text-xl font-black text-charcoal mb-6 uppercase tracking-tight">
             {editingId ? 'Refine Banner' : 'New Creation'}
           </h3>
@@ -227,7 +227,7 @@ export default function AdminBanners() {
 
                     {/* Image Controls */}
                     {(formData.desktopImage || formData.mobileImage) && (
-                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-5 p-4 sm:p-6 bg-light-bg rounded-3xl border border-border-light">
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-5 p-4 sm:p-4 sm:p-6 bg-light-bg rounded-3xl border border-border-light">
                         <p className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em]">Desktop Controls (21:9)</p>
                         <FitSelector value={formData.desktopFit} onChange={v => setFormData({...formData, desktopFit: v})} />
                         <PositionPicker value={formData.desktopPos} onChange={v => setFormData({...formData, desktopPos: v})} />
@@ -328,7 +328,7 @@ export default function AdminBanners() {
                 Order: {banner.displayOrder}
               </div>
             </div>
-            <div className="p-4 sm:p-6">
+            <div className="p-4 sm:p-4 sm:p-6">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <h4 className="font-black text-charcoal text-lg tracking-tight mb-1">{banner.title}</h4>

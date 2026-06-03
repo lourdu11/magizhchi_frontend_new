@@ -41,7 +41,7 @@ const SyncIntegrityPanel = () => {
 
   if (loading) {
     return (
-      <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 animate-pulse">
+      <div className="p-4 sm:p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 animate-pulse">
         <div className="h-6 w-48 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
         <div className="h-24 bg-gray-100 dark:bg-gray-750 rounded"></div>
       </div>
@@ -50,7 +50,7 @@ const SyncIntegrityPanel = () => {
 
   if (error) {
     return (
-      <div className="p-6 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-xl border border-red-200 flex items-center gap-3">
+      <div className="p-4 sm:p-6 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-xl border border-red-200 flex items-center gap-3">
         <AlertTriangle size={20} />
         <p>{error}</p>
         <button onClick={fetchIntegrityStats} className="ml-auto text-sm underline">Retry</button>

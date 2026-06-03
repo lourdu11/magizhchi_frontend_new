@@ -42,7 +42,7 @@ function KpiCard({ icon: Icon, label, value, sub, trend, trendVal, color, bgColo
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay }}
-      className="bg-white rounded-3xl border border-border-light p-4 sm:p-6 shadow-sm hover:shadow-lg hover:border-premium-gold/40 transition-all group relative overflow-hidden"
+      className="bg-white rounded-3xl border border-border-light p-4 sm:p-4 sm:p-6 shadow-sm hover:shadow-lg hover:border-premium-gold/40 transition-all group relative overflow-hidden"
     >
       <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full opacity-5 group-hover:opacity-10 transition-opacity" style={{ background: bgColor }} />
       <div className="flex items-start justify-between mb-5">
@@ -131,7 +131,7 @@ export default function AdminDashboard() {
     <div className="space-y-8 pb-20">
 
       {/* ── HERO HEADER ─────────────────────────────────────────── */}
-      <div className="bg-charcoal rounded-[2.5rem] p-4 md:p-8 md:p-10 relative overflow-hidden">
+      <div className="bg-charcoal rounded-[2.5rem] p-4 md:p-4 md:p-8 md:p-5 md:p-10 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-charcoal via-charcoal to-black" />
         <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-premium-gold/5 blur-[80px] -mr-48 -mt-48" />
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
@@ -199,7 +199,7 @@ export default function AdminDashboard() {
       <div className="grid lg:grid-cols-3 gap-6">
 
         {/* Revenue Trend Chart */}
-        <div className="lg:col-span-2 bg-white rounded-[2.5rem] border border-border-light p-4 md:p-8 shadow-sm">
+        <div className="lg:col-span-2 bg-white rounded-[2.5rem] border border-border-light p-4 md:p-4 md:p-8 shadow-sm">
           <SectionHeader icon={TrendingUp} title="30-Day Revenue Trend" sub="Combined online orders + POS bills" />
           {chartReady && salesTrend.length > 0 ? (
             <Suspense fallback={<div className="h-[280px] w-full bg-light-bg/50 rounded-2xl animate-pulse" />}>
@@ -221,7 +221,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Low Stock Panel */}
-        <div className="bg-white rounded-[2.5rem] border border-red-100 p-4 md:p-8 shadow-sm">
+        <div className="bg-white rounded-[2.5rem] border border-red-100 p-4 md:p-4 md:p-8 shadow-sm">
           <SectionHeader
             icon={AlertCircle}
             title="Low Stock Alert"
@@ -255,7 +255,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* ── LIVE TRANSACTION FEED ──────────────────────────────── */}
-      <div className="bg-white rounded-[2.5rem] border border-border-light p-4 md:p-8 shadow-sm">
+      <div className="bg-white rounded-[2.5rem] border border-border-light p-4 md:p-4 md:p-8 shadow-sm">
         <SectionHeader
           icon={Sparkles}
           title="Live Transaction Feed"
@@ -330,7 +330,7 @@ export default function AdminDashboard() {
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
 
         {/* Payment Methods */}
-        <div className="bg-white rounded-[2.5rem] border border-border-light p-4 md:p-8 shadow-sm">
+        <div className="bg-white rounded-[2.5rem] border border-border-light p-4 md:p-4 md:p-8 shadow-sm">
           <SectionHeader icon={CreditCard} title="Payment Split" sub="How customers pay" />
           {paymentData.length === 0 ? (
             <div className="text-center py-10 text-[10px] font-black text-text-muted uppercase tracking-widest opacity-50">No payment data</div>
@@ -367,7 +367,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* ERP Snapshot */}
-        <div className="bg-charcoal rounded-[2.5rem] p-4 md:p-8 shadow-xl relative overflow-hidden">
+        <div className="bg-charcoal rounded-[2.5rem] p-4 md:p-4 md:p-8 shadow-xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-48 h-48 rounded-full bg-premium-gold/5 blur-[60px] -mr-24 -mt-24" />
           <div className="relative z-10">
             <div className="flex items-center gap-3 mb-8">
@@ -394,7 +394,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Category Performance */}
-        <div className="bg-white rounded-[2.5rem] border border-border-light p-4 md:p-8 shadow-sm">
+        <div className="bg-white rounded-[2.5rem] border border-border-light p-4 md:p-4 md:p-8 shadow-sm">
           <SectionHeader icon={ShoppingBag} title="Top Categories" sub="By revenue this period" />
           {categoryData.length === 0 ? (
             <div className="text-center py-10 text-[10px] font-black text-text-muted uppercase tracking-widest opacity-50">No category data</div>

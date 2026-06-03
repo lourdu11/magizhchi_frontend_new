@@ -225,7 +225,7 @@ export default function Header() {
                       className={`absolute top-full left-0 mt-4 w-64 glass rounded-[2rem] shadow-2xl border border-white/40 overflow-hidden py-4 transition-all duration-300 origin-top ${showDropdown ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-2 pointer-events-none'}`}
                     >
                       {categories.map(cat => (
-                        <Link key={cat.path} to={cat.path} className="flex items-center gap-3 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-charcoal hover:text-premium-gold hover:bg-premium-gold/5 transition-all">
+                        <Link key={cat.path} to={cat.path} className="flex items-center gap-3 px-4 sm:px-6 py-3 text-[10px] font-black uppercase tracking-widest text-charcoal hover:text-premium-gold hover:bg-premium-gold/5 transition-all">
                           <Sparkles size={12} className="text-premium-gold/60" /> {cat.label}
                         </Link>
                       ))}
@@ -266,26 +266,26 @@ export default function Header() {
                     <div
                       className={`absolute top-full right-0 mt-4 w-56 glass rounded-[2rem] shadow-2xl border border-white/40 overflow-hidden py-4 z-[100] transition-all duration-300 origin-top-right ${showUserMenu ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto' : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'}`}
                     >
-                      <div className="px-6 py-4 border-b border-white/20 mb-2">
+                      <div className="px-4 sm:px-6 py-4 border-b border-white/20 mb-2">
                         <p className="text-[10px] font-black uppercase tracking-widest text-charcoal/60">Welcome back</p>
                         <p className="text-xs font-black text-charcoal truncate">{user?.name || 'Customer'}</p>
                       </div>
                       {user?.role === 'admin' ? (
-                        <Link to="/admin" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-premium-gold hover:bg-premium-gold/5 transition-all">Admin Panel</Link>
+                        <Link to="/admin" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 px-4 sm:px-6 py-3 text-[10px] font-black uppercase tracking-widest text-premium-gold hover:bg-premium-gold/5 transition-all">Admin Panel</Link>
                       ) : user?.role === 'staff' ? (
-                        <Link to="/staff" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-premium-gold hover:bg-premium-gold/5 transition-all">Staff Portal</Link>
+                        <Link to="/staff" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 px-4 sm:px-6 py-3 text-[10px] font-black uppercase tracking-widest text-premium-gold hover:bg-premium-gold/5 transition-all">Staff Portal</Link>
                       ) : (
                         <>
-                          <Link to="/dashboard" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-charcoal/60 hover:text-premium-gold hover:bg-premium-gold/5 transition-all">My Account</Link>
-                          <Link to="/dashboard/orders" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-charcoal/60 hover:text-premium-gold hover:bg-premium-gold/5 transition-all">Order History</Link>
+                          <Link to="/dashboard" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 px-4 sm:px-6 py-3 text-[10px] font-black uppercase tracking-widest text-charcoal/60 hover:text-premium-gold hover:bg-premium-gold/5 transition-all">My Account</Link>
+                          <Link to="/dashboard/orders" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 px-4 sm:px-6 py-3 text-[10px] font-black uppercase tracking-widest text-charcoal/60 hover:text-premium-gold hover:bg-premium-gold/5 transition-all">Order History</Link>
                         </>
                       )}
                       <div className="h-px bg-white/20 my-2 mx-4" />
-                      <button onClick={handleLogout} className="w-full flex items-center gap-3 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-stock-out hover:bg-stock-out/5 transition-all text-left">Sign Out</button>
+                      <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 sm:px-6 py-3 text-[10px] font-black uppercase tracking-widest text-stock-out hover:bg-stock-out/5 transition-all text-left">Sign Out</button>
                     </div>
                   </div>
                 ) : (
-                  <Link to="/login" className="px-6 py-2.5 bg-charcoal text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-premium-gold hover:text-charcoal transition-all">Login</Link>
+                  <Link to="/login" className="px-4 sm:px-6 py-2.5 bg-charcoal text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-premium-gold hover:text-charcoal transition-all">Login</Link>
                 )}
               </div>
             </div>
@@ -306,7 +306,7 @@ export default function Header() {
         className={`fixed top-0 left-0 h-full max-h-[100dvh] bg-white z-[70] shadow-2xl flex flex-col transition-transform duration-300 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}
         style={{ width: 'min(80vw, 320px)' }}
       >
-        <div className="flex-none flex items-center justify-between px-6 py-5 border-b border-gray-100">
+        <div className="flex-none flex items-center justify-between px-4 sm:px-6 py-5 border-b border-gray-100">
           <Link to="/" onClick={() => setMobileMenu(false)} className="flex items-center gap-3">
             <SafeImage src="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0043.jpg?updatedAt=1772379265473" width={55} height={55} quality={80} alt="Logo" className="h-9 w-auto aspect-square object-cover rounded-full" />
             <div className="flex flex-col leading-none">
@@ -323,7 +323,7 @@ export default function Header() {
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto overscroll-contain px-6 py-5 space-y-1">
+        <div className="flex-1 overflow-y-auto overscroll-contain px-4 sm:px-6 py-5 space-y-1">
           {NAV_LINKS.map((link) => (
             <div key={link.path}>
               <Link
@@ -393,7 +393,7 @@ export default function Header() {
           )}
         </div>
 
-        <div className="flex-none px-6 pt-4 pb-8 border-t border-gray-100">
+        <div className="flex-none px-4 sm:px-6 pt-4 pb-8 border-t border-gray-100">
           {isAuthenticated ? (
             <button
               onClick={handleLogout}

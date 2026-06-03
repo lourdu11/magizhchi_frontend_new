@@ -56,7 +56,7 @@ const CartSection = memo(({ onComplete }) => {
         <div className="flex-1 flex flex-col min-h-0 h-full">
           
           {/* Cart Header */}
-          <div className="p-6 space-y-4 border-b border-border-light bg-[#FAF9F5] relative">
+          <div className="p-4 sm:p-6 space-y-4 border-b border-border-light bg-[#FAF9F5] relative">
             <button 
               onClick={() => dispatch({ type: 'TOGGLE_MOBILE_CART' })}
               className="md:hidden absolute top-6 right-6 p-2 bg-light-bg rounded-full text-text-muted hover:text-charcoal transition-all"
@@ -89,7 +89,7 @@ const CartSection = memo(({ onComplete }) => {
           </div>
 
           {/* Cart Items */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-4">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
             {items.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center opacity-30 grayscale py-12">
                 <div className="w-20 h-20 bg-light-bg rounded-[2rem] flex items-center justify-center mb-4">
@@ -128,7 +128,7 @@ const CartSection = memo(({ onComplete }) => {
           </div>
 
           {/* Customer & Transaction Configurations */}
-          <div className="p-6 bg-white border-t border-border-light space-y-4">
+          <div className="p-4 sm:p-6 bg-white border-t border-border-light space-y-4">
              {/* Customer details inline */}
              <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
@@ -204,7 +204,7 @@ const CartSection = memo(({ onComplete }) => {
           </div>
 
           {/* Grand Summary & Print Trigger Box */}
-          <div className="p-6 bg-charcoal text-white rounded-t-[2.5rem] space-y-4 shadow-2xl mt-auto">
+          <div className="p-4 sm:p-6 bg-charcoal text-white rounded-t-[2.5rem] space-y-4 shadow-2xl mt-auto">
             <div className="space-y-1.5">
                <div className="flex justify-between text-[9px] font-bold text-white/40 uppercase tracking-widest">
                   <span>Subtotal ({items.length} items)</span>

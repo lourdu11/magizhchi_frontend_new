@@ -68,11 +68,11 @@ export default function StaffDailyReport() {
   }
 
   return (
-    <div className="min-h-dvh bg-light-bg p-6 lg:p-10 space-y-10">
+    <div className="min-h-dvh bg-light-bg p-4 sm:p-6 lg:p-5 md:p-10 space-y-10">
       <Helmet><title>Z-Report — End of Day Dashboard</title></Helmet>
       
       {/* ── Immersive SaaS Header ── */}
-      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 bg-white p-10 rounded-[3rem] shadow-[0_20px_60px_rgba(0,0,0,0.03)] border border-white no-print">
+      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 bg-white p-5 md:p-10 rounded-[3rem] shadow-[0_20px_60px_rgba(0,0,0,0.03)] border border-white no-print">
         <div className="flex items-center gap-6">
           <div className="w-16 h-16 bg-charcoal rounded-[1.8rem] flex items-center justify-center shadow-2xl shadow-charcoal/20">
             <BarChart3 className="text-premium-gold" size={32} />
@@ -89,10 +89,10 @@ export default function StaffDailyReport() {
         </div>
         
         <div className="flex items-center gap-4 w-full lg:w-auto">
-          <button onClick={() => window.print()} className="px-6 py-4 bg-white border border-border-light text-charcoal rounded-2xl text-xs font-black uppercase tracking-widest hover:border-premium-gold transition-all shadow-sm flex items-center justify-center gap-3 group">
+          <button onClick={() => window.print()} className="px-4 sm:px-6 py-4 bg-white border border-border-light text-charcoal rounded-2xl text-xs font-black uppercase tracking-widest hover:border-premium-gold transition-all shadow-sm flex items-center justify-center gap-3 group">
             <Printer size={18} className="group-hover:text-premium-gold transition-colors" /> Thermal Z-Report
           </button>
-          <button onClick={() => setShowExportModal(true)} className="px-8 py-4 bg-charcoal text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-black transition-all shadow-xl flex items-center justify-center gap-3 group">
+          <button onClick={() => setShowExportModal(true)} className="px-4 md:px-8 py-4 bg-charcoal text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-black transition-all shadow-xl flex items-center justify-center gap-3 group">
             <Download size={18} /> Export Data
           </button>
         </div>
@@ -101,7 +101,7 @@ export default function StaffDailyReport() {
       {/* ── Primary SaaS Metrics ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 no-print">
         {stats.map((c, i) => (
-          <motion.div key={c.label} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="bg-white rounded-[2.5rem] p-8 border border-white shadow-[0_15px_40px_rgba(0,0,0,0.02)] group hover:shadow-[0_40px_80px_rgba(0,0,0,0.08)] transition-all duration-500 relative overflow-hidden">
+          <motion.div key={c.label} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="bg-white rounded-[2.5rem] p-4 md:p-8 border border-white shadow-[0_15px_40px_rgba(0,0,0,0.02)] group hover:shadow-[0_40px_80px_rgba(0,0,0,0.08)] transition-all duration-500 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-24 h-24 bg-light-bg/50 rounded-bl-full -z-0 group-hover:scale-150 transition-transform duration-700" />
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-8">
@@ -118,7 +118,7 @@ export default function StaffDailyReport() {
 
       <div className="grid lg:grid-cols-3 gap-10 no-print">
         {/* ── Cash Reconciliation Module ── */}
-        <div className="lg:col-span-1 bg-white rounded-[3.5rem] p-10 shadow-[0_20px_50px_rgba(0,0,0,0.04)] border border-border-light relative overflow-hidden">
+        <div className="lg:col-span-1 bg-white rounded-[3.5rem] p-5 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.04)] border border-border-light relative overflow-hidden">
           <div className="w-12 h-12 bg-charcoal rounded-2xl flex items-center justify-center mb-8 shadow-lg">
             <Calculator className="text-premium-gold" size={24} />
           </div>
@@ -173,7 +173,7 @@ export default function StaffDailyReport() {
                     <p className="text-[9px] text-white/40 font-black uppercase tracking-[0.3em] mt-1">Verified Real-time Processing</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 bg-white/5 px-6 py-3 rounded-full border border-white/10">
+                <div className="flex items-center gap-3 bg-white/5 px-4 sm:px-6 py-3 rounded-full border border-white/10">
                    <Shield size={16} className="text-emerald-400" />
                    <span className="text-[9px] font-black uppercase tracking-widest text-emerald-400">Encrypted Status</span>
                 </div>
@@ -227,7 +227,7 @@ export default function StaffDailyReport() {
 
       <div className="grid lg:grid-cols-2 gap-10 no-print">
         {/* ── Best Sellers ── */}
-        <div className="bg-white rounded-[3.5rem] p-10 shadow-[0_20px_50px_rgba(0,0,0,0.04)] border border-border-light">
+        <div className="bg-white rounded-[3.5rem] p-5 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.04)] border border-border-light">
           <div className="flex items-center gap-4 mb-8">
             <div className="w-12 h-12 bg-orange-50 text-orange-500 rounded-2xl flex items-center justify-center">
               <TrendingUp size={24} />
@@ -261,7 +261,7 @@ export default function StaffDailyReport() {
         </div>
 
         {/* ── Live Ledger ── */}
-        <div className="bg-white rounded-[3.5rem] p-10 shadow-[0_20px_50px_rgba(0,0,0,0.04)] border border-border-light">
+        <div className="bg-white rounded-[3.5rem] p-5 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.04)] border border-border-light">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-purple-50 text-purple-500 rounded-2xl flex items-center justify-center">
@@ -306,7 +306,7 @@ export default function StaffDailyReport() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => !exportingState && setShowExportModal(false)} className="absolute inset-0 bg-charcoal/90 backdrop-blur-md" />
             <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative w-full max-w-4xl bg-white rounded-[3rem] overflow-hidden shadow-2xl flex flex-col md:flex-row h-auto min-h-[500px]">
               {/* Left Side: Description */}
-              <div className="w-full md:w-5/12 bg-charcoal p-10 flex flex-col justify-between text-white relative overflow-hidden">
+              <div className="w-full md:w-5/12 bg-charcoal p-5 md:p-10 flex flex-col justify-between text-white relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-64 h-64 bg-premium-gold/10 rounded-full blur-[80px] -ml-20 -mt-20" />
                 <div className="relative z-10">
                   <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mb-8 border border-white/20">
@@ -316,7 +316,7 @@ export default function StaffDailyReport() {
                   <p className="text-xs text-white/60 font-bold leading-relaxed mb-8">Select your preferred export channel. All external exports are secured with AES-256 encryption protocols before dispatch.</p>
 
                   {exportingState && (
-                    <div className="bg-black/50 border border-white/10 rounded-2xl p-6">
+                    <div className="bg-black/50 border border-white/10 rounded-2xl p-4 sm:p-6">
                       <div className="flex items-center gap-4 mb-4">
                         {exportingState === 'encrypting' ? <Loader2 className="animate-spin text-premium-gold" size={20} /> : <CheckCircle2 className="text-emerald-400" size={20} />}
                         <p className="text-[10px] font-black uppercase tracking-widest text-white/80">{exportingState === 'encrypting' ? 'Processing Security Hash...' : 'Operation Completed'}</p>
@@ -338,7 +338,7 @@ export default function StaffDailyReport() {
               </div>
 
               {/* Right Side: Options */}
-              <div className="flex-1 p-10 bg-light-bg flex flex-col">
+              <div className="flex-1 p-5 md:p-10 bg-light-bg flex flex-col">
                 <div className="flex justify-end mb-6">
                   {!exportingState && <button onClick={() => setShowExportModal(false)} className="w-10 h-10 bg-white rounded-xl flex items-center justify-center hover:bg-border-light transition-colors shadow-sm"><X size={18} className="text-charcoal" /></button>}
                 </div>
@@ -359,7 +359,7 @@ export default function StaffDailyReport() {
                           setTimeout(() => { setExportingState(null); setShowExportModal(false); }, 1500);
                         }, 2500);
                       }}
-                      className={`p-6 rounded-3xl border-2 transition-all text-left flex flex-col justify-between group h-full ${exportingState && activeExportOption !== opt.id ? 'opacity-30 grayscale cursor-not-allowed' : 'bg-white border-white hover:border-premium-gold shadow-[0_10px_30px_rgba(0,0,0,0.03)] hover:shadow-[0_20px_50px_rgba(212,175,55,0.1)]'}`}
+                      className={`p-4 sm:p-6 rounded-3xl border-2 transition-all text-left flex flex-col justify-between group h-full ${exportingState && activeExportOption !== opt.id ? 'opacity-30 grayscale cursor-not-allowed' : 'bg-white border-white hover:border-premium-gold shadow-[0_10px_30px_rgba(0,0,0,0.03)] hover:shadow-[0_20px_50px_rgba(212,175,55,0.1)]'}`}
                     >
                       <div className={`w-12 h-12 ${opt.bg} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
                         <opt.icon size={24} className={opt.color} />

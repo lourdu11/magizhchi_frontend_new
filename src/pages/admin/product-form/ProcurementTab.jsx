@@ -28,7 +28,7 @@ export default function ProcurementTab({ suppliers, setActiveTab }) {
     <div className="space-y-12">
       <SectionHeader title="Logistics Entry" subtitle="Supply chain & procurement documentation" />
       
-      <div className="p-10 bg-light-bg/30 rounded-[3rem] border border-border-light space-y-10">
+      <div className="p-5 md:p-10 bg-light-bg/30 rounded-[3rem] border border-border-light space-y-10">
         <div className="flex items-center justify-between">
           <h4 className="text-[10px] font-black text-charcoal uppercase tracking-[0.3em] ml-2 flex items-center gap-2"><Truck size={14} className="text-premium-gold" /> Logistics Detail</h4>
           <button type="button" onClick={() => navigate('/admin/procurement/suppliers/new')} className="text-[9px] font-black text-premium-gold uppercase tracking-widest hover:underline flex items-center gap-1"><Plus size={12} /> New Partner</button>
@@ -38,7 +38,7 @@ export default function ProcurementTab({ suppliers, setActiveTab }) {
           <div className="space-y-2">
             <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Supplier Partner</label>
             <select 
-              className="w-full bg-white border border-border-light rounded-2xl px-4 sm:px-6 py-4 font-black text-xs uppercase outline-none focus:ring-4 focus:ring-premium-gold/10 transition-all shadow-sm"
+              className="w-full bg-white border border-border-light rounded-2xl px-4 sm:px-4 sm:px-6 py-4 font-black text-xs uppercase outline-none focus:ring-4 focus:ring-premium-gold/10 transition-all shadow-sm"
               value={formData.initialProcurement.supplierId} 
               onChange={e => setNestedField('initialProcurement', 'supplierId', e.target.value)}
             >
@@ -71,7 +71,7 @@ export default function ProcurementTab({ suppliers, setActiveTab }) {
         </div>
       </div>
 
-      <div className="p-10 bg-premium-gold/5 rounded-[3rem] border border-premium-gold/20">
+      <div className="p-5 md:p-10 bg-premium-gold/5 rounded-[3rem] border border-premium-gold/20">
         <div className="flex gap-6 items-start">
           <div className="w-12 h-12 bg-premium-gold rounded-2xl flex items-center justify-center text-charcoal shrink-0">
             <Info size={24} />

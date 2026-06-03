@@ -45,12 +45,12 @@ export default function AdminWastage() {
       <Helmet><title>Wastage & Damage Log — Admin</title></Helmet>
 
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-4 md:p-8 rounded-[3rem] border border-border-light shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-4 md:p-4 md:p-8 rounded-[3rem] border border-border-light shadow-sm">
         <div>
           <h1 className="text-3xl font-black text-charcoal tracking-tight uppercase">Wastage & Damage</h1>
           <p className="text-text-muted text-sm font-medium tracking-tight">Track stock loss due to stains, defects or missing items</p>
         </div>
-        <button onClick={() => setShowForm(true)} className="bg-red-600 text-white px-4 md:px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all flex items-center gap-2 shadow-xl shadow-red-200">
+        <button onClick={() => setShowForm(true)} className="bg-red-600 text-white px-4 md:px-4 md:px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all flex items-center gap-2 shadow-xl shadow-red-200">
           <Trash2 size={16} /> Log New Wastage
         </button>
       </div>
@@ -68,7 +68,7 @@ export default function AdminWastage() {
                     <thead>
                        <tr className="bg-light-bg/50 border-b border-border-light">
                           {['Item Details', 'Qty', 'Loss Value', 'Reason', 'Date'].map(h => (
-                             <th key={h} className="px-4 md:px-8 py-4 sm:py-6 text-[10px] font-black text-text-muted uppercase tracking-widest">{h}</th>
+                             <th key={h} className="px-4 md:px-4 md:px-8 py-4 sm:py-4 sm:py-6 text-[10px] font-black text-text-muted uppercase tracking-widest">{h}</th>
                           ))}
                        </tr>
                     </thead>
@@ -79,16 +79,16 @@ export default function AdminWastage() {
                           <tr><td colSpan="5" className="py-20 text-center text-xs font-bold text-text-muted uppercase tracking-widest opacity-40">No wastage records found</td></tr>
                        ) : wastageHistory?.map(w => (
                           <tr key={w._id} className="hover:bg-red-50/20 transition-all">
-                             <td className="px-4 md:px-8 py-4 sm:py-6">
+                             <td className="px-4 md:px-4 md:px-8 py-4 sm:py-4 sm:py-6">
                                 <div className="font-black text-charcoal text-sm">{w.productName}</div>
                                 <div className="text-[10px] text-text-muted font-bold uppercase tracking-widest mt-1">{w.color} / {w.size}</div>
                              </td>
-                             <td className="px-4 md:px-8 py-4 sm:py-6 font-black text-red-600 text-sm">-{w.quantity}</td>
-                             <td className="px-4 md:px-8 py-4 sm:py-6 font-black text-charcoal text-sm">{formatCurrency(w.lossAmount)}</td>
-                             <td className="px-4 md:px-8 py-4 sm:py-6">
+                             <td className="px-4 md:px-4 md:px-8 py-4 sm:py-4 sm:py-6 font-black text-red-600 text-sm">-{w.quantity}</td>
+                             <td className="px-4 md:px-4 md:px-8 py-4 sm:py-4 sm:py-6 font-black text-charcoal text-sm">{formatCurrency(w.lossAmount)}</td>
+                             <td className="px-4 md:px-4 md:px-8 py-4 sm:py-4 sm:py-6">
                                 <span className="px-3 py-1 bg-gray-100 text-charcoal text-[9px] font-black uppercase tracking-widest rounded-full">{w.reason}</span>
                              </td>
-                             <td className="px-4 md:px-8 py-4 sm:py-6 text-[10px] font-bold text-text-muted uppercase">
+                             <td className="px-4 md:px-4 md:px-8 py-4 sm:py-4 sm:py-6 text-[10px] font-bold text-text-muted uppercase">
                                 {new Date(w.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
                              </td>
                           </tr>
@@ -101,7 +101,7 @@ export default function AdminWastage() {
 
         {/* Stats / Info */}
         <div className="space-y-6">
-           <div className="bg-charcoal text-white p-10 rounded-[3rem] shadow-2xl relative overflow-hidden">
+           <div className="bg-charcoal text-white p-5 md:p-10 rounded-[3rem] shadow-2xl relative overflow-hidden">
               <div className="relative z-10">
                  <ClipboardList size={40} className="text-premium-gold mb-6" />
                  <h3 className="text-xl font-black uppercase tracking-tight mb-2">Audit Notice</h3>
@@ -114,7 +114,7 @@ export default function AdminWastage() {
               </div>
            </div>
            
-           <div className="bg-red-50 border border-red-100 p-4 md:p-8 rounded-[3rem]">
+           <div className="bg-red-50 border border-red-100 p-4 md:p-4 md:p-8 rounded-[3rem]">
               <h4 className="text-[10px] font-black text-red-800 uppercase tracking-widest mb-4">Common Loss Types</h4>
               <ul className="space-y-3">
                  {[
@@ -194,7 +194,7 @@ export default function AdminWastage() {
                               <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-2">Loss Quantity</label>
                               <input 
                                 type="number" 
-                                className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-5 font-black text-xl focus:ring-2 focus:ring-premium-gold/30" 
+                                className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-5 font-black text-xl focus:ring-2 focus:ring-premium-gold/30" 
                                 placeholder="0" 
                                 value={form.quantity}
                                 onChange={e => setForm({...form, quantity: e.target.value})}
@@ -203,7 +203,7 @@ export default function AdminWastage() {
                            <div className="space-y-2">
                               <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-2">Reason Type</label>
                               <select 
-                                className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-5 font-black text-sm focus:ring-2 focus:ring-premium-gold/30 appearance-none cursor-pointer"
+                                className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-5 font-black text-sm focus:ring-2 focus:ring-premium-gold/30 appearance-none cursor-pointer"
                                 value={form.reason}
                                 onChange={e => setForm({...form, reason: e.target.value})}
                               >
@@ -219,7 +219,7 @@ export default function AdminWastage() {
                            <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-2">Audit Notes</label>
                            <textarea 
                              rows={3} 
-                             className="w-full bg-light-bg border-none rounded-[2rem] px-4 sm:px-6 py-4 sm:py-6 font-medium text-sm focus:ring-2 focus:ring-premium-gold/30 resize-none" 
+                             className="w-full bg-light-bg border-none rounded-[2rem] px-4 sm:px-4 sm:px-6 py-4 sm:py-4 sm:py-6 font-medium text-sm focus:ring-2 focus:ring-premium-gold/30 resize-none" 
                              placeholder="Provide specific details about the damage..." 
                              value={form.notes}
                              onChange={e => setForm({...form, notes: e.target.value})}
@@ -229,7 +229,7 @@ export default function AdminWastage() {
                         <button 
                           onClick={() => createMutation.mutate({ inventoryId: selectedItem._id, ...form })}
                           disabled={createMutation.isPending || !form.quantity || !form.notes}
-                          className="w-full bg-red-600 text-white py-4 sm:py-6 rounded-[2rem] font-black text-xs uppercase tracking-[0.3em] shadow-2xl shadow-red-200 hover:bg-red-700 transition-all flex items-center justify-center gap-3"
+                          className="w-full bg-red-600 text-white py-4 sm:py-4 sm:py-6 rounded-[2rem] font-black text-xs uppercase tracking-[0.3em] shadow-2xl shadow-red-200 hover:bg-red-700 transition-all flex items-center justify-center gap-3"
                         >
                            {createMutation.isPending ? <Loader2 size={20} className="animate-spin" /> : <><Trash2 size={20} /> Authorize Stock Deduction</>}
                         </button>

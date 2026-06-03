@@ -59,7 +59,7 @@ export default function OrderConfirmation() {
       </div>
 
       {/* Order Number Card */}
-      <div className="bg-dark-gradient rounded-2xl p-6 text-center mb-6">
+      <div className="bg-dark-gradient rounded-2xl p-4 sm:p-6 text-center mb-6">
         <p className="text-white/60 text-xs font-bold uppercase tracking-widest mb-1">Your Order Number</p>
         <p className="text-premium-gold text-3xl font-bold tracking-wider">#{order.orderNumber}</p>
         {order.estimatedDeliveryDate && (
@@ -81,7 +81,7 @@ export default function OrderConfirmation() {
       </div>
 
       {/* Order Timeline */}
-      <div className="bg-white rounded-2xl border border-border-light p-6 mb-6">
+      <div className="bg-white rounded-2xl border border-border-light p-4 sm:p-6 mb-6">
         <h3 className="font-bold text-text-primary mb-5">Order Status</h3>
         <div className="flex items-start justify-between relative">
           <div className="absolute top-5 left-0 right-0 h-0.5 bg-border-light z-0" />
@@ -99,7 +99,7 @@ export default function OrderConfirmation() {
 
       {/* Items Summary */}
       <div className="bg-white rounded-2xl border border-border-light overflow-hidden mb-6">
-        <div className="px-6 py-4 bg-light-bg border-b border-border-light">
+        <div className="px-4 sm:px-6 py-4 bg-light-bg border-b border-border-light">
           <h3 className="font-bold text-text-primary">Items Ordered</h3>
         </div>
         <div className="p-5 space-y-4">
@@ -114,7 +114,7 @@ export default function OrderConfirmation() {
             </div>
           ))}
         </div>
-        <div className="px-6 py-4 bg-light-bg border-t border-border-light space-y-2">
+        <div className="px-4 sm:px-6 py-4 bg-light-bg border-t border-border-light space-y-2">
           <div className="flex justify-between text-sm text-text-muted"><span>Subtotal</span><span>Rs.{order.pricing?.subtotal?.toLocaleString('en-IN')}</span></div>
           {order.pricing?.discount > 0 && <div className="flex justify-between text-sm text-green-600"><span>Discount</span><span>−Rs.{order.pricing?.discount?.toLocaleString('en-IN')}</span></div>}
           <div className="flex justify-between text-sm text-text-muted"><span>Shipping</span><span>{order.pricing?.shippingCharges === 0 ? 'FREE' : `Rs.${order.pricing?.shippingCharges}`}</span></div>
@@ -124,7 +124,7 @@ export default function OrderConfirmation() {
       </div>
 
       {/* Shipping Address */}
-      <div className="bg-white rounded-2xl border border-border-light p-6 mb-8">
+      <div className="bg-white rounded-2xl border border-border-light p-4 sm:p-6 mb-8">
         <h3 className="font-bold text-text-primary mb-3 flex items-center gap-2"><MapPin size={16} className="text-premium-gold" /> Shipping To</h3>
         <p className="font-semibold text-text-primary">{order.shippingAddress?.name}</p>
         <p className="text-sm text-text-muted">{order.shippingAddress?.addressLine1}{order.shippingAddress?.addressLine2 ? `, ${order.shippingAddress?.addressLine2}` : ''}</p>
@@ -135,14 +135,14 @@ export default function OrderConfirmation() {
       {/* Actions */}
       <div className="flex flex-col sm:flex-row gap-3">
         {order.invoiceUrl && (
-          <a href={order.invoiceUrl} target="_blank" rel="noreferrer" className="flex-1 flex items-center justify-center gap-2 py-3 px-6 bg-white border-2 border-border-light rounded-xl font-bold text-text-primary hover:border-premium-gold transition-colors">
+          <a href={order.invoiceUrl} target="_blank" rel="noreferrer" className="flex-1 flex items-center justify-center gap-2 py-3 px-4 sm:px-6 bg-white border-2 border-border-light rounded-xl font-bold text-text-primary hover:border-premium-gold transition-colors">
             <Download size={18} /> Download Invoice
           </a>
         )}
         <Link to={isAuthenticated ? "/dashboard" : "/track-order"} className="flex-1 flex items-center justify-center gap-2 btn-dark py-3">
           <Package size={18} /> Track Order <ArrowRight size={16} />
         </Link>
-        <Link to="/collections" className="flex-1 flex items-center justify-center gap-2 py-3 px-6 border-2 border-border-light rounded-xl font-bold text-text-muted hover:text-text-primary transition-colors">
+        <Link to="/collections" className="flex-1 flex items-center justify-center gap-2 py-3 px-4 sm:px-6 border-2 border-border-light rounded-xl font-bold text-text-muted hover:text-text-primary transition-colors">
           Continue Shopping
         </Link>
       </div>

@@ -21,7 +21,7 @@ export default function CookieConsent() {
     <div
       className={`fixed bottom-6 left-6 right-6 md:left-auto md:max-w-md z-[9999] transition-all duration-500 origin-bottom-right ${show ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-10 scale-95 pointer-events-none'}`}
     >
-      <div className="bg-white border border-neutral-200 shadow-2xl rounded-2xl p-6 relative overflow-hidden">
+      <div className="bg-white border border-neutral-200 shadow-2xl rounded-2xl p-4 sm:p-6 relative overflow-hidden">
         {/* Background Decoration */}
         <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/5 rounded-full blur-3xl" />
         

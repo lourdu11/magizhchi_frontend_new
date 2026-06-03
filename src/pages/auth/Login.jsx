@@ -213,7 +213,7 @@ export default function Login() {
         {/* ── Right Side (Interactive Glassmorphic Form) ── */}
         <div className="flex-1 flex flex-col min-h-dvh relative z-10">
           {/* Top Header Navigation */}
-          <div className="flex items-center justify-between px-8 py-8 lg:px-16">
+          <div className="flex items-center justify-between px-4 md:px-8 py-4 md:py-8 lg:px-16">
             <Link to="/" className="lg:hidden flex items-center gap-3 group">
                <SafeImage
                  src="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0043.jpg?updatedAt=1772379265473"
@@ -236,7 +236,7 @@ export default function Login() {
             </Link>
           </div>
 
-          <div className="flex-1 flex flex-col justify-center items-center px-6 pb-20">
+          <div className="flex-1 flex flex-col justify-center items-center px-4 sm:px-6 pb-20">
             <div className="w-full max-w-[450px]">
               
               {/* Heading */}
@@ -249,7 +249,7 @@ export default function Login() {
 
               {/* ── ULTRA-HIGH LEVEL INTERACTIVE PORTAL GUIDE ── */}
               <div className="bg-white border border-charcoal/5 shadow-xl shadow-charcoal/5 rounded-[2rem] overflow-hidden mb-6">
-                <div className="bg-premium-gold/5 px-6 py-3 border-b border-charcoal/5 flex items-center gap-2">
+                <div className="bg-premium-gold/5 px-4 sm:px-6 py-3 border-b border-charcoal/5 flex items-center gap-2">
                   <Sparkles size={15} className="text-premium-gold" />
                   <h4 className="text-[10px] font-black text-charcoal uppercase tracking-[0.2em]">Magizhchi Interactive Smart Guide</h4>
                 </div>
@@ -361,7 +361,7 @@ export default function Login() {
                 {/* Submit Button */}
                 <motion.button
                   type="submit" disabled={loading} whileHover={{ scale: 1.01, y: -1 }} whileTap={{ scale: 0.99 }}
-                  className="w-full py-6 bg-gradient-to-r from-charcoal via-[#1C1C1E] to-charcoal text-white rounded-2xl font-black uppercase tracking-[0.3em] text-sm shadow-2xl shadow-charcoal/25 hover:shadow-premium-gold/15 hover:from-premium-gold hover:to-amber-500 hover:text-charcoal transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 border border-white/[0.05]"
+                  className="w-full py-4 sm:py-6 bg-gradient-to-r from-charcoal via-[#1C1C1E] to-charcoal text-white rounded-2xl font-black uppercase tracking-[0.3em] text-sm shadow-2xl shadow-charcoal/25 hover:shadow-premium-gold/15 hover:from-premium-gold hover:to-amber-500 hover:text-charcoal transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 border border-white/[0.05]"
                 >
                   {loading ? 'Verifying Credentials...' : 'Customer Unlock →'}
                 </motion.button>

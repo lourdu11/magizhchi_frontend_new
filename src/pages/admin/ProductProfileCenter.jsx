@@ -97,7 +97,7 @@ export default function ProductProfileCenter() {
 
    // --- Render Helpers ---
    const StatCard = ({ label, value, icon: Icon, color }) => (
-      <div className="bg-white p-4 sm:p-6 rounded-[2rem] border border-border-light shadow-sm flex items-center gap-4 group hover:border-premium-gold transition-all">
+      <div className="bg-white p-4 sm:p-4 sm:p-6 rounded-[2rem] border border-border-light shadow-sm flex items-center gap-4 group hover:border-premium-gold transition-all">
          <div className={`p-4 rounded-2xl ${color} text-white shadow-lg shadow-black/5 group-hover:scale-110 transition-transform`}>
             <Icon size={20} />
          </div>
@@ -132,7 +132,7 @@ export default function ProductProfileCenter() {
             <div className="flex flex-wrap items-center gap-3">
                <button 
                   onClick={() => setShowArchived(!showArchived)}
-                  className={`px-4 sm:px-6 py-4 rounded-[2rem] text-[11px] font-black uppercase tracking-[0.2em] shadow-xl transition-all flex items-center gap-3 active:scale-95 ${
+                  className={`px-4 sm:px-4 sm:px-6 py-4 rounded-[2rem] text-[11px] font-black uppercase tracking-[0.2em] shadow-xl transition-all flex items-center gap-3 active:scale-95 ${
                      showArchived 
                      ? 'bg-amber-100 text-amber-700 border-2 border-amber-200' 
                      : 'bg-white border border-border-light text-text-muted hover:border-premium-gold'
@@ -152,7 +152,7 @@ export default function ProductProfileCenter() {
                </div>
                <button 
                   onClick={() => navigate('/admin/products/new')} 
-                  className="px-4 md:px-8 py-4 bg-charcoal text-white rounded-[2rem] text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-charcoal/20 hover:bg-premium-gold hover:text-charcoal transition-all flex items-center gap-3 active:scale-95"
+                  className="px-4 md:px-4 md:px-8 py-4 bg-charcoal text-white rounded-[2rem] text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-charcoal/20 hover:bg-premium-gold hover:text-charcoal transition-all flex items-center gap-3 active:scale-95"
                >
                   <Plus size={18} /> New Product Profile
                </button>
@@ -198,7 +198,7 @@ export default function ProductProfileCenter() {
                />
             </div>
             <select 
-               className="bg-white border border-border-light rounded-[2rem] px-4 md:px-8 py-5 text-xs font-black uppercase tracking-widest text-charcoal outline-none focus:ring-4 focus:ring-premium-gold/10 shadow-sm"
+               className="bg-white border border-border-light rounded-[2rem] px-4 md:px-4 md:px-8 py-5 text-xs font-black uppercase tracking-widest text-charcoal outline-none focus:ring-4 focus:ring-premium-gold/10 shadow-sm"
                value={filterCategory}
                onChange={e => setFilterCategory(e.target.value)}
             >
@@ -351,31 +351,31 @@ function QuickStockModal({ product, onClose }) {
                <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
                      <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Size (Required)</label>
-                     <input className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-4 font-bold text-sm" placeholder="e.g. XL, 32" value={formData.size} onChange={e => setFormData({...formData, size: e.target.value})} />
+                     <input className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 font-bold text-sm" placeholder="e.g. XL, 32" value={formData.size} onChange={e => setFormData({...formData, size: e.target.value})} />
                   </div>
                   <div className="space-y-2">
                      <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Color (Required)</label>
-                     <input className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-4 font-bold text-sm" placeholder="e.g. Navy Blue" value={formData.color} onChange={e => setFormData({...formData, color: e.target.value})} />
+                     <input className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 font-bold text-sm" placeholder="e.g. Navy Blue" value={formData.color} onChange={e => setFormData({...formData, color: e.target.value})} />
                   </div>
                </div>
 
                <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
                      <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Initial Stock (Pcs)</label>
-                     <input type="number" className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-4 font-black text-xl" value={formData.stock} onChange={e => setFormData({...formData, stock: e.target.value})} />
+                     <input type="number" className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 font-black text-xl" value={formData.stock} onChange={e => setFormData({...formData, stock: e.target.value})} />
                   </div>
                   <div className="space-y-2">
                      <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Selling Price (₹)</label>
-                     <input type="number" className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-4 font-black text-xl" value={formData.sellingPrice} onChange={e => setFormData({...formData, sellingPrice: e.target.value})} />
+                     <input type="number" className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 font-black text-xl" value={formData.sellingPrice} onChange={e => setFormData({...formData, sellingPrice: e.target.value})} />
                   </div>
                </div>
 
                <div className="space-y-2">
                   <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Reference SKU (Optional)</label>
-                  <input className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-4 font-bold text-sm" placeholder="Leave blank for auto-gen" value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value})} />
+                  <input className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 font-bold text-sm" placeholder="Leave blank for auto-gen" value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value})} />
                </div>
 
-               <div className="p-4 sm:p-6 bg-orange-50 rounded-3xl border border-orange-100">
+               <div className="p-4 sm:p-4 sm:p-6 bg-orange-50 rounded-3xl border border-orange-100">
                   <p className="text-[10px] font-bold text-orange-700 leading-relaxed">
                      <span className="font-black uppercase tracking-widest block mb-1">💡 Flexible Workflow</span>
                      This entry is optional. You can close this window now and add stock later from the Procurement Hub or Inventory Master.
@@ -388,7 +388,7 @@ function QuickStockModal({ product, onClose }) {
                      addStockMutation.mutate(formData);
                   }}
                   disabled={addStockMutation.isPending}
-                  className="w-full py-4 sm:py-6 bg-charcoal text-white rounded-[2rem] font-black text-xs uppercase tracking-[0.3em] shadow-2xl hover:bg-premium-gold hover:text-charcoal transition-all flex items-center justify-center gap-3"
+                  className="w-full py-4 sm:py-4 sm:py-6 bg-charcoal text-white rounded-[2rem] font-black text-xs uppercase tracking-[0.3em] shadow-2xl hover:bg-premium-gold hover:text-charcoal transition-all flex items-center justify-center gap-3"
                >
                   {addStockMutation.isPending ? <Loader2 className="animate-spin" size={20} /> : <><Save size={20} /> Authorize Stock Entry</>}
                </button>
@@ -460,7 +460,7 @@ function ProductCard({ product, onEdit, onDelete, onRestore, onPurge, onQuickSto
             </div>
          </div>
 
-         <div className="p-4 md:p-8 flex-1 flex flex-col">
+         <div className="p-4 md:p-4 md:p-8 flex-1 flex flex-col">
             <div className="flex justify-between items-start mb-4">
                <div>
                   <h3 className="text-lg font-black text-charcoal tracking-tight leading-tight group-hover:text-premium-gold transition-colors">{product.name}</h3>
@@ -498,18 +498,18 @@ function ProductTable({ products, onEdit, onDelete, onRestore, onPurge }) {
          <table className="w-full min-w-[700px] text-left border-collapse">
             <thead>
                <tr className="bg-light-bg/50 border-b border-border-light">
-                  <th className="px-4 md:px-8 py-4 sm:py-6 text-[10px] font-black text-text-muted uppercase tracking-widest">Master Identity</th>
-                  <th className="px-4 md:px-8 py-4 sm:py-6 text-[10px] font-black text-text-muted uppercase tracking-widest">Market & Source</th>
-                  <th className="px-4 md:px-8 py-4 sm:py-6 text-[10px] font-black text-text-muted uppercase tracking-widest">Status</th>
-                  <th className="px-4 md:px-8 py-4 sm:py-6 text-[10px] font-black text-text-muted uppercase tracking-widest text-right">Live Stock</th>
-                  <th className="px-4 md:px-8 py-4 sm:py-6 text-[10px] font-black text-text-muted uppercase tracking-widest text-right">Price Center</th>
-                  <th className="px-4 md:px-8 py-4 sm:py-6 text-[10px] font-black text-text-muted uppercase tracking-widest text-right">Actions</th>
+                  <th className="px-4 md:px-4 md:px-8 py-4 sm:py-4 sm:py-6 text-[10px] font-black text-text-muted uppercase tracking-widest">Master Identity</th>
+                  <th className="px-4 md:px-4 md:px-8 py-4 sm:py-4 sm:py-6 text-[10px] font-black text-text-muted uppercase tracking-widest">Market & Source</th>
+                  <th className="px-4 md:px-4 md:px-8 py-4 sm:py-4 sm:py-6 text-[10px] font-black text-text-muted uppercase tracking-widest">Status</th>
+                  <th className="px-4 md:px-4 md:px-8 py-4 sm:py-4 sm:py-6 text-[10px] font-black text-text-muted uppercase tracking-widest text-right">Live Stock</th>
+                  <th className="px-4 md:px-4 md:px-8 py-4 sm:py-4 sm:py-6 text-[10px] font-black text-text-muted uppercase tracking-widest text-right">Price Center</th>
+                  <th className="px-4 md:px-4 md:px-8 py-4 sm:py-4 sm:py-6 text-[10px] font-black text-text-muted uppercase tracking-widest text-right">Actions</th>
                </tr>
             </thead>
             <tbody className="divide-y divide-border-light/30">
                {products.map(p => (
                   <tr key={p._id} className="group hover:bg-light-bg/10 transition-all align-top">
-                     <td className="px-4 md:px-8 py-4 md:py-8">
+                     <td className="px-4 md:px-4 md:px-8 py-4 md:py-4 md:py-8">
                         <div className="flex items-center flex-wrap gap-4">
                            <SafeImage src={p.images?.[0] || p.thumbnail} className="w-12 h-16 rounded-xl object-cover bg-light-bg shadow-sm" />
                            <div>
@@ -520,12 +520,12 @@ function ProductTable({ products, onEdit, onDelete, onRestore, onPurge }) {
                            </div>
                         </div>
                      </td>
-                     <td className="px-4 md:px-8 py-4 md:py-8">
+                     <td className="px-4 md:px-4 md:px-8 py-4 md:py-4 md:py-8">
                         <div className="flex flex-col gap-2">
                            <span className="text-[10px] font-black px-3 py-1 bg-light-bg rounded-full text-charcoal uppercase tracking-widest w-fit border border-border-light">{p.category?.name || 'General'}</span>
                         </div>
                      </td>
-                     <td className="px-4 md:px-8 py-4 md:py-8">
+                     <td className="px-4 md:px-4 md:px-8 py-4 md:py-4 md:py-8">
                         {(p.isDeleted || p.isArchived) ? (
                            <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-[9px] font-black uppercase tracking-widest">Archived</span>
                         ) : (
@@ -534,17 +534,17 @@ function ProductTable({ products, onEdit, onDelete, onRestore, onPurge }) {
                            </span>
                         )}
                      </td>
-                     <td className="px-4 md:px-8 py-4 md:py-8 text-right">
+                     <td className="px-4 md:px-4 md:px-8 py-4 md:py-4 md:py-8 text-right">
                         <div className="flex flex-col items-end">
                            <div className="font-black text-charcoal text-lg">{(p.liveStock?.availableStock ?? p.availableStock)} <span className="text-[10px] text-text-muted">PCS</span></div>
                            <div className="text-[8px] font-bold text-text-muted uppercase tracking-widest">Of {(p.liveStock?.totalStock ?? p.totalStock)} Total</div>
                         </div>
                      </td>
-                     <td className="px-4 md:px-8 py-4 md:py-8 text-right">
+                     <td className="px-4 md:px-4 md:px-8 py-4 md:py-4 md:py-8 text-right">
                         <div className="font-black text-charcoal text-lg tracking-tighter">₹{p.sellingPrice}</div>
                         {p.discountPercentage > 0 && <div className="text-[10px] text-red-500 font-black uppercase tracking-tighter">-{p.discountPercentage}% Discount</div>}
                      </td>
-                     <td className="px-4 md:px-8 py-4 md:py-8 text-right">
+                     <td className="px-4 md:px-4 md:px-8 py-4 md:py-4 md:py-8 text-right">
                         <div className="flex items-center justify-end gap-2">
                            {(p.isDeleted || p.isArchived) ? (
                               <>

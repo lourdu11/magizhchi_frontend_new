@@ -110,7 +110,7 @@ export default function AdminSalesChannels({ item, onClose, onRefresh }) {
         className="relative bg-white w-full admin-modal-container max-w-6xl h-[90vh] rounded-[3.5rem] shadow-2xl flex flex-col overflow-hidden border border-border-light"
       >
         {/* Header Section */}
-        <div className="p-4 md:p-8 md:p-12 border-b border-border-light bg-light-bg/50 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="p-4 md:p-4 md:p-8 md:p-12 border-b border-border-light bg-light-bg/50 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-center gap-6">
              <div className="w-20 h-24 bg-white rounded-2xl overflow-hidden border border-border-light shadow-sm hidden sm:block">
                 <img src={prodData.images?.[0] || '/placeholder.jpg'} alt="" className="w-full h-full object-cover" />
@@ -125,7 +125,7 @@ export default function AdminSalesChannels({ item, onClose, onRefresh }) {
           </div>
 
           {/* Stock Meter */}
-          <div className="bg-white p-4 sm:p-6 rounded-3xl border border-border-light shadow-sm min-w-[280px]">
+          <div className="bg-white p-4 sm:p-4 sm:p-6 rounded-3xl border border-border-light shadow-sm min-w-[280px]">
              <div className="flex items-center justify-between mb-3">
                 <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">Master Stock</p>
                 <p className="text-lg font-black text-charcoal">{availableStock} Units</p>
@@ -152,16 +152,16 @@ export default function AdminSalesChannels({ item, onClose, onRefresh }) {
         </div>
 
         {/* Navigation Tabs */}
-        <div className="px-12 py-4 sm:py-6 bg-white border-b border-border-light flex items-center gap-2 overflow-x-auto no-scrollbar">
+        <div className="px-12 py-4 sm:py-4 sm:py-6 bg-white border-b border-border-light flex items-center gap-2 overflow-x-auto no-scrollbar">
            <button 
              onClick={() => setActiveTab('online')} 
-             className={`flex items-center gap-3 px-4 md:px-8 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all whitespace-nowrap ${activeTab === 'online' ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-200' : 'text-text-muted hover:bg-light-bg'}`}
+             className={`flex items-center gap-3 px-4 md:px-4 md:px-8 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all whitespace-nowrap ${activeTab === 'online' ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-200' : 'text-text-muted hover:bg-light-bg'}`}
            >
               <Globe size={16} /> Online Channel
            </button>
            <button 
              onClick={() => setActiveTab('offline')} 
-             className={`flex items-center gap-3 px-4 md:px-8 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all whitespace-nowrap ${activeTab === 'offline' ? 'bg-emerald-600 text-white shadow-xl shadow-emerald-200' : 'text-text-muted hover:bg-light-bg'}`}
+             className={`flex items-center gap-3 px-4 md:px-4 md:px-8 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all whitespace-nowrap ${activeTab === 'offline' ? 'bg-emerald-600 text-white shadow-xl shadow-emerald-200' : 'text-text-muted hover:bg-light-bg'}`}
            >
               <Store size={16} /> POS Channel
            </button>
@@ -187,27 +187,27 @@ export default function AdminSalesChannels({ item, onClose, onRefresh }) {
                          <div className="space-y-6">
                             <div className="space-y-2">
                                <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Website Listing Title</label>
-                               <input className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-4 font-bold text-sm" value={prodData.name} onChange={e => setProdData({...prodData, name: e.target.value})} placeholder="e.g. Luxury Magizhchi Silk Blend Shirt" />
+                               <input className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 font-bold text-sm" value={prodData.name} onChange={e => setProdData({...prodData, name: e.target.value})} placeholder="e.g. Luxury Magizhchi Silk Blend Shirt" />
                             </div>
                             <div className="grid grid-cols-2 gap-6">
                                <div className="space-y-2">
                                   <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Category</label>
-                                  <input className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-4 font-black text-xs uppercase" value={prodData.category} onChange={e => setProdData({...prodData, category: e.target.value})} />
+                                  <input className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 font-black text-xs uppercase" value={prodData.category} onChange={e => setProdData({...prodData, category: e.target.value})} />
                                </div>
                                <div className="space-y-2">
                                   <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Brand</label>
-                                  <input className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-4 font-black text-xs uppercase" value={prodData.brand} onChange={e => setProdData({...prodData, brand: e.target.value})} />
+                                  <input className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 font-black text-xs uppercase" value={prodData.brand} onChange={e => setProdData({...prodData, brand: e.target.value})} />
                                </div>
                             </div>
                             <div className="space-y-2">
                                <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Narrative (Description)</label>
-                               <textarea rows="6" className="w-full bg-light-bg border-none rounded-3xl px-4 sm:px-6 py-4 sm:py-6 font-medium text-sm resize-none" value={prodData.description} onChange={e => setProdData({...prodData, description: e.target.value})} placeholder="Craft the story of this product..." />
+                               <textarea rows="6" className="w-full bg-light-bg border-none rounded-3xl px-4 sm:px-4 sm:px-6 py-4 sm:py-4 sm:py-6 font-medium text-sm resize-none" value={prodData.description} onChange={e => setProdData({...prodData, description: e.target.value})} placeholder="Craft the story of this product..." />
                             </div>
                          </div>
                       </div>
 
                       {/* Right: Online Allocation & Price */}
-                      <div className="space-y-8 bg-light-bg/50 p-4 md:p-8 rounded-[3rem] border border-border-light">
+                      <div className="space-y-8 bg-light-bg/50 p-4 md:p-4 md:p-8 rounded-[3rem] border border-border-light">
                          <div className="space-y-6">
                             <div className="flex items-center justify-between">
                                <h4 className="text-xs font-black text-charcoal uppercase tracking-widest">Active Status</h4>
@@ -219,7 +219,7 @@ export default function AdminSalesChannels({ item, onClose, onRefresh }) {
                             <div className="space-y-2">
                                <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Stock Allocation</label>
                                <div className="relative">
-                                  <input type="number" className="w-full bg-white rounded-2xl px-4 sm:px-6 py-4 font-black text-xl border border-border-light" value={invData.onlineAllocatedStock} onChange={e => setInvData({...invData, onlineAllocatedStock: Number(e.target.value)})} />
+                                  <input type="number" className="w-full bg-white rounded-2xl px-4 sm:px-4 sm:px-6 py-4 font-black text-xl border border-border-light" value={invData.onlineAllocatedStock} onChange={e => setInvData({...invData, onlineAllocatedStock: Number(e.target.value)})} />
                                   <span className="absolute right-6 top-1/2 -translate-y-1/2 text-[10px] font-black text-text-muted uppercase">Units</span>
                                </div>
                                <p className="text-[9px] font-bold text-text-muted italic ml-1">Limit web visibility to this quantity</p>
@@ -253,18 +253,18 @@ export default function AdminSalesChannels({ item, onClose, onRefresh }) {
                    </div>
 
                    {/* SEO & Meta */}
-                   <div className="bg-light-bg/30 p-10 rounded-[3.5rem] border border-border-light border-dashed">
+                   <div className="bg-light-bg/30 p-5 md:p-10 rounded-[3.5rem] border border-border-light border-dashed">
                       <h4 className="text-xs font-black text-charcoal uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
                          <BarChart2 size={18} className="text-indigo-600" /> Search Engine Optimization
                       </h4>
                       <div className="grid md:grid-cols-2 gap-10">
                          <div className="space-y-2">
                             <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">SEO Title</label>
-                            <input className="w-full bg-white border border-border-light rounded-2xl px-4 sm:px-6 py-4 font-bold text-sm" value={prodData.seo.metaTitle} onChange={e => setProdData({...prodData, seo: {...prodData.seo, metaTitle: e.target.value}})} placeholder="Meta Title for Google" />
+                            <input className="w-full bg-white border border-border-light rounded-2xl px-4 sm:px-4 sm:px-6 py-4 font-bold text-sm" value={prodData.seo.metaTitle} onChange={e => setProdData({...prodData, seo: {...prodData.seo, metaTitle: e.target.value}})} placeholder="Meta Title for Google" />
                          </div>
                          <div className="space-y-2">
                             <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Meta Description</label>
-                            <textarea rows="3" className="w-full bg-white border border-border-light rounded-2xl px-4 sm:px-6 py-4 font-medium text-sm resize-none" value={prodData.seo.metaDescription} onChange={e => setProdData({...prodData, seo: {...prodData.seo, metaDescription: e.target.value}})} placeholder="A brief summary for search results..." />
+                            <textarea rows="3" className="w-full bg-white border border-border-light rounded-2xl px-4 sm:px-4 sm:px-6 py-4 font-medium text-sm resize-none" value={prodData.seo.metaDescription} onChange={e => setProdData({...prodData, seo: {...prodData.seo, metaDescription: e.target.value}})} placeholder="A brief summary for search results..." />
                          </div>
                       </div>
                    </div>
@@ -284,16 +284,16 @@ export default function AdminSalesChannels({ item, onClose, onRefresh }) {
                          <div className="grid md:grid-cols-2 gap-8">
                             <div className="space-y-2">
                                <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">POS Billing Name</label>
-                               <input className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-4 font-black text-sm uppercase" value={invData.posDisplayName} onChange={e => setInvData({...invData, posDisplayName: e.target.value})} placeholder="SHORT NAME FOR BILL" />
+                               <input className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 font-black text-sm uppercase" value={invData.posDisplayName} onChange={e => setInvData({...invData, posDisplayName: e.target.value})} placeholder="SHORT NAME FOR BILL" />
                             </div>
                             <div className="space-y-2">
                                <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Quick POS Category</label>
-                               <input className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-4 font-black text-sm uppercase" value={invData.posCategory} onChange={e => setInvData({...invData, posCategory: e.target.value})} placeholder="DEPT" />
+                               <input className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 font-black text-sm uppercase" value={invData.posCategory} onChange={e => setInvData({...invData, posCategory: e.target.value})} placeholder="DEPT" />
                             </div>
                             <div className="space-y-2">
                                <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Inventory SKU / Barcode</label>
                                <div className="flex gap-2">
-                                  <input readOnly className="flex-1 bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-4 font-black text-sm text-text-muted" value={item.barcode || item.sku} />
+                                  <input readOnly className="flex-1 bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 font-black text-sm text-text-muted" value={item.barcode || item.sku} />
                                   <button className="p-4 bg-charcoal text-white rounded-2xl hover:bg-premium-gold transition-colors"><Zap size={18} /></button>
                                </div>
                             </div>
@@ -308,7 +308,7 @@ export default function AdminSalesChannels({ item, onClose, onRefresh }) {
                       </div>
 
                       {/* Right: Offline Allocation & Discounts */}
-                      <div className="space-y-8 bg-light-bg/50 p-4 md:p-8 rounded-[3rem] border border-border-light">
+                      <div className="space-y-8 bg-light-bg/50 p-4 md:p-4 md:p-8 rounded-[3rem] border border-border-light">
                          <div className="space-y-6">
                             <div className="flex items-center justify-between">
                                <h4 className="text-xs font-black text-charcoal uppercase tracking-widest">POS Availability</h4>
@@ -320,7 +320,7 @@ export default function AdminSalesChannels({ item, onClose, onRefresh }) {
                             <div className="space-y-2">
                                <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">POS Stock Allocation</label>
                                <div className="relative">
-                                  <input type="number" className="w-full bg-white rounded-2xl px-4 sm:px-6 py-4 font-black text-xl border border-border-light" value={invData.offlineAllocatedStock} onChange={e => setInvData({...invData, offlineAllocatedStock: Number(e.target.value)})} />
+                                  <input type="number" className="w-full bg-white rounded-2xl px-4 sm:px-4 sm:px-6 py-4 font-black text-xl border border-border-light" value={invData.offlineAllocatedStock} onChange={e => setInvData({...invData, offlineAllocatedStock: Number(e.target.value)})} />
                                   <span className="absolute right-6 top-1/2 -translate-y-1/2 text-[10px] font-black text-text-muted uppercase">Units</span>
                                </div>
                                <p className="text-[9px] font-bold text-text-muted italic ml-1">Limit cashier lookup to this quantity</p>
@@ -342,15 +342,15 @@ export default function AdminSalesChannels({ item, onClose, onRefresh }) {
                       </div>
                    </div>
 
-                   <div className="bg-emerald-50/30 p-10 rounded-[3.5rem] border border-emerald-100 border-dashed">
+                   <div className="bg-emerald-50/30 p-5 md:p-10 rounded-[3.5rem] border border-emerald-100 border-dashed">
                       <div className="flex items-center gap-6">
-                         <div className="p-4 sm:p-6 bg-white rounded-[2.5rem] shadow-sm border border-emerald-100">
+                         <div className="p-4 sm:p-4 sm:p-6 bg-white rounded-[2.5rem] shadow-sm border border-emerald-100">
                             <Store size={40} className="text-emerald-600" />
                          </div>
                          <div>
                             <h4 className="text-xl font-black text-charcoal tracking-tight">Ready for In-Store Display</h4>
                             <p className="text-xs text-text-muted font-medium mt-1">This product is correctly mapped to the POS interface. You can now generate labels and process sales immediately.</p>
-                            <button className="mt-4 flex items-center gap-2 px-4 sm:px-6 py-3 bg-charcoal text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-600 transition-all">
+                            <button className="mt-4 flex items-center gap-2 px-4 sm:px-4 sm:px-6 py-3 bg-charcoal text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-600 transition-all">
                                <Plus size={14} /> Print Barcode Label
                             </button>
                          </div>
@@ -362,12 +362,12 @@ export default function AdminSalesChannels({ item, onClose, onRefresh }) {
         </div>
 
         {/* Footer Section */}
-        <div className="p-10 bg-light-bg/80 backdrop-blur-md border-t border-border-light flex items-center justify-between">
+        <div className="p-5 md:p-10 bg-light-bg/80 backdrop-blur-md border-t border-border-light flex items-center justify-between">
            <button onClick={onClose} className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] hover:text-charcoal transition-colors">Discard Configuration</button>
            <button 
              onClick={handleSave} 
              disabled={isSaving}
-             className="bg-charcoal text-white px-16 py-4 sm:py-6 rounded-[2.5rem] font-black text-xs uppercase tracking-[0.3em] shadow-2xl shadow-charcoal/30 hover:bg-premium-gold hover:text-charcoal transition-all flex items-center gap-3 active:scale-95"
+             className="bg-charcoal text-white px-16 py-4 sm:py-4 sm:py-6 rounded-[2.5rem] font-black text-xs uppercase tracking-[0.3em] shadow-2xl shadow-charcoal/30 hover:bg-premium-gold hover:text-charcoal transition-all flex items-center gap-3 active:scale-95"
            >
               {isSaving ? <Loader2 className="animate-spin" size={20} /> : <><Save size={20} /> Publish to Channels</>}
            </button>

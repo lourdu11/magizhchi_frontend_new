@@ -133,7 +133,7 @@ export default function AdminReviews() {
           </div>
         ) : (
           filteredReviews.map(review => (
-            <div key={review._id} className="bg-white p-4 sm:p-6 md:p-4 md:p-8 rounded-[3rem] border border-border-light shadow-sm hover:shadow-xl transition-all relative overflow-hidden group">
+            <div key={review._id} className="bg-white p-4 sm:p-4 sm:p-6 md:p-4 md:p-4 md:p-8 rounded-[3rem] border border-border-light shadow-sm hover:shadow-xl transition-all relative overflow-hidden group">
               <div className="relative z-10 space-y-6">
                 {/* Product & Customer Info */}
                 <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 border-b border-border-light pb-6">
@@ -171,7 +171,7 @@ export default function AdminReviews() {
                   </div>
                 </div>
 
-                <div className="bg-light-bg/50 p-4 sm:p-6 rounded-3xl border border-border-light relative italic text-charcoal font-medium leading-relaxed">
+                <div className="bg-light-bg/50 p-4 sm:p-4 sm:p-6 rounded-3xl border border-border-light relative italic text-charcoal font-medium leading-relaxed">
                   <span className="absolute -top-3 left-6 text-4xl text-premium-gold/20 font-serif">“</span>
                   {review.comment}
                   <span className="absolute -bottom-6 right-6 text-4xl text-premium-gold/20 font-serif">”</span>
@@ -187,7 +187,7 @@ export default function AdminReviews() {
                 )}
 
                 {review.adminReply?.message && (
-                  <div className="bg-premium-gold/5 p-4 sm:p-6 rounded-3xl border border-dashed border-premium-gold/30">
+                  <div className="bg-premium-gold/5 p-4 sm:p-4 sm:p-6 rounded-3xl border border-dashed border-premium-gold/30">
                     <div className="flex items-center gap-2 mb-2">
                       <TrendingUp className="text-premium-gold" size={14} />
                       <p className="text-[10px] font-black text-premium-gold uppercase tracking-[0.2em]">Magizhchi Team Response</p>
@@ -198,7 +198,7 @@ export default function AdminReviews() {
 
                 {/* Actions */}
                 {replyingTo === review._id ? (
-                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-6 p-4 sm:p-6 bg-charcoal rounded-[2rem] space-y-4 shadow-xl">
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-6 p-4 sm:p-4 sm:p-6 bg-charcoal rounded-[2rem] space-y-4 shadow-xl">
                     <p className="text-xs font-black text-white/40 uppercase tracking-[0.2em]">Respond to Customer</p>
                     <textarea 
                       className="w-full bg-white/10 border-none rounded-2xl p-4 text-white placeholder:text-white/20 focus:ring-2 focus:ring-premium-gold font-medium resize-none"
@@ -214,7 +214,7 @@ export default function AdminReviews() {
                       >
                         Approve & Send
                       </button>
-                      <button onClick={() => setReplyingTo(null)} className="px-4 sm:px-6 py-3 bg-white/5 text-white/60 font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-white/10 transition-all">Cancel</button>
+                      <button onClick={() => setReplyingTo(null)} className="px-4 sm:px-4 sm:px-6 py-3 bg-white/5 text-white/60 font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-white/10 transition-all">Cancel</button>
                     </div>
                   </motion.div>
                 ) : (
@@ -223,13 +223,13 @@ export default function AdminReviews() {
                         <>
                           <button 
                             onClick={() => updateStatusMutation.mutate({ id: review._id, status: 'approved' })}
-                            className="flex-1 md:flex-none px-4 sm:px-6 py-3 bg-green-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-green-700 shadow-lg shadow-green-600/20 transition-all flex items-center justify-center gap-2"
+                            className="flex-1 md:flex-none px-4 sm:px-4 sm:px-6 py-3 bg-green-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-green-700 shadow-lg shadow-green-600/20 transition-all flex items-center justify-center gap-2"
                           >
                             <CheckCircle size={14} /> Approve
                           </button>
                           <button 
                             onClick={() => updateStatusMutation.mutate({ id: review._id, status: 'rejected' })}
-                            className="flex-1 md:flex-none px-4 sm:px-6 py-3 bg-red-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-red-700 shadow-lg shadow-red-600/20 transition-all flex items-center justify-center gap-2"
+                            className="flex-1 md:flex-none px-4 sm:px-4 sm:px-6 py-3 bg-red-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-red-700 shadow-lg shadow-red-600/20 transition-all flex items-center justify-center gap-2"
                           >
                             <XCircle size={14} /> Reject
                           </button>
@@ -238,7 +238,7 @@ export default function AdminReviews() {
                       {!review.adminReply?.message && (
                         <button 
                           onClick={() => setReplyingTo(review._id)}
-                          className="w-full md:w-auto px-4 sm:px-6 py-3 bg-charcoal text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-premium-gold hover:text-charcoal transition-all flex items-center justify-center gap-2"
+                          className="w-full md:w-auto px-4 sm:px-4 sm:px-6 py-3 bg-charcoal text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-premium-gold hover:text-charcoal transition-all flex items-center justify-center gap-2"
                         >
                           <MessageCircle size={14} /> Official Response
                         </button>
@@ -249,7 +249,7 @@ export default function AdminReviews() {
                             deleteReviewMutation.mutate(review._id);
                           }
                         }}
-                        className="w-full md:w-auto px-4 sm:px-6 py-3 bg-red-50 text-red-600 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-red-600 hover:text-white transition-all flex items-center justify-center gap-2 md:ml-auto border border-red-100"
+                        className="w-full md:w-auto px-4 sm:px-4 sm:px-6 py-3 bg-red-50 text-red-600 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-red-600 hover:text-white transition-all flex items-center justify-center gap-2 md:ml-auto border border-red-100"
                       >
                         <Trash2 size={14} /> Delete
                       </button>

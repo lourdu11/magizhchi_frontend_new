@@ -71,7 +71,7 @@ export default function BillHistory() {
   return (
     <div className="flex-1 flex flex-col bg-light-bg/20 min-h-0">
       {/* Header / Search */}
-      <div className="bg-white p-8 border-b border-border-light flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="bg-white p-4 md:p-8 border-b border-border-light flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
           <h2 className="text-2xl font-black text-charcoal uppercase tracking-tighter">Sales History</h2>
           <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest mt-1 opacity-60">Manage and reprint your recent bills</p>
@@ -100,7 +100,7 @@ export default function BillHistory() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-auto p-8">
+      <div className="flex-1 overflow-auto p-4 md:p-8">
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
             <Loader2 className="animate-spin text-premium-gold" size={48} />
@@ -114,7 +114,7 @@ export default function BillHistory() {
           <div className="grid grid-cols-1 gap-6">
             {/* Render Offline Pending Bills */}
             {offlineBills?.map(bill => (
-              <div key={bill.id} className="bg-amber-50/50 p-6 rounded-[2rem] border-2 border-amber-300/40 shadow-sm hover:shadow-xl transition-all group relative overflow-hidden">
+              <div key={bill.id} className="bg-amber-50/50 p-4 sm:p-6 rounded-[2rem] border-2 border-amber-300/40 shadow-sm hover:shadow-xl transition-all group relative overflow-hidden">
                 <div className="absolute top-0 right-0 bg-amber-500 text-white text-[8px] font-black uppercase tracking-widest px-4 py-1 rounded-bl-xl">
                   Offline Pending
                 </div>
@@ -177,7 +177,7 @@ export default function BillHistory() {
 
             {/* Render Synchronized Bills */}
             {data?.data?.map(bill => (
-              <div key={bill._id} className="bg-white p-6 rounded-[2rem] border border-border-light shadow-sm hover:shadow-xl hover:shadow-charcoal/5 transition-all group">
+              <div key={bill._id} className="bg-white p-4 sm:p-6 rounded-[2rem] border border-border-light shadow-sm hover:shadow-xl hover:shadow-charcoal/5 transition-all group">
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                   <div className="flex items-center gap-6">
                     <div className="w-14 h-14 bg-light-bg rounded-2xl flex items-center justify-center text-charcoal shadow-inner">
@@ -235,7 +235,7 @@ export default function BillHistory() {
 
       {/* Pagination */}
       {data?.pages > 1 && (
-        <div className="bg-white p-6 border-t border-border-light flex items-center justify-center gap-8">
+        <div className="bg-white p-4 sm:p-6 border-t border-border-light flex items-center justify-center gap-8">
            <button 
              disabled={page === 1}
              onClick={() => setPage(p => p - 1)}

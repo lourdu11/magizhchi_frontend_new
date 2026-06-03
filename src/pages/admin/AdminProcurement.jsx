@@ -636,10 +636,10 @@ export default function AdminProcurement() {
           <p className="text-[10px] text-text-muted font-bold uppercase tracking-[0.3em] mt-2">Unified Supply Chain & Financial Ledger</p>
         </div>
         <div className="flex gap-4">
-           <button onClick={() => setShowSupplierForm(true)} className="px-4 md:px-8 py-4 bg-white border border-border-light text-charcoal rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] shadow-sm hover:border-premium-gold transition-all flex items-center gap-2">
+           <button onClick={() => setShowSupplierForm(true)} className="px-4 md:px-4 md:px-8 py-4 bg-white border border-border-light text-charcoal rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] shadow-sm hover:border-premium-gold transition-all flex items-center gap-2">
               <UserPlus size={16} /> New Partner
            </button>
-           <button onClick={() => setShowPurchaseForm(true)} className="px-4 md:px-8 py-4 bg-charcoal text-white rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:bg-premium-gold hover:text-charcoal transition-all flex items-center gap-2">
+           <button onClick={() => setShowPurchaseForm(true)} className="px-4 md:px-4 md:px-8 py-4 bg-charcoal text-white rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:bg-premium-gold hover:text-charcoal transition-all flex items-center gap-2">
               <Plus size={16} /> Record Bill
            </button>
         </div>
@@ -648,7 +648,7 @@ export default function AdminProcurement() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
          <div className="lg:col-span-3 grid grid-cols-2 lg:grid-cols-4 gap-4">
             {stats.map((s, i) => (
-              <div key={i} className="bg-white rounded-[2rem] border border-border-light p-4 sm:p-6 shadow-sm group hover:border-premium-gold transition-all">
+              <div key={i} className="bg-white rounded-[2rem] border border-border-light p-4 sm:p-4 sm:p-6 shadow-sm group hover:border-premium-gold transition-all">
                 <div className={`w-10 h-10 rounded-xl ${s.bg} ${s.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
                   <s.icon size={18} />
                 </div>
@@ -658,7 +658,7 @@ export default function AdminProcurement() {
             ))}
          </div>
 
-         <div className="bg-white rounded-[2.5rem] border border-border-light p-4 sm:p-6 shadow-sm overflow-hidden flex flex-col">
+         <div className="bg-white rounded-[2.5rem] border border-border-light p-4 sm:p-4 sm:p-6 shadow-sm overflow-hidden flex flex-col">
             <h3 className="text-[10px] font-black text-charcoal uppercase tracking-[0.2em] mb-4 flex items-center justify-between">
                <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" /> Service Pulse</span>
                <span className="text-[8px] text-text-muted">Live</span>
@@ -715,7 +715,7 @@ export default function AdminProcurement() {
               <div className="col-span-full py-12 text-center bg-white rounded-[2.5rem] border border-dashed border-border-light text-text-muted font-bold uppercase text-[10px] tracking-widest">No Partners Onboarded</div>
             ) : (
               suppliers.filter(s => !s.isDeleted && (s.name.toLowerCase().includes(search.toLowerCase()) || s.phone.includes(search))).slice(0, 4).map(s => (
-                <div key={s._id} className={`bg-white rounded-[2rem] border-2 p-4 sm:p-6 shadow-sm hover:shadow-xl transition-all cursor-pointer group ${search === s.name ? 'border-premium-gold ring-4 ring-premium-gold/5' : 'border-border-light hover:border-premium-gold/30'}`} onClick={() => setSearch(s.name)}>
+                <div key={s._id} className={`bg-white rounded-[2rem] border-2 p-4 sm:p-4 sm:p-6 shadow-sm hover:shadow-xl transition-all cursor-pointer group ${search === s.name ? 'border-premium-gold ring-4 ring-premium-gold/5' : 'border-border-light hover:border-premium-gold/30'}`} onClick={() => setSearch(s.name)}>
                    <div className="flex justify-between items-start mb-4">
                       <div className="w-12 h-12 bg-light-bg rounded-2xl flex items-center justify-center text-charcoal group-hover:bg-premium-gold transition-colors">
                          <User size={20} />
@@ -744,7 +744,7 @@ export default function AdminProcurement() {
               ))
             )}
             {suppliers.length > 4 && (
-              <div className="bg-light-bg/30 rounded-[2rem] border border-dashed border-border-light p-4 sm:p-6 flex flex-col items-center justify-center text-center group hover:bg-white transition-all cursor-pointer" onClick={() => { setSearch(''); /* Reset search to show all in next section maybe? */ }}>
+              <div className="bg-light-bg/30 rounded-[2rem] border border-dashed border-border-light p-4 sm:p-4 sm:p-6 flex flex-col items-center justify-center text-center group hover:bg-white transition-all cursor-pointer" onClick={() => { setSearch(''); /* Reset search to show all in next section maybe? */ }}>
                  <p className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">+{suppliers.length - 4} More Partners</p>
                  <p className="text-[8px] font-bold text-premium-gold uppercase tracking-widest mt-1 group-hover:underline">View All Ledger</p>
               </div>
@@ -772,13 +772,13 @@ export default function AdminProcurement() {
 
                   <form onSubmit={handlePurchaseSubmit} className="space-y-10">
                      {/* Header Grid */}
-                     <div className="grid md:grid-cols-4 gap-8 bg-light-bg/50 p-4 md:p-8 rounded-[2.5rem] border border-border-light/50">
+                     <div className="grid md:grid-cols-4 gap-8 bg-light-bg/50 p-4 md:p-4 md:p-8 rounded-[2.5rem] border border-border-light/50">
                         <div className="space-y-2">
                            <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">
                               Supplier Selection <span className="text-red-500 font-bold">*</span>
                            </label>
                            <select 
-                              className={`w-full bg-white rounded-2xl px-4 sm:px-6 py-4 font-black text-sm focus:ring-2 focus:ring-premium-gold/30 ${
+                              className={`w-full bg-white rounded-2xl px-4 sm:px-4 sm:px-6 py-4 font-black text-sm focus:ring-2 focus:ring-premium-gold/30 ${
                                  isSubmitted && !purchaseBill.supplierId 
                                     ? 'ring-2 ring-red-400 border-2 border-red-400 focus:ring-4 focus:ring-red-100' 
                                     : 'border border-border-light/50 focus:ring-2 focus:ring-premium-gold/20'
@@ -803,7 +803,7 @@ export default function AdminProcurement() {
                               Supplier Bill # <span className="text-red-500 font-bold">*</span>
                            </label>
                            <input 
-                              className={`w-full bg-white rounded-2xl px-4 sm:px-6 py-4 font-black text-sm focus:ring-2 focus:ring-premium-gold/30 uppercase ${
+                              className={`w-full bg-white rounded-2xl px-4 sm:px-4 sm:px-6 py-4 font-black text-sm focus:ring-2 focus:ring-premium-gold/30 uppercase ${
                                  isSubmitted && !purchaseBill.billNumber?.trim() 
                                     ? 'ring-2 ring-red-400 border-2 border-red-400 focus:ring-4 focus:ring-red-100' 
                                     : 'border border-border-light/50 focus:ring-2 focus:ring-premium-gold/20'
@@ -819,7 +819,7 @@ export default function AdminProcurement() {
                            </label>
                            <input 
                               type="date" 
-                              className={`w-full bg-white rounded-2xl px-4 sm:px-6 py-4 font-black text-sm focus:ring-2 focus:ring-premium-gold/30 ${
+                              className={`w-full bg-white rounded-2xl px-4 sm:px-4 sm:px-6 py-4 font-black text-sm focus:ring-2 focus:ring-premium-gold/30 ${
                                  isSubmitted && !purchaseBill.billDate 
                                     ? 'ring-2 ring-red-400 border-2 border-red-400 focus:ring-4 focus:ring-red-100' 
                                     : 'border border-border-light/50 focus:ring-2 focus:ring-premium-gold/20'
@@ -832,7 +832,7 @@ export default function AdminProcurement() {
                            <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Attach Physical Bill</label>
                            <input type="file" className="hidden" id="bill-img-up" onChange={handleBillImageUpload} accept=".jpg,.jpeg,.png,.webp,.gif,.pdf,.doc,.docx,.xls,.xlsx" />
                            <div className="relative">
-                              <label htmlFor="bill-img-up" className={`flex items-center gap-3 w-full bg-white border-2 border-dashed ${purchaseBill.billImage ? 'border-emerald-300 bg-emerald-50/5' : 'border-border-light'} rounded-2xl px-4 sm:px-6 py-4 cursor-pointer hover:border-premium-gold transition-all shadow-sm`}>
+                              <label htmlFor="bill-img-up" className={`flex items-center gap-3 w-full bg-white border-2 border-dashed ${purchaseBill.billImage ? 'border-emerald-300 bg-emerald-50/5' : 'border-border-light'} rounded-2xl px-4 sm:px-4 sm:px-6 py-4 cursor-pointer hover:border-premium-gold transition-all shadow-sm`}>
                                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${purchaseBill.billImage ? 'bg-emerald-100 text-emerald-600' : 'bg-light-bg text-text-muted'} shrink-0`}>
                                     {isUploadingBill ? <Loader2 size={20} className="animate-spin" /> : (purchaseBill.billImage?.toLowerCase().endsWith('.pdf') ? <FileText size={20} /> : <ImageIcon size={20} />)}
                                  </div>
@@ -1026,7 +1026,7 @@ export default function AdminProcurement() {
                                     </div>
 
                                     {expandedPurchaseRow === row.id && (
-                                       <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="col-span-full mt-4 bg-light-bg/30 rounded-3xl border border-indigo-100/50 p-4 sm:p-6 space-y-6">
+                                       <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="col-span-full mt-4 bg-light-bg/30 rounded-3xl border border-indigo-100/50 p-4 sm:p-4 sm:p-6 space-y-6">
                                           <div className="flex items-center justify-between">
                                              <div>
                                                 <h4 className="text-[10px] font-black text-charcoal uppercase tracking-[0.2em] flex items-center gap-2">
@@ -1048,7 +1048,7 @@ export default function AdminProcurement() {
                                                       value={tempImageUrl}
                                                       onChange={e => setTempImageUrl(e.target.value)}
                                                    />
-                                                   <button type="button" onClick={() => handleAddExternalImage(row.id)} className="px-4 sm:px-6 py-3 bg-charcoal text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-indigo-600 transition-all">Add</button>
+                                                   <button type="button" onClick={() => handleAddExternalImage(row.id)} className="px-4 sm:px-4 sm:px-6 py-3 bg-charcoal text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-indigo-600 transition-all">Add</button>
                                                 </div>
                                              </div>
 
@@ -1057,7 +1057,7 @@ export default function AdminProcurement() {
                                                 <label className="text-[9px] font-black text-text-muted uppercase tracking-widest ml-1">Upload from System</label>
                                                 <div className="relative">
                                                    <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" onChange={e => handleFileUpload(row.id, e)} />
-                                                   <div className="w-full bg-white border-2 border-dashed border-indigo-100 rounded-xl px-4 sm:px-6 py-3 flex items-center justify-center gap-3 text-text-muted group hover:border-indigo-600 hover:text-indigo-600 transition-all">
+                                                   <div className="w-full bg-white border-2 border-dashed border-indigo-100 rounded-xl px-4 sm:px-4 sm:px-6 py-3 flex items-center justify-center gap-3 text-text-muted group hover:border-indigo-600 hover:text-indigo-600 transition-all">
                                                       {isUploading ? <Loader2 size={16} className="animate-spin text-indigo-600" /> : <Upload size={16} />}
                                                       <span className="text-[9px] font-black uppercase tracking-widest">{isUploading ? 'Uploading...' : 'Browse Local Files'}</span>
                                                    </div>
@@ -1082,7 +1082,7 @@ export default function AdminProcurement() {
                               );
                            })}
                         </div>
-                        <button type="button" onClick={addPurchaseRow} className="w-full py-4 sm:py-6 border-2 border-dashed border-border-light rounded-[2rem] text-[10px] font-black text-text-muted uppercase tracking-[0.4em] hover:border-premium-gold hover:text-premium-gold transition-all">
+                        <button type="button" onClick={addPurchaseRow} className="w-full py-4 sm:py-4 sm:py-6 border-2 border-dashed border-border-light rounded-[2rem] text-[10px] font-black text-text-muted uppercase tracking-[0.4em] hover:border-premium-gold hover:text-premium-gold transition-all">
                            + Deploy Additional Item
                         </button>
                      </div>
@@ -1144,15 +1144,15 @@ export default function AdminProcurement() {
                </div>
 
                <div className="grid grid-cols-3 gap-6 mb-10 shrink-0">
-                  <div className="p-4 md:p-8 bg-light-bg rounded-[2.5rem] border border-border-light/50">
+                  <div className="p-4 md:p-4 md:p-8 bg-light-bg rounded-[2.5rem] border border-border-light/50">
                      <p className="text-[9px] font-black text-text-muted uppercase tracking-widest mb-2">Procured Volume</p>
                      <p className="text-2xl font-black text-charcoal tracking-tighter">{formatCurrency(selectedSupplier?.procuredVolume)}</p>
                   </div>
-                  <div className="p-4 md:p-8 bg-emerald-50 rounded-[2.5rem] border border-emerald-100">
+                  <div className="p-4 md:p-4 md:p-8 bg-emerald-50 rounded-[2.5rem] border border-emerald-100">
                      <p className="text-[9px] font-black text-emerald-600 uppercase tracking-widest mb-2">Settled Value</p>
                      <p className="text-2xl font-black text-emerald-700 tracking-tighter">{formatCurrency(selectedSupplier?.settledValue)}</p>
                   </div>
-                  <div className="p-4 md:p-8 bg-red-50 rounded-[2.5rem] border border-red-100">
+                  <div className="p-4 md:p-4 md:p-8 bg-red-50 rounded-[2.5rem] border border-red-100">
                      <p className="text-[9px] font-black text-red-600 uppercase tracking-widest mb-2">Net Payables</p>
                      <p className="text-2xl font-black text-red-700 tracking-tighter">{formatCurrency(selectedSupplier?.netPayables)}</p>
                   </div>
@@ -1268,25 +1268,25 @@ export default function AdminProcurement() {
                  <div className="grid grid-cols-2 gap-6">
                     <div className="space-y-2">
                        <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Settlement Amount</label>
-                       <input type="number" className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-4 font-black text-xl" placeholder="0.00" value={paymentData.amount} onChange={e => setPaymentData({...paymentData, amount: e.target.value})} />
+                       <input type="number" className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 font-black text-xl" placeholder="0.00" value={paymentData.amount} onChange={e => setPaymentData({...paymentData, amount: e.target.value})} />
                     </div>
                     <div className="space-y-2">
                        <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Pay Mode</label>
-                       <select className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-4 font-bold" value={paymentData.method} onChange={e => setPaymentData({...paymentData, method: e.target.value})}>
+                       <select className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 font-bold" value={paymentData.method} onChange={e => setPaymentData({...paymentData, method: e.target.value})}>
                           {['Cash', 'UPI', 'Bank', 'Cheque'].map(m => <option key={m} value={m}>{m}</option>)}
                        </select>
                     </div>
                  </div>
                  <div className="space-y-2">
                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Reference ID / Note</label>
-                   <input className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-4 font-bold" placeholder="e.g. TXN12345" value={paymentData.referenceId} onChange={e => setPaymentData({...paymentData, referenceId: e.target.value})} />
+                   <input className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 font-bold" placeholder="e.g. TXN12345" value={paymentData.referenceId} onChange={e => setPaymentData({...paymentData, referenceId: e.target.value})} />
                  </div>
               </div>
 
               <button 
                 onClick={() => recordPaymentMutation.mutate({ id: selectedSupplier._id, data: paymentData, paymentId: editingPaymentId })}
                 disabled={recordPaymentMutation.isPending}
-                className="w-full mt-10 bg-charcoal text-white py-4 sm:py-6 rounded-[2rem] font-black text-xs uppercase tracking-[0.3em] shadow-2xl hover:bg-premium-gold hover:text-charcoal transition-all flex items-center justify-center gap-3"
+                className="w-full mt-10 bg-charcoal text-white py-4 sm:py-4 sm:py-6 rounded-[2rem] font-black text-xs uppercase tracking-[0.3em] shadow-2xl hover:bg-premium-gold hover:text-charcoal transition-all flex items-center justify-center gap-3"
               >
                 {recordPaymentMutation.isPending ? <Loader2 size={20} className="animate-spin" /> : <><Save size={20} /> {editingPaymentId ? 'Update Settlement' : 'Commit Settlement'}</>}
               </button>
@@ -1310,12 +1310,12 @@ export default function AdminProcurement() {
                   <div className="space-y-6">
                      <div className="space-y-2">
                         <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Business Trade Name</label>
-                        <input className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-5 font-black" placeholder="e.g. Sri Textiles Hub" value={newSupplier.name} onChange={e => setNewSupplier({...newSupplier, name: e.target.value})} />
+                        <input className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-5 font-black" placeholder="e.g. Sri Textiles Hub" value={newSupplier.name} onChange={e => setNewSupplier({...newSupplier, name: e.target.value})} />
                      </div>
                      <div className="space-y-2">
                         <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Contact Phone</label>
                         <input 
-                          className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-5 font-black" 
+                          className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-5 font-black" 
                           placeholder="10-digit phone number" 
                           value={newSupplier.phone} 
                           onChange={e => setNewSupplier({...newSupplier, phone: e.target.value.replace(/\D/g, '').slice(0, 10)})} 
@@ -1323,17 +1323,17 @@ export default function AdminProcurement() {
                      </div>
                      <div className="space-y-2">
                         <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">GSTIN Number</label>
-                        <input className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-5 font-black uppercase tracking-widest" placeholder="33AABBC..." value={newSupplier.gstin} onChange={e => setNewSupplier({...newSupplier, gstin: e.target.value})} />
+                        <input className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-5 font-black uppercase tracking-widest" placeholder="33AABBC..." value={newSupplier.gstin} onChange={e => setNewSupplier({...newSupplier, gstin: e.target.value})} />
                      </div>
                   </div>
                   <div className="space-y-6">
                      <div className="space-y-2">
                         <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Opening Balance (₹)</label>
-                        <input type="number" className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-5 font-black" placeholder="0.00" value={newSupplier.openingBalance} onChange={e => setNewSupplier({...newSupplier, openingBalance: e.target.value})} />
+                        <input type="number" className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-5 font-black" placeholder="0.00" value={newSupplier.openingBalance} onChange={e => setNewSupplier({...newSupplier, openingBalance: e.target.value})} />
                      </div>
                      <div className="space-y-2">
                         <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Office Address</label>
-                        <textarea rows={4} className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-5 font-bold resize-none" placeholder="Complete address..." value={newSupplier.address} onChange={e => setNewSupplier({...newSupplier, address: e.target.value})} />
+                        <textarea rows={4} className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-5 font-bold resize-none" placeholder="Complete address..." value={newSupplier.address} onChange={e => setNewSupplier({...newSupplier, address: e.target.value})} />
                      </div>
                   </div>
                </div>
@@ -1363,7 +1363,7 @@ export default function AdminProcurement() {
         {showDeleteModal && (
           <div className="fixed inset-0 z-[110] flex items-start justify-center p-4 pt-20 overflow-y-auto">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-charcoal/60 backdrop-blur-md" onClick={() => setShowDeleteModal(false)} />
-            <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative bg-white w-full admin-modal-container max-w-md rounded-[3rem] shadow-2xl p-10 border border-red-100 overflow-hidden text-center">
+            <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative bg-white w-full admin-modal-container max-w-md rounded-[3rem] shadow-2xl p-5 md:p-10 border border-red-100 overflow-hidden text-center">
                <div className="w-20 h-20 bg-red-50 text-red-600 rounded-[1.5rem] flex items-center justify-center mx-auto mb-6 shadow-inner">
                   <AlertTriangle size={40} strokeWidth={2.5} className="animate-bounce" />
                </div>
@@ -1401,7 +1401,7 @@ export default function AdminProcurement() {
         {showPurchaseDeleteModal && (
           <div className="fixed inset-0 z-[110] flex items-start justify-center p-4 pt-20 overflow-y-auto">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-charcoal/40 backdrop-blur-md" onClick={() => setShowPurchaseDeleteModal(false)} />
-            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="relative bg-white w-full admin-modal-container max-w-sm rounded-[3.5rem] shadow-2xl p-10 border border-border-light text-center">
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="relative bg-white w-full admin-modal-container max-w-sm rounded-[3.5rem] shadow-2xl p-5 md:p-10 border border-border-light text-center">
                <div className="w-20 h-20 bg-red-50 text-red-600 rounded-[2rem] flex items-center justify-center mx-auto mb-8 shadow-inner">
                   <AlertTriangle size={36} />
                </div>
@@ -1436,7 +1436,7 @@ export default function AdminProcurement() {
         {viewBillImage && (
           <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 overflow-y-auto">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-charcoal/60 backdrop-blur-md" onClick={() => setViewBillImage(null)} />
-            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="relative bg-white w-full admin-modal-container max-w-4xl rounded-[3rem] shadow-2xl p-4 md:p-8 border border-border-light flex flex-col max-h-[85vh]">
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="relative bg-white w-full admin-modal-container max-w-4xl rounded-[3rem] shadow-2xl p-4 md:p-4 md:p-8 border border-border-light flex flex-col max-h-[85vh]">
                <div className="flex justify-between items-center mb-6">
                   <h3 className="text-xl font-black text-charcoal uppercase tracking-tighter">Attached Document</h3>
                   <button onClick={() => setViewBillImage(null)} className="p-3 hover:bg-light-bg rounded-full text-text-muted transition-all"><X size={20} /></button>
@@ -1449,8 +1449,8 @@ export default function AdminProcurement() {
                   )}
                </div>
                <div className="flex justify-end gap-4 mt-6">
-                  <a href={viewBillImage} target="_blank" rel="noreferrer" className="px-4 sm:px-6 py-3 bg-charcoal text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-premium-gold hover:text-charcoal transition-all">Open In New Tab</a>
-                  <button onClick={() => setViewBillImage(null)} className="px-4 sm:px-6 py-3 bg-light-bg text-charcoal rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-border-light transition-all">Close</button>
+                  <a href={viewBillImage} target="_blank" rel="noreferrer" className="px-4 sm:px-4 sm:px-6 py-3 bg-charcoal text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-premium-gold hover:text-charcoal transition-all">Open In New Tab</a>
+                  <button onClick={() => setViewBillImage(null)} className="px-4 sm:px-4 sm:px-6 py-3 bg-light-bg text-charcoal rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-border-light transition-all">Close</button>
                </div>
             </motion.div>
           </div>

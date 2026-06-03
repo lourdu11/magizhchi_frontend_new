@@ -48,7 +48,7 @@ export const FormSkeleton = () => (
 );
 
 export const StatCardSkeleton = () => (
-  <div className="bg-white p-6 rounded-[2rem] border border-border-light shadow-sm flex items-center gap-4">
+  <div className="bg-white p-4 sm:p-6 rounded-[2rem] border border-border-light shadow-sm flex items-center gap-4">
     <SkeletonBase className="w-14 h-14 rounded-2xl" />
     <div className="space-y-2">
       <SkeletonBase className="w-20 h-3" />
@@ -60,7 +60,7 @@ export const StatCardSkeleton = () => (
 export const ProductCardSkeleton = () => (
   <div className="bg-white rounded-[3rem] border border-border-light overflow-hidden shadow-sm flex flex-col h-full">
     <SkeletonBase className="aspect-[4/5] rounded-none w-full" />
-    <div className="p-8 space-y-4">
+    <div className="p-4 md:p-8 space-y-4">
       <div className="flex justify-between items-start">
         <div className="space-y-2">
           <SkeletonBase className="w-32 h-6" />
@@ -81,7 +81,7 @@ export const ProductCardSkeleton = () => (
 export const TableRowSkeleton = ({ columns = 5 }) => (
   <tr className="border-b border-border-light/30">
     {Array.from({ length: columns }).map((_, i) => (
-      <td key={i} className="px-8 py-8">
+      <td key={i} className="px-4 md:px-8 py-4 md:py-8">
         <SkeletonBase className={`h-4 ${i === 0 ? 'w-48' : 'w-24'}`} />
       </td>
     ))}
@@ -104,7 +104,7 @@ export const PosProductSkeleton = () => (
 );
 
 export const DashboardSkeleton = () => (
-  <div className="space-y-8 p-8">
+  <div className="space-y-8 p-4 md:p-8">
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <StatCardSkeleton />
       <StatCardSkeleton />
@@ -112,11 +112,11 @@ export const DashboardSkeleton = () => (
       <StatCardSkeleton />
     </div>
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <div className="lg:col-span-2 bg-white rounded-[3rem] p-8 border border-border-light h-96">
+      <div className="lg:col-span-2 bg-white rounded-[3rem] p-4 md:p-8 border border-border-light h-96">
         <SkeletonBase className="w-48 h-8 mb-8" />
         <SkeletonBase className="w-full h-64" />
       </div>
-      <div className="bg-white rounded-[3rem] p-8 border border-border-light h-96">
+      <div className="bg-white rounded-[3rem] p-4 md:p-8 border border-border-light h-96">
         <SkeletonBase className="w-48 h-8 mb-8" />
         <div className="space-y-4">
           {Array.from({ length: 5 }).map((_, i) => (

@@ -53,7 +53,7 @@ export default function AdminAudit() {
 
       <div className="grid lg:grid-cols-2 gap-10">
          {/* Step 1: Selection */}
-         <div className="bg-white p-10 rounded-[3rem] border border-border-light shadow-sm space-y-8">
+         <div className="bg-white p-5 md:p-10 rounded-[3rem] border border-border-light shadow-sm space-y-8">
             <div className="flex items-center gap-4 mb-2">
                <div className="w-10 h-10 rounded-2xl bg-gold-soft flex items-center justify-center font-black text-premium-gold">1</div>
                <h3 className="text-xl font-black text-charcoal uppercase tracking-tighter">Locate Item</h3>
@@ -62,7 +62,7 @@ export default function AdminAudit() {
             <div className="relative">
                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-text-muted" size={20} />
                <input 
-                 className="w-full bg-light-bg border-none rounded-2xl pl-16 pr-6 py-4 sm:py-6 font-black text-sm focus:ring-2 focus:ring-premium-gold/30" 
+                 className="w-full bg-light-bg border-none rounded-2xl pl-16 pr-6 py-4 sm:py-4 sm:py-6 font-black text-sm focus:ring-2 focus:ring-premium-gold/30" 
                  placeholder="Scan barcode or type item name..." 
                  value={search} 
                  onChange={e => setSearch(e.target.value)} 
@@ -76,7 +76,7 @@ export default function AdminAudit() {
                   <button 
                     key={item._id} 
                     onClick={() => setSelectedItem(item)}
-                    className={`w-full text-left p-4 sm:p-6 rounded-3xl border transition-all flex items-center justify-between group ${selectedItem?._id === item._id ? 'border-premium-gold bg-gold-soft/10 ring-4 ring-premium-gold/5' : 'border-border-light hover:border-premium-gold/40'}`}
+                    className={`w-full text-left p-4 sm:p-4 sm:p-6 rounded-3xl border transition-all flex items-center justify-between group ${selectedItem?._id === item._id ? 'border-premium-gold bg-gold-soft/10 ring-4 ring-premium-gold/5' : 'border-border-light hover:border-premium-gold/40'}`}
                   >
                      <div className="flex items-center flex-wrap gap-4">
                         <div className="w-12 h-12 bg-white rounded-2xl border border-border-light flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
@@ -109,11 +109,11 @@ export default function AdminAudit() {
 
                     <div className="space-y-10">
                        <div className="grid grid-cols-2 gap-8">
-                          <div className="p-4 md:p-8 bg-light-bg/50 rounded-[2.5rem] border border-border-light">
+                          <div className="p-4 md:p-4 md:p-8 bg-light-bg/50 rounded-[2.5rem] border border-border-light">
                              <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-2">System Stock</p>
                              <p className="text-4xl font-black text-charcoal tracking-tighter">{selectedItem.availableStock}</p>
                           </div>
-                          <div className="p-4 md:p-8 bg-premium-gold/5 rounded-[2.5rem] border border-premium-gold/20">
+                          <div className="p-4 md:p-4 md:p-8 bg-premium-gold/5 rounded-[2.5rem] border border-premium-gold/20">
                              <p className="text-[10px] font-black text-premium-gold uppercase tracking-widest mb-2">Physical Count</p>
                              <input 
                                type="number" 
@@ -127,7 +127,7 @@ export default function AdminAudit() {
                        </div>
 
                        {physicalCount !== '' && (
-                         <div className={`p-4 md:p-8 rounded-[2.5rem] flex items-center justify-between border ${diff === 0 ? 'bg-green-50 border-green-100 text-green-800' : diff > 0 ? 'bg-blue-50 border-blue-100 text-blue-800' : 'bg-red-50 border-red-100 text-red-800'}`}>
+                         <div className={`p-4 md:p-4 md:p-8 rounded-[2.5rem] flex items-center justify-between border ${diff === 0 ? 'bg-green-50 border-green-100 text-green-800' : diff > 0 ? 'bg-blue-50 border-blue-100 text-blue-800' : 'bg-red-50 border-red-100 text-red-800'}`}>
                             <div>
                                <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Adjustment Required</p>
                                <p className="text-xl font-black tracking-tight">{diff > 0 ? `+${diff}` : diff} Units</p>
@@ -142,7 +142,7 @@ export default function AdminAudit() {
                        <div className="space-y-3">
                           <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-2">Audit Reason</label>
                           <input 
-                            className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-5 font-black text-xs focus:ring-2 focus:ring-premium-gold/30" 
+                            className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-5 font-black text-xs focus:ring-2 focus:ring-premium-gold/30" 
                             placeholder="e.g. Monthly Audit, Shelf Clearance..." 
                             value={reason}
                             onChange={e => setReason(e.target.value)}
@@ -150,11 +150,11 @@ export default function AdminAudit() {
                        </div>
 
                        <div className="pt-4 grid grid-cols-2 gap-4">
-                          <button onClick={() => setSelectedItem(null)} className="py-4 sm:py-6 rounded-[2rem] font-black text-[10px] uppercase tracking-widest text-text-muted bg-light-bg hover:bg-border-light transition-all">Cancel</button>
+                          <button onClick={() => setSelectedItem(null)} className="py-4 sm:py-4 sm:py-6 rounded-[2rem] font-black text-[10px] uppercase tracking-widest text-text-muted bg-light-bg hover:bg-border-light transition-all">Cancel</button>
                           <button 
                             disabled={reconcileMutation.isPending || physicalCount === ''}
                             onClick={() => reconcileMutation.mutate({ inventoryId: selectedItem._id, physicalCount: Number(physicalCount), reason })}
-                            className="py-4 sm:py-6 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] text-white bg-charcoal shadow-2xl hover:bg-premium-gold hover:text-charcoal transition-all flex items-center justify-center gap-3"
+                            className="py-4 sm:py-4 sm:py-6 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] text-white bg-charcoal shadow-2xl hover:bg-premium-gold hover:text-charcoal transition-all flex items-center justify-center gap-3"
                           >
                              {reconcileMutation.isPending ? <Loader2 className="animate-spin" /> : <><Save size={18} /> Pass Adjustment</>}
                           </button>
@@ -174,7 +174,7 @@ export default function AdminAudit() {
             </AnimatePresence>
 
             {/* Audit History / Tips */}
-            <div className="bg-charcoal text-white p-10 rounded-[3rem] shadow-2xl relative overflow-hidden">
+            <div className="bg-charcoal text-white p-5 md:p-10 rounded-[3rem] shadow-2xl relative overflow-hidden">
                <div className="relative z-10">
                   <AlertTriangle className="text-premium-gold mb-6" size={32} />
                   <h4 className="text-xl font-black uppercase tracking-tight mb-2">Audit Business Rules</h4>

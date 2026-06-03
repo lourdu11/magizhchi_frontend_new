@@ -682,15 +682,15 @@ export default function StaffCreateBill() {
   // ─── Render: Locked POS Tab ────────────────────────────
   if (isLocked) {
     return (
-      <div className="fixed inset-0 bg-charcoal z-[999] flex flex-col items-center justify-center p-6 text-center">
+      <div className="fixed inset-0 bg-charcoal z-[999] flex flex-col items-center justify-center p-4 sm:p-6 text-center">
         <Helmet><title>POS Locked — Magizhchi</title></Helmet>
-        <div className="bg-red-500/10 border border-red-500/30 p-8 rounded-3xl max-w-lg shadow-2xl backdrop-blur-xl">
+        <div className="bg-red-500/10 border border-red-500/30 p-4 md:p-8 rounded-3xl max-w-lg shadow-2xl backdrop-blur-xl">
           <Shield size={64} className="text-red-500 mx-auto mb-6" />
           <h1 className="text-3xl font-black text-white uppercase tracking-tight mb-4">POS Terminal Locked</h1>
           <p className="text-red-200/80 font-medium mb-8 leading-relaxed">
             The Point of Sale terminal is already active in another browser tab. To prevent database corruption and critical inventory desynchronization, multiple active checkout tabs are not allowed.
           </p>
-          <button onClick={() => window.close()} className="px-8 py-4 bg-red-600 hover:bg-red-500 text-white rounded-2xl font-black uppercase tracking-widest transition-all shadow-xl">
+          <button onClick={() => window.close()} className="px-4 md:px-8 py-4 bg-red-600 hover:bg-red-500 text-white rounded-2xl font-black uppercase tracking-widest transition-all shadow-xl">
             Close This Tab
           </button>
         </div>
@@ -715,7 +715,7 @@ export default function StaffCreateBill() {
           id="bill-print"
         >
           {/* Header Section: Luxury Branding */}
-          <div className="bg-charcoal p-10 text-center text-white relative overflow-hidden">
+          <div className="bg-charcoal p-5 md:p-10 text-center text-white relative overflow-hidden">
             <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(circle_at_center,_var(--premium-gold)_0%,_transparent_70%)]" />
             
             {/* Elegant Logo Emblem */}
@@ -733,7 +733,7 @@ export default function StaffCreateBill() {
 
             {completedBill.status === 'voided' && (
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-[35deg] pointer-events-none opacity-20 z-50">
-                <div className="border-[12px] border-red-500 text-red-500 px-12 py-6 rounded-3xl font-black text-8xl uppercase tracking-[0.2em] whitespace-nowrap">
+                <div className="border-[12px] border-red-500 text-red-500 px-12 py-4 sm:py-6 rounded-3xl font-black text-8xl uppercase tracking-[0.2em] whitespace-nowrap">
                   VOIDED
                 </div>
               </div>
@@ -741,7 +741,7 @@ export default function StaffCreateBill() {
             
             {completedBill.status === 'voided' && (
               <div className="mt-6 flex justify-center">
-                <div className="bg-red-500 text-white px-6 py-2 rounded-full font-black text-[10px] uppercase tracking-[0.3em] flex items-center gap-2 shadow-lg shadow-red-500/20">
+                <div className="bg-red-500 text-white px-4 sm:px-6 py-2 rounded-full font-black text-[10px] uppercase tracking-[0.3em] flex items-center gap-2 shadow-lg shadow-red-500/20">
                    <X size={14} /> Transaction Voided / Stock Reverted
                 </div>
               </div>
@@ -759,7 +759,7 @@ export default function StaffCreateBill() {
             </div>
           </div>
 
-          <div className="p-8 space-y-8">
+          <div className="p-4 md:p-8 space-y-8">
             {/* Customer Information Card */}
             {completedBill.customerDetails?.name && (
               <div className="p-4 bg-light-bg/50 rounded-2xl border border-border-light/60 flex items-center justify-between">
@@ -960,7 +960,7 @@ export default function StaffCreateBill() {
 
   // ─── Render: POS ─────────────────────────────────────
   return (
-    <div className="h-[100dvh] bg-[#F9F9FA] flex flex-col lg:overflow-hidden overflow-auto p-4 lg:p-6 pb-36 lg:pb-6 gap-6 relative select-none">
+    <div className="h-[100dvh] bg-[#F9F9FA] flex flex-col lg:overflow-hidden overflow-auto p-4 lg:p-4 sm:p-6 pb-36 lg:pb-6 gap-6 relative select-none">
       <Helmet><title>Magizhchi POS Pro — Intelligent Billing Suite</title></Helmet>
       
       {/* Dynamic Aesthetic Background Gradients */}
@@ -968,7 +968,7 @@ export default function StaffCreateBill() {
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-orange-400/5 blur-[120px] pointer-events-none" />
 
       {/* ─── Immersive Top Bar: Ultimate SaaS Style ─── */}
-      <div className="flex items-center justify-between bg-white/75 backdrop-blur-md px-8 py-5 rounded-[2rem] shadow-[0_15px_50px_rgba(0,0,0,0.02)] border border-white shrink-0 relative z-10">
+      <div className="flex items-center justify-between bg-white/75 backdrop-blur-md px-4 md:px-8 py-5 rounded-[2rem] shadow-[0_15px_50px_rgba(0,0,0,0.02)] border border-white shrink-0 relative z-10">
         <div className="flex items-center gap-5">
           <div className="w-12 h-12 bg-charcoal rounded-2xl flex items-center justify-center shadow-lg shadow-charcoal/10 border border-white/10 relative group overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-tr from-premium-gold/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -991,7 +991,7 @@ export default function StaffCreateBill() {
         </div>
 
         <div className="hidden lg:flex items-center gap-8">
-          <div className="flex items-center gap-8 border-x border-border-light px-8">
+          <div className="flex items-center gap-8 border-x border-border-light px-4 md:px-8">
             {/* Live Progress Tracker */}
             <div className="text-left group cursor-pointer">
               <p className="text-[9px] font-black text-text-muted uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
@@ -1051,7 +1051,7 @@ export default function StaffCreateBill() {
       <div className="flex-1 flex flex-col lg:flex-row gap-6 min-h-0 lg:overflow-hidden overflow-visible relative z-10">
         
         {/* ─── Left Panel: Catalog Master (65%) ─── */}
-        <div className="flex-1 flex flex-col gap-5 min-h-[500px] lg:min-h-0 bg-white rounded-[2rem] border border-border-light/50 p-4 lg:p-6 shadow-sm lg:overflow-hidden">
+        <div className="flex-1 flex flex-col gap-5 min-h-[500px] lg:min-h-0 bg-white rounded-[2rem] border border-border-light/50 p-4 lg:p-4 sm:p-6 shadow-sm lg:overflow-hidden">
           
           {/* Header Actions */}
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between shrink-0">
@@ -1101,7 +1101,7 @@ export default function StaffCreateBill() {
               <div className="flex gap-1.5 overflow-x-auto pb-0.5 max-w-[320px] md:max-w-[400px] no-scrollbar">
                 <button 
                   onClick={() => setSelectedCategory('All')}
-                  className={`h-12 px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shrink-0 border ${selectedCategory === 'All' ? 'bg-charcoal text-white border-charcoal shadow-lg shadow-charcoal/5' : 'bg-light-bg text-text-muted border-border-light hover:bg-white hover:border-text-muted/30'}`}
+                  className={`h-12 px-4 sm:px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shrink-0 border ${selectedCategory === 'All' ? 'bg-charcoal text-white border-charcoal shadow-lg shadow-charcoal/5' : 'bg-light-bg text-text-muted border-border-light hover:bg-white hover:border-text-muted/30'}`}
                 >
                   All
                 </button>
@@ -1109,7 +1109,7 @@ export default function StaffCreateBill() {
                   <button 
                     key={cat._id}
                     onClick={() => setSelectedCategory(cat.slug)}
-                    className={`h-12 px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shrink-0 border ${selectedCategory === cat.slug ? 'bg-charcoal text-white border-charcoal shadow-lg shadow-charcoal/5' : 'bg-light-bg text-text-muted border-border-light hover:bg-white hover:border-text-muted/30'}`}
+                    className={`h-12 px-4 sm:px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shrink-0 border ${selectedCategory === cat.slug ? 'bg-charcoal text-white border-charcoal shadow-lg shadow-charcoal/5' : 'bg-light-bg text-text-muted border-border-light hover:bg-white hover:border-text-muted/30'}`}
                   >
                     {cat.name}
                   </button>
@@ -1292,7 +1292,7 @@ export default function StaffCreateBill() {
           {/* Cart items space */}
           <div className="flex-1 overflow-y-auto p-5 no-scrollbar space-y-3 relative z-10">
             {items.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-charcoal/10 p-6">
+              <div className="h-full flex flex-col items-center justify-center text-charcoal/10 p-4 sm:p-6">
                 <div className="w-14 h-14 border-2 border-dashed border-charcoal/15 rounded-2xl flex items-center justify-center mb-4 text-[#8C6D1F]/50">
                   <ShoppingCart size={20} />
                 </div>
@@ -1433,7 +1433,7 @@ export default function StaffCreateBill() {
               </div>
               
               {/* Selector details form */}
-              <div className="w-full md:w-7/12 p-6 flex flex-col h-full bg-white relative">
+              <div className="w-full md:w-7/12 p-4 sm:p-6 flex flex-col h-full bg-white relative">
                 <button onClick={() => { setSelectedProduct(null); setSelectedComboItems({}); }} className="absolute top-5 right-5 p-1.5 bg-light-bg rounded-xl hover:bg-border-light text-text-muted transition-colors"><X size={16} /></button>
                 
                 <h4 className="text-charcoal font-black text-xs uppercase tracking-widest text-text-muted mb-4">
@@ -1794,7 +1794,7 @@ export default function StaffCreateBill() {
               initial={{ opacity: 0, scale: 0.98, y: 20 }} 
               animate={{ opacity: 1, scale: 1, y: 0 }} 
               exit={{ opacity: 0, scale: 0.98, y: 20 }} 
-              className="relative w-full max-w-md bg-white rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col border border-border-light p-8 gap-6"
+              className="relative w-full max-w-md bg-white rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col border border-border-light p-4 md:p-8 gap-6"
             >
               <div className="flex items-center justify-between border-b border-border-light pb-4">
                 <div className="flex items-center gap-3">
@@ -1813,7 +1813,7 @@ export default function StaffCreateBill() {
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Custom Item Name</label>
                   <input 
-                    className="w-full bg-light-bg border-none rounded-2xl px-6 py-5 font-black text-xs placeholder-text-muted/60" 
+                    className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-5 font-black text-xs placeholder-text-muted/60" 
                     placeholder="e.g. Silk Saree Alteration & Stone Work" 
                     value={customItemDetails.name} 
                     onChange={e => setCustomItemDetails({...customItemDetails, name: e.target.value})} 
@@ -1823,7 +1823,7 @@ export default function StaffCreateBill() {
                   <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Unit Charge Price (₹)</label>
                   <input 
                     type="number" 
-                    className="w-full bg-light-bg border-none rounded-2xl px-6 py-5 font-black text-xs" 
+                    className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-5 font-black text-xs" 
                     placeholder="e.g. 1500" 
                     value={customItemDetails.price} 
                     onChange={e => setCustomItemDetails({...customItemDetails, price: e.target.value})} 
@@ -1885,7 +1885,7 @@ export default function StaffCreateBill() {
               initial={{ opacity: 0, scale: 0.98, y: 20 }} 
               animate={{ opacity: 1, scale: 1, y: 0 }} 
               exit={{ opacity: 0, scale: 0.98, y: 20 }} 
-              className="relative w-full max-w-lg bg-white rounded-[2rem] overflow-hidden shadow-2xl flex flex-col border border-border-light p-8 gap-6"
+              className="relative w-full max-w-lg bg-white rounded-[2rem] overflow-hidden shadow-2xl flex flex-col border border-border-light p-4 md:p-8 gap-6"
             >
               <div className="flex items-center justify-between border-b border-border-light pb-4">
                 <div className="flex items-center gap-3">

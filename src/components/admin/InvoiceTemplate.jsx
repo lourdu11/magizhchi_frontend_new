@@ -37,7 +37,7 @@ const InvoiceTemplate = React.forwardRef(({ order }, ref) => {
         <h2 className="font-serif text-4xl font-black tracking-[0.4em] mb-2 uppercase">MAGIZHCHI</h2>
         <p className="text-[9px] text-[#D4AF37] font-black tracking-[0.6em] uppercase mb-8">Official Tax Invoice</p>
         
-        <div className="inline-flex items-center gap-4 px-6 py-2 bg-white/5 border border-white/10 rounded-full">
+        <div className="inline-flex items-center gap-4 px-4 sm:px-6 py-2 bg-white/5 border border-white/10 rounded-full">
           <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Order No.</span>
           <span className="text-sm font-black text-[#D4AF37]">#{orderNumber}</span>
         </div>
@@ -56,7 +56,7 @@ const InvoiceTemplate = React.forwardRef(({ order }, ref) => {
 
       <div className="p-12 space-y-10">
         {/* Customer / Shipping Section */}
-        <div className="p-6 bg-[#F8F8F6]/50 rounded-[2rem] border border-[#EEEEEE] flex items-start justify-between">
+        <div className="p-4 sm:p-6 bg-[#F8F8F6]/50 rounded-[2rem] border border-[#EEEEEE] flex items-start justify-between">
           <div>
             <p className="text-[9px] font-black text-[#999999] uppercase tracking-[0.2em] mb-1">Deliver To</p>
             <p className="text-lg font-black text-[#121212]">{shippingAddress?.name || 'Customer'}</p>
@@ -111,7 +111,7 @@ const InvoiceTemplate = React.forwardRef(({ order }, ref) => {
         </div>
 
         {/* Totals Section */}
-        <div className="bg-[#121212] p-10 rounded-[2.5rem] text-white relative overflow-hidden">
+        <div className="bg-[#121212] p-5 md:p-10 rounded-[2.5rem] text-white relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-[#D4AF37]/5 rounded-bl-full" />
           <div className="space-y-3 relative z-10">
             <div className="flex justify-between text-[10px] font-black text-white/30 uppercase tracking-widest">

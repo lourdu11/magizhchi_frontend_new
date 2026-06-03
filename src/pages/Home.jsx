@@ -231,7 +231,7 @@ export default function Home() {
                   <Link to="/collections" className="btn-gold group">
                     Shop The Collection <ArrowRight size={18} className="inline ml-2 group-hover:translate-x-1 transition-transform" />
                   </Link>
-                  <Link to="/about" className="px-8 py-4 bg-white/10 backdrop-blur-md text-white font-bold rounded-2xl border border-white/20 hover:bg-white/20 transition-all text-center">
+                  <Link to="/about" className="px-4 md:px-8 py-4 bg-white/10 backdrop-blur-md text-white font-bold rounded-2xl border border-white/20 hover:bg-white/20 transition-all text-center">
                     Our Story
                   </Link>
                 </div>
@@ -273,7 +273,7 @@ export default function Home() {
               Array(4).fill(0).map((_, i) => (
                 <div 
                   key={i} 
-                  className="relative aspect-[4/5] rounded-[3rem] overflow-hidden bg-gradient-to-b from-light-bg to-light-bg/40 border border-border-light/60 flex flex-col justify-end p-10 animate-pulse"
+                  className="relative aspect-[4/5] rounded-[3rem] overflow-hidden bg-gradient-to-b from-light-bg to-light-bg/40 border border-border-light/60 flex flex-col justify-end p-5 md:p-10 animate-pulse"
                   style={{ animationDelay: `${i * 150}ms` }}
                 >
                   {/* Centered Premium Gold Sparkle/Spinner Glow */}
@@ -345,7 +345,7 @@ export default function Home() {
               </div>
               {visibleCount < featured.length && (
                 <div className="mt-12 text-center">
-                  <button onClick={() => setVisibleCount(featured.length)} className="btn-outline px-8 py-3 rounded-2xl inline-flex items-center gap-2">
+                  <button onClick={() => setVisibleCount(featured.length)} className="btn-outline px-4 md:px-8 py-3 rounded-2xl inline-flex items-center gap-2">
                     Load More <ArrowRight size={16} />
                   </button>
                 </div>

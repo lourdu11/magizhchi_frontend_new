@@ -141,7 +141,7 @@ export default function AdminSingleImageResizer({
       <div className="bg-charcoal rounded-2xl w-full max-w-5xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-white/10 bg-black/20">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-white/10 bg-black/20">
           <div>
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
               <Upload size={20} className="text-premium-gold" />
@@ -158,7 +158,7 @@ export default function AdminSingleImageResizer({
         <div className="flex flex-col md:flex-row flex-1 overflow-hidden min-h-[500px]">
           
           {/* Left Panel: Controls */}
-          <div className="w-full md:w-80 bg-black/40 p-6 flex flex-col gap-6 border-r border-white/10 overflow-y-auto">
+          <div className="w-full md:w-80 bg-black/40 p-4 sm:p-6 flex flex-col gap-6 border-r border-white/10 overflow-y-auto">
             
             {/* Mode Selection */}
             <div className="space-y-2">
@@ -223,7 +223,7 @@ export default function AdminSingleImageResizer({
           </div>
 
           {/* Right Panel: Cropper */}
-          <div className="flex-1 relative bg-black/90 min-h-[300px] flex items-center justify-center p-8">
+          <div className="flex-1 relative bg-black/90 min-h-[300px] flex items-center justify-center p-4 md:p-8">
             {imageSrc ? (
               resizeMode === 'stretch' ? (
                 <div 
@@ -269,7 +269,7 @@ export default function AdminSingleImageResizer({
         <div className="p-4 border-t border-white/10 bg-black/20 flex justify-end gap-3">
           <button 
             onClick={onClose}
-            className="px-6 py-2.5 rounded-xl font-medium text-white hover:bg-white/10 transition-colors"
+            className="px-4 sm:px-6 py-2.5 rounded-xl font-medium text-white hover:bg-white/10 transition-colors"
             disabled={isProcessing}
           >
             Cancel
@@ -278,7 +278,7 @@ export default function AdminSingleImageResizer({
           <button 
             onClick={handleGenerate}
             disabled={isProcessing}
-            className="px-8 py-2.5 bg-premium-gold text-black font-bold rounded-xl hover:brightness-110 transition-all flex items-center gap-2 disabled:opacity-50"
+            className="px-4 md:px-8 py-2.5 bg-premium-gold text-black font-bold rounded-xl hover:brightness-110 transition-all flex items-center gap-2 disabled:opacity-50"
           >
             {isProcessing ? (
               <><RefreshCw size={18} className="animate-spin" /> Processing...</>
