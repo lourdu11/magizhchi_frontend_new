@@ -138,7 +138,7 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-dvh bg-[#F8F9FA] flex items-center justify-center p-6 relative overflow-hidden font-sans">
+    <div className="min-h-dvh bg-[#F8F9FA] flex items-center justify-center p-4 sm:p-6 relative overflow-hidden font-sans">
       <Helmet><title>Security Portal — Magizhchi Garments</title></Helmet>
 
       {/* ── Google Material Design Dynamic Background ── */}
@@ -176,7 +176,7 @@ export default function AdminLogin() {
           </Link>
         </div>
 
-        <div className="bg-white border border-[#DADCE0] p-8 md:p-10 rounded-[2.5rem] shadow-[0_20px_60px_rgba(32,33,36,0.08)] relative overflow-hidden">
+        <div className="bg-white border border-[#DADCE0] p-4 md:p-8 md:p-10 rounded-[2.5rem] shadow-[0_20px_60px_rgba(32,33,36,0.08)] relative overflow-hidden">
           <AnimatePresence mode="wait">
             {step === 'login' && (
               <motion.div key="login" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.05 }}>

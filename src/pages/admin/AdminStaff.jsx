@@ -62,18 +62,18 @@ export default function AdminStaff() {
       <Helmet><title>Staff Command Center — Admin</title></Helmet>
       
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 rounded-[3rem] border border-border-light shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-4 md:p-8 rounded-[3rem] border border-border-light shadow-sm">
         <div>
           <h1 className="text-3xl font-black text-charcoal tracking-tight uppercase">Staff Operations</h1>
           <p className="text-text-muted text-sm font-medium">Performance tracking & Access control</p>
         </div>
         
-        <div className="flex items-center gap-3">
+        <div className="flex items-center flex-wrap gap-3">
           <div className="bg-light-bg p-1.5 rounded-2xl flex gap-1">
-            <button onClick={() => setActiveTab('list')} className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'list' ? 'bg-charcoal text-white shadow-xl' : 'text-text-muted hover:text-charcoal'}`}>Accounts</button>
-            <button onClick={() => setActiveTab('performance')} className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'performance' ? 'bg-charcoal text-white shadow-xl' : 'text-text-muted hover:text-charcoal'}`}>Performance</button>
+            <button onClick={() => setActiveTab('list')} className={`px-4 sm:px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'list' ? 'bg-charcoal text-white shadow-xl' : 'text-text-muted hover:text-charcoal'}`}>Accounts</button>
+            <button onClick={() => setActiveTab('performance')} className={`px-4 sm:px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'performance' ? 'bg-charcoal text-white shadow-xl' : 'text-text-muted hover:text-charcoal'}`}>Performance</button>
           </div>
-          <button onClick={() => { setShowAdd(!showAdd); setEditingStaff(null); setFormData({ name: '', email: '', phone: '', password: '', commissionRate: '' }); }} className="bg-premium-gold text-charcoal px-6 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all flex items-center gap-2 shadow-lg shadow-premium-gold/20">
+          <button onClick={() => { setShowAdd(!showAdd); setEditingStaff(null); setFormData({ name: '', email: '', phone: '', password: '', commissionRate: '' }); }} className="bg-premium-gold text-charcoal px-4 sm:px-6 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all flex items-center gap-2 shadow-lg shadow-premium-gold/20">
             {showAdd ? <X size={14} /> : <><UserPlus size={14} /> New Staff</>}
           </button>
         </div>
@@ -97,25 +97,25 @@ export default function AdminStaff() {
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Full Identity</label>
-                    <input required className="w-full bg-light-bg border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 font-bold text-sm" placeholder="e.g. Rahul Sharma" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+                    <input required className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 font-bold text-sm" placeholder="e.g. Rahul Sharma" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Email Access</label>
-                    <input required type="email" className="w-full bg-light-bg border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 font-bold text-sm" placeholder="staff@magizhchi.in" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+                    <input required type="email" className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 font-bold text-sm" placeholder="staff@magizhchi.in" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Primary Phone</label>
-                    <input type="tel" className="w-full bg-light-bg border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 font-bold text-sm" placeholder="+91 XXXXX XXXXX" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
+                    <input type="tel" className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 font-bold text-sm" placeholder="+91 XXXXX XXXXX" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Secure Password</label>
-                    <input required={!editingStaff} type="password" minLength="8" className="w-full bg-light-bg border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 font-bold text-sm" placeholder={editingStaff ? 'Keep current if blank' : 'Min 8 chars'} value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} />
+                    <input required={!editingStaff} type="password" minLength="8" className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 font-bold text-sm" placeholder={editingStaff ? 'Keep current if blank' : 'Min 8 chars'} value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} />
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Commission Rate (%)</label>
                     <div className="relative">
                        <Percent className="absolute right-6 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
-                       <input type="number" step="0.1" className="w-full bg-light-bg border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 font-black text-sm" placeholder="2.5" value={formData.commissionRate} onChange={e => setFormData({...formData, commissionRate: e.target.value})} />
+                       <input type="number" step="0.1" className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 font-black text-sm" placeholder="2.5" value={formData.commissionRate} onChange={e => setFormData({...formData, commissionRate: e.target.value})} />
                     </div>
                   </div>
                 </div>
@@ -123,7 +123,7 @@ export default function AdminStaff() {
                   <button type="submit" disabled={createMutation.isLoading || updateMutation.isLoading} className="bg-charcoal text-white px-10 py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest hover:bg-premium-gold hover:text-charcoal transition-all flex items-center gap-2 shadow-xl">
                     {(createMutation.isLoading || updateMutation.isLoading) ? <Loader2 className="animate-spin" size={16} /> : <><Save size={16} /> Commit Changes</>}
                   </button>
-                  <button type="button" onClick={() => { setShowAdd(false); setEditingStaff(null); }} className="text-[10px] font-black text-text-muted uppercase tracking-widest hover:text-charcoal transition-colors px-6">Discard</button>
+                  <button type="button" onClick={() => { setShowAdd(false); setEditingStaff(null); }} className="text-[10px] font-black text-text-muted uppercase tracking-widest hover:text-charcoal transition-colors px-4 sm:px-6">Discard</button>
                 </div>
               </form>
             </div>
@@ -133,7 +133,7 @@ export default function AdminStaff() {
             {isLoading && <div className="col-span-full py-20 flex justify-center"><Loader2 className="animate-spin text-premium-gold" size={40} /></div>}
             {staff?.length === 0 && <div className="col-span-full py-24 text-center text-text-muted font-bold uppercase tracking-widest">No staff accounts registered.</div>}
             {staff?.map(s => (
-              <div key={s._id} className="bg-white p-8 rounded-[3rem] border border-border-light shadow-sm flex flex-col gap-6 group hover:shadow-xl hover:-translate-y-1 transition-all">
+              <div key={s._id} className="bg-white p-4 md:p-8 rounded-[3rem] border border-border-light shadow-sm flex flex-col gap-6 group hover:shadow-xl hover:-translate-y-1 transition-all">
                 <div className="flex items-center gap-5">
                    <div className="w-16 h-16 rounded-[1.5rem] bg-charcoal flex items-center justify-center text-premium-gold font-black text-2xl group-hover:scale-110 transition-transform">
                      {s.name?.[0]?.toUpperCase()}
@@ -173,17 +173,17 @@ export default function AdminStaff() {
         <div className="space-y-10">
           {/* Performance Overview */}
           <div className="grid md:grid-cols-3 gap-6">
-            <div className="bg-white p-8 rounded-[2.5rem] border border-border-light shadow-sm">
+            <div className="bg-white p-4 md:p-8 rounded-[2.5rem] border border-border-light shadow-sm">
                <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-6"><ShoppingBag size={24} /></div>
                <p className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-1">Top Performer</p>
                <h2 className="text-2xl font-black text-charcoal tracking-tight">{performance?.[0]?.name || '—'}</h2>
             </div>
-            <div className="bg-white p-8 rounded-[2.5rem] border border-border-light shadow-sm">
+            <div className="bg-white p-4 md:p-8 rounded-[2.5rem] border border-border-light shadow-sm">
                <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-6"><IndianRupee size={24} /></div>
                <p className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-1">Total Sales (Staff)</p>
                <h2 className="text-2xl font-black text-charcoal tracking-tight">₹{performance?.reduce((sum, p) => sum + p.totalSales, 0).toLocaleString()}</h2>
             </div>
-            <div className="bg-white p-8 rounded-[2.5rem] border border-border-light shadow-sm">
+            <div className="bg-white p-4 md:p-8 rounded-[2.5rem] border border-border-light shadow-sm">
                <div className="w-12 h-12 bg-premium-gold/10 text-premium-gold rounded-2xl flex items-center justify-center mb-6"><Trophy size={24} /></div>
                <p className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-1">Total Commission Paid</p>
                <h2 className="text-2xl font-black text-charcoal tracking-tight">₹{performance?.reduce((sum, p) => sum + p.totalCommission, 0).toLocaleString()}</h2>
@@ -208,8 +208,8 @@ export default function AdminStaff() {
                </h3>
                <div className="space-y-4">
                   {performance?.map((p, i) => (
-                    <div key={i} className="p-6 bg-light-bg/50 rounded-3xl border border-border-light flex items-center justify-between group hover:bg-white transition-all">
-                       <div className="flex items-center gap-4">
+                    <div key={i} className="p-4 sm:p-6 bg-light-bg/50 rounded-3xl border border-border-light flex items-center justify-between group hover:bg-white transition-all">
+                       <div className="flex items-center flex-wrap gap-4">
                           <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center font-black text-premium-gold shadow-sm border border-border-light group-hover:scale-110 transition-transform">
                              #{i + 1}
                           </div>

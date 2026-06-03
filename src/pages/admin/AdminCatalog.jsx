@@ -216,7 +216,7 @@ export default function AdminCatalog() {
                <h1 className="text-3xl font-black text-charcoal tracking-tighter uppercase">Catalog Master</h1>
                <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest mt-1">Unified Product Intelligence & Channel Control</p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center flex-wrap gap-3">
                <div className="flex bg-light-bg p-1 rounded-xl border border-border-light mr-4">
                   <button
                      onClick={() => setActiveView('gallery')}
@@ -240,7 +240,7 @@ export default function AdminCatalog() {
                   {restoreChannelsMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
                   Restore
                </button>
-               <button onClick={() => navigate('/admin/products/new')} className="px-6 py-3 bg-charcoal text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-premium-gold hover:text-charcoal transition-all flex items-center gap-2 shadow-lg shadow-charcoal/10">
+               <button onClick={() => navigate('/admin/products/new')} className="px-4 sm:px-6 py-3 bg-charcoal text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-premium-gold hover:text-charcoal transition-all flex items-center gap-2 shadow-lg shadow-charcoal/10">
                   <Plus size={16} /> New Profile
                </button>
             </div>
@@ -265,7 +265,7 @@ export default function AdminCatalog() {
                   onChange={e => setSearch(e.target.value)}
                />
             </div>
-            <div className="flex-1 lg:flex-none flex items-center gap-3 bg-light-bg px-6 py-3.5 rounded-2xl border border-transparent hover:border-premium-gold/20 transition-all cursor-pointer">
+            <div className="flex-1 lg:flex-none flex items-center gap-3 bg-light-bg px-4 sm:px-6 py-3.5 rounded-2xl border border-transparent hover:border-premium-gold/20 transition-all cursor-pointer">
                <Filter size={16} className="text-text-muted" />
                <select
                   className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest focus:ring-0 text-charcoal cursor-pointer p-0"
@@ -357,7 +357,7 @@ export default function AdminCatalog() {
                               </div>
                            </div>
 
-                           <div className="p-8">
+                           <div className="p-4 md:p-8">
                               <div className="flex items-center justify-between mb-4">
                                  <h4 className="font-black text-charcoal text-lg tracking-tight truncate mr-4">{product.name}</h4>
                                  <div className={`w-3 h-3 rounded-full ${product.isActive ? 'bg-green-500 shadow-lg shadow-green-500/20' : 'bg-red-500 shadow-lg shadow-red-500/20'}`} />
@@ -392,7 +392,7 @@ export default function AdminCatalog() {
                         </h3>
                         <p className="text-[9px] font-bold text-text-muted uppercase tracking-widest mt-1">Verified Display Profiles & Live Variant Tracking</p>
                      </div>
-                     <div className="flex items-center gap-4">
+                     <div className="flex items-center flex-wrap gap-4">
                         <div className="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-full border border-green-100">
                            <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                            <span className="text-[9px] font-black uppercase">Live Analytics</span>
@@ -405,14 +405,14 @@ export default function AdminCatalog() {
 
                   <div className="bg-white rounded-[3rem] border border-border-light overflow-hidden shadow-sm">
                      <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse">
+                        <table className="w-full min-w-[700px] text-left border-collapse">
                            <thead>
                               <tr className="bg-light-bg/50 border-b border-border-light">
-                                 <th className="px-8 py-6 text-[10px] font-black text-text-muted uppercase tracking-widest w-[30%]">Product Profile</th>
-                                 <th className="px-8 py-6 text-[10px] font-black text-text-muted uppercase tracking-widest">Variant Depth (Size/Color/Stock)</th>
-                                 <th className="px-8 py-6 text-[10px] font-black text-text-muted uppercase tracking-widest text-center">Global Status</th>
-                                 <th className="px-8 py-6 text-[10px] font-black text-text-muted uppercase tracking-widest text-right">Market Price</th>
-                                 <th className="px-8 py-6 text-[10px] font-black text-text-muted uppercase tracking-widest text-right">Sync</th>
+                                 <th className="px-4 md:px-8 py-4 sm:py-6 text-[10px] font-black text-text-muted uppercase tracking-widest w-[30%]">Product Profile</th>
+                                 <th className="px-4 md:px-8 py-4 sm:py-6 text-[10px] font-black text-text-muted uppercase tracking-widest">Variant Depth (Size/Color/Stock)</th>
+                                 <th className="px-4 md:px-8 py-4 sm:py-6 text-[10px] font-black text-text-muted uppercase tracking-widest text-center">Global Status</th>
+                                 <th className="px-4 md:px-8 py-4 sm:py-6 text-[10px] font-black text-text-muted uppercase tracking-widest text-right">Market Price</th>
+                                 <th className="px-4 md:px-8 py-4 sm:py-6 text-[10px] font-black text-text-muted uppercase tracking-widest text-right">Sync</th>
                               </tr>
                            </thead>
                            <tbody className="divide-y divide-border-light/40">
@@ -424,8 +424,8 @@ export default function AdminCatalog() {
 
                                  return (
                                     <tr key={product._id} className="group hover:bg-light-bg/10 transition-all align-top">
-                                       <td className="px-8 py-8">
-                                          <div className="flex items-center gap-4">
+                                       <td className="px-4 md:px-8 py-4 md:py-8">
+                                          <div className="flex items-center flex-wrap gap-4">
                                              <SafeImage src={product.images?.[0]} className="w-12 h-16 rounded-2xl object-cover bg-light-bg shadow-sm" />
                                              <div>
                                                 <div className="font-black text-charcoal text-sm leading-tight mb-1">{product.name}</div>
@@ -439,7 +439,7 @@ export default function AdminCatalog() {
                                              </div>
                                           </div>
                                        </td>
-                                       <td className="px-8 py-8">
+                                       <td className="px-4 md:px-8 py-4 md:py-8">
                                           <div className="flex flex-wrap gap-2 max-w-lg">
                                              {variants.length === 0 ? (
                                                 <div className="text-[10px] font-bold text-red-400 uppercase italic">No physical variants linked to this profile.</div>
@@ -477,9 +477,9 @@ export default function AdminCatalog() {
                                              })}
                                           </div>
                                        </td>
-                                       <td className="px-8 py-8">
+                                       <td className="px-4 md:px-8 py-4 md:py-8">
                                           <div className="flex flex-col items-center gap-3">
-                                             <div className="flex items-center gap-4">
+                                             <div className="flex items-center flex-wrap gap-4">
                                                 <button
                                                    disabled={product.isVirtual}
                                                    onClick={async () => {
@@ -545,11 +545,11 @@ export default function AdminCatalog() {
                                              </div>
                                           </div>
                                        </td>
-                                       <td className="px-8 py-8 text-right">
+                                       <td className="px-4 md:px-8 py-4 md:py-8 text-right">
                                           <div className="font-black text-charcoal text-lg tracking-tighter">₹{product.sellingPrice}</div>
                                           <div className="text-[9px] text-text-muted font-bold uppercase tracking-widest">Global MSRP</div>
                                        </td>
-                                       <td className="px-8 py-8 text-right">
+                                       <td className="px-4 md:px-8 py-4 md:py-8 text-right">
                                           <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
                                              <button onClick={() => navigate(`/admin/products/${product._id}`)} className="p-3 bg-white border border-border-light rounded-2xl text-charcoal hover:bg-charcoal hover:text-white transition-all shadow-sm" title="Edit product">
                                                 <Settings2 size={14} />
@@ -623,7 +623,7 @@ export default function AdminCatalog() {
                      </div>
 
                      <div className="space-y-8">
-                        <div className="bg-light-bg/50 p-6 rounded-3xl border border-border-light/50 flex items-center justify-between">
+                        <div className="bg-light-bg/50 p-4 sm:p-6 rounded-3xl border border-border-light/50 flex items-center justify-between">
                            <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">Current Active Stock</p>
                            <p className="text-2xl font-black text-charcoal">{showQuickStock.totalStock} Units</p>
                         </div>
@@ -631,7 +631,7 @@ export default function AdminCatalog() {
                         <div className="grid grid-cols-2 gap-6">
                            <div className="space-y-2">
                               <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Transaction Logic</label>
-                              <select className="w-full bg-light-bg border-none rounded-2xl px-6 py-4 font-black text-sm" value={adjustment.type} onChange={e => setAdjustment({ ...adjustment, type: e.target.value })}>
+                              <select className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-4 font-black text-sm" value={adjustment.type} onChange={e => setAdjustment({ ...adjustment, type: e.target.value })}>
                                  <option value="add">Stock In / Purchase (+)</option>
                                  <option value="return">Customer Return (+)</option>
                                  <option value="exchange_in">Exchange Inbound (+)</option>
@@ -642,7 +642,7 @@ export default function AdminCatalog() {
                            </div>
                            <div className="space-y-2">
                               <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Quantity</label>
-                              <input type="number" className="w-full bg-light-bg border-none rounded-2xl px-6 py-4 font-black text-xl" value={adjustment.quantity} onChange={e => setAdjustment({ ...adjustment, quantity: Number(e.target.value) })} />
+                              <input type="number" className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-4 font-black text-xl" value={adjustment.quantity} onChange={e => setAdjustment({ ...adjustment, quantity: Number(e.target.value) })} />
                            </div>
                         </div>
 
@@ -677,7 +677,7 @@ export default function AdminCatalog() {
 
                         <div className="space-y-2">
                            <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Audit Trail & Transaction Notes</label>
-                           <input className="w-full bg-light-bg border-none rounded-2xl px-6 py-4 font-bold text-sm" placeholder="e.g. Size exchange for Bill #1234" value={adjustment.reason} onChange={e => setAdjustment({ ...adjustment, reason: e.target.value })} />
+                           <input className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-4 font-bold text-sm" placeholder="e.g. Size exchange for Bill #1234" value={adjustment.reason} onChange={e => setAdjustment({ ...adjustment, reason: e.target.value })} />
                         </div>
                      </div>
 
@@ -691,7 +691,7 @@ export default function AdminCatalog() {
                            }
                         })}
                         disabled={adjustStockMutation.isPending}
-                        className="w-full mt-10 bg-charcoal text-white py-6 rounded-[2rem] font-black text-xs uppercase tracking-[0.3em] shadow-2xl hover:bg-premium-gold hover:text-charcoal transition-all flex items-center justify-center gap-3"
+                        className="w-full mt-10 bg-charcoal text-white py-4 sm:py-6 rounded-[2rem] font-black text-xs uppercase tracking-[0.3em] shadow-2xl hover:bg-premium-gold hover:text-charcoal transition-all flex items-center justify-center gap-3"
                      >
                         {adjustStockMutation.isPending ? <Loader2 size={20} className="animate-spin" /> : <><Save size={20} /> Authorize Sync</>}
                      </button>
@@ -717,8 +717,8 @@ export default function AdminCatalog() {
                         ) : (!history || history.length === 0) ? (
                            <div className="py-20 text-center text-xs font-bold text-text-muted uppercase tracking-widest">No movement history found.</div>
                         ) : history.map((m, i) => (
-                           <div key={i} className="p-6 bg-light-bg/30 rounded-3xl border border-border-light/50 flex items-center justify-between group hover:border-premium-gold transition-all">
-                              <div className="flex items-center gap-4">
+                           <div key={i} className="p-4 sm:p-6 bg-light-bg/30 rounded-3xl border border-border-light/50 flex items-center justify-between group hover:border-premium-gold transition-all">
+                              <div className="flex items-center flex-wrap gap-4">
                                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-lg ${m.quantity > 0 ? 'bg-emerald-500 shadow-emerald-500/20' : 'bg-red-500 shadow-red-500/20'}`}>
                                     {m.quantity > 0 ? <Plus size={18} /> : <ArrowDown size={18} />}
                                  </div>

@@ -166,7 +166,7 @@ export default function AdminCategoryForm() {
             <div className="space-y-8">
               <label className="block space-y-2">
                 <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Category Designation</span>
-                <input required className="w-full bg-light-bg border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 font-bold text-sm transition-all" placeholder="e.g. Premium Shirts" value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
+                <input required className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 font-bold text-sm transition-all" placeholder="e.g. Premium Shirts" value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
               </label>
 
               <label className="block space-y-2">
@@ -191,13 +191,13 @@ export default function AdminCategoryForm() {
 
               <label className="block space-y-2">
                 <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Narrative Description</span>
-                <textarea rows="6" className="w-full bg-light-bg border-none rounded-[2rem] px-6 py-6 focus:ring-2 focus:ring-premium-gold/30 font-medium text-sm resize-none transition-all" placeholder="Describe the essence of this category..." value={form.description} onChange={e => setForm({...form, description: e.target.value})} />
+                <textarea rows="6" className="w-full bg-light-bg border-none rounded-[2rem] px-4 sm:px-6 py-4 sm:py-6 focus:ring-2 focus:ring-premium-gold/30 font-medium text-sm resize-none transition-all" placeholder="Describe the essence of this category..." value={form.description} onChange={e => setForm({...form, description: e.target.value})} />
               </label>
             </div>
 
             {/* ── MASTER IMAGE UPLOAD ─────────────────────────────────── */}
             <div className="space-y-6">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center flex-wrap gap-3">
                 <div className="w-10 h-10 rounded-2xl bg-premium-gold/10 flex items-center justify-center">
                   <ImageIcon size={20} className="text-premium-gold" />
                 </div>
@@ -295,7 +295,7 @@ export default function AdminCategoryForm() {
 
                 {/* Image Controls */}
                 {form.image && (
-                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-5 p-6 bg-light-bg rounded-3xl border border-border-light">
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-5 p-4 sm:p-6 bg-light-bg rounded-3xl border border-border-light">
                     <p className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em] flex items-center gap-2">
                       Image Display Controls
                     </p>
@@ -347,12 +347,12 @@ export default function AdminCategoryForm() {
             <button type="submit" disabled={saveMutation.isPending || isUploading} className="bg-charcoal text-white px-12 py-5 rounded-[2rem] font-black text-[11px] uppercase tracking-[0.2em] shadow-2xl shadow-charcoal/20 hover:bg-premium-gold hover:text-charcoal transition-all flex items-center justify-center gap-3">
               {saveMutation.isPending ? <Loader2 className="animate-spin" size={20} /> : <><Save size={20} /> {id ? 'Publish Updates' : 'Initialize Taxonomy'}</>}
             </button>
-            <button type="button" onClick={handleCancel} className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] hover:text-charcoal transition-colors px-8 py-5">Discard Changes</button>
+            <button type="button" onClick={handleCancel} className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] hover:text-charcoal transition-colors px-4 md:px-8 py-5">Discard Changes</button>
           </div>
         </form>
       </motion.div>
 
-      <div className="mt-10 bg-gold-soft/10 border border-premium-gold/10 p-6 rounded-[2.5rem] flex items-start gap-4 max-w-6xl">
+      <div className="mt-10 bg-gold-soft/10 border border-premium-gold/10 p-4 sm:p-6 rounded-[2.5rem] flex items-start gap-4 max-w-6xl">
         <div className="p-3 bg-white rounded-2xl shadow-sm text-premium-gold"><Info size={20} /></div>
         <div>
           <h4 className="text-sm font-black text-charcoal uppercase tracking-tight">Pro Tip: Visual Ratios</h4>

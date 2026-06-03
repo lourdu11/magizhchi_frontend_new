@@ -138,7 +138,7 @@ function ComboOrchestrator({ comboSlots, comboVariants, onUpdate, onCancel, onCo
       <div className="space-y-16">
          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 bg-white p-12 rounded-[3.5rem] border border-border-light shadow-sm">
             <div className="space-y-1">
-               <div className="flex items-center gap-4">
+               <div className="flex items-center flex-wrap gap-4">
                   <h2 className="text-4xl font-black text-charcoal uppercase tracking-tighter">Combo Orchestration</h2>
                   <div className="px-5 py-1.5 bg-charcoal text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">Draft</div>
                </div>
@@ -157,7 +157,7 @@ function ComboOrchestrator({ comboSlots, comboVariants, onUpdate, onCancel, onCo
                
                return (
                   <div key={slot.id} className={`space-y-8 transition-all duration-700 ${isDisabled ? 'opacity-40 pointer-events-none grayscale' : 'opacity-100'}`}>
-                     <div className="flex items-center justify-between px-6">
+                     <div className="flex items-center justify-between px-4 sm:px-6">
                         <div className="flex items-center gap-6">
                            <div className="w-12 h-12 rounded-full bg-charcoal text-white flex items-center justify-center font-black text-sm shadow-xl">
                               {idx + 1}
@@ -171,20 +171,20 @@ function ComboOrchestrator({ comboSlots, comboVariants, onUpdate, onCancel, onCo
                               }}
                            />
                         </div>
-                        <span className="px-6 py-2 bg-[#F8F1DE] text-[#D4AF37] rounded-full text-[10px] font-black uppercase tracking-widest border border-[#D4AF37]/20">Target Slot</span>
+                        <span className="px-4 sm:px-6 py-2 bg-[#F8F1DE] text-[#D4AF37] rounded-full text-[10px] font-black uppercase tracking-widest border border-[#D4AF37]/20">Target Slot</span>
                      </div>
 
                      <div className="bg-white p-12 rounded-[4rem] border border-border-light shadow-[0_20px_50px_-10px_rgba(0,0,0,0.05)] space-y-12">
                         {product ? (
                            <div className="space-y-12">
-                              <div className="flex items-center justify-between bg-light-bg/30 p-8 rounded-[2.5rem] border border-border-light/50">
+                              <div className="flex items-center justify-between bg-light-bg/30 p-4 md:p-8 rounded-[2.5rem] border border-border-light/50">
                                  <div className="flex items-center gap-8">
                                     <div className="w-20 h-20 bg-white rounded-2xl overflow-hidden border border-border-light shadow-inner p-2">
                                        <SafeImage src={product.thumbnail} className="w-full h-full object-contain" />
                                     </div>
                                     <div className="space-y-2">
                                        <h4 className="text-[18px] font-black text-charcoal uppercase tracking-tight">{product.name}</h4>
-                                       <div className="flex items-center gap-3">
+                                       <div className="flex items-center flex-wrap gap-3">
                                           <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                                           <span className="text-[10px] font-black text-green-600 uppercase tracking-widest">{product.syncedVariants?.length || 0} Variants Synchronized</span>
                                        </div>
@@ -236,14 +236,14 @@ function ComboOrchestrator({ comboSlots, comboVariants, onUpdate, onCancel, onCo
                                  </div>
                               </div>
 
-                              <div className="flex flex-wrap items-center gap-4 min-h-[54px] bg-light-bg/20 p-6 rounded-[2rem] border-2 border-dashed border-border-light/50">
+                              <div className="flex flex-wrap items-center gap-4 min-h-[54px] bg-light-bg/20 p-4 sm:p-6 rounded-[2rem] border-2 border-dashed border-border-light/50">
                                  <AnimatePresence>
                                     {product.syncedVariants?.map((v, vIdx) => (
                                        <motion.div 
                                           initial={{ scale: 0.5, opacity: 0 }} 
                                           animate={{ scale: 1, opacity: 1 }} 
                                           key={v.id} 
-                                          className="px-6 py-2.5 bg-charcoal text-white rounded-2xl text-[10px] font-black uppercase flex items-center gap-3 shadow-lg"
+                                          className="px-4 sm:px-6 py-2.5 bg-charcoal text-white rounded-2xl text-[10px] font-black uppercase flex items-center gap-3 shadow-lg"
                                        >
                                           <span className="flex items-center gap-2">
                                              {v.size} — {v.color}
@@ -302,7 +302,7 @@ function ComboOrchestrator({ comboSlots, comboVariants, onUpdate, onCancel, onCo
                                        {searchResults.length > 0 && (
                                           <div className="absolute left-0 right-0 top-full mt-6 bg-white rounded-[3.5rem] shadow-2xl border border-border-light overflow-hidden max-h-[400px] overflow-y-auto">
                                              {searchResults.map(prod => (
-                                                <button key={prod._id} onClick={() => addProductToSlot(slot.id, prod)} className="w-full flex items-center gap-8 p-8 hover:bg-light-bg transition-all border-b border-border-light last:border-none group/item">
+                                                <button key={prod._id} onClick={() => addProductToSlot(slot.id, prod)} className="w-full flex items-center gap-8 p-4 md:p-8 hover:bg-light-bg transition-all border-b border-border-light last:border-none group/item">
                                                    <div className="w-16 h-16 rounded-2xl bg-light-bg shrink-0 overflow-hidden border border-border-light group-hover/item:border-premium-gold transition-all">
                                                       <SafeImage src={prod.thumbnail} className="w-full h-full object-contain" />
                                                    </div>
@@ -360,8 +360,8 @@ function ComboOrchestrator({ comboSlots, comboVariants, onUpdate, onCancel, onCo
                </div>
             </div>
             <div className="flex items-center gap-8 shrink-0">
-               <button onClick={onCancel} className="px-14 py-6 bg-white border-2 border-border-light text-text-muted rounded-[2.2rem] text-[12px] font-black uppercase tracking-[0.3em] hover:bg-red-50 hover:text-red-500 transition-all">Discard Draft</button>
-               <button onClick={onCommit} className="px-14 py-6 bg-charcoal text-white rounded-[2.2rem] text-[12px] font-black uppercase tracking-[0.3em] shadow-2xl hover:scale-105 transition-all flex items-center gap-5">
+               <button onClick={onCancel} className="px-14 py-4 sm:py-6 bg-white border-2 border-border-light text-text-muted rounded-[2.2rem] text-[12px] font-black uppercase tracking-[0.3em] hover:bg-red-50 hover:text-red-500 transition-all">Discard Draft</button>
+               <button onClick={onCommit} className="px-14 py-4 sm:py-6 bg-charcoal text-white rounded-[2.2rem] text-[12px] font-black uppercase tracking-[0.3em] shadow-2xl hover:scale-105 transition-all flex items-center gap-5">
                   <Save size={22} className="text-premium-gold" /> Commit Master Profile
                </button>
             </div>

@@ -366,7 +366,7 @@ export default function AdminSettings() {
           initial={{ scale: 0.95, opacity: 0, y: 20 }}
           animate={shake ? { x: [-10, 10, -10, 10, -5, 5, 0] } : { scale: 1, opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="w-full max-w-md bg-white rounded-[2.5rem] border border-border-light shadow-2xl p-8 text-center space-y-6"
+          className="w-full max-w-md bg-white rounded-[2.5rem] border border-border-light shadow-2xl p-4 md:p-8 text-center space-y-6"
         >
           {/* Animated Lock Circle */}
           <div className="flex justify-center">
@@ -409,7 +409,7 @@ export default function AdminSettings() {
             <button
               type="submit"
               disabled={isVerifying}
-              className="w-full bg-charcoal text-white hover:bg-premium-gold hover:text-charcoal px-8 py-4 rounded-2xl font-black text-xs tracking-widest transition-all shadow-xl shadow-charcoal/10 flex items-center justify-center gap-2"
+              className="w-full bg-charcoal text-white hover:bg-premium-gold hover:text-charcoal px-4 md:px-8 py-4 rounded-2xl font-black text-xs tracking-widest transition-all shadow-xl shadow-charcoal/10 flex items-center justify-center gap-2"
             >
               {isVerifying ? (
                 <>
@@ -459,7 +459,7 @@ export default function AdminSettings() {
           <button 
             onClick={handleSettingsSubmit}
             disabled={settingsMutation.isPending}
-            className={`px-8 py-4 rounded-2xl font-black text-sm tracking-widest shadow-2xl transition-all flex items-center gap-3 ${isDirty ? 'bg-amber-500 text-white hover:bg-amber-600 shadow-amber-200' : 'bg-charcoal text-white hover:bg-premium-gold shadow-charcoal/20'}`}
+            className={`px-4 md:px-8 py-4 rounded-2xl font-black text-sm tracking-widest shadow-2xl transition-all flex items-center gap-3 ${isDirty ? 'bg-amber-500 text-white hover:bg-amber-600 shadow-amber-200' : 'bg-charcoal text-white hover:bg-premium-gold shadow-charcoal/20'}`}
           >
             {settingsMutation.isPending ? <Loader2 className="animate-spin" size={20} /> : <><Save size={20} /> {isDirty ? 'Save Pending Changes' : 'Save Store Settings'}</>}
           </button>
@@ -480,7 +480,7 @@ export default function AdminSettings() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold text-sm transition-all ${activeTab === tab.id ? 'bg-premium-gold text-charcoal shadow-lg shadow-premium-gold/20' : 'bg-white text-text-muted hover:bg-light-bg'}`}
+              className={`w-full flex items-center gap-3 px-4 sm:px-6 py-4 rounded-2xl font-bold text-sm transition-all ${activeTab === tab.id ? 'bg-premium-gold text-charcoal shadow-lg shadow-premium-gold/20' : 'bg-white text-text-muted hover:bg-light-bg'}`}
             >
               <tab.icon size={20} />
               {tab.label}
@@ -489,7 +489,7 @@ export default function AdminSettings() {
         </div>
 
         {/* Content Area */}
-        <div className="lg:col-span-3 bg-white rounded-[2.5rem] border border-border-light p-8 shadow-sm overflow-hidden">
+        <div className="lg:col-span-3 bg-white rounded-[2.5rem] border border-border-light p-4 md:p-8 shadow-sm overflow-hidden">
           <AnimatePresence mode="wait">
             {activeTab === 'profile' && (
               <motion.div key="profile" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-12">
@@ -522,7 +522,7 @@ export default function AdminSettings() {
                       <button 
                         type="submit"
                         disabled={profileMutation.isPending}
-                        className="bg-charcoal text-white px-8 py-4 rounded-xl font-black text-xs tracking-widest hover:bg-premium-gold transition-all flex items-center gap-2"
+                        className="bg-charcoal text-white px-4 md:px-8 py-4 rounded-xl font-black text-xs tracking-widest hover:bg-premium-gold transition-all flex items-center gap-2"
                       >
                         {profileMutation.isPending ? <Loader2 className="animate-spin" size={16} /> : <><CheckCircle2 size={16} /> Update Details</>}
                       </button>
@@ -532,7 +532,7 @@ export default function AdminSettings() {
 
                 {/* Change Password */}
                 <section className="space-y-6 pt-6 border-t border-border-light">
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center flex-wrap gap-4">
                     <div className="w-12 h-12 bg-premium-gold/10 text-premium-gold rounded-2xl flex items-center justify-center">
                       <KeyRound size={24} />
                     </div>
@@ -561,7 +561,7 @@ export default function AdminSettings() {
                       <button 
                         type="submit"
                         disabled={passwordMutation.isPending}
-                        className="bg-charcoal text-white px-8 py-4 rounded-xl font-black text-xs tracking-widest hover:bg-premium-gold transition-all flex items-center gap-2"
+                        className="bg-charcoal text-white px-4 md:px-8 py-4 rounded-xl font-black text-xs tracking-widest hover:bg-premium-gold transition-all flex items-center gap-2"
                       >
                         {passwordMutation.isPending ? <Loader2 className="animate-spin" size={16} /> : <><ShieldCheck size={16} /> Change Password</>}
                       </button>
@@ -601,9 +601,9 @@ export default function AdminSettings() {
             {activeTab === 'payment' && (
               <motion.div key="payment" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="space-y-8">
                 {/* Online Payment Switch */}
-                <div className="p-6 bg-blue-50/50 rounded-[2rem] border border-blue-100">
+                <div className="p-4 sm:p-6 bg-blue-50/50 rounded-[2rem] border border-blue-100">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center flex-wrap gap-4">
                       <button 
                         type="button"
                         onClick={() => updatePayment('onlineEnabled', !formData.payment?.onlineEnabled)}
@@ -621,9 +621,9 @@ export default function AdminSettings() {
                 </div>
 
                 {/* COD Switch */}
-                <div className="p-6 bg-gold-soft/30 rounded-[2rem] border border-premium-gold/10">
+                <div className="p-4 sm:p-6 bg-gold-soft/30 rounded-[2rem] border border-premium-gold/10">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center flex-wrap gap-4">
                       <button 
                         type="button"
                         onClick={() => updatePayment('codEnabled', !formData.payment?.codEnabled)}
@@ -720,8 +720,8 @@ export default function AdminSettings() {
                     </div>
 
                     {/* Custom SMTP Configuration (Dynamically Configurable SMTP Server) */}
-                    <div className="mt-8 p-6 bg-light-bg/40 rounded-[2rem] border border-border-light space-y-6">
-                      <div className="flex items-center gap-3">
+                    <div className="mt-8 p-4 sm:p-6 bg-light-bg/40 rounded-[2rem] border border-border-light space-y-6">
+                      <div className="flex items-center flex-wrap gap-3">
                          <div className="w-8 h-8 bg-premium-gold/10 text-premium-gold rounded-lg flex items-center justify-center">
                             <Mail size={16} />
                          </div>
@@ -777,7 +777,7 @@ export default function AdminSettings() {
                 {/* Order Alerts */}
                 <div className="space-y-6 pt-6 border-t border-border-light">
                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center flex-wrap gap-3">
                          <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500">
                             <Smartphone size={20} />
                          </div>
@@ -829,7 +829,7 @@ export default function AdminSettings() {
                                }
                              )
                            }}
-                           className={`mt-4 px-6 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all border ${isEmailDirty ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-50' : 'bg-blue-50 text-blue-600 border-blue-100 hover:bg-blue-100'}`} data-test="order-btn"
+                           className={`mt-4 px-4 sm:px-6 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all border ${isEmailDirty ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-50' : 'bg-blue-50 text-blue-600 border-blue-100 hover:bg-blue-100'}`} data-test="order-btn"
                          >
                            {testLoading.order ? '⏳ Sending...' : 'Send Test Order Alert'}
                          </button>
@@ -842,7 +842,7 @@ export default function AdminSettings() {
                 {/* Contact Alerts */}
                 <div className="space-y-6 pt-6 border-t border-border-light">
                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center flex-wrap gap-3">
                          <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center text-purple-500">
                             <Mail size={20} />
                          </div>
@@ -893,7 +893,7 @@ export default function AdminSettings() {
                                  }
                                )
                              }}
-                             className={`mt-4 px-6 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all border ${isEmailDirty ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-50' : testLoading.contact ? 'bg-purple-100 text-purple-400 border-purple-100 cursor-not-allowed' : 'bg-purple-50 text-purple-600 border-purple-100 hover:bg-purple-100'}`}
+                             className={`mt-4 px-4 sm:px-6 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all border ${isEmailDirty ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-50' : testLoading.contact ? 'bg-purple-100 text-purple-400 border-purple-100 cursor-not-allowed' : 'bg-purple-50 text-purple-600 border-purple-100 hover:bg-purple-100'}`}
                            >
                              {testLoading.contact ? '⏳ Sending...' : 'Send Test Contact Alert'}
                            </button>
@@ -907,7 +907,7 @@ export default function AdminSettings() {
                  {/* Low Stock Section */}
                  <div className="space-y-6 pt-6 border-t border-border-light">
                     <div className="flex items-center justify-between">
-                       <div className="flex items-center gap-3">
+                       <div className="flex items-center flex-wrap gap-3">
                           <div className="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center text-red-500">
                              <Percent size={20} />
                           </div>
@@ -953,7 +953,7 @@ export default function AdminSettings() {
                              }
                            )
                          }}
-                         className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${isEmailDirty ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-50' : testLoading.stock ? 'bg-red-100 text-red-400 border-red-100 cursor-not-allowed' : 'bg-red-50 text-red-600 border-red-100 hover:bg-red-100'}`}
+                         className={`px-4 sm:px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${isEmailDirty ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-50' : testLoading.stock ? 'bg-red-100 text-red-400 border-red-100 cursor-not-allowed' : 'bg-red-50 text-red-600 border-red-100 hover:bg-red-100'}`}
                        >
                          {testLoading.stock ? '⏳ Sending...' : 'Send Test Stock Alert'}
                        </button>
@@ -973,7 +973,7 @@ export default function AdminSettings() {
                     {/* Data Restore Safety Panel */}
                     <div className="space-y-4 mb-8">
                       {/* Active Restorable Backups */}
-                      <div className="p-6 bg-blue-50/50 rounded-[2rem] border border-blue-100">
+                      <div className="p-4 sm:p-6 bg-blue-50/50 rounded-[2rem] border border-blue-100">
                         <div className="flex items-center gap-3 mb-4">
                           <div className="p-2 bg-blue-100 text-blue-600 rounded-xl"><RotateCcw size={20} /></div>
                           <div>
@@ -1006,7 +1006,7 @@ export default function AdminSettings() {
 
                       {/* Expired / Permanently Deleted History */}
                       {expiredBackups.length > 0 && (
-                        <div className="p-6 bg-gray-50/50 rounded-[2rem] border border-gray-100">
+                        <div className="p-4 sm:p-6 bg-gray-50/50 rounded-[2rem] border border-gray-100">
                           <div className="flex items-center gap-3 mb-4">
                             <div className="p-2 bg-gray-200 text-gray-500 rounded-xl"><Trash2 size={20} /></div>
                             <div>
@@ -1096,7 +1096,7 @@ export default function AdminSettings() {
                     </div>
 
                     {/* Final Danger Card and Action Button */}
-                    <div className="p-6 bg-red-50 rounded-[2rem] border border-red-100 mt-6">
+                    <div className="p-4 sm:p-6 bg-red-50 rounded-[2rem] border border-red-100 mt-6">
                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div className="text-xs font-black text-red-600 uppercase tracking-widest animate-pulse">
                           ⚠️ WARNING: Selected data modules will be deleted forever. This CANNOT be undone!
@@ -1104,7 +1104,7 @@ export default function AdminSettings() {
                         <button
                           type="button"
                           onClick={handleSystemResetTrigger}
-                          className="bg-red-600 text-white hover:bg-red-700 px-8 py-4 rounded-2xl font-black text-xs tracking-widest shadow-lg shadow-red-200 transition-all flex items-center justify-center gap-2"
+                          className="bg-red-600 text-white hover:bg-red-700 px-4 md:px-8 py-4 rounded-2xl font-black text-xs tracking-widest shadow-lg shadow-red-200 transition-all flex items-center justify-center gap-2"
                         >
                           <Trash2 size={16} /> Reset Selected Data Modules
                         </button>
@@ -1135,10 +1135,10 @@ export default function AdminSettings() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 15 }}
               transition={{ type: "spring", duration: 0.4, bounce: 0.15 }}
-              className="relative w-full max-w-lg bg-white rounded-[2.5rem] border border-red-100 shadow-3xl overflow-hidden p-8 z-10 space-y-6"
+              className="relative w-full max-w-lg bg-white rounded-[2.5rem] border border-red-100 shadow-3xl overflow-hidden p-4 md:p-8 z-10 space-y-6"
             >
               {/* Header Icon */}
-              <div className="flex items-center gap-4">
+              <div className="flex items-center flex-wrap gap-4">
                 <div className="p-4 bg-red-50 rounded-2xl text-red-600 animate-bounce">
                   <ShieldCheck size={28} />
                 </div>
@@ -1271,10 +1271,10 @@ export default function AdminSettings() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 15 }}
               transition={{ type: "spring", duration: 0.4, bounce: 0.15 }}
-              className="relative w-full max-w-lg bg-white rounded-[2.5rem] border border-premium-gold/20 shadow-3xl overflow-hidden p-8 z-10 space-y-6"
+              className="relative w-full max-w-lg bg-white rounded-[2.5rem] border border-premium-gold/20 shadow-3xl overflow-hidden p-4 md:p-8 z-10 space-y-6"
             >
               {/* Header Icon */}
-              <div className="flex items-center gap-4">
+              <div className="flex items-center flex-wrap gap-4">
                 <div className="p-4 bg-premium-gold/10 text-premium-gold rounded-2xl animate-bounce">
                   <ShieldCheck size={28} />
                 </div>

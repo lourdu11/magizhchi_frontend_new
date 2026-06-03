@@ -222,14 +222,14 @@ export default function AdminProducts() {
           <p className="text-xs text-text-muted font-bold uppercase tracking-widest">Website Listing & Aesthetics Control</p>
         </div>
         <div className="flex gap-3">
-           <button onClick={() => { resetForm(); setShowForm(true); }} className="px-6 py-3 bg-charcoal text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-premium-gold hover:text-charcoal transition-all flex items-center gap-2 shadow-xl shadow-charcoal/10">
+           <button onClick={() => { resetForm(); setShowForm(true); }} className="px-4 sm:px-6 py-3 bg-charcoal text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-premium-gold hover:text-charcoal transition-all flex items-center gap-2 shadow-xl shadow-charcoal/10">
               <Plus size={14} /> Create Display Profile
            </button>
         </div>
       </div>
 
       {/* Logic Information Alert */}
-      <div className="bg-indigo-50 border border-indigo-100 p-6 rounded-[2rem] flex items-start gap-4">
+      <div className="bg-indigo-50 border border-indigo-100 p-4 sm:p-6 rounded-[2rem] flex items-start gap-4">
          <div className="p-3 bg-white rounded-2xl shadow-sm text-indigo-600"><Info size={20} /></div>
          <div>
             <h4 className="text-sm font-black text-indigo-900 uppercase tracking-tight">Display vs Inventory Logic</h4>
@@ -255,7 +255,7 @@ export default function AdminProducts() {
         
         <div className="flex gap-2">
           <select 
-            className="bg-white border border-border-light rounded-2xl px-6 py-4 text-xs font-black uppercase tracking-widest text-charcoal outline-none focus:ring-2 focus:ring-premium-gold/20 shadow-sm"
+            className="bg-white border border-border-light rounded-2xl px-4 sm:px-6 py-4 text-xs font-black uppercase tracking-widest text-charcoal outline-none focus:ring-2 focus:ring-premium-gold/20 shadow-sm"
             value={filterCategory}
             onChange={e => setFilterCategory(e.target.value)}
           >
@@ -268,15 +268,15 @@ export default function AdminProducts() {
       {/* Main Table */}
       <div className="bg-white rounded-[2.5rem] border border-border-light overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full text-left">
+          <table className="w-full min-w-[700px] text-left">
             <thead>
               <tr className="bg-light-bg/50 border-b border-border-light">
-                <th className="px-8 py-6 text-[10px] font-black text-text-muted uppercase tracking-widest">Visual Identity</th>
-                <th className="px-8 py-6 text-[10px] font-black text-text-muted uppercase tracking-widest">Market Class</th>
-                <th className="px-8 py-6 text-[10px] font-black text-text-muted uppercase tracking-widest">Product Profile</th>
-                <th className="px-8 py-6 text-[10px] font-black text-text-muted uppercase tracking-widest">Variant Depth (Size/Color/Stock)</th>
-                <th className="px-8 py-6 text-[10px] font-black text-text-muted uppercase tracking-widest">Global Status</th>
-                <th className="px-8 py-6 text-[10px] font-black text-text-muted uppercase tracking-widest text-right">Settings</th>
+                <th className="px-4 md:px-8 py-4 sm:py-6 text-[10px] font-black text-text-muted uppercase tracking-widest">Visual Identity</th>
+                <th className="px-4 md:px-8 py-4 sm:py-6 text-[10px] font-black text-text-muted uppercase tracking-widest">Market Class</th>
+                <th className="px-4 md:px-8 py-4 sm:py-6 text-[10px] font-black text-text-muted uppercase tracking-widest">Product Profile</th>
+                <th className="px-4 md:px-8 py-4 sm:py-6 text-[10px] font-black text-text-muted uppercase tracking-widest">Variant Depth (Size/Color/Stock)</th>
+                <th className="px-4 md:px-8 py-4 sm:py-6 text-[10px] font-black text-text-muted uppercase tracking-widest">Global Status</th>
+                <th className="px-4 md:px-8 py-4 sm:py-6 text-[10px] font-black text-text-muted uppercase tracking-widest text-right">Settings</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border-light/40">
@@ -286,8 +286,8 @@ export default function AdminProducts() {
                 <tr><td colSpan="6" className="py-24 text-center text-xs font-bold text-text-muted uppercase tracking-widest">No display profiles found. Click "Create Display Profile" to showcase your stock.</td></tr>
               ) : products.map(p => (
                 <tr key={p._id} className="hover:bg-light-bg/20 transition-all group">
-                  <td className="px-8 py-6">
-                    <div className="flex items-center gap-4">
+                  <td className="px-4 md:px-8 py-4 sm:py-6">
+                    <div className="flex items-center flex-wrap gap-4">
                       <div className="relative">
                         <img 
                           src={resolveAssetURL(p.images?.[0])} 
@@ -304,10 +304,10 @@ export default function AdminProducts() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-8 py-6">
+                  <td className="px-4 md:px-8 py-4 sm:py-6">
                     <span className="px-4 py-1.5 bg-light-bg rounded-full text-[10px] font-black uppercase tracking-widest text-charcoal">{p.category?.name || 'Uncategorized'}</span>
                   </td>
-                  <td className="px-8 py-6">
+                  <td className="px-4 md:px-8 py-4 sm:py-6">
                     <div className="flex flex-col">
                     <div className="flex flex-col items-end">
                       {(p.discountedPrice || 0) < p.sellingPrice && (
@@ -318,7 +318,7 @@ export default function AdminProducts() {
                       {p.discountPercentage > 0 && <span className="text-[10px] text-stock-out font-black uppercase tracking-widest">-{p.discountPercentage}% OFF</span>}
                     </div>
                   </td>
-                  <td className="px-8 py-6">
+                  <td className="px-4 md:px-8 py-4 sm:py-6">
                     <div className="flex flex-col gap-2">
                        <div className="flex gap-1 flex-wrap">
                           {p.inventorySummary?.sizes?.slice(0, 5).map(s => <span key={s} className="px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded text-[9px] font-black border border-indigo-100">{s}</span>)}
@@ -332,7 +332,7 @@ export default function AdminProducts() {
                        </div>
                     </div>
                   </td>
-                  <td className="px-8 py-6">
+                  <td className="px-4 md:px-8 py-4 sm:py-6">
                     <div className="flex gap-2">
                       {p.isFeatured && <span className="p-2 bg-premium-gold/10 text-premium-gold rounded-xl shadow-sm" title="Featured"><Sparkles size={14} /></span>}
                       {p.isBestSeller && <span className="p-2 bg-charcoal/10 text-charcoal rounded-xl shadow-sm" title="Best Seller"><ShoppingBag size={14} /></span>}
@@ -351,7 +351,7 @@ export default function AdminProducts() {
                       </button>
                     </div>
                   </td>
-                  <td className="px-8 py-6 text-right">
+                  <td className="px-4 md:px-8 py-4 sm:py-6 text-right">
                     <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
                       <button 
                         onClick={() => { 
@@ -379,7 +379,7 @@ export default function AdminProducts() {
 
         {/* Pagination */}
         {pagination && pagination.pages > 1 && (
-          <div className="px-8 py-6 border-t border-border-light flex items-center justify-between gap-4 bg-light-bg/10">
+          <div className="px-4 md:px-8 py-4 sm:py-6 border-t border-border-light flex items-center justify-between gap-4 bg-light-bg/10">
             <p className="text-[10px] text-text-muted font-black uppercase tracking-widest">
               Showing page {page} of {pagination.pages}
             </p>
@@ -441,7 +441,7 @@ export default function AdminProducts() {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-2 px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === tab.id ? 'bg-charcoal text-white shadow-xl shadow-charcoal/20' : 'text-text-muted hover:bg-light-bg'}`}
+                    className={`flex items-center gap-2 px-4 md:px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === tab.id ? 'bg-charcoal text-white shadow-xl shadow-charcoal/20' : 'text-text-muted hover:bg-light-bg'}`}
                   >
                     <tab.icon size={14} /> {tab.label}
                   </button>
@@ -454,15 +454,15 @@ export default function AdminProducts() {
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
                       
                       {!editingId && (
-                        <div className="bg-indigo-50 border border-indigo-100 p-8 rounded-[2.5rem] flex items-center justify-between group">
-                           <div className="flex items-center gap-4">
+                        <div className="bg-indigo-50 border border-indigo-100 p-4 md:p-8 rounded-[2.5rem] flex items-center justify-between group">
+                           <div className="flex items-center flex-wrap gap-4">
                               <div className="w-12 h-12 bg-indigo-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-600/20 group-hover:scale-110 transition-transform"><Sparkles size={20} /></div>
                               <div>
                                  <h4 className="text-sm font-black text-indigo-900 uppercase tracking-tight">Magic Fill from Inventory</h4>
                                  <p className="text-[10px] text-indigo-600 font-bold uppercase tracking-widest mt-0.5">Quick-link existing stock data to this profile</p>
                               </div>
                            </div>
-                           <div className="flex items-center gap-4">
+                           <div className="flex items-center flex-wrap gap-4">
                               {inventoryItems?.find(i => i.productName === formData.name)?.images?.[0] && (
                                   <img 
                                     src={resolveAssetURL(inventoryItems.find(i => i.productName === formData.name).images[0])} 
@@ -475,7 +475,7 @@ export default function AdminProducts() {
                                   const item = inventoryItems?.find(i => i._id === e.target.value);
                                   if (item) handleAutofill(item);
                                 }}
-                                className="bg-white border-none rounded-xl px-6 py-3 text-[10px] font-black uppercase tracking-widest text-indigo-600 shadow-sm outline-none focus:ring-2 focus:ring-indigo-600/20 min-w-[240px]"
+                                className="bg-white border-none rounded-xl px-4 sm:px-6 py-3 text-[10px] font-black uppercase tracking-widest text-indigo-600 shadow-sm outline-none focus:ring-2 focus:ring-indigo-600/20 min-w-[240px]"
                                 value={inventoryItems?.find(i => i.productName === formData.name)?._id || ''}
                               >
                                 <option value="">Select Inventory Item...</option>
@@ -492,39 +492,39 @@ export default function AdminProducts() {
                         <div className="space-y-6">
                            <div className="space-y-2">
                               <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Product Display Name</label>
-                              <input required className="w-full bg-light-bg border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 transition-all font-bold text-sm" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="e.g. Ancel Fit Black Pants" />
+                              <input required className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 transition-all font-bold text-sm" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="e.g. Ancel Fit Black Pants" />
                            </div>
                            <div className="grid grid-cols-2 gap-6">
                               <div className="space-y-2">
                                 <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Category</label>
-                                <select required className="w-full bg-light-bg border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 transition-all font-black text-xs uppercase" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})}>
+                                <select required className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 transition-all font-black text-xs uppercase" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})}>
                                   <option value="">Choose...</option>
                                   {categories?.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
                                 </select>
                               </div>
                               <div className="space-y-2">
                                 <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">SKU Identity</label>
-                                <input className="w-full bg-light-bg border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 transition-all font-black text-xs uppercase" value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value.toUpperCase()})} placeholder="SKU-XXXX" />
+                                <input className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 transition-all font-black text-xs uppercase" value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value.toUpperCase()})} placeholder="SKU-XXXX" />
                               </div>
                            </div>
                            <div className="grid grid-cols-2 gap-6">
                               <div className="space-y-2">
                                 <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Retail Price (₹)</label>
-                                <input type="number" required className="w-full bg-light-bg border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 transition-all font-black text-sm" value={formData.sellingPrice} onChange={e => setFormData({...formData, sellingPrice: e.target.value})} placeholder="0.00" />
+                                <input type="number" required className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 transition-all font-black text-sm" value={formData.sellingPrice} onChange={e => setFormData({...formData, sellingPrice: e.target.value})} placeholder="0.00" />
                               </div>
                               <div className="space-y-2">
                                 <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Discount %</label>
-                                <input type="number" className="w-full bg-light-bg border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 transition-all font-black text-sm" value={formData.discountPercentage} onChange={e => setFormData({...formData, discountPercentage: e.target.value})} placeholder="0" />
+                                <input type="number" className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 transition-all font-black text-sm" value={formData.discountPercentage} onChange={e => setFormData({...formData, discountPercentage: e.target.value})} placeholder="0" />
                               </div>
                            </div>
                         </div>
                         <div className="space-y-2">
                            <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Product Narrative (Description)</label>
-                           <textarea rows="9" className="w-full bg-light-bg border-none rounded-[2rem] px-6 py-6 focus:ring-2 focus:ring-premium-gold/30 transition-all font-medium text-sm resize-none" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Write an engaging story for this product..." />
+                           <textarea rows="9" className="w-full bg-light-bg border-none rounded-[2rem] px-4 sm:px-6 py-4 sm:py-6 focus:ring-2 focus:ring-premium-gold/30 transition-all font-medium text-sm resize-none" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Write an engaging story for this product..." />
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-8 bg-light-bg/50 rounded-[2.5rem] border border-border-light">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 p-4 md:p-8 bg-light-bg/50 rounded-[2.5rem] border border-border-light">
                         {[
                           { key: 'isFeatured', label: 'Featured', icon: Sparkles, color: 'bg-premium-gold' },
                           { key: 'isBestSeller', label: 'Best Seller', icon: ShoppingBag, color: 'bg-charcoal' },
@@ -561,11 +561,11 @@ export default function AdminProducts() {
                             <div className="flex gap-2">
                               <input 
                                 placeholder="External Image URL..." 
-                                className="flex-1 bg-white shadow-xl shadow-black/5 rounded-2xl px-6 py-4 outline-none border border-border-light focus:border-premium-gold transition-all text-sm font-bold" 
+                                className="flex-1 bg-white shadow-xl shadow-black/5 rounded-2xl px-4 sm:px-6 py-4 outline-none border border-border-light focus:border-premium-gold transition-all text-sm font-bold" 
                                 value={imageUrl} 
                                 onChange={e => setImageUrl(e.target.value)} 
                               />
-                              <button type="button" onClick={() => { if(imageUrl) { setFormData({...formData, images: [...formData.images, imageUrl]}); setImageUrl(''); } }} className="bg-charcoal text-white px-8 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-premium-gold transition-colors">Add</button>
+                              <button type="button" onClick={() => { if(imageUrl) { setFormData({...formData, images: [...formData.images, imageUrl]}); setImageUrl(''); } }} className="bg-charcoal text-white px-4 md:px-8 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-premium-gold transition-colors">Add</button>
                             </div>
                             <div className="relative">
                               <input type="file" id="product-upload" className="hidden" accept="image/*" onChange={handleFileUpload} disabled={isUploading} />
@@ -690,7 +690,7 @@ function VariantManagement({ productName, category, productId, sellingPrice }) {
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
-      <div className="bg-light-bg/50 p-8 rounded-[2.5rem] border border-border-light">
+      <div className="bg-light-bg/50 p-4 md:p-8 rounded-[2.5rem] border border-border-light">
         <h4 className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-6 ml-1">Add New Size/Color Combination</h4>
         <div className="grid md:grid-cols-4 gap-4 items-end">
           <div className="space-y-2">
@@ -747,7 +747,7 @@ function VariantManagement({ productName, category, productId, sellingPrice }) {
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {variants?.map(v => (
-              <div key={v._id} className="bg-white p-6 rounded-3xl border border-border-light flex flex-col gap-4 shadow-sm hover:shadow-md transition-all relative group">
+              <div key={v._id} className="bg-white p-4 sm:p-6 rounded-3xl border border-border-light flex flex-col gap-4 shadow-sm hover:shadow-md transition-all relative group">
                 {editingVariant?._id === v._id ? (
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-2">

@@ -42,7 +42,7 @@ function KpiCard({ icon: Icon, label, value, sub, trend, trendVal, color, bgColo
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay }}
-      className="bg-white rounded-3xl border border-border-light p-6 shadow-sm hover:shadow-lg hover:border-premium-gold/40 transition-all group relative overflow-hidden"
+      className="bg-white rounded-3xl border border-border-light p-4 sm:p-6 shadow-sm hover:shadow-lg hover:border-premium-gold/40 transition-all group relative overflow-hidden"
     >
       <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full opacity-5 group-hover:opacity-10 transition-opacity" style={{ background: bgColor }} />
       <div className="flex items-start justify-between mb-5">
@@ -67,7 +67,7 @@ function KpiCard({ icon: Icon, label, value, sub, trend, trendVal, color, bgColo
 function SectionHeader({ icon: Icon, title, sub, action, onAction }) {
   return (
     <div className="flex items-center justify-between mb-6">
-      <div className="flex items-center gap-3">
+      <div className="flex items-center flex-wrap gap-3">
         <div className="w-9 h-9 rounded-xl bg-premium-gold/10 flex items-center justify-center">
           <Icon size={18} className="text-premium-gold" />
         </div>
@@ -131,7 +131,7 @@ export default function AdminDashboard() {
     <div className="space-y-8 pb-20">
 
       {/* ── HERO HEADER ─────────────────────────────────────────── */}
-      <div className="bg-charcoal rounded-[2.5rem] p-8 md:p-10 relative overflow-hidden">
+      <div className="bg-charcoal rounded-[2.5rem] p-4 md:p-8 md:p-10 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-charcoal via-charcoal to-black" />
         <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-premium-gold/5 blur-[80px] -mr-48 -mt-48" />
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
@@ -170,7 +170,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Today Revenue Hero Number */}
-        <div className="relative z-10 mt-8 pt-8 border-t border-white/10 grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="relative z-10 mt-8 pt-8 border-t border-white/10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
           {[
             { label: "Today's Revenue", value: fmt(d?.revenue?.today), icon: IndianRupee, color: '#D4AF37', good: (d?.revenue?.today || 0) >= 0 },
             { label: "Today's Profit", value: fmt(d?.revenue?.todayProfit), icon: TrendingUp, color: '#10B981', good: (d?.revenue?.todayProfit || 0) >= 0 },
@@ -186,7 +186,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* ── KPI GRID ────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <KpiCard icon={IndianRupee} label="This Month" value={fmt(d?.revenue?.month)} sub="Month-to-date" trend="up" trendVal={growth > 0 ? `+${growth}%` : `${growth}%`} color="#D4AF37" bgColor="#D4AF37" delay={0} />
         <KpiCard icon={Truck} label="Delivered" value={fmtNum(d?.orders?.delivered)} sub="Completed orders" color="#10B981" bgColor="#10B981" delay={0.05} />
         <KpiCard icon={ShoppingCart} label="Pending" value={fmtNum(d?.orders?.pending)} sub="Awaiting dispatch" color="#F59E0B" bgColor="#F59E0B" delay={0.1} />
@@ -199,7 +199,7 @@ export default function AdminDashboard() {
       <div className="grid lg:grid-cols-3 gap-6">
 
         {/* Revenue Trend Chart */}
-        <div className="lg:col-span-2 bg-white rounded-[2.5rem] border border-border-light p-8 shadow-sm">
+        <div className="lg:col-span-2 bg-white rounded-[2.5rem] border border-border-light p-4 md:p-8 shadow-sm">
           <SectionHeader icon={TrendingUp} title="30-Day Revenue Trend" sub="Combined online orders + POS bills" />
           {chartReady && salesTrend.length > 0 ? (
             <Suspense fallback={<div className="h-[280px] w-full bg-light-bg/50 rounded-2xl animate-pulse" />}>
@@ -221,7 +221,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Low Stock Panel */}
-        <div className="bg-white rounded-[2.5rem] border border-red-100 p-8 shadow-sm">
+        <div className="bg-white rounded-[2.5rem] border border-red-100 p-4 md:p-8 shadow-sm">
           <SectionHeader
             icon={AlertCircle}
             title="Low Stock Alert"
@@ -255,7 +255,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* ── LIVE TRANSACTION FEED ──────────────────────────────── */}
-      <div className="bg-white rounded-[2.5rem] border border-border-light p-8 shadow-sm">
+      <div className="bg-white rounded-[2.5rem] border border-border-light p-4 md:p-8 shadow-sm">
         <SectionHeader
           icon={Sparkles}
           title="Live Transaction Feed"
@@ -270,7 +270,7 @@ export default function AdminDashboard() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[700px]">
               <thead>
                 <tr className="border-b border-border-light">
                   {['Type', 'Customer', 'ID', 'Amount', 'Status', 'Time'].map(h => (
@@ -294,7 +294,7 @@ export default function AdminDashboard() {
                       </span>
                     </td>
                     <td className="px-4 py-4">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center flex-wrap gap-3">
                         <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-[10px] font-black text-white ${tx.type === 'ONLINE' ? 'bg-blue-500' : 'bg-amber-500'}`}>
                           {(tx.name || 'G').charAt(0).toUpperCase()}
                         </div>
@@ -330,7 +330,7 @@ export default function AdminDashboard() {
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
 
         {/* Payment Methods */}
-        <div className="bg-white rounded-[2.5rem] border border-border-light p-8 shadow-sm">
+        <div className="bg-white rounded-[2.5rem] border border-border-light p-4 md:p-8 shadow-sm">
           <SectionHeader icon={CreditCard} title="Payment Split" sub="How customers pay" />
           {paymentData.length === 0 ? (
             <div className="text-center py-10 text-[10px] font-black text-text-muted uppercase tracking-widest opacity-50">No payment data</div>
@@ -367,7 +367,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* ERP Snapshot */}
-        <div className="bg-charcoal rounded-[2.5rem] p-8 shadow-xl relative overflow-hidden">
+        <div className="bg-charcoal rounded-[2.5rem] p-4 md:p-8 shadow-xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-48 h-48 rounded-full bg-premium-gold/5 blur-[60px] -mr-24 -mt-24" />
           <div className="relative z-10">
             <div className="flex items-center gap-3 mb-8">
@@ -394,7 +394,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Category Performance */}
-        <div className="bg-white rounded-[2.5rem] border border-border-light p-8 shadow-sm">
+        <div className="bg-white rounded-[2.5rem] border border-border-light p-4 md:p-8 shadow-sm">
           <SectionHeader icon={ShoppingBag} title="Top Categories" sub="By revenue this period" />
           {categoryData.length === 0 ? (
             <div className="text-center py-10 text-[10px] font-black text-text-muted uppercase tracking-widest opacity-50">No category data</div>
@@ -404,7 +404,7 @@ export default function AdminDashboard() {
                 const total = categoryData.reduce((s, c) => s + (c.revenue || 0), 0);
                 const pct = total > 0 ? ((cat.revenue || 0) / total) * 100 : 0;
                 return (
-                  <div key={i} className="flex items-center gap-4">
+                  <div key={i} className="flex items-center flex-wrap gap-4">
                     <div className="w-8 h-8 shrink-0 rounded-xl bg-premium-gold/10 flex items-center justify-center text-[10px] font-black text-premium-gold">
                       {i + 1}
                     </div>

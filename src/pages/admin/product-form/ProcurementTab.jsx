@@ -38,7 +38,7 @@ export default function ProcurementTab({ suppliers, setActiveTab }) {
           <div className="space-y-2">
             <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Supplier Partner</label>
             <select 
-              className="w-full bg-white border border-border-light rounded-2xl px-6 py-4 font-black text-xs uppercase outline-none focus:ring-4 focus:ring-premium-gold/10 transition-all shadow-sm"
+              className="w-full bg-white border border-border-light rounded-2xl px-4 sm:px-6 py-4 font-black text-xs uppercase outline-none focus:ring-4 focus:ring-premium-gold/10 transition-all shadow-sm"
               value={formData.initialProcurement.supplierId} 
               onChange={e => setNestedField('initialProcurement', 'supplierId', e.target.value)}
             >

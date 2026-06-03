@@ -17,7 +17,7 @@ export const InputField = ({ label, value, onChange, placeholder, type = "text",
       <input
         type={type}
         disabled={disabled}
-        className={`w-full bg-light-bg/50 border-none rounded-2xl ${Icon ? 'pl-16' : 'px-8'} py-5 font-black text-xs placeholder:text-text-muted/40 focus:ring-4 focus:ring-premium-gold/10 transition-all outline-none`}
+        className={`w-full bg-light-bg/50 border-none rounded-2xl ${Icon ? 'pl-16' : 'px-4 md:px-8'} py-5 font-black text-xs placeholder:text-text-muted/40 focus:ring-4 focus:ring-premium-gold/10 transition-all outline-none`}
         placeholder={placeholder}
         value={value === 0 ? 0 : (value || '')}
         onChange={e => {
@@ -54,7 +54,7 @@ export const SelectField = ({ label, value, options, onChange, icon: Icon }) => 
 );
 
 export const StockSummaryBox = ({ label, value, color }) => (
-  <div className={`p-6 rounded-[2rem] border-2 ${color} bg-white flex flex-col items-center justify-center text-center`}>
+  <div className={`p-4 sm:p-6 rounded-[2rem] border-2 ${color} bg-white flex flex-col items-center justify-center text-center`}>
     <span className="text-[9px] font-black text-text-muted uppercase tracking-widest mb-1">{label}</span>
     <span className="text-2xl font-black text-charcoal">{value.toLocaleString()}</span>
   </div>

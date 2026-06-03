@@ -47,7 +47,7 @@ export default function AdminDailyProfit() {
       <Helmet><title>Profit Report — Admin</title></Helmet>
 
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 rounded-[3rem] border border-border-light shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-4 md:p-8 rounded-[3rem] border border-border-light shadow-sm">
         <div>
           <h1 className="text-3xl font-black text-charcoal tracking-tight">Daily Profit Report</h1>
           <p className="text-text-muted text-sm font-medium">Financial performance for {new Date(selectedDate).toLocaleDateString(undefined, { dateStyle: 'full' })}</p>
@@ -60,7 +60,7 @@ export default function AdminDailyProfit() {
               type="date" 
               value={selectedDate} 
               onChange={e => setSelectedDate(e.target.value)}
-              className="bg-white px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest border-none shadow-sm cursor-pointer"
+              className="bg-white px-4 sm:px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest border-none shadow-sm cursor-pointer"
             />
           </div>
           <button onClick={() => changeDate(1)} className="p-3 hover:bg-white rounded-xl transition-all"><ChevronRight size={20} /></button>
@@ -70,7 +70,7 @@ export default function AdminDailyProfit() {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {stats.map((stat, i) => (
-          <div key={i} className="bg-white p-8 rounded-[2.5rem] border border-border-light shadow-sm hover:shadow-xl transition-all">
+          <div key={i} className="bg-white p-4 md:p-8 rounded-[2.5rem] border border-border-light shadow-sm hover:shadow-xl transition-all">
             <div className={`w-12 h-12 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center mb-6`}>
               <stat.icon size={24} />
             </div>
@@ -112,7 +112,7 @@ export default function AdminDailyProfit() {
                <div className="py-20 text-center text-xs font-bold text-text-muted uppercase tracking-widest">No sales recorded today</div>
             ) : report?.topProducts.map((p, i) => (
               <div key={i} className="flex items-center justify-between p-5 bg-light-bg/50 rounded-3xl border border-border-light hover:bg-white transition-all group">
-                <div className="flex items-center gap-4">
+                <div className="flex items-center flex-wrap gap-4">
                   <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center font-black text-premium-gold border border-border-light shadow-sm group-hover:scale-110 transition-transform">
                     #{i + 1}
                   </div>

@@ -68,7 +68,7 @@ export default function AdminCoupons() {
       </div>
 
       {showAdd && (
-        <div className="bg-white p-6 rounded-xl border border-border-light shadow-sm">
+        <div className="bg-white p-4 sm:p-6 rounded-xl border border-border-light shadow-sm">
           <form onSubmit={handleSubmit} className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-bold text-text-muted uppercase">Code</label>
@@ -143,27 +143,27 @@ export default function AdminCoupons() {
       )}
 
       <div className="bg-white rounded-xl border border-border-light overflow-hidden shadow-sm">
-        <table className="w-full text-left border-collapse">
+        <table className="w-full min-w-[700px] text-left border-collapse">
           <thead>
             <tr className="bg-light-bg border-b border-border-light">
-              <th className="px-6 py-4 text-xs font-bold text-text-muted uppercase">Coupon</th>
-              <th className="px-6 py-4 text-xs font-bold text-text-muted uppercase">Discount</th>
-              <th className="px-6 py-4 text-xs font-bold text-text-muted uppercase">Usage</th>
-              <th className="px-6 py-4 text-xs font-bold text-text-muted uppercase">Expires</th>
-              <th className="px-6 py-4 text-xs font-bold text-text-muted uppercase text-right">Actions</th>
+              <th className="px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase">Coupon</th>
+              <th className="px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase">Discount</th>
+              <th className="px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase">Usage</th>
+              <th className="px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase">Expires</th>
+              <th className="px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border-light">
             {isLoading && (
-              <tr><td colSpan="5" className="px-6 py-10 text-center"><Loader2 className="animate-spin inline-block mr-2" /> Loading...</td></tr>
+              <tr><td colSpan="5" className="px-4 sm:px-6 py-10 text-center"><Loader2 className="animate-spin inline-block mr-2" /> Loading...</td></tr>
             )}
             {coupons?.length === 0 && (
-              <tr><td colSpan="5" className="px-6 py-10 text-center text-text-muted">No coupons found. Create your first one!</td></tr>
+              <tr><td colSpan="5" className="px-4 sm:px-6 py-10 text-center text-text-muted">No coupons found. Create your first one!</td></tr>
             )}
             {coupons?.map(coupon => (
               <tr key={coupon._id} className="hover:bg-gold-soft/20 transition-colors group">
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
+                <td className="px-4 sm:px-6 py-4">
+                  <div className="flex items-center flex-wrap gap-3">
                     <div className="w-10 h-10 rounded-lg bg-gold-soft flex items-center justify-center">
                       <Tag size={18} className="text-premium-gold" />
                     </div>
@@ -173,13 +173,13 @@ export default function AdminCoupons() {
                     </div>
                   </div>
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-4 sm:px-6 py-4">
                   <div className="flex items-center gap-1.5 font-semibold text-text-primary">
                     {coupon.discountType === 'percentage' ? <><Percent size={14} /> {coupon.discountValue}%</> : <><IndianRupee size={14} /> {coupon.discountValue}</>}
                   </div>
                   <p className="text-[10px] text-text-muted">Min order: Rs.{coupon.minPurchaseAmount}</p>
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-4 sm:px-6 py-4">
                   <div className="text-sm font-medium text-text-primary">
                     {coupon.usageCount} / {coupon.usageLimit?.total || '∞'}
                   </div>
@@ -190,13 +190,13 @@ export default function AdminCoupons() {
                     />
                   </div>
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-4 sm:px-6 py-4">
                   <div className="flex items-center gap-2 text-sm text-text-muted">
                     <Calendar size={14} />
                     {new Date(coupon.validTo).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })}
                   </div>
                 </td>
-                <td className="px-6 py-4 text-right">
+                <td className="px-4 sm:px-6 py-4 text-right">
                   <button 
                     onClick={() => { if(window.confirm('Delete this coupon?')) deleteMutation.mutate(coupon._id); }}
                     className="p-2 text-text-muted hover:text-stock-out transition-colors"

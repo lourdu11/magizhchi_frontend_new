@@ -186,7 +186,7 @@ export default function VisualTab() {
 
       <div className="grid lg:grid-cols-12 gap-8 items-start">
         {/* ── LEFT: UPLOAD & GALLERY ───────────────────────────── */}
-        <div className="lg:col-span-7 space-y-6 p-8 bg-white rounded-[2.5rem] border-2 border-border-light shadow-sm">
+        <div className="lg:col-span-7 space-y-6 p-4 md:p-8 bg-white rounded-[2.5rem] border-2 border-border-light shadow-sm">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-2xl bg-premium-gold/10 flex items-center justify-center">
               <ImageIcon size={20} className="text-premium-gold" />
@@ -342,7 +342,7 @@ export default function VisualTab() {
 
           {/* Image Controls (only show if we have images) */}
           {masterImage && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 p-6 bg-light-bg rounded-3xl border border-border-light space-y-5">
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 p-4 sm:p-6 bg-light-bg rounded-3xl border border-border-light space-y-5">
               <p className="text-[9px] font-black text-charcoal uppercase tracking-[0.2em] flex items-center gap-2">
                 <Move size={12} className="text-premium-gold" /> Device Display Controls
               </p>
@@ -367,7 +367,7 @@ export default function VisualTab() {
 
         {/* ── RIGHT: LIVE PREVIEWS ───────────────────────────── */}
         <div className="lg:col-span-5 space-y-6">
-          <div className="p-8 bg-white rounded-[2.5rem] border border-border-light shadow-sm space-y-6 sticky top-8">
+          <div className="p-4 md:p-8 bg-white rounded-[2.5rem] border border-border-light shadow-sm space-y-6 sticky top-8">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-sm font-black text-charcoal uppercase tracking-wider">Live Previews</h3>
@@ -420,7 +420,7 @@ export default function VisualTab() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-md flex items-center justify-center p-6"
+            className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 sm:p-6"
             onClick={() => setFullPreview(null)}
           >
             <motion.div

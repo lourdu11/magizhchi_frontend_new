@@ -51,7 +51,7 @@ export default function AdminCategories() {
       <Helmet><title>Taxonomy Command — Admin</title></Helmet>
       
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 rounded-[3rem] border border-border-light shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-4 md:p-8 rounded-[3rem] border border-border-light shadow-sm">
         <div>
           <h1 className="text-3xl font-black text-charcoal tracking-tight uppercase text-transparent bg-clip-text bg-gradient-to-r from-charcoal to-neutral-400">Taxonomy Master</h1>
           <p className="text-text-muted text-sm font-medium">Architect your store structure and navigation</p>
@@ -67,21 +67,21 @@ export default function AdminCategories() {
               className="bg-light-bg border-none rounded-2xl pl-12 pr-6 py-4 text-sm font-bold focus:ring-2 focus:ring-premium-gold/20 w-full sm:w-64 transition-all"
             />
           </div>
-          <button onClick={() => navigate('/admin/categories/new')} className="bg-charcoal text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-premium-gold hover:text-charcoal transition-all flex items-center gap-2 shadow-xl shadow-charcoal/10 whitespace-nowrap">
+          <button onClick={() => navigate('/admin/categories/new')} className="bg-charcoal text-white px-4 md:px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-premium-gold hover:text-charcoal transition-all flex items-center gap-2 shadow-xl shadow-charcoal/10 whitespace-nowrap">
             <Plus size={16} /> New Taxonomy
           </button>
         </div>
       </div>
 
       {/* Stats Summary */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
         {[
           { label: 'Total Categories', value: cats?.length || 0, icon: Tag },
           { label: 'Active', value: cats?.filter(c => c.isActive).length || 0, icon: Eye, color: 'text-green-500' },
           { label: 'Draft/Inactive', value: cats?.filter(c => !c.isActive).length || 0, icon: EyeOff, color: 'text-amber-500' },
           { label: 'Top Level', value: cats?.filter(c => !c.parentCategory).length || 0, icon: Layout },
         ].map((stat, i) => (
-          <div key={i} className="bg-white p-6 rounded-[2rem] border border-border-light shadow-sm flex items-center gap-4">
+          <div key={i} className="bg-white p-4 sm:p-6 rounded-[2rem] border border-border-light shadow-sm flex items-center gap-4">
             <div className={`p-4 rounded-2xl bg-light-bg ${stat.color || 'text-charcoal'}`}>
               <stat.icon size={20} />
             </div>
@@ -123,7 +123,7 @@ export default function AdminCategories() {
                  </span>
               </div>
             </div>
-            <div className="p-8 pt-6">
+            <div className="p-4 md:p-8 pt-6">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex flex-col">
                   <h4 className="text-lg font-black text-charcoal tracking-tight group-hover:text-premium-gold transition-colors">{cat.name}</h4>

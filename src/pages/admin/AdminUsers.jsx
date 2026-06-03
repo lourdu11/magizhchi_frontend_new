@@ -57,24 +57,24 @@ export default function AdminUsers() {
 
       <div className="bg-white rounded-2xl border border-border-light overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full min-w-[700px] text-left border-collapse">
             <thead>
               <tr className="bg-light-bg border-b border-border-light">
-                <th className="px-6 py-4 text-xs font-bold text-text-muted uppercase">Customer</th>
-                <th className="px-6 py-4 text-xs font-bold text-text-muted uppercase hidden md:table-cell">Contact</th>
-                <th className="px-6 py-4 text-xs font-bold text-text-muted uppercase">Orders</th>
-                <th className="px-6 py-4 text-xs font-bold text-text-muted uppercase hidden lg:table-cell">LTV (Spent)</th>
-                <th className="px-6 py-4 text-xs font-bold text-text-muted uppercase">Status</th>
-                <th className="px-6 py-4 text-xs font-bold text-text-muted uppercase text-right">Actions</th>
+                <th className="px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase">Customer</th>
+                <th className="px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase hidden md:table-cell">Contact</th>
+                <th className="px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase">Orders</th>
+                <th className="px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase hidden lg:table-cell">LTV (Spent)</th>
+                <th className="px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase">Status</th>
+                <th className="px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border-light">
-              {isLoading && <tr><td colSpan="7" className="px-6 py-12 text-center"><Loader2 className="animate-spin inline-block text-premium-gold" /></td></tr>}
-              {!isLoading && users?.length === 0 && <tr><td colSpan="7" className="px-6 py-12 text-center text-text-muted">No customers found.</td></tr>}
+              {isLoading && <tr><td colSpan="7" className="px-4 sm:px-6 py-12 text-center"><Loader2 className="animate-spin inline-block text-premium-gold" /></td></tr>}
+              {!isLoading && users?.length === 0 && <tr><td colSpan="7" className="px-4 sm:px-6 py-12 text-center text-text-muted">No customers found.</td></tr>}
               {users?.map(user => (
                 <tr key={user._id} className="hover:bg-light-bg/50 transition-colors group">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
+                  <td className="px-4 sm:px-6 py-4">
+                    <div className="flex items-center flex-wrap gap-3">
                       <div className="w-10 h-10 rounded-full bg-dark-gradient flex items-center justify-center text-premium-gold font-bold text-sm shrink-0">
                         {user.name?.[0]?.toUpperCase()}
                       </div>
@@ -86,28 +86,28 @@ export default function AdminUsers() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 hidden md:table-cell">
+                  <td className="px-4 sm:px-6 py-4 hidden md:table-cell">
                     <div className="space-y-1">
                       <p className="text-xs flex items-center gap-1 text-text-muted font-medium truncate max-w-[150px]"><Mail size={10} className="shrink-0" /> {user.email || 'N/A'}</p>
                       <p className="text-xs flex items-center gap-1 text-text-muted font-medium"><Phone size={10} className="shrink-0" /> {user.phone || '—'}</p>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-4 sm:px-6 py-4">
                     <div className="flex flex-col">
                       <p className="text-sm font-bold text-text-primary">{user.orderCount || 0} Orders</p>
                       <p className="text-[10px] text-text-muted uppercase font-black">Track Record</p>
                     </div>
                   </td>
-                  <td className="px-6 py-4 hidden lg:table-cell">
+                  <td className="px-4 sm:px-6 py-4 hidden lg:table-cell">
                     <p className="text-sm font-black text-premium-gold">₹{(user.totalSpent || 0).toLocaleString('en-IN')}</p>
                     <p className="text-[10px] text-text-muted uppercase font-black">Lifetime Spent</p>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-4 sm:px-6 py-4">
                     <span className={`text-[10px] font-black px-2.5 py-1 rounded-full border ${user.isBlocked ? 'bg-red-50 text-red-600 border-red-100' : 'bg-green-50 text-green-600 border-green-100'}`}>
                       {user.isBlocked ? 'BLOCKED' : 'ACTIVE'}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-right">
+                  <td className="px-4 sm:px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       {user.role !== 'guest' && (
                         <button
@@ -128,7 +128,7 @@ export default function AdminUsers() {
 
         {/* Pagination */}
         {pagination && pagination.pages > 1 && (
-          <div className="px-6 py-4 border-t border-border-light flex items-center justify-between gap-4 bg-light-bg/30">
+          <div className="px-4 sm:px-6 py-4 border-t border-border-light flex items-center justify-between gap-4 bg-light-bg/30">
             <p className="text-xs text-text-muted font-medium">
               Showing page {page} of {pagination.pages}
             </p>

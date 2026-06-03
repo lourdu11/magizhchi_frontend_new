@@ -128,7 +128,7 @@ export default function AdminSupplierForm() {
          <Helmet><title>{isEditing ? 'Edit Trade Partner' : 'Onboard Trade Partner'} — Magizhchi</title></Helmet>
          
          {/* Top Navigation */}
-         <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-border-light px-8 py-6">
+         <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-border-light px-4 md:px-8 py-4 sm:py-6">
             <div className="max-w-7xl mx-auto flex items-center justify-between">
                <div className="flex items-center gap-6">
                   <button onClick={handleCancel} className="p-3 hover:bg-light-bg rounded-2xl text-text-muted transition-all">
@@ -140,14 +140,14 @@ export default function AdminSupplierForm() {
                   </div>
                </div>
                
-               <div className="flex items-center gap-4">
-                  <button onClick={handleCancel} className="px-6 py-3 text-[10px] font-black uppercase tracking-widest text-text-muted hover:text-charcoal transition-all">
+               <div className="flex items-center flex-wrap gap-4">
+                  <button onClick={handleCancel} className="px-4 sm:px-6 py-3 text-[10px] font-black uppercase tracking-widest text-text-muted hover:text-charcoal transition-all">
                      Cancel
                   </button>
                   <button 
                      onClick={handleSubmit}
                      disabled={mutation.isPending}
-                     className="px-8 py-4 bg-charcoal text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:bg-premium-gold hover:text-charcoal transition-all flex items-center gap-2"
+                     className="px-4 md:px-8 py-4 bg-charcoal text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:bg-premium-gold hover:text-charcoal transition-all flex items-center gap-2"
                   >
                      {mutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
                      {isEditing ? 'Save Changes' : 'Authorize Partner'}
@@ -156,13 +156,13 @@ export default function AdminSupplierForm() {
             </div>
          </div>
 
-         <main className="max-w-5xl mx-auto px-8 mt-12">
+         <main className="max-w-5xl mx-auto px-4 md:px-8 mt-12">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                
                {/* Left: Info Card */}
                <div className="lg:col-span-1 space-y-6">
                   <div className="bg-white rounded-[3rem] p-10 shadow-sm border border-border-light relative overflow-hidden group">
-                     <div className="absolute top-0 right-0 p-8 text-premium-gold/10 group-hover:scale-110 transition-transform">
+                     <div className="absolute top-0 right-0 p-4 md:p-8 text-premium-gold/10 group-hover:scale-110 transition-transform">
                         <ShieldCheck size={120} strokeWidth={1} />
                      </div>
                      
@@ -211,7 +211,7 @@ export default function AdminSupplierForm() {
                               <input 
                                  type="text"
                                  placeholder="e.g. Sri Textiles Hub"
-                                 className="w-full bg-light-bg/50 border-2 border-transparent focus:border-premium-gold focus:bg-white rounded-[1.5rem] px-8 py-5 font-black text-charcoal transition-all outline-none"
+                                 className="w-full bg-light-bg/50 border-2 border-transparent focus:border-premium-gold focus:bg-white rounded-[1.5rem] px-4 md:px-8 py-5 font-black text-charcoal transition-all outline-none"
                                  value={formData.name}
                                  onChange={e => setFormData({...formData, name: e.target.value})}
                               />
@@ -224,7 +224,7 @@ export default function AdminSupplierForm() {
                               <input 
                                  type="text"
                                  placeholder="10-digit mobile number"
-                                 className="w-full bg-light-bg/50 border-2 border-transparent focus:border-premium-gold focus:bg-white rounded-[1.5rem] px-8 py-5 font-black text-charcoal transition-all outline-none"
+                                 className="w-full bg-light-bg/50 border-2 border-transparent focus:border-premium-gold focus:bg-white rounded-[1.5rem] px-4 md:px-8 py-5 font-black text-charcoal transition-all outline-none"
                                  value={formData.phone}
                                  onChange={e => setFormData({...formData, phone: e.target.value.replace(/\D/g, '').slice(0, 10)})}
                               />
@@ -237,7 +237,7 @@ export default function AdminSupplierForm() {
                               <input 
                                  type="text"
                                  placeholder="33AABBC..."
-                                 className="w-full bg-light-bg/50 border-2 border-transparent focus:border-premium-gold focus:bg-white rounded-[1.5rem] px-8 py-5 font-black text-charcoal uppercase tracking-widest transition-all outline-none"
+                                 className="w-full bg-light-bg/50 border-2 border-transparent focus:border-premium-gold focus:bg-white rounded-[1.5rem] px-4 md:px-8 py-5 font-black text-charcoal uppercase tracking-widest transition-all outline-none"
                                  value={formData.gstin}
                                  onChange={e => setFormData({...formData, gstin: e.target.value})}
                               />
@@ -252,7 +252,7 @@ export default function AdminSupplierForm() {
                               <input 
                                  type="number"
                                  placeholder="0.00"
-                                 className="w-full bg-light-bg/50 border-2 border-transparent focus:border-premium-gold focus:bg-white rounded-[1.5rem] px-8 py-5 font-black text-charcoal transition-all outline-none"
+                                 className="w-full bg-light-bg/50 border-2 border-transparent focus:border-premium-gold focus:bg-white rounded-[1.5rem] px-4 md:px-8 py-5 font-black text-charcoal transition-all outline-none"
                                  value={formData.openingBalance}
                                  onChange={e => setFormData({...formData, openingBalance: e.target.value})}
                               />
@@ -265,7 +265,7 @@ export default function AdminSupplierForm() {
                               <textarea 
                                  rows={5}
                                  placeholder="Complete physical address for logistics..."
-                                 className="w-full bg-light-bg/50 border-2 border-transparent focus:border-premium-gold focus:bg-white rounded-[2rem] px-8 py-6 font-bold text-charcoal transition-all outline-none resize-none"
+                                 className="w-full bg-light-bg/50 border-2 border-transparent focus:border-premium-gold focus:bg-white rounded-[2rem] px-4 md:px-8 py-4 sm:py-6 font-bold text-charcoal transition-all outline-none resize-none"
                                  value={formData.address}
                                  onChange={e => setFormData({...formData, address: e.target.value})}
                               />

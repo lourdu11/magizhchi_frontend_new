@@ -192,7 +192,7 @@ function FormContent({ id, activeTab, handleTabChange, TABS, categories, supplie
             <>
                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-border-light pb-8">
                   <div>
-                     <div className="flex items-center gap-4">
+                     <div className="flex items-center flex-wrap gap-4">
                         <h1 className="text-3xl font-black text-charcoal tracking-tighter uppercase leading-none">{id ? 'Edit Master Profile' : 'New Master Profile'}</h1>
                         <span className="px-3 py-1 bg-charcoal text-white rounded-full text-[8px] font-black uppercase tracking-widest">{id ? 'ID: ' + id.slice(-8) : 'DRAFT'}</span>
                      </div>
@@ -200,18 +200,18 @@ function FormContent({ id, activeTab, handleTabChange, TABS, categories, supplie
                         <Layout size={14} className="text-premium-gold" /> Comprehensive Product Configuration
                      </p>
                   </div>
-                  <button onClick={handleCancelEntry} className="px-8 py-4 bg-white border border-border-light text-charcoal rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] shadow-sm hover:bg-red-50 hover:text-red-500 transition-all flex items-center gap-2">
+                  <button onClick={handleCancelEntry} className="px-4 md:px-8 py-4 bg-white border border-border-light text-charcoal rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] shadow-sm hover:bg-red-50 hover:text-red-500 transition-all flex items-center gap-2">
                      <X size={16} /> Cancel Entry
                   </button>
                </div>
 
                <div className="bg-white rounded-[4rem] shadow-2xl shadow-charcoal/5 border border-border-light overflow-hidden flex flex-col lg:flex-row">
-                  <div className="w-full lg:w-80 bg-light-bg/30 border-r border-border-light p-8 space-y-2">
+                  <div className="w-full lg:w-80 bg-light-bg/30 border-r border-border-light p-4 md:p-8 space-y-2">
                      {dynamicTabs.map(tab => (
                         <button
                            key={tab.id}
                            onClick={() => handleTabChange(tab.id)}
-                           className={`w-full flex items-center gap-4 px-8 py-5 rounded-[2rem] transition-all relative group ${activeTab === tab.id ? 'bg-charcoal text-white shadow-xl shadow-charcoal/20' : 'text-text-muted hover:bg-white'}`}
+                           className={`w-full flex items-center gap-4 px-4 md:px-8 py-5 rounded-[2rem] transition-all relative group ${activeTab === tab.id ? 'bg-charcoal text-white shadow-xl shadow-charcoal/20' : 'text-text-muted hover:bg-white'}`}
                         >
                            <tab.icon size={18} className={activeTab === tab.id ? 'text-premium-gold' : 'group-hover:scale-110 transition-transform'} />
                            <span className="text-[10px] font-black uppercase tracking-widest">{tab.label}</span>
@@ -232,7 +232,7 @@ function FormContent({ id, activeTab, handleTabChange, TABS, categories, supplie
                   </div>
                </div>
 
-               <div className="fixed bottom-0 left-0 right-0 lg:left-64 p-8 bg-white/80 backdrop-blur-xl border-t border-border-light flex items-center justify-between z-[50] shadow-2xl">
+               <div className="fixed bottom-0 left-0 right-0 lg:left-64 p-4 md:p-8 bg-white/80 backdrop-blur-xl border-t border-border-light flex items-center justify-between z-[50] shadow-2xl">
                   <div className="flex flex-col">
                      <span className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-1">Configuration Progress</span>
                      <div className="w-64 h-2 bg-light-bg rounded-full overflow-hidden">

@@ -305,9 +305,9 @@ export default function AdminPurchaseForm() {
       <Helmet><title>{id ? 'Edit' : 'New'} Procurement Bill — Admin</title></Helmet>
 
       {/* Header */}
-      <div className="bg-white border-b border-border-light px-8 py-6 sticky top-0 z-50">
+      <div className="bg-white border-b border-border-light px-4 md:px-8 py-4 sm:py-6 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center flex-wrap gap-4">
             <button type="button" onClick={handleCancel} className="p-2 hover:bg-light-bg rounded-xl text-text-muted">
               <X size={24} />
             </button>
@@ -327,7 +327,7 @@ export default function AdminPurchaseForm() {
               type="button"
               onClick={handlePurchaseSubmit}
               disabled={mutation.isPending}
-              className="bg-charcoal text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl hover:bg-premium-gold hover:text-charcoal transition-all flex items-center gap-2"
+              className="bg-charcoal text-white px-4 md:px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl hover:bg-premium-gold hover:text-charcoal transition-all flex items-center gap-2"
             >
               {mutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <><Save size={16} /> Authorize Bill</>}
             </button>
@@ -335,7 +335,7 @@ export default function AdminPurchaseForm() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto p-8 space-y-10">
+      <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-10">
         <form onSubmit={handlePurchaseSubmit} className="space-y-10">
           {/* Section 1: Core Logistics */}
           <section className="bg-white rounded-[3rem] border border-border-light p-10 shadow-sm space-y-8">
@@ -346,7 +346,7 @@ export default function AdminPurchaseForm() {
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Supplier Partner *</label>
                 <select 
-                  className="w-full bg-light-bg/50 border border-border-light/50 rounded-2xl px-6 py-4 font-black text-sm focus:ring-2 focus:ring-premium-gold/30" 
+                  className="w-full bg-light-bg/50 border border-border-light/50 rounded-2xl px-4 sm:px-6 py-4 font-black text-sm focus:ring-2 focus:ring-premium-gold/30" 
                   value={purchaseBill.supplierId} 
                   onChange={e => {
                     const s = suppliers.find(x => x._id === e.target.value);
@@ -360,7 +360,7 @@ export default function AdminPurchaseForm() {
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Supplier Bill # *</label>
                 <input 
-                  className="w-full bg-light-bg/50 border border-border-light/50 rounded-2xl px-6 py-4 font-black text-sm focus:ring-2 focus:ring-premium-gold/30 uppercase" 
+                  className="w-full bg-light-bg/50 border border-border-light/50 rounded-2xl px-4 sm:px-6 py-4 font-black text-sm focus:ring-2 focus:ring-premium-gold/30 uppercase" 
                   placeholder="e.g. TAX/2024/99" 
                   value={purchaseBill.billNumber} 
                   onChange={e => setPurchaseBill({...purchaseBill, billNumber: e.target.value})} 
@@ -370,7 +370,7 @@ export default function AdminPurchaseForm() {
                 <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Transaction Date *</label>
                 <input 
                   type="date" 
-                  className="w-full bg-light-bg/50 border border-border-light/50 rounded-2xl px-6 py-4 font-black text-sm focus:ring-2 focus:ring-premium-gold/30" 
+                  className="w-full bg-light-bg/50 border border-border-light/50 rounded-2xl px-4 sm:px-6 py-4 font-black text-sm focus:ring-2 focus:ring-premium-gold/30" 
                   value={purchaseBill.billDate} 
                   onChange={e => setPurchaseBill({...purchaseBill, billDate: e.target.value})} 
                 />
@@ -378,7 +378,7 @@ export default function AdminPurchaseForm() {
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Attach Bill</label>
                 <input type="file" className="hidden" id="bill-img" onChange={handleBillImageUpload} />
-                <label htmlFor="bill-img" className="flex items-center gap-3 w-full bg-light-bg/50 border border-dashed border-border-light/50 rounded-2xl px-6 py-4 cursor-pointer hover:border-premium-gold transition-all">
+                <label htmlFor="bill-img" className="flex items-center gap-3 w-full bg-light-bg/50 border border-dashed border-border-light/50 rounded-2xl px-4 sm:px-6 py-4 cursor-pointer hover:border-premium-gold transition-all">
                   <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-text-muted">
                     {isUploadingBill ? <Loader2 size={16} className="animate-spin" /> : <ImageIcon size={16} />}
                   </div>
@@ -514,7 +514,7 @@ export default function AdminPurchaseForm() {
                  ))}
                </div>
 
-               <button type="button" onClick={addPurchaseRow} className="w-full py-6 border-2 border-dashed border-border-light rounded-[2rem] text-[10px] font-black text-text-muted uppercase tracking-[0.4em] hover:border-premium-gold hover:text-premium-gold transition-all">
+               <button type="button" onClick={addPurchaseRow} className="w-full py-4 sm:py-6 border-2 border-dashed border-border-light rounded-[2rem] text-[10px] font-black text-text-muted uppercase tracking-[0.4em] hover:border-premium-gold hover:text-premium-gold transition-all">
                  + Add Additional Product Line
                </button>
             </div>
@@ -526,7 +526,7 @@ export default function AdminPurchaseForm() {
                 <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1 mb-4 block">Transaction Notes</label>
                 <textarea 
                   rows={4} 
-                  className="w-full bg-light-bg/50 border border-border-light/50 rounded-2xl p-6 font-bold text-sm resize-none focus:ring-2 focus:ring-premium-gold/20" 
+                  className="w-full bg-light-bg/50 border border-border-light/50 rounded-2xl p-4 sm:p-6 font-bold text-sm resize-none focus:ring-2 focus:ring-premium-gold/20" 
                   placeholder="Internal audit notes or remarks..." 
                   value={purchaseBill.notes} 
                   onChange={e => setPurchaseBill({...purchaseBill, notes: e.target.value})}
@@ -591,7 +591,7 @@ export default function AdminPurchaseForm() {
                      <div className="space-y-4">
                         <label className="text-[10px] font-black text-text-muted uppercase tracking-widest block">Available Colors (Comma Separated)</label>
                         <input 
-                           className="w-full bg-light-bg border-none rounded-2xl px-6 py-4 font-bold text-sm" 
+                           className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-6 py-4 font-bold text-sm" 
                            placeholder="e.g. Red, Blue, Black" 
                            value={matrixData.colors}
                            onChange={e => setMatrixData({...matrixData, colors: e.target.value})}
@@ -599,7 +599,7 @@ export default function AdminPurchaseForm() {
                         <p className="text-[8px] font-bold text-text-muted uppercase tracking-widest italic opacity-60">Leave empty to use current row color</p>
                      </div>
 
-                     <button type="button" onClick={applyMatrix} className="w-full bg-charcoal text-white py-6 rounded-[2rem] font-black text-xs uppercase tracking-[0.3em] shadow-2xl hover:bg-premium-gold hover:text-charcoal transition-all">
+                     <button type="button" onClick={applyMatrix} className="w-full bg-charcoal text-white py-4 sm:py-6 rounded-[2rem] font-black text-xs uppercase tracking-[0.3em] shadow-2xl hover:bg-premium-gold hover:text-charcoal transition-all">
                         Generate All Variants
                      </button>
                   </div>
