@@ -65,8 +65,13 @@ const ProductBrowser = memo(({ products, categories, isLoading }) => {
     queryKey: ['pos-variants', selectedProduct?.productRef?._id || selectedProduct?.productRef || selectedProduct?._id],
     queryFn: async () => {
       const productId = selectedProduct.productRef?._id || selectedProduct.productRef || selectedProduct._id;
-      const res = await api.get(`/products/pos/${productId}/variants`);
-      return res.data.data;
+      try {
+        const res = await api.get(`/products/pos/${productId}/variants`);
+        return res.data.data;
+      } catch (err) {
+        console.warn('Offline: Falling back to cached variants');
+        return { variants: selectedProduct.variants || [] };
+      }
     },
     enabled: !!selectedProduct,
     staleTime: 0, // Always fetch fresh for POS
