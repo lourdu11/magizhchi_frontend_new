@@ -69,7 +69,6 @@ const ProductBrowser = memo(({ products, categories, isLoading }) => {
         const res = await api.get(`/products/pos/${productId}/variants`);
         return res.data.data;
       } catch (err) {
-        console.warn('Offline: Falling back to cached variants');
         return { variants: selectedProduct.variants || [] };
       }
     },

@@ -165,7 +165,6 @@ function PosContent() {
         }
         return products;
       } catch (err) {
-        console.warn('Network unreachable. Loading inventory from offline database.');
         const cached = await dbService.get('posInventory', 'master_inventory');
         let offlineProducts = cached?.data || [];
         
@@ -406,7 +405,7 @@ function PosContent() {
             successCount++;
           }
         } catch (err) {
-          console.error('Failed to sync offline bill:', bill.billNumber, err.message);
+          // Silent fallback for offline sync
         }
       }
 
@@ -419,7 +418,6 @@ function PosContent() {
       }
     } catch (err) {
       setIsSyncing(false);
-      console.error('Sync failed:', err.message);
     }
   }
 
