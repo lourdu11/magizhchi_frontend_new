@@ -13,7 +13,7 @@ export default function TrackOrder() {
 
   const handleTrack = async (e) => {
     e.preventDefault();
-    if (!orderNumber.trim() || !phone.trim()) return toast.error('Enter your order ID and phone number');
+    if (!orderNumber.trim() && !phone.trim()) return toast.error('Please enter either your Order ID or Phone Number');
     
     setLoading(true);
     setOrder(null);
@@ -49,7 +49,7 @@ export default function TrackOrder() {
           <div className="text-center mb-10">
           <span className="text-xs font-black tracking-widest text-premium-gold uppercase">Real-Time Updates</span>
           <h1 className="text-4xl font-black text-charcoal mt-3 mb-4 tracking-tighter">Track Your Journey</h1>
-          <p className="text-text-muted max-w-lg mx-auto font-medium">Enter your <strong>Order ID</strong> and <strong>Phone Number</strong> to securely view delivery updates.</p>
+          <p className="text-text-muted max-w-lg mx-auto font-medium">Enter your <strong>Order ID</strong> or <strong>Phone Number</strong> to securely view delivery updates.</p>
         </div>
 
         {/* Tracking Form */}
