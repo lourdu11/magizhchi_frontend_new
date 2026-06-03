@@ -23,12 +23,12 @@ export const resolveAssetURL = (path, width = null, quality = 70, options = {}) 
     // Cloudinary Optimizations & Smart Cropping
     if (resolved.includes('res.cloudinary.com') && resolved.includes('/upload/')) {
       const { gravity, crop, aspect } = options;
-      let transforms = `f_auto,q_${quality === 70 ? 'auto' : quality}`;
+      let transforms = `f_auto%2Cq_${quality === 70 ? 'auto' : quality}`;
       
-      if (width) transforms += `,w_${width}`;
-      if (crop) transforms += `,c_${crop}`;
-      if (gravity) transforms += `,g_${gravity}`;
-      if (aspect) transforms += `,ar_${aspect}`;
+      if (width) transforms += `%2Cw_${width}`;
+      if (crop) transforms += `%2Cc_${crop}`;
+      if (gravity) transforms += `%2Cg_${gravity}`;
+      if (aspect) transforms += `%2Car_${aspect}`;
       
       resolved = resolved.replace('/upload/', `/upload/${transforms}/`);
     }
@@ -47,10 +47,10 @@ export const resolveAssetURL = (path, width = null, quality = 70, options = {}) 
         if (transformParts.length > 0) {
           urlObj.searchParams.set('tr', transformParts.join(','));
         }
-        resolved = urlObj.toString().replace(/%2C/g, ',');
+        resolved = urlObj.toString();
       } catch (err) {
         // Fallback if URL parsing fails
-        resolved = resolved + (resolved.includes('?') ? '&' : '?') + `tr=w-${width || 800},q-${quality},f-auto`;
+        resolved = resolved + (resolved.includes('?') ? '&' : '?') + `tr=w-${width || 800}%2Cq-${quality}%2Cf-auto`;
       }
     }
 
@@ -103,9 +103,9 @@ export const resolveAssetURL = (path, width = null, quality = 70, options = {}) 
     if (transformParts.length > 0) {
       urlObj.searchParams.set('tr', transformParts.join(','));
     }
-    return urlObj.toString().replace(/%2C/g, ',').replace(/ /g, '%20');
+    return urlObj.toString().replace(/ /g, '%20');
   } catch (err) {
-    return resolvedLocal.replace(/ /g, '%20') + (resolvedLocal.includes('?') ? '&' : '?') + `tr=w-${width || 800},q-${quality},f-auto`;
+    return resolvedLocal.replace(/ /g, '%20') + (resolvedLocal.includes('?') ? '&' : '?') + `tr=w-${width || 800}%2Cq-${quality}%2Cf-auto`;
   }
 };
 
