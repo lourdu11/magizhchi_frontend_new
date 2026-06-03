@@ -131,7 +131,7 @@ export default function Footer() {
             <ul className="space-y-2.5">
               {[
                 { label: 'My Account', path: '/dashboard' },
-                { label: 'Track Order', path: '/dashboard/orders' },
+                { label: 'Track Order', path: '/track-order' },
                 { label: 'Returns & Refunds', path: '/refund-policy' },
                 { label: 'Shipping Policy', path: '/shipping-policy' },
                 { label: 'Privacy Policy', path: '/privacy-policy' },
