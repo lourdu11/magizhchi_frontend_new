@@ -37,48 +37,31 @@ function PosContent() {
     }
   }, [currentUser, staffMembers, activeTab, dispatch]);
 
-  // 0. Print Styles (Forced Receipt Isolation with Masterclass Height-Collapse Engine)
+  // 0. Print Styles (Clean Isolation for Thermal Printers)
   const printStyles = `
     #thermal-receipt { display: none !important; }
     @media print {
-      /* Hide all elements globally */
-      body * { 
-        visibility: hidden !important; 
-      }
+      /* Let the root containers shrink naturally */
+      #root, body, html { display: block !important; height: auto !important; min-height: 0 !important; background: white !important; }
       
-      /* Make ONLY the receipt and its contents visible */
-      #thermal-receipt, #thermal-receipt * { 
-        visibility: visible !important; 
-      }
-      
-      /* Force all page containers to occupy exactly 0px layout height to prevent paper roll bleed */
-      html, body, #root, #root *, main, div, aside, header, nav {
-        height: 0 !important;
-        min-height: 0 !important;
-        max-height: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        border: none !important;
-        overflow: visible !important; /* Allow the receipt to overflow and draw naturally */
-      }
-      
-      /* Release height and display constraints specifically for the receipt container */
+      /* Make ONLY the receipt visible and dictate the height natively */
       #thermal-receipt { 
         display: block !important; 
-        position: absolute !important;
-        left: 0 !important;
-        top: 0 !important;
+        position: relative !important;
         width: 80mm !important;
-        max-width: 80mm !important;
         height: auto !important;
-        max-height: none !important;
-        background: white !important;
+        margin: 0 !important;
         padding: 4px !important;
+        background: white !important;
       }
       
-      #thermal-receipt * {
+      /* Reset any forced heights on html/body */
+      html, body {
         height: auto !important;
-        max-height: none !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
       }
     }
   `;
@@ -564,7 +547,7 @@ function PosContent() {
   };
 
   return (
-    <div className="h-dvh flex flex-col bg-[#F8F9FA] overflow-hidden font-sans">
+    <div className="h-dvh print:h-auto print:block flex flex-col bg-[#F8F9FA] overflow-hidden font-sans">
       <style>{printStyles}</style>
       <Helmet title="Magizhchi POS | Enterprise Billing" />
       

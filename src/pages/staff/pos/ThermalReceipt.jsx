@@ -108,9 +108,7 @@ const ThermalReceipt = memo(forwardRef(({ bill: propBill }, ref) => {
           }
           #thermal-receipt {
             visibility: visible !important;
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
+            display: block !important;
             width: 100% !important;
             max-width: 100% !important;
             padding: 8px !important;
