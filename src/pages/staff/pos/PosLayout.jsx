@@ -234,7 +234,7 @@ function PosContent() {
               v => v.barcode && v.barcode.toLowerCase() === code
             );
             if (matched) {
-              addAndClear(matched, `${matched.productName || matched.name} (${matched.size}/${matched.color})`);
+              addAndClear({ ...matched, fallbackImage: item.thumbnail || item.images?.[0] }, `${matched.productName || matched.name} (${matched.size}/${matched.color})`);
               return true;
             }
           }
@@ -257,7 +257,7 @@ function PosContent() {
               v => v.barcode && v.barcode.toLowerCase() === code
             );
             if (matched) {
-              addAndClear(matched, `${matched.productName || matched.name} (${matched.size}/${matched.color})`);
+              addAndClear({ ...matched, fallbackImage: item.thumbnail || item.images?.[0] }, `${matched.productName || matched.name} (${matched.size}/${matched.color})`);
               queryClient.invalidateQueries({ queryKey: ['pos-inventory'] });
               return true;
             }
@@ -274,7 +274,7 @@ function PosContent() {
         if (searchItems.length === 1) {
           const match = searchItems[0];
           if (match.variants?.length === 1) {
-            addAndClear(match.variants[0], `${match.variants[0].productName || match.productName} (${match.variants[0].size}/${match.variants[0].color})`);
+            addAndClear({ ...match.variants[0], fallbackImage: match.thumbnail || match.images?.[0] }, `${match.variants[0].productName || match.productName} (${match.variants[0].size}/${match.variants[0].color})`);
           } else {
             addAndClear(match, `${match.name || match.productName}`);
           }
@@ -290,7 +290,7 @@ function PosContent() {
         const res = await inventoryService.getByBarcode(barcode.trim());
         const invItem = res.data?.data;
         if (invItem) {
-          addAndClear(invItem, `${invItem.productName || invItem.name} (${invItem.size}/${invItem.color})`);
+          addAndClear({ ...invItem, fallbackImage: invItem.productRef?.thumbnail || invItem.productRef?.images?.[0] }, `${invItem.productName || invItem.name} (${invItem.size}/${invItem.color})`);
           queryClient.invalidateQueries({ queryKey: ['pos-inventory'] });
           return true;
         }

@@ -2,7 +2,8 @@ import { memo } from 'react';
 import { ShoppingCart, Trash2, Plus, Minus, User, CreditCard, Smartphone, Banknote, X } from 'lucide-react';
 import { usePOS } from './POSContext';
 import { toast } from 'react-hot-toast';
-import { getCloudinaryUrl } from '../../../utils/imageOptimizer';
+import SafeImage from '../../../components/common/SafeImage';
+import { resolveAssetURL } from '../../../utils/assetResolver';
 
 const CartSection = memo(({ onComplete }) => {
   const { state, dispatch } = usePOS();
@@ -101,7 +102,7 @@ const CartSection = memo(({ onComplete }) => {
               items.map((item, idx) => (
                 <div key={item.id || idx} className="flex gap-4 group bg-light-bg/30 p-3 rounded-2xl border border-transparent hover:border-border-light hover:bg-white transition-all">
                   <div className="w-14 h-14 bg-white rounded-xl overflow-hidden shrink-0 border border-border-light">
-                    <img src={getCloudinaryUrl(item.image, { width: 100 })} alt="" className="w-full h-full object-cover" />
+                    <SafeImage src={resolveAssetURL(item.image, 100)} alt={item.name || ''} className="w-full h-full object-cover" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-start">

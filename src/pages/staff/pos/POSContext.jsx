@@ -69,7 +69,7 @@ function posReducer(state, action) {
           productId: invItem.productId || invItem.productRef?._id || invItem.productRef, // Use combo productId if present
           inventoryId: invItem._id || invItem.id,
           name: invItem.productName,
-          image: invItem.images?.[0] || invItem.productRef?.thumbnail || invItem.laptopImage || invItem.tabletImage || invItem.mobileImage,
+          image: invItem.images?.[0] || invItem.laptopImage || invItem.fallbackImage || invItem.productRef?.thumbnail,
           price: invItem.sellingPrice,
           availableStock: invItem.availableStock,
           quantity: 1,

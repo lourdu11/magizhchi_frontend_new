@@ -227,7 +227,10 @@ const ProductBrowser = memo(({ products, categories, isLoading }) => {
                           key={v._id || idx} 
                           onClick={() => {
                             // Allow variant selection even if stock is 0
-                            dispatch({ type: 'SELECT_PRODUCT', payload: v });
+                            dispatch({ 
+                              type: 'SELECT_PRODUCT', 
+                              payload: { ...v, fallbackImage: selectedProduct.thumbnail || selectedProduct.images?.[0] } 
+                            });
                             setSelectedProduct(null);
                           }}
                           className={`flex items-center justify-between p-6 bg-light-bg/50 rounded-2xl border-2 border-transparent hover:border-premium-gold hover:bg-white transition-all group ${v.availableStock <= 0 ? 'opacity-70' : ''}`}
