@@ -26,7 +26,6 @@ export default function VisualTab() {
   const [urlInput, setUrlInput] = useState('');
   const [lastUploadedUrl, setLastUploadedUrl] = useState('');
   const [multiUploadingFiles, setMultiUploadingFiles] = useState([]);
-  const [activePreviewImage, setActivePreviewImage] = useState(null);
   const fileInputRef = useRef(null);
 
   const setField = (field, value) => dispatch({ type: 'SET_FIELD', field, value });
@@ -53,7 +52,6 @@ export default function VisualTab() {
       const currentImages = formData.images || [];
       setField('images', [...currentImages, url]);
       toast.success('✅ Image cropped and added to gallery!');
-      setActivePreviewImage(url); // Auto-preview the newly uploaded cropped image
     } catch (e) {
       console.error(e);
       toast.error('Upload failed. Please try again.');
@@ -170,7 +168,7 @@ export default function VisualTab() {
 
 
 
-  const masterImage = formData.laptopImage || formData.mobileImage || formData.images?.[0];
+  const masterImage = formData.images?.[0] || formData.laptopImage || formData.mobileImage;
   const fit = formData.detailFit || 'contain';
   const position = formData.position || 'center';
   const scale = formData.scale || 1;
@@ -291,7 +289,7 @@ export default function VisualTab() {
               {formData.images.map((img, i) => (
                 <div
                   key={i}
-                  className={`group relative aspect-[3/4] rounded-2xl overflow-hidden border-2 bg-light-bg transition-all hover:shadow-xl flex flex-col ${activePreviewImage === img ? 'border-premium-gold' : 'border-border-light hover:border-premium-gold/50'}`}
+                  className={`group relative aspect-[3/4] rounded-2xl overflow-hidden border-2 bg-light-bg transition-all hover:shadow-xl flex flex-col ${i === 0 ? 'border-premium-gold' : 'border-border-light hover:border-premium-gold/50'}`}
                 >
                   <button
                     type="button"
@@ -303,8 +301,7 @@ export default function VisualTab() {
                   <div 
                     className="relative flex-1 bg-white overflow-hidden cursor-pointer" 
                     onClick={() => {
-                      setActivePreviewImage(img);
-                      toast.success('Previewing image on devices');
+                      if (i !== 0) handleMakeMain(i);
                     }}
                   >
                     <img src={img} alt={`gallery-${i}`} className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform" />
@@ -382,8 +379,8 @@ export default function VisualTab() {
 
             <div className="space-y-6">
               {devices.map(dev => {
-                // Read from activePreviewImage, then specific device image, otherwise fallback to masterImage (which is images[0])
-                const src = activePreviewImage || formData[dev.key] || masterImage;
+                // Ensure the "Main" image (images[0]) strictly overrides any specific device images from the database
+                const src = formData.images?.[0] || formData[dev.key] || masterImage;
                 
                 return (
                   <div key={dev.key} className="space-y-2 p-4 bg-light-bg/20 border border-border-light rounded-3xl">
