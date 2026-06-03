@@ -40,6 +40,7 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,ttf}'],
         cleanupOutdatedCaches: true,
+        navigateFallback: '/index.html',
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/magizhchi-backend-28sx\.onrender\.com\/api\/v1\/.*/i,
