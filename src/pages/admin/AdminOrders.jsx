@@ -217,7 +217,7 @@ export default function AdminOrders() {
                   <td className="px-5 py-4 hidden md:table-cell">
                     <p className="text-sm text-text-muted">{o.items?.length} item{o.items?.length !== 1 ? 's' : ''}</p>
                   </td>
-                  <td className="px-5 py-4">
+                  <td className="px-5 py-4 whitespace-nowrap">
                     <p className="font-bold text-text-primary">Rs.{o.pricing?.totalAmount?.toLocaleString('en-IN')}</p>
                   </td>
                   <td className="px-5 py-4">
@@ -240,7 +240,7 @@ export default function AdminOrders() {
                       {!['delivered', 'cancelled', 'returned'].includes(o.orderStatus) ? (
                         <div className="relative">
                           <select
-                            className="appearance-none bg-light-bg border border-border-light rounded-lg px-3 py-1.5 text-xs focus:outline-none pr-6 cursor-pointer"
+                            className="appearance-none bg-light-bg border border-border-light rounded-lg px-3 py-1.5 text-xs focus:outline-none pr-6 cursor-pointer w-full max-w-[120px]"
                             value={o.orderStatus}
                             disabled={updateStatus.isPending && updatingId === o._id}
                             onChange={e => { setUpdatingId(o._id); updateStatus.mutate({ id: o._id, status: e.target.value }); }}

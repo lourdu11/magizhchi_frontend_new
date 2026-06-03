@@ -232,21 +232,21 @@ function FormContent({ id, activeTab, handleTabChange, TABS, categories, supplie
                   </div>
                </div>
 
-               <div className="fixed bottom-0 left-0 right-0 lg:left-64 p-4 md:p-4 md:p-8 bg-white/80 backdrop-blur-xl border-t border-border-light flex items-center justify-between z-[50] shadow-2xl">
-                  <div className="flex flex-col">
+               <div className="fixed bottom-0 left-0 right-0 lg:left-64 p-4 md:p-4 md:p-8 bg-white/95 backdrop-blur-xl border-t border-border-light flex flex-col md:flex-row items-center justify-between gap-4 z-[50] shadow-2xl">
+                  <div className="flex flex-col w-full md:w-auto">
                      <span className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-1">Configuration Progress</span>
-                     <div className="w-64 h-2 bg-light-bg rounded-full overflow-hidden">
+                     <div className="w-full md:w-64 h-2 bg-light-bg rounded-full overflow-hidden">
                         <div className="h-full bg-premium-gold transition-all duration-500" style={{ width: '85%' }} />
                      </div>
                   </div>
-                  <div className="flex gap-6">
-                     <button onClick={handleDiscardDraft} className="px-10 py-5 text-[10px] font-black text-text-muted uppercase tracking-[0.2em] hover:text-charcoal transition-colors">Discard Draft</button>
+                  <div className="flex w-full md:w-auto justify-between md:justify-end gap-2 md:gap-6">
+                     <button onClick={handleDiscardDraft} className="px-4 md:px-10 py-5 text-[10px] font-black text-text-muted uppercase tracking-[0.2em] hover:text-charcoal transition-colors">Discard</button>
                      <button 
                         onClick={() => saveMutation.mutate(formData)} 
                         disabled={saveMutation.isPending} 
-                        className="px-20 py-5 bg-charcoal text-white rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-2xl shadow-charcoal/20 hover:bg-premium-gold hover:text-charcoal transition-all flex items-center gap-3 disabled:opacity-50"
+                        className="flex-1 md:flex-none px-6 md:px-20 py-5 bg-charcoal text-white rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-2xl shadow-charcoal/20 hover:bg-premium-gold hover:text-charcoal transition-all flex items-center justify-center gap-3 disabled:opacity-50"
                      >
-                        {saveMutation.isPending ? <Loader2 className="animate-spin" size={20} /> : <><Save size={20} /> {id ? 'Push Updates Globally' : 'Commit Master Profile'}</>}
+                        {saveMutation.isPending ? <Loader2 className="animate-spin" size={20} /> : <><Save size={20} /> <span className="hidden sm:inline">{id ? 'Push Updates Globally' : 'Commit Master Profile'}</span><span className="sm:hidden">Save</span></>}
                      </button>
                   </div>
                </div>

@@ -131,13 +131,13 @@ export default function GeneralInfoTab({ categories }) {
           </div>
         </div>
 
-        <div className="flex gap-4 items-end">
+        <div className="flex flex-col md:flex-row gap-4 md:items-end">
           <div className="flex-1 space-y-2">
             <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Barcode Number (EAN-13)</label>
             <input
               type="text"
-              className="w-full bg-white border-none rounded-2xl px-4 md:px-4 md:px-8 py-5 font-black text-xs tracking-[0.2em] focus:ring-4 focus:ring-premium-gold/10 transition-all outline-none font-mono"
-              placeholder="Auto-generate or type existing barcode..."
+              className="w-full bg-white border-none rounded-2xl px-4 md:px-8 py-5 font-black text-xs tracking-[0.2em] focus:ring-4 focus:ring-premium-gold/10 transition-all outline-none font-mono"
+              placeholder="Auto-generate or type..."
               value={formData.barcode || ''}
               onChange={e => setField('barcode', e.target.value)}
               maxLength={13}
@@ -149,7 +149,7 @@ export default function GeneralInfoTab({ categories }) {
               const code = generateEAN13();
               setField('barcode', code);
             }}
-            className="flex items-center gap-2 px-4 sm:px-4 sm:px-6 py-5 bg-premium-gold text-charcoal rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-premium-gold/80 active:scale-95 transition-all shadow-md whitespace-nowrap"
+            className="w-full md:w-auto flex justify-center items-center gap-2 px-4 sm:px-6 py-5 bg-premium-gold text-charcoal rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-premium-gold/80 active:scale-95 transition-all shadow-md whitespace-nowrap"
           >
             <RefreshCw size={14} />
             Auto-Generate EAN-13
