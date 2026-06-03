@@ -194,91 +194,36 @@ export default function VisualTab() {
     <div className="space-y-10">
       <SectionHeader title="Visual Identity" subtitle="Manage showcase gallery and device-specific layouts" />
 
-      {/* ── SHOWCASE GALLERY UPLOADER ───────────────────────────── */}
+      {/* ── MASTER PROFILE IMAGE ───────────────────────────── */}
       <div className="p-8 bg-white rounded-[2.5rem] border-2 border-border-light shadow-sm">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-2xl bg-premium-gold/10 flex items-center justify-center">
             <ImageIcon size={20} className="text-premium-gold" />
           </div>
           <div>
-            <h3 className="text-sm font-black text-charcoal uppercase tracking-wider">Showcase Gallery Upload</h3>
+            <h3 className="text-sm font-black text-charcoal uppercase tracking-wider">Master Profile Image</h3>
             <p className="text-[9px] text-text-muted font-bold uppercase tracking-widest mt-0.5">
-              Upload multiple lifestyle photos and color angles into the Showcase Gallery
+              Upload and configure the primary product image across all devices
             </p>
           </div>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8 items-start">
-          {/* Left: Upload + Controls */}
+          {/* Left: Master Upload + Controls */}
           <div className="space-y-6">
-
-            {/* Upload mode switcher */}
-            <div className="flex gap-1 p-1 bg-light-bg rounded-2xl border border-border-light">
-              {[
-                { id: 'file', label: '📁 Upload Files', icon: Upload },
-                { id: 'url', label: '🔗 Paste URL', icon: Link2 },
-              ].map(tab => (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setUploadTab(tab.id)}
-                  className={`flex-1 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${uploadTab === tab.id ? 'bg-charcoal text-white shadow-md' : 'text-text-muted hover:text-charcoal'}`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-
-            {/* File upload */}
-            {uploadTab === 'file' && (
-              <div 
-                className="border-2 border-dashed border-border-light rounded-[2rem] p-10 text-center bg-light-bg/20 hover:bg-premium-gold/5 hover:border-premium-gold transition-all cursor-pointer relative"
-                onDragOver={e => e.preventDefault()}
-                onDrop={handleMultiDrop}
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <input 
-                  type="file" 
-                  ref={fileInputRef}
-                  multiple 
-                  accept="image/*" 
-                  className="hidden" 
-                  onChange={e => handleMultiUpload(e.target.files)} 
-                />
-                <div className="flex flex-col items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-white border border-border-light flex items-center justify-center shadow-sm">
-                    <Upload size={18} className="text-charcoal" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-black text-charcoal uppercase tracking-widest">Drag & Drop Multiple Files here</p>
-                    <p className="text-[8px] font-bold text-text-muted uppercase tracking-wider mt-1">or click to browse your computer</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* URL paste */}
-            {uploadTab === 'url' && (
-              <div className="space-y-3">
-                <div className="flex gap-2">
+            <div className="p-6 border-2 border-dashed border-border-light rounded-[2rem] text-center bg-light-bg/20 hover:bg-premium-gold/5 hover:border-premium-gold transition-all flex flex-col items-center">
+               <h4 className="text-[10px] font-black text-charcoal uppercase tracking-widest mb-3">Upload Master Image</h4>
+               <label className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-charcoal text-white hover:bg-premium-gold hover:text-charcoal rounded-xl text-[9px] font-black uppercase tracking-widest cursor-pointer transition-all shadow-md">
+                  <Upload size={14} /> Select Image
                   <input
-                    type="url"
-                    value={urlInput}
-                    onChange={e => setUrlInput(e.target.value)}
-                    placeholder="Paste Cloudinary / image URL here..."
-                    className="flex-1 bg-white border-2 border-border-light rounded-2xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-premium-gold transition-all"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={e => handleUpload(e.target.files[0], 'all')}
                   />
-                  <button
-                    type="button"
-                    onClick={handleUrlAdd}
-                    className="px-5 py-3 bg-charcoal text-white rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-premium-gold hover:text-charcoal transition-all whitespace-nowrap"
-                  >
-                    Add URL
-                  </button>
-                </div>
-                <p className="text-[8px] text-text-muted font-bold pl-1">Paste any public image URL — Cloudinary, S3, or direct link</p>
-              </div>
-            )}
+               </label>
+               <p className="text-[8px] font-bold text-text-muted uppercase tracking-wider mt-3">Auto-applies to Desktop, Tablet, & Mobile views</p>
+            </div>
 
             {/* Uploaded URL display */}
             {lastUploadedUrl && (
@@ -309,9 +254,8 @@ export default function VisualTab() {
               </div>
             )}
 
-
             {/* Image Controls */}
-            {masterImage && (
+            {(formData.laptopImage || formData.tabletImage || formData.mobileImage) && (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-5 p-6 bg-light-bg rounded-3xl border border-border-light">
                 <p className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em] flex items-center gap-2">
                   <Move size={12} className="text-premium-gold" /> Image Display Controls
@@ -357,31 +301,20 @@ export default function VisualTab() {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <p className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em]">Live Previews</p>
-              <div className="flex gap-3">
-                {(formData.laptopImage || formData.tabletImage || formData.mobileImage) && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setField('laptopImage', '');
-                      setField('tabletImage', '');
-                      setField('mobileImage', '');
-                      toast.success('Cleared all device images');
-                    }}
-                    className="text-[8px] font-black text-red-500 uppercase tracking-widest flex items-center gap-1 hover:underline"
-                  >
-                    <X size={10} /> Clear All
-                  </button>
-                )}
-                <label className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-charcoal text-white hover:bg-premium-gold hover:text-charcoal rounded-lg text-[8px] font-black uppercase tracking-widest cursor-pointer transition-all">
-                  <Upload size={10} /> Master Upload
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={e => handleUpload(e.target.files[0], 'all')}
-                  />
-                </label>
-              </div>
+              {(formData.laptopImage || formData.tabletImage || formData.mobileImage) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setField('laptopImage', '');
+                    setField('tabletImage', '');
+                    setField('mobileImage', '');
+                    toast.success('Cleared all device images');
+                  }}
+                  className="text-[8px] font-black text-red-500 uppercase tracking-widest flex items-center gap-1 hover:underline"
+                >
+                  <X size={10} /> Clear All
+                </button>
+              )}
             </div>
 
             {devices.map(dev => (
@@ -417,17 +350,87 @@ export default function VisualTab() {
 
       {/* ── SHOWCASE GALLERY (MULTI-IMAGE) ────────────────────── */}
       <div className="p-8 bg-white rounded-[2.5rem] border border-border-light shadow-sm space-y-6">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 mb-2">
           <div className="w-10 h-10 rounded-2xl bg-premium-gold/10 flex items-center justify-center">
             <ImageIcon size={18} className="text-premium-gold" />
           </div>
           <div>
             <h3 className="text-sm font-black text-charcoal uppercase tracking-wider">Showcase Gallery</h3>
             <p className="text-[9px] text-text-muted font-bold uppercase tracking-widest mt-0.5">
-              View, reorder, and configure your product showcase gallery below
+              Upload multiple lifestyle photos and color angles into the Showcase Gallery
             </p>
           </div>
         </div>
+
+        {/* Multi-Upload Area */}
+        <div className="max-w-2xl mb-8">
+          <div className="flex gap-1 p-1 bg-light-bg rounded-2xl border border-border-light mb-4 w-64">
+            {[
+              { id: 'file', label: '📁 Upload Files' },
+              { id: 'url', label: '🔗 Paste URL' },
+            ].map(tab => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setUploadTab(tab.id)}
+                className={`flex-1 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${uploadTab === tab.id ? 'bg-charcoal text-white shadow-md' : 'text-text-muted hover:text-charcoal'}`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {uploadTab === 'file' && (
+            <div 
+              className="border-2 border-dashed border-border-light rounded-[2rem] p-10 text-center bg-light-bg/20 hover:bg-premium-gold/5 hover:border-premium-gold transition-all cursor-pointer relative"
+              onDragOver={e => e.preventDefault()}
+              onDrop={handleMultiDrop}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <input 
+                type="file" 
+                ref={fileInputRef}
+                multiple 
+                accept="image/*" 
+                className="hidden" 
+                onChange={e => handleMultiUpload(e.target.files)} 
+              />
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-white border border-border-light flex items-center justify-center shadow-sm">
+                  <Upload size={18} className="text-charcoal" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black text-charcoal uppercase tracking-widest">Drag & Drop Multiple Files here</p>
+                  <p className="text-[8px] font-bold text-text-muted uppercase tracking-wider mt-1">or click to browse your computer</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {uploadTab === 'url' && (
+            <div className="space-y-3">
+              <div className="flex gap-2">
+                <input
+                  type="url"
+                  value={urlInput}
+                  onChange={e => setUrlInput(e.target.value)}
+                  placeholder="Paste Cloudinary / image URL here..."
+                  className="flex-1 bg-white border-2 border-border-light rounded-2xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-premium-gold transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={handleUrlAdd}
+                  className="px-5 py-3 bg-charcoal text-white rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-premium-gold hover:text-charcoal transition-all whitespace-nowrap"
+                >
+                  Add URL
+                </button>
+              </div>
+              <p className="text-[8px] text-text-muted font-bold pl-1">Paste any public image URL — Cloudinary, S3, or direct link</p>
+            </div>
+          )}
+        </div>
+
+        <div className="h-px w-full bg-border-light my-6" />
 
         {/* Uploading Progress Indicators */}
         {multiUploadingFiles.length > 0 && (
