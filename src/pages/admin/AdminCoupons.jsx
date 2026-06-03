@@ -143,7 +143,7 @@ export default function AdminCoupons() {
       )}
 
       <div className="bg-white rounded-xl border border-border-light overflow-hidden shadow-sm">
-        <table className="w-full min-w-[700px] text-left border-collapse">
+        <table className=" ">
           <thead>
             <tr className="bg-light-bg border-b border-border-light">
               <th className="px-4 sm:px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase">Coupon</th>

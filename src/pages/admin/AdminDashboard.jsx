@@ -270,11 +270,11 @@ export default function AdminDashboard() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[700px]">
+            <table className="w-full ">
               <thead>
                 <tr className="border-b border-border-light">
-                  {['Type', 'Customer', 'ID', 'Amount', 'Status', 'Time'].map(h => (
-                    <th key={h} className="text-left px-4 py-3 text-[9px] font-black text-text-muted uppercase tracking-[0.2em]">{h}</th>
+                  {['Type', 'Customer', 'ID', 'Amount', 'Status', 'Time'].map((h, idx) => (
+                    <th key={h} className={`text-left px-4 py-3 text-[9px] font-black text-text-muted uppercase tracking-[0.2em] ${[2, 5].includes(idx) ? 'hidden md:table-cell' : ''}`}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -301,7 +301,7 @@ export default function AdminDashboard() {
                         <span className="text-[11px] font-black text-charcoal">{tx.name || 'Guest'}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-4">
+                    <td className="px-4 py-4 hidden md:table-cell">
                       <span className="text-[11px] font-black text-charcoal font-mono">#{tx.id || tx.orderNumber || tx.billNumber}</span>
                     </td>
                     <td className="px-4 py-4">
@@ -313,7 +313,7 @@ export default function AdminDashboard() {
                         <span className="text-[9px] font-black text-text-muted uppercase tracking-widest">{tx.orderStatus || tx.status || 'completed'}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-4">
+                    <td className="px-4 py-4 hidden md:table-cell">
                       <span className="text-[9px] font-bold text-text-muted">
                         {new Date(tx.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
                       </span>

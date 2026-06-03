@@ -214,7 +214,7 @@ export default function ProductProfileCenter() {
                   {viewMode === 'gallery' ? (
                      Array.from({ length: 8 }).map((_, i) => <ProductCardSkeleton key={i} />)
                   ) : (
-                     <table className="w-full min-w-[700px]">
+                     <table className="w-full ">
                         <tbody>{Array.from({ length: 5 }).map((_, i) => <TableRowSkeleton key={i} columns={5} />)}</tbody>
                      </table>
                   )}
@@ -495,7 +495,7 @@ function ProductCard({ product, onEdit, onDelete, onRestore, onPurge, onQuickSto
 function ProductTable({ products, onEdit, onDelete, onRestore, onPurge }) {
    return (
       <div className="overflow-x-auto">
-         <table className="w-full min-w-[700px] text-left border-collapse">
+         <table className=" ">
             <thead>
                <tr className="bg-light-bg/50 border-b border-border-light">
                   <th className="px-4 md:px-4 md:px-8 py-4 sm:py-4 sm:py-6 text-[10px] font-black text-text-muted uppercase tracking-widest">Master Identity</th>

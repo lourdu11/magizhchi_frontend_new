@@ -241,8 +241,8 @@ export default function AdminInventory() {
           <table className="w-full text-left min-w-[900px]">
             <thead>
               <tr className="bg-light-bg/50 border-b border-border-light">
-                {['Product', 'Color / Size', 'Available', 'Stock Breakdown', 'Selling Price', 'Channel Toggles', 'Actions'].map(h => (
-                  <th key={h} className="px-5 py-5 text-[10px] font-black text-text-muted uppercase tracking-widest whitespace-nowrap">{h}</th>
+                {['Product', 'Color / Size', 'Available', 'Stock Breakdown', 'Selling Price', 'Channel Toggles', 'Actions'].map((h, idx) => (
+                  <th key={h} className={`px-5 py-5 text-[10px] font-black text-text-muted uppercase tracking-widest whitespace-nowrap ${[3, 4, 5].includes(idx) ? 'hidden lg:table-cell' : ''}`}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -292,7 +292,7 @@ export default function AdminInventory() {
                     <div className="text-xl font-black text-charcoal">{item.availableStock}</div>
                     <div className="mt-1"><StatusBadge item={item} /></div>
                   </td>
-                  <td className="px-5 py-4">
+                  <td className="px-5 py-4 hidden lg:table-cell">
                     <div className="text-[10px] space-y-0.5">
                       <div className="text-text-muted font-bold">Purchased: <span className="text-charcoal">{item.totalStock}</span></div>
                       <div className="text-blue-500 font-bold">Online sold: {item.onlineSold}</div>
@@ -300,7 +300,7 @@ export default function AdminInventory() {
                       {(item.reservedStock || 0) > 0 && <div className="text-indigo-500 font-bold">Reserved: {item.reservedStock}</div>}
                     </div>
                   </td>
-                  <td className="px-5 py-4">
+                  <td className="px-5 py-4 hidden lg:table-cell">
                     {editingPrice === item._id ? (
                       <div className="flex items-center gap-2">
                         <input type="number" className="w-24 bg-light-bg border-none rounded-xl px-3 py-2 font-black text-sm focus:ring-2 focus:ring-premium-gold/30" value={newPrice} onChange={e => setNewPrice(e.target.value)} autoFocus />
@@ -314,7 +314,7 @@ export default function AdminInventory() {
                       </div>
                     )}
                   </td>
-                  <td className="px-5 py-4">
+                  <td className="px-5 py-4 hidden lg:table-cell">
                     <div className="flex gap-4">
                       <div className="flex flex-col items-center gap-1">
                         <span className="text-[8px] font-black uppercase text-text-muted">WEB</span>

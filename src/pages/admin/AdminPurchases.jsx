@@ -190,11 +190,11 @@ export default function AdminPurchases() {
       {/* Purchase List */}
       <div className="bg-white rounded-[2.5rem] border border-border-light overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[700px] text-left">
+          <table className=" ">
             <thead>
               <tr className="bg-light-bg/50 border-b border-border-light">
-                {['Purchase #', 'Date', 'Supplier', 'Items', 'Total Amount', 'Payment', 'Inventory'].map(h => (
-                  <th key={h} className="px-4 sm:px-4 sm:px-6 py-5 text-[10px] font-black text-text-muted uppercase tracking-widest whitespace-nowrap">{h}</th>
+                {['Purchase #', 'Date', 'Supplier', 'Items', 'Total Amount', 'Payment', 'Inventory'].map((h, idx) => (
+                  <th key={h} className={`px-4 sm:px-4 sm:px-6 py-5 text-[10px] font-black text-text-muted uppercase tracking-widest whitespace-nowrap ${[1, 3, 5, 6].includes(idx) ? 'hidden md:table-cell' : ''}`}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -210,7 +210,7 @@ export default function AdminPurchases() {
                     {p.billNumber && <div className="text-[10px] text-text-muted font-bold mt-0.5">Supplier Bill: {p.billNumber}</div>}
                     {p.isDeleted && <span className="mt-1 inline-block px-2 py-0.5 bg-red-100 text-red-600 text-[8px] font-black uppercase rounded-md tracking-tighter">Archived / Stock Reverted</span>}
                   </td>
-                  <td className="px-4 sm:px-4 sm:px-6 py-5 text-xs font-bold text-text-muted">{formatDate(p.purchaseDate || p.createdAt)}</td>
+                  <td className="px-4 sm:px-4 sm:px-6 py-5 text-xs font-bold text-text-muted hidden md:table-cell">{formatDate(p.purchaseDate || p.createdAt)}</td>
                   <td className="px-4 sm:px-4 sm:px-6 py-5">
                     <div className="flex items-center gap-2 group/s">
                       <div>
@@ -228,7 +228,7 @@ export default function AdminPurchases() {
                       )}
                     </div>
                   </td>
-                  <td className="px-4 sm:px-4 sm:px-6 py-5">
+                  <td className="px-4 sm:px-4 sm:px-6 py-5 hidden md:table-cell">
                     <div className="space-y-1">
                       {(p.items || []).slice(0, 2).map((item, i) => (
                         <div key={i} className={`text-[11px] font-bold text-charcoal ${p.isDeleted ? 'text-text-muted' : ''}`}>
@@ -244,14 +244,14 @@ export default function AdminPurchases() {
                     <div className={`font-black text-charcoal ${p.isDeleted ? 'line-through text-text-muted' : ''}`}>{formatCurrency(p.pricing?.totalAmount)}</div>
                     <div className="text-[10px] text-text-muted font-bold mt-0.5">{p.items?.reduce((s, i) => s + i.quantity, 0)} pcs total</div>
                   </td>
-                  <td className="px-4 sm:px-4 sm:px-6 py-5">
+                  <td className="px-4 sm:px-4 sm:px-6 py-5 hidden md:table-cell">
                     {p.isDeleted ? (
                       <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-gray-100 text-gray-500">Cancelled</span>
                     ) : (
                       statusBadge(p.paymentStatus)
                     )}
                   </td>
-                  <td className="px-4 sm:px-4 sm:px-6 py-5">
+                  <td className="px-4 sm:px-4 sm:px-6 py-5 hidden md:table-cell">
                     {p.isDeleted ? (
                       <span className="flex items-center gap-1.5 text-[10px] font-black text-red-600 bg-red-50 px-3 py-1.5 rounded-full w-fit">
                         <X size={12} /> Stock Reverted

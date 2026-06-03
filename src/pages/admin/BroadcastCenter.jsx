@@ -467,7 +467,7 @@ const BroadcastCenter = () => {
                 </div>
 
                 <div className="overflow-x-auto max-h-[500px]">
-                    <table className="w-full min-w-[700px]">
+                    <table className="w-full ">
                         <thead className="bg-[#F8F9FA] sticky top-0 z-10">
                             <tr className="text-[9px] font-black text-[#5F6368] uppercase tracking-[0.2em] border-b">
                                 <th className="px-4 md:px-4 md:px-8 py-4 w-12"></th>

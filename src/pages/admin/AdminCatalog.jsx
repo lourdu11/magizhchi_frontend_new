@@ -405,7 +405,7 @@ export default function AdminCatalog() {
 
                   <div className="bg-white rounded-[3rem] border border-border-light overflow-hidden shadow-sm">
                      <div className="overflow-x-auto">
-                        <table className="w-full min-w-[700px] text-left border-collapse">
+                        <table className=" ">
                            <thead>
                               <tr className="bg-light-bg/50 border-b border-border-light">
                                  <th className="px-4 md:px-4 md:px-8 py-4 sm:py-4 sm:py-6 text-[10px] font-black text-text-muted uppercase tracking-widest w-[30%]">Product Profile</th>

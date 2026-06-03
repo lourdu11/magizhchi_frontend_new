@@ -64,7 +64,7 @@ export default function AdminWastage() {
            
            <div className="bg-white rounded-[3rem] border border-border-light overflow-hidden shadow-sm">
               <div className="overflow-x-auto">
-                 <table className="w-full min-w-[700px] text-left">
+                 <table className=" ">
                     <thead>
                        <tr className="bg-light-bg/50 border-b border-border-light">
                           {['Item Details', 'Qty', 'Loss Value', 'Reason', 'Date'].map(h => (

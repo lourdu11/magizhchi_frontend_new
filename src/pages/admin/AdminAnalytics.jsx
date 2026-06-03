@@ -252,7 +252,7 @@ export default function AdminAnalytics() {
           <div className="text-center py-10 text-[10px] font-black text-text-muted uppercase tracking-widest opacity-40">No staff billing data logged yet</div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[700px]">
+            <table className="w-full ">
               <thead>
                 <tr className="border-b border-border-light">
                   {['Rank', 'Staff Member', 'Total Billed', 'Transactions', 'Avg Per Bill'].map(h => (

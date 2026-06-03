@@ -147,11 +147,11 @@ export default function AdminSuppliers() {
       {/* Suppliers Table */}
       <div className="bg-white rounded-[3.5rem] border border-border-light overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[700px] text-left">
+          <table className=" ">
             <thead>
               <tr className="bg-light-bg/50 border-b border-border-light">
-                {['Establishment', 'Tax ID', 'Procured', 'Settled', 'Payables', 'Control'].map(h => (
-                  <th key={h} className="px-10 py-4 md:py-4 md:py-8 text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">{h}</th>
+                {['Establishment', 'Tax ID', 'Procured', 'Settled', 'Payables', 'Control'].map((h, idx) => (
+                  <th key={h} className={`px-10 py-4 md:py-4 md:py-8 text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ${[1, 2, 3].includes(idx) ? 'hidden md:table-cell' : ''}`}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -169,9 +169,9 @@ export default function AdminSuppliers() {
                       </div>
                     )}
                   </td>
-                  <td className="px-10 py-4 md:py-4 md:py-8 text-[11px] font-black text-text-muted tracking-widest uppercase">{s.gstin || '—'}</td>
-                  <td className="px-10 py-4 md:py-4 md:py-8 font-black text-charcoal text-sm">{formatCurrency(s.procuredVolume)}</td>
-                  <td className="px-10 py-4 md:py-4 md:py-8 font-black text-green-600 text-sm">{formatCurrency(s.settledValue)}</td>
+                  <td className="px-10 py-4 md:py-4 md:py-8 text-[11px] font-black text-text-muted tracking-widest uppercase hidden md:table-cell">{s.gstin || '—'}</td>
+                  <td className="px-10 py-4 md:py-4 md:py-8 font-black text-charcoal text-sm hidden md:table-cell">{formatCurrency(s.procuredVolume)}</td>
+                  <td className="px-10 py-4 md:py-4 md:py-8 font-black text-green-600 text-sm hidden md:table-cell">{formatCurrency(s.settledValue)}</td>
                   <td className="px-10 py-4 md:py-4 md:py-8">
                     <div className={`flex items-center gap-2 font-black text-sm ${s.netPayables > 0 ? 'text-red-600' : 'text-green-600'}`}>
                        {formatCurrency(s.netPayables)}

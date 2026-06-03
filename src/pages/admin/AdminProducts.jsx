@@ -268,7 +268,7 @@ export default function AdminProducts() {
       {/* Main Table */}
       <div className="bg-white rounded-[2.5rem] border border-border-light overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[700px] text-left">
+          <table className=" ">
             <thead>
               <tr className="bg-light-bg/50 border-b border-border-light">
                 <th className="px-4 md:px-4 md:px-8 py-4 sm:py-4 sm:py-6 text-[10px] font-black text-text-muted uppercase tracking-widest">Visual Identity</th>

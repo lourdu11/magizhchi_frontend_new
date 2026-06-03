@@ -57,7 +57,7 @@ export default function AdminUsers() {
 
       <div className="bg-white rounded-2xl border border-border-light overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[700px] text-left border-collapse">
+          <table className=" ">
             <thead>
               <tr className="bg-light-bg border-b border-border-light">
                 <th className="px-4 sm:px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase">Customer</th>

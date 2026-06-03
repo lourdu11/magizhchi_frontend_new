@@ -175,11 +175,11 @@ export default function AdminOrders() {
       {/* Table */}
       <div className="bg-white rounded-2xl border border-border-light overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-[700px]">
+          <table className="w-full text-left border-collapse ">
             <thead>
               <tr className="bg-light-bg border-b border-border-light">
-                {['Order #', 'Customer', 'Items', 'Amount', 'Status', 'Payment', 'Date', 'Actions'].map(h => (
-                  <th key={h} className="px-5 py-4 text-xs font-bold text-text-muted uppercase whitespace-nowrap">{h}</th>
+                {['Order #', 'Customer', 'Items', 'Amount', 'Status', 'Payment', 'Date', 'Actions'].map((h, idx) => (
+                  <th key={h} className={`px-5 py-4 text-xs font-bold text-text-muted uppercase whitespace-nowrap ${[1, 2, 5, 6].includes(idx) ? 'hidden md:table-cell' : ''}`}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -196,7 +196,7 @@ export default function AdminOrders() {
                     <p className="font-bold text-premium-gold text-sm group-hover:underline">#{o.orderNumber}</p>
                     <p className="text-[10px] text-text-muted">{new Date(o.createdAt).toLocaleDateString('en-IN')}</p>
                   </td>
-                  <td className="px-5 py-4">
+                  <td className="px-5 py-4 hidden md:table-cell">
                     <div className="flex items-center gap-2">
                       <p className="font-semibold text-text-primary text-sm">{o.shippingAddress?.name || o.userId?.name || 'Guest'}</p>
                       {o.isGuestOrder ? (
@@ -214,7 +214,7 @@ export default function AdminOrders() {
                       </p>
                     </div>
                   </td>
-                  <td className="px-5 py-4">
+                  <td className="px-5 py-4 hidden md:table-cell">
                     <p className="text-sm text-text-muted">{o.items?.length} item{o.items?.length !== 1 ? 's' : ''}</p>
                   </td>
                   <td className="px-5 py-4">
@@ -225,13 +225,13 @@ export default function AdminOrders() {
                       {o.orderStatus?.replace(/_/g, ' ')}
                     </span>
                   </td>
-                  <td className="px-5 py-4">
+                  <td className="px-5 py-4 hidden md:table-cell">
                     <span className="text-xs text-text-muted capitalize">{o.paymentMethod}</span>
                     <span className={`ml-1 text-[10px] font-bold ${o.paymentStatus === 'completed' ? 'text-green-600' : o.paymentStatus === 'failed' ? 'text-red-600 font-extrabold uppercase' : 'text-amber-600'}`}>
                       · {o.paymentStatus}
                     </span>
                   </td>
-                  <td className="px-5 py-4 text-xs text-text-muted whitespace-nowrap">
+                  <td className="px-5 py-4 text-xs text-text-muted whitespace-nowrap hidden md:table-cell">
                     <p>{new Date(o.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                     <p className="text-[10px] opacity-70 mt-0.5">{new Date(o.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</p>
                   </td>
