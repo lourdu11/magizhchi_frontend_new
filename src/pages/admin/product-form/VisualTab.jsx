@@ -26,6 +26,7 @@ export default function VisualTab() {
   const [urlInput, setUrlInput] = useState('');
   const [lastUploadedUrl, setLastUploadedUrl] = useState('');
   const [multiUploadingFiles, setMultiUploadingFiles] = useState([]);
+  const [activePreviewImage, setActivePreviewImage] = useState(null);
   const fileInputRef = useRef(null);
 
   const setField = (field, value) => dispatch({ type: 'SET_FIELD', field, value });
@@ -39,7 +40,6 @@ export default function VisualTab() {
   };
 
   const handleResizerSave = async (blob) => {
-    const target = resizerState.target;
     setResizerState({ isOpen: false, file: null, target: null });
     setUploading(true);
 
@@ -50,24 +50,10 @@ export default function VisualTab() {
       const url = res.data?.url || res.data?.data?.url;
       if (!url) throw new Error('No URL returned from upload');
 
-
-      // Show the Cloudinary URL
-      setLastUploadedUrl(url);
-
-      // ONE upload → auto-fill ALL device slots unless targeting specific
-      if (target === 'all') {
-        setField('laptopImage', url);
-        setField('tabletImage', url);
-        setField('mobileImage', url);
-        // Also set as primary product image if not set
-        if (!formData.images?.length) {
-          setField('images', [url]);
-        }
-        toast.success('✅ Image uploaded! Auto-applied to all device sizes.', { duration: 4000 });
-      } else {
-        setField(target, url);
-        toast.success(`${target.replace('Image', '')} image updated!`);
-      }
+      const currentImages = formData.images || [];
+      setField('images', [...currentImages, url]);
+      toast.success('✅ Image cropped and added to gallery!');
+      setActivePreviewImage(url); // Auto-preview the newly uploaded cropped image
     } catch (e) {
       console.error(e);
       toast.error('Upload failed. Please try again.');
@@ -100,7 +86,13 @@ export default function VisualTab() {
     if (!files || files.length === 0) return;
     const fileArray = Array.from(files);
     
-    // Show loading state
+    // If only 1 file is selected, open the crop/resize modal
+    if (fileArray.length === 1) {
+      setResizerState({ isOpen: true, file: fileArray[0], target: 'gallery' });
+      return;
+    }
+    
+    // Show loading state for multiple files
     setMultiUploadingFiles(prev => [...prev, ...fileArray]);
     
     let successCount = 0;
@@ -299,7 +291,7 @@ export default function VisualTab() {
               {formData.images.map((img, i) => (
                 <div
                   key={i}
-                  className="group relative aspect-[3/4] rounded-2xl overflow-hidden border border-border-light bg-light-bg transition-all hover:shadow-xl hover:border-premium-gold/50 flex flex-col"
+                  className={`group relative aspect-[3/4] rounded-2xl overflow-hidden border-2 bg-light-bg transition-all hover:shadow-xl flex flex-col ${activePreviewImage === img ? 'border-premium-gold' : 'border-border-light hover:border-premium-gold/50'}`}
                 >
                   <button
                     type="button"
@@ -308,10 +300,23 @@ export default function VisualTab() {
                   >
                     <X size={12} />
                   </button>
-                  <div className="relative flex-1 bg-white overflow-hidden cursor-pointer" onClick={() => setFullPreview({ src: img, label: `Image ${i + 1}` })}>
+                  <div 
+                    className="relative flex-1 bg-white overflow-hidden cursor-pointer" 
+                    onClick={() => {
+                      setActivePreviewImage(img);
+                      toast.success('Previewing image on devices');
+                    }}
+                  >
                     <img src={img} alt={`gallery-${i}`} className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform" />
+                    <button 
+                       type="button"
+                       onClick={(e) => { e.stopPropagation(); setFullPreview({ src: img, label: `Image ${i + 1}` }); }}
+                       className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center z-10"
+                    >
+                       <Eye size={20} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </button>
                     {i === 0 && (
-                      <span className="absolute top-2 left-2 bg-premium-gold text-charcoal text-[7px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm z-10">Main</span>
+                      <span className="absolute top-2 left-2 bg-premium-gold text-charcoal text-[7px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm z-10 pointer-events-none">Main</span>
                     )}
                   </div>
                   <div className="p-2 bg-white border-t border-border-light flex items-center justify-between gap-1">
@@ -377,8 +382,8 @@ export default function VisualTab() {
 
             <div className="space-y-6">
               {devices.map(dev => {
-                // Read from specific device image, otherwise fallback to masterImage (which is images[0])
-                const src = formData[dev.key] || masterImage;
+                // Read from activePreviewImage, then specific device image, otherwise fallback to masterImage (which is images[0])
+                const src = activePreviewImage || formData[dev.key] || masterImage;
                 
                 return (
                   <div key={dev.key} className="space-y-2 p-4 bg-light-bg/20 border border-border-light rounded-3xl">
