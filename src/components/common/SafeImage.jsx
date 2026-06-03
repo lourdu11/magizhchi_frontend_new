@@ -20,9 +20,11 @@ export default function SafeImage({
   fetchpriority, 
   priority, 
   sizes,
+  fallbackSrc,
   ...props 
 }) {
   const resolvedSrc = resolveAssetURL(src, width, quality, { gravity, crop, aspect, height });
+  const fallbackUrl = fallbackSrc ? resolveAssetURL(fallbackSrc) : getPlaceholder();
 
   const isPriority = priority || loading === 'eager' || fetchPriority === 'high' || fetchpriority === 'high';
 
@@ -69,8 +71,8 @@ export default function SafeImage({
         fetchPriority={fetchPriority || fetchpriority || 'high'}
         decoding="async"
         onError={(e) => {
-          if (e.target.src !== getPlaceholder()) {
-            e.target.src = getPlaceholder();
+          if (e.target.src !== fallbackUrl) {
+            e.target.src = fallbackUrl;
           }
         }}
         {...srcSetProps}
@@ -89,8 +91,8 @@ export default function SafeImage({
       loading="lazy"
       decoding="async"
       onError={(e) => {
-        if (e.target.src !== getPlaceholder()) {
-          e.target.src = getPlaceholder();
+        if (e.target.src !== fallbackUrl) {
+          e.target.src = fallbackUrl;
         }
       }}
       {...srcSetProps}

@@ -235,8 +235,12 @@ const ProductBrowser = memo(({ products, categories, isLoading }) => {
                         >
                         <div className="flex items-center gap-4">
                            <div className="w-12 h-12 bg-white rounded-xl overflow-hidden flex items-center justify-center text-xs font-black text-charcoal border border-border-light uppercase shrink-0">
-                              {(v.laptopImage || v.images?.[0]) ? (
-                                <SafeImage src={resolveAssetURL(v.laptopImage || v.images?.[0])} className="w-full h-full object-cover" />
+                              {(v.laptopImage || v.images?.[0] || selectedProduct.thumbnail || selectedProduct.images?.[0]) ? (
+                                <SafeImage 
+                                  src={resolveAssetURL(v.laptopImage || v.images?.[0] || selectedProduct.thumbnail || selectedProduct.images?.[0])} 
+                                  fallbackSrc={selectedProduct.thumbnail || selectedProduct.images?.[0]}
+                                  className="w-full h-full object-cover" 
+                                />
                               ) : (
                                 v.size
                               )}
