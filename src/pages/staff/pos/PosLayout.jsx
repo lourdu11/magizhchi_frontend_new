@@ -506,7 +506,7 @@ function PosContent() {
         // Fallback to offline if server is unreachable or responds with network/500/timeout error
         const isNetworkOrServerError = !err.response || err.response.status >= 500;
         if (isNetworkOrServerError) {
-          toast.warn('Server unreachable. Storing bill offline...');
+          toast('Server unreachable. Storing bill offline...', { icon: '⚠️' });
           await saveBillOffline(billData, items, discount);
         } else {
           toast.error(err.response?.data?.message || 'Transaction failed');
@@ -514,7 +514,7 @@ function PosContent() {
       }
     } else {
       // Offline mode
-      toast.warn('No connection. Storing bill offline...');
+      toast('No connection. Storing bill offline...', { icon: '⚠️' });
       await saveBillOffline(billData, items, discount);
     }
   };
