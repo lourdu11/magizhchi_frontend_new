@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 
 import { MessageCircle, Mail, Phone, MapPin, Share2, Shield } from 'lucide-react';
-import { adminService } from '../../services';
+import { adminService, categoryService } from '../../services';
 import { useQuery } from '@tanstack/react-query';
 
 // Custom Social Icons since Lucide removed Brand Icons
@@ -25,6 +25,14 @@ export default function Footer() {
     queryKey: ['public-settings'],
     queryFn: () => adminService.getPublicSettings().then(r => r.data.data),
   });
+
+  const { data: catsData } = useQuery({
+    queryKey: ['categories'],
+    queryFn: () => categoryService.getCategories().then(r => r.data.data?.categories || r.data.data || []),
+  });
+
+  const categories = (catsData || []).filter(c => c.isActive !== false && (c.productCount === undefined || c.productCount > 0));
+
 
   const year = new Date().getFullYear();
   const store = settings?.store || {
@@ -105,10 +113,13 @@ export default function Footer() {
           <div>
             <h4 className="text-white font-semibold text-sm uppercase tracking-wider mb-4">Shop</h4>
             <ul className="space-y-2.5">
-              {['All Products', 'Shirts', 'T-Shirts', 'Jeans', 'Trousers', 'Formals', 'New Arrivals', 'Best Sellers'].map(item => (
-                <li key={item}>
-                  <Link to={`/collections/${item.toLowerCase().replace(/ /g, '-')}`}
-                    className="text-white/80 hover:text-premium-gold text-sm transition-colors">{item}</Link>
+              <li>
+                <Link to="/collections/all" className="text-white/80 hover:text-premium-gold text-sm transition-colors">All Products</Link>
+              </li>
+              {(categories || []).slice(0, 6).map(cat => (
+                <li key={cat.slug}>
+                  <Link to={`/collections/${cat.slug}`}
+                    className="text-white/80 hover:text-premium-gold text-sm transition-colors">{cat.name}</Link>
                 </li>
               ))}
             </ul>
