@@ -353,34 +353,50 @@ export default function VisualTab() {
             )}
           </div>
 
-          {/* Right: Live Previews & Specific Uploads */}
+          {/* Right: Live Previews */}
           <div className="space-y-6">
-            <p className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em]">Live Preview & Specific Uploads</p>
+            <div className="flex items-center justify-between">
+              <p className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em]">Live Previews</p>
+              <div className="flex gap-3">
+                {(formData.laptopImage || formData.tabletImage || formData.mobileImage) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setField('laptopImage', '');
+                      setField('tabletImage', '');
+                      setField('mobileImage', '');
+                      toast.success('Cleared all device images');
+                    }}
+                    className="text-[8px] font-black text-red-500 uppercase tracking-widest flex items-center gap-1 hover:underline"
+                  >
+                    <X size={10} /> Clear All
+                  </button>
+                )}
+                <label className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-charcoal text-white hover:bg-premium-gold hover:text-charcoal rounded-lg text-[8px] font-black uppercase tracking-widest cursor-pointer transition-all">
+                  <Upload size={10} /> Master Upload
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={e => handleUpload(e.target.files[0], 'all')}
+                  />
+                </label>
+              </div>
+            </div>
+
             {devices.map(dev => (
               <div key={dev.key} className="space-y-2 p-4 bg-light-bg/20 border border-border-light rounded-3xl">
                 <div className="flex items-center justify-between">
                   <span className="text-[9px] font-black text-charcoal uppercase tracking-wider">{dev.label}</span>
                   <div className="flex items-center gap-2">
                     {formData[dev.key] && (
-                      <>
-                        <button
-                          type="button"
-                          onClick={() => setFullPreview({ src: formData[dev.key], label: dev.label })}
-                          className="text-[8px] font-black text-premium-gold uppercase tracking-widest flex items-center gap-1 hover:underline mr-2"
-                        >
-                          <Eye size={10} /> Full View
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setField(dev.key, '');
-                            toast.success(`Cleared ${dev.label} image`);
-                          }}
-                          className="text-[8px] font-black text-red-500 uppercase tracking-widest flex items-center gap-1 hover:underline"
-                        >
-                          Clear
-                        </button>
-                      </>
+                      <button
+                        type="button"
+                        onClick={() => setFullPreview({ src: formData[dev.key], label: dev.label })}
+                        className="text-[8px] font-black text-premium-gold uppercase tracking-widest flex items-center gap-1 hover:underline"
+                      >
+                        <Eye size={10} /> Full View
+                      </button>
                     )}
                   </div>
                 </div>
@@ -393,19 +409,6 @@ export default function VisualTab() {
                   label={dev.label}
                   aspect={dev.aspect}
                 />
-                
-                {/* Specific Upload Button */}
-                <div className="mt-2.5">
-                  <label className="flex items-center justify-center gap-2 w-full py-2 border border-dashed border-border-light hover:border-premium-gold hover:bg-premium-gold/5 bg-white text-text-muted hover:text-charcoal rounded-xl text-[8px] font-black uppercase tracking-widest cursor-pointer transition-all">
-                    <Upload size={10} /> Upload for {dev.label}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={e => handleUpload(e.target.files[0], dev.key)}
-                    />
-                  </label>
-                </div>
               </div>
             ))}
           </div>
