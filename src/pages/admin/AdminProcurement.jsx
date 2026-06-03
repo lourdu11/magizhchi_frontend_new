@@ -952,7 +952,7 @@ export default function AdminProcurement() {
                                        </div>
 
                                        {/* Qty */}
-                                       <div className="col-span-4 md:col-span-1">
+                                       <div className="col-span-6 md:col-span-1">
                                           <p className="text-[8px] font-black text-text-muted uppercase mb-1 md:hidden">Qty *</p>
                                           <input 
                                              type="number" 
@@ -970,7 +970,7 @@ export default function AdminProcurement() {
                                        </div>
 
                                        {/* Cost Price */}
-                                       <div className="col-span-4 md:col-span-1">
+                                       <div className="col-span-6 md:col-span-1">
                                           <p className="text-[8px] font-black text-text-muted uppercase mb-1 md:hidden">Cost ₹ *</p>
                                           <div className="relative">
                                              <span className="absolute left-1.5 top-1/2 -translate-y-1/2 text-[10px] font-black text-text-muted">₹</span>
@@ -991,7 +991,7 @@ export default function AdminProcurement() {
                                        </div>
 
                                        {/* Selling Price */}
-                                       <div className="col-span-4 md:col-span-2">
+                                       <div className="col-span-6 md:col-span-2">
                                           <p className="text-[8px] font-black text-text-muted uppercase mb-1 md:hidden">Selling ₹</p>
                                           <div className="relative">
                                              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] font-black text-text-muted">₹</span>

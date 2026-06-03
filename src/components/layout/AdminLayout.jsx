@@ -171,8 +171,8 @@ export default function AdminLayout() {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 min-h-dvh print:min-h-0 print:h-auto print:m-0 print:p-0 print:block pt-16 lg:pt-0">
-          <div className="p-4 md:p-5 md:p-10 print:p-0 print:m-0 max-w-[1600px] print:max-w-none mx-auto">
+        <main className="flex-1 min-w-0 max-w-full overflow-x-hidden min-h-dvh print:min-h-0 print:h-auto print:m-0 print:p-0 print:block pt-16 lg:pt-0">
+          <div className="w-full p-4 md:p-5 md:p-10 print:p-0 print:m-0 max-w-[1600px] print:max-w-none mx-auto">
             <Outlet />
           </div>
         </main>
