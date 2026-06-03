@@ -192,209 +192,25 @@ export default function VisualTab() {
 
   return (
     <div className="space-y-10">
-      <SectionHeader title="Visual Identity" subtitle="Manage showcase gallery and device-specific layouts" />
+      <SectionHeader title="Visual Identity" subtitle="Manage all product images and device layouts in one place" />
 
-      {/* ── MASTER PROFILE IMAGE ───────────────────────────── */}
-      <div className="p-8 bg-white rounded-[2.5rem] border-2 border-border-light shadow-sm">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-2xl bg-premium-gold/10 flex items-center justify-center">
-            <ImageIcon size={20} className="text-premium-gold" />
-          </div>
-          <div>
-            <h3 className="text-sm font-black text-charcoal uppercase tracking-wider">Master Profile Image</h3>
-            <p className="text-[9px] text-text-muted font-bold uppercase tracking-widest mt-0.5">
-              Upload and configure the primary product image across all devices
-            </p>
-          </div>
-        </div>
-
-        <div className="grid lg:grid-cols-2 gap-8 items-start">
-          {/* Left: Master Upload + Controls */}
-          <div className="space-y-6">
-            <div className="p-6 border-2 border-dashed border-border-light rounded-[2rem] text-center bg-light-bg/20 hover:bg-premium-gold/5 hover:border-premium-gold transition-all flex flex-col items-center relative overflow-hidden">
-               {masterImage ? (
-                 <div className="w-full aspect-[4/3] relative mb-4 rounded-xl overflow-hidden border border-border-light group">
-                   <LivePreview
-                     src={masterImage}
-                     fit={fit}
-                     position={position}
-                     scale={scale}
-                     bgStyle={bgStyle}
-                     label="Master"
-                     aspect="4/3"
-                   />
-                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center z-30">
-                     <label className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-premium-gold text-charcoal hover:bg-white rounded-xl text-[9px] font-black uppercase tracking-widest cursor-pointer transition-all shadow-md">
-                        <Upload size={14} /> Replace Image
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={e => handleUpload(e.target.files[0], 'all')}
-                        />
-                     </label>
-                   </div>
-                 </div>
-               ) : (
-                 <div className="mb-4">
-                   <h4 className="text-[10px] font-black text-charcoal uppercase tracking-widest mb-3">Upload Master Image</h4>
-                 </div>
-               )}
-
-               {!masterImage && (
-                 <label className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-charcoal text-white hover:bg-premium-gold hover:text-charcoal rounded-xl text-[9px] font-black uppercase tracking-widest cursor-pointer transition-all shadow-md">
-                    <Upload size={14} /> Select Image
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={e => handleUpload(e.target.files[0], 'all')}
-                    />
-                 </label>
-               )}
-               <p className="text-[8px] font-bold text-text-muted uppercase tracking-wider mt-3">Auto-applies to Desktop, Tablet, & Mobile views</p>
+      <div className="grid lg:grid-cols-12 gap-8 items-start">
+        {/* ── LEFT: UPLOAD & GALLERY ───────────────────────────── */}
+        <div className="lg:col-span-7 space-y-6 p-8 bg-white rounded-[2.5rem] border-2 border-border-light shadow-sm">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-2xl bg-premium-gold/10 flex items-center justify-center">
+              <ImageIcon size={20} className="text-premium-gold" />
             </div>
-
-            {/* Uploaded URL display */}
-            {lastUploadedUrl && (
-              <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl space-y-2">
-                <p className="text-[9px] font-black text-emerald-700 uppercase tracking-widest flex items-center gap-1.5">
-                  <Check size={10} /> Cloudinary URL
-                </p>
-                <div className="flex gap-2 items-center">
-                  <p className="text-[9px] text-emerald-700 font-mono truncate flex-1">{lastUploadedUrl}</p>
-                  <button
-                    type="button"
-                    onClick={() => { navigator.clipboard.writeText(lastUploadedUrl); toast.success('URL copied!'); }}
-                    className="shrink-0 p-2 bg-white border border-emerald-200 rounded-xl hover:bg-emerald-100 transition-all"
-                    title="Copy URL"
-                  >
-                    <Copy size={12} className="text-emerald-600" />
-                  </button>
-                  <a
-                    href={lastUploadedUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="shrink-0 p-2 bg-white border border-emerald-200 rounded-xl hover:bg-emerald-100 transition-all"
-                    title="Open in browser"
-                  >
-                    <ExternalLink size={12} className="text-emerald-600" />
-                  </a>
-                </div>
-              </div>
-            )}
-
-            {/* Image Controls */}
-            {(formData.laptopImage || formData.tabletImage || formData.mobileImage) && (
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-5 p-6 bg-light-bg rounded-3xl border border-border-light">
-                <p className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em] flex items-center gap-2">
-                  <Move size={12} className="text-premium-gold" /> Image Display Controls
-                </p>
-
-                <FitSelector value={fit} onChange={v => setField('detailFit', v)} />
-                <PositionPicker value={position} onChange={v => setField('position', v)} />
-                <ScaleControl value={scale} onChange={v => setField('scale', v)} />
-
-                {/* BG Style */}
-                <div className="space-y-2">
-                  <p className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em]">Background Style</p>
-                  <div className="flex gap-2">
-                    {[
-                      { val: 'ambient', label: 'Glow Effect' },
-                      { val: 'solid', label: 'White BG' },
-                    ].map(opt => (
-                      <button
-                        key={opt.val}
-                        type="button"
-                        onClick={() => setField('bgStyle', opt.val)}
-                        className={`flex-1 py-2.5 rounded-xl border text-[9px] font-black uppercase tracking-wider transition-all ${bgStyle === opt.val ? 'bg-charcoal text-white border-charcoal' : 'bg-white border-border-light text-text-muted hover:border-premium-gold'}`}
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Reset */}
-                <button
-                  type="button"
-                  onClick={() => { setField('detailFit', 'contain'); setField('position', 'center'); setField('scale', 1); setField('bgStyle', 'ambient'); toast.success('Display settings reset'); }}
-                  className="w-full py-2.5 rounded-xl border border-border-light text-[9px] font-black text-text-muted uppercase tracking-widest hover:border-red-300 hover:text-red-500 transition-all flex items-center justify-center gap-2"
-                >
-                  <RotateCcw size={11} /> Reset to Default
-                </button>
-              </motion.div>
-            )}
-          </div>
-
-          {/* Right: Live Previews */}
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <p className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em]">Live Previews</p>
-              {(formData.laptopImage || formData.tabletImage || formData.mobileImage) && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setField('laptopImage', '');
-                    setField('tabletImage', '');
-                    setField('mobileImage', '');
-                    toast.success('Cleared all device images');
-                  }}
-                  className="text-[8px] font-black text-red-500 uppercase tracking-widest flex items-center gap-1 hover:underline"
-                >
-                  <X size={10} /> Clear All
-                </button>
-              )}
+            <div>
+              <h3 className="text-sm font-black text-charcoal uppercase tracking-wider">Product Gallery</h3>
+              <p className="text-[9px] text-text-muted font-bold uppercase tracking-widest mt-0.5">
+                Upload all product images. The main image applies to device previews.
+              </p>
             </div>
-
-            {devices.map(dev => (
-              <div key={dev.key} className="space-y-2 p-4 bg-light-bg/20 border border-border-light rounded-3xl">
-                <div className="flex items-center justify-between">
-                  <span className="text-[9px] font-black text-charcoal uppercase tracking-wider">{dev.label}</span>
-                  <div className="flex items-center gap-2">
-                    {formData[dev.key] && (
-                      <button
-                        type="button"
-                        onClick={() => setFullPreview({ src: formData[dev.key], label: dev.label })}
-                        className="text-[8px] font-black text-premium-gold uppercase tracking-widest flex items-center gap-1 hover:underline"
-                      >
-                        <Eye size={10} /> Full View
-                      </button>
-                    )}
-                  </div>
-                </div>
-                <LivePreview
-                  src={formData[dev.key]}
-                  fit={dev.key === 'mobileImage' ? (formData.cardFit || 'contain') : fit}
-                  position={position}
-                  scale={scale}
-                  bgStyle={bgStyle}
-                  label={dev.label}
-                  aspect={dev.aspect}
-                />
-              </div>
-            ))}
           </div>
-        </div>
-      </div>
 
-      {/* ── SHOWCASE GALLERY (MULTI-IMAGE) ────────────────────── */}
-      <div className="p-8 bg-white rounded-[2.5rem] border border-border-light shadow-sm space-y-6">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-2xl bg-premium-gold/10 flex items-center justify-center">
-            <ImageIcon size={18} className="text-premium-gold" />
-          </div>
-          <div>
-            <h3 className="text-sm font-black text-charcoal uppercase tracking-wider">Showcase Gallery</h3>
-            <p className="text-[9px] text-text-muted font-bold uppercase tracking-widest mt-0.5">
-              Upload multiple lifestyle photos and color angles into the Showcase Gallery
-            </p>
-          </div>
-        </div>
-
-        {/* Multi-Upload Area */}
-        <div className="max-w-2xl mb-8">
-          <div className="flex gap-1 p-1 bg-light-bg rounded-2xl border border-border-light mb-4 w-64">
+          {/* Upload Switcher */}
+          <div className="flex gap-1 p-1 bg-light-bg rounded-2xl border border-border-light w-full max-w-sm">
             {[
               { id: 'file', label: '📁 Upload Files' },
               { id: 'url', label: '🔗 Paste URL' },
@@ -410,6 +226,7 @@ export default function VisualTab() {
             ))}
           </div>
 
+          {/* File Upload Dropzone */}
           {uploadTab === 'file' && (
             <div 
               className="border-2 border-dashed border-border-light rounded-[2rem] p-10 text-center bg-light-bg/20 hover:bg-premium-gold/5 hover:border-premium-gold transition-all cursor-pointer relative"
@@ -430,13 +247,14 @@ export default function VisualTab() {
                   <Upload size={18} className="text-charcoal" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-black text-charcoal uppercase tracking-widest">Drag & Drop Multiple Files here</p>
+                  <p className="text-[10px] font-black text-charcoal uppercase tracking-widest">Drag & Drop Images Here</p>
                   <p className="text-[8px] font-bold text-text-muted uppercase tracking-wider mt-1">or click to browse your computer</p>
                 </div>
               </div>
             </div>
           )}
 
+          {/* URL Upload */}
           {uploadTab === 'url' && (
             <div className="space-y-3">
               <div className="flex gap-2">
@@ -444,7 +262,7 @@ export default function VisualTab() {
                   type="url"
                   value={urlInput}
                   onChange={e => setUrlInput(e.target.value)}
-                  placeholder="Paste Cloudinary / image URL here..."
+                  placeholder="Paste public image URL here..."
                   className="flex-1 bg-white border-2 border-border-light rounded-2xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-premium-gold transition-all"
                 />
                 <button
@@ -455,113 +273,142 @@ export default function VisualTab() {
                   Add URL
                 </button>
               </div>
-              <p className="text-[8px] text-text-muted font-bold pl-1">Paste any public image URL — Cloudinary, S3, or direct link</p>
             </div>
           )}
-        </div>
 
-        <div className="h-px w-full bg-border-light my-6" />
-
-        {/* Uploading Progress Indicators */}
-        {multiUploadingFiles.length > 0 && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-amber-50/50 border border-amber-100 rounded-2xl">
-            {multiUploadingFiles.map((file, idx) => (
-              <div key={idx} className="flex items-center gap-3 bg-white p-3 rounded-xl border border-border-light shadow-sm">
-                <Loader2 size={16} className="animate-spin text-premium-gold shrink-0" />
-                <div className="min-w-0 flex-1">
-                  <p className="text-[8px] font-black text-charcoal truncate uppercase">{file.name}</p>
-                  <p className="text-[7px] font-bold text-text-muted uppercase">Uploading...</p>
+          {/* Upload Progress */}
+          {multiUploadingFiles.length > 0 && (
+            <div className="grid grid-cols-2 gap-4 p-4 bg-amber-50/50 border border-amber-100 rounded-2xl">
+              {multiUploadingFiles.map((file, idx) => (
+                <div key={idx} className="flex items-center gap-3 bg-white p-3 rounded-xl border border-border-light shadow-sm">
+                  <Loader2 size={16} className="animate-spin text-premium-gold shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[8px] font-black text-charcoal truncate uppercase">{file.name}</p>
+                    <p className="text-[7px] font-bold text-text-muted uppercase">Uploading...</p>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
 
-        {/* Gallery Thumbnails List */}
-        {formData.images?.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-            {formData.images.map((img, i) => (
-              <div
-                key={i}
-                className="group relative aspect-[3/4] rounded-3xl overflow-hidden border border-border-light bg-light-bg transition-all hover:shadow-xl hover:border-premium-gold/50 flex flex-col"
-              >
-                {/* Floating Absolute Remove Button */}
-                <button
-                  type="button"
-                  onClick={() => handleRemoveImage(i, img)}
-                  className="absolute top-3 right-3 z-20 w-7 h-7 rounded-full bg-white/90 hover:bg-red-500 hover:text-white text-red-500 flex items-center justify-center shadow-md transition-all opacity-0 group-hover:opacity-100"
-                  title="Remove Image"
+          <div className="h-px w-full bg-border-light my-6" />
+
+          {/* Gallery Thumbnails */}
+          {formData.images?.length > 0 ? (
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
+              {formData.images.map((img, i) => (
+                <div
+                  key={i}
+                  className="group relative aspect-[3/4] rounded-2xl overflow-hidden border border-border-light bg-light-bg transition-all hover:shadow-xl hover:border-premium-gold/50 flex flex-col"
                 >
-                  <X size={14} />
-                </button>
-
-                {/* Image */}
-                <div className="relative flex-1 bg-white overflow-hidden cursor-pointer" onClick={() => setFullPreview({ src: img, label: `Showcase Image ${i + 1}` })}>
-                  <img src={img} alt={`gallery-${i}`} className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300" />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center">
-                    <Eye size={20} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveImage(i, img)}
+                    className="absolute top-2 right-2 z-20 w-6 h-6 rounded-full bg-white/90 hover:bg-red-500 hover:text-white text-red-500 flex items-center justify-center shadow-md transition-all opacity-0 group-hover:opacity-100"
+                  >
+                    <X size={12} />
+                  </button>
+                  <div className="relative flex-1 bg-white overflow-hidden cursor-pointer" onClick={() => setFullPreview({ src: img, label: `Image ${i + 1}` })}>
+                    <img src={img} alt={`gallery-${i}`} className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform" />
+                    {i === 0 && (
+                      <span className="absolute top-2 left-2 bg-premium-gold text-charcoal text-[7px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm z-10">Main</span>
+                    )}
                   </div>
-                  {i === 0 && (
-                    <span className="absolute top-3 left-3 bg-premium-gold text-charcoal text-[7px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm z-10">Main Image</span>
-                  )}
-                </div>
-
-                {/* Control Panel */}
-                <div className="p-2.5 bg-white border-t border-border-light flex items-center justify-between gap-1.5">
-                  <div className="flex gap-1">
-                    {/* Left Reorder */}
-                    <button
-                      type="button"
-                      disabled={i === 0}
-                      onClick={() => handleMove(i, 'left')}
-                      className="p-1.5 bg-light-bg rounded-lg hover:bg-premium-gold/10 hover:text-premium-gold transition-all disabled:opacity-30 disabled:hover:bg-light-bg disabled:hover:text-text-muted"
-                      title="Move Left"
-                    >
-                      <ChevronLeft size={12} />
-                    </button>
-                    {/* Right Reorder */}
-                    <button
-                      type="button"
-                      disabled={i === formData.images.length - 1}
-                      onClick={() => handleMove(i, 'right')}
-                      className="p-1.5 bg-light-bg rounded-lg hover:bg-premium-gold/10 hover:text-premium-gold transition-all disabled:opacity-30 disabled:hover:bg-light-bg disabled:hover:text-text-muted"
-                      title="Move Right"
-                    >
-                      <ChevronRight size={12} />
-                    </button>
-                  </div>
-
-                  <div className="flex items-center gap-1.5">
-                    {/* Make Main Button */}
+                  <div className="p-2 bg-white border-t border-border-light flex items-center justify-between gap-1">
+                    <div className="flex gap-1">
+                      <button type="button" disabled={i === 0} onClick={() => handleMove(i, 'left')} className="p-1 bg-light-bg rounded hover:text-premium-gold disabled:opacity-30">
+                        <ChevronLeft size={12} />
+                      </button>
+                      <button type="button" disabled={i === formData.images.length - 1} onClick={() => handleMove(i, 'right')} className="p-1 bg-light-bg rounded hover:text-premium-gold disabled:opacity-30">
+                        <ChevronRight size={12} />
+                      </button>
+                    </div>
                     {i > 0 && (
-                      <button
-                        type="button"
-                        onClick={() => handleMakeMain(i)}
-                        className="px-2 py-1 bg-premium-gold/10 text-premium-gold rounded-lg text-[7px] font-black uppercase hover:bg-premium-gold hover:text-charcoal transition-all"
-                      >
+                      <button type="button" onClick={() => handleMakeMain(i)} className="px-1.5 py-0.5 bg-premium-gold/10 text-premium-gold rounded text-[6px] font-black uppercase hover:bg-premium-gold hover:text-charcoal transition-all">
                         Set Main
                       </button>
                     )}
-                    {/* Delete */}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveImage(i, img)}
-                      className="p-1.5 bg-red-50 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all"
-                      title="Delete Image"
-                    >
-                      <X size={12} />
-                    </button>
                   </div>
                 </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-10 border border-dashed border-border-light rounded-3xl bg-light-bg/10">
+              <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">No Images Uploaded</p>
+            </div>
+          )}
+
+          {/* Image Controls (only show if we have images) */}
+          {masterImage && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 p-6 bg-light-bg rounded-3xl border border-border-light space-y-5">
+              <p className="text-[9px] font-black text-charcoal uppercase tracking-[0.2em] flex items-center gap-2">
+                <Move size={12} className="text-premium-gold" /> Device Display Controls
+              </p>
+              <div className="grid grid-cols-2 gap-4">
+                <FitSelector value={fit} onChange={v => setField('detailFit', v)} />
+                <PositionPicker value={position} onChange={v => setField('position', v)} />
               </div>
-            ))}
+              <ScaleControl value={scale} onChange={v => setField('scale', v)} />
+              <div className="space-y-2">
+                <p className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em]">Background Style</p>
+                <div className="flex gap-2">
+                  {[{ val: 'ambient', label: 'Glow Effect' }, { val: 'solid', label: 'White BG' }].map(opt => (
+                    <button key={opt.val} type="button" onClick={() => setField('bgStyle', opt.val)} className={`flex-1 py-2.5 rounded-xl border text-[9px] font-black uppercase tracking-wider transition-all ${bgStyle === opt.val ? 'bg-charcoal text-white border-charcoal' : 'bg-white border-border-light text-text-muted hover:border-premium-gold'}`}>
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </div>
+
+        {/* ── RIGHT: LIVE PREVIEWS ───────────────────────────── */}
+        <div className="lg:col-span-5 space-y-6">
+          <div className="p-8 bg-white rounded-[2.5rem] border border-border-light shadow-sm space-y-6 sticky top-8">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-sm font-black text-charcoal uppercase tracking-wider">Live Previews</h3>
+                <p className="text-[9px] text-text-muted font-bold uppercase tracking-widest mt-0.5">
+                  How it looks on devices
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              {devices.map(dev => {
+                // Read from specific device image, otherwise fallback to masterImage (which is images[0])
+                const src = formData[dev.key] || masterImage;
+                
+                return (
+                  <div key={dev.key} className="space-y-2 p-4 bg-light-bg/20 border border-border-light rounded-3xl">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[9px] font-black text-charcoal uppercase tracking-wider">{dev.label}</span>
+                      {src && (
+                        <button
+                          type="button"
+                          onClick={() => setFullPreview({ src, label: dev.label })}
+                          className="text-[8px] font-black text-premium-gold uppercase tracking-widest flex items-center gap-1 hover:underline"
+                        >
+                          <Eye size={10} /> Full View
+                        </button>
+                      )}
+                    </div>
+                    <LivePreview
+                      src={src}
+                      fit={dev.key === 'mobileImage' ? (formData.cardFit || 'contain') : fit}
+                      position={position}
+                      scale={scale}
+                      bgStyle={bgStyle}
+                      label={dev.label}
+                      aspect={dev.aspect}
+                    />
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        ) : (
-          <div className="text-center py-12 border border-dashed border-border-light rounded-3xl bg-light-bg/10">
-            <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">No Showcase Images Uploaded</p>
-            <p className="text-[8px] font-bold text-text-muted uppercase mt-1">Upload files above to populate the product's image display</p>
-          </div>
-        )}
+        </div>
       </div>
 
       {/* ── FULL SCREEN PREVIEW MODAL ───────────────────────────── */}
