@@ -69,8 +69,7 @@ export const resolveAssetURL = (path, width = null, quality = 70, options = {}) 
         // Fallback
       }
     }
-    
-    return resolved;
+    return resolved.replace(/ /g, '%20');
   }
 
   // 2. Handle relative paths or filenames
@@ -104,12 +103,10 @@ export const resolveAssetURL = (path, width = null, quality = 70, options = {}) 
     if (transformParts.length > 0) {
       urlObj.searchParams.set('tr', transformParts.join(','));
     }
-    resolvedLocal = urlObj.toString().replace(/%2C/g, ',');
+    return urlObj.toString().replace(/%2C/g, ',').replace(/ /g, '%20');
   } catch (err) {
-    resolvedLocal = resolvedLocal + (resolvedLocal.includes('?') ? '&' : '?') + `tr=w-${width || 800},q-${quality},f-auto`;
+    return resolvedLocal.replace(/ /g, '%20') + (resolvedLocal.includes('?') ? '&' : '?') + `tr=w-${width || 800},q-${quality},f-auto`;
   }
-
-  return resolvedLocal;
 };
 
 export const getPlaceholder = () => PLACEHOLDER;
