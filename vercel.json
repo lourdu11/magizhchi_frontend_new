@@ -74,7 +74,7 @@
       ]
     },
     {
-      "source": "/(.*)\\.(?:js|css|jpg|jpeg|gif|png|svg|ttf|woff2|webmanifest)$",
+      "source": "/(.*\.(js|css|jpg|jpeg|gif|png|svg|ttf|woff2|webmanifest))",
       "headers": [
         {
           "key": "Cache-Control",
@@ -84,6 +84,6 @@
     }
   ],
   "rewrites": [
-    { "source": "/((?!sitemap\\.xml|robots\\.txt).*)", "destination": "/index.html" }
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
