@@ -1,6 +1,36 @@
 {
   "headers": [
     {
+      "source": "/sitemap.xml",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/xml; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
+        }
+      ]
+    },
+    {
+      "source": "/robots.txt",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/plain; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400"
+        }
+      ]
+    },
+    {
       "source": "/(.*)",
       "headers": [
         {
@@ -44,7 +74,7 @@
       ]
     },
     {
-      "source": "/(.*)\\.(js|css|jpg|jpeg|gif|png|svg|ttf|woff2|webmanifest)$",
+      "source": "/(.*)\\.(?:js|css|jpg|jpeg|gif|png|svg|ttf|woff2|webmanifest)$",
       "headers": [
         {
           "key": "Cache-Control",
@@ -54,6 +84,6 @@
     }
   ],
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/((?!sitemap\\.xml|robots\\.txt).*)", "destination": "/index.html" }
   ]
 }
