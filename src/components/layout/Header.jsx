@@ -23,7 +23,7 @@ export default function Header() {
   const lastScrollY = useRef(0);
 
   const { isAuthenticated, user, logout } = useAuthStore();
-  const { itemCount, setItemCount, setCartOpen } = useCartStore();
+  const { itemCount, setItemCount } = useCartStore();
   const { itemCount: wishlistCount } = useWishlistStore();
   const { isMobileMenuOpen, setMobileMenu } = useUIStore();
   const navigate = useNavigate();
@@ -163,8 +163,8 @@ export default function Header() {
                   )}
                 </Link>
               )}
-              <button
-                onClick={() => setCartOpen(true)}
+              <Link
+                to="/cart"
                 aria-label="Cart"
                 className="relative w-10 h-10 flex items-center justify-center text-charcoal hover:text-premium-gold transition-colors"
               >
@@ -174,7 +174,7 @@ export default function Header() {
                     {itemCount}
                   </span>
                 )}
-              </button>
+              </Link>
             </div>
           </div>
 
@@ -248,14 +248,14 @@ export default function Header() {
                 </Link>
               )}
 
-              <button onClick={() => setCartOpen(true)} aria-label={`Cart (${itemCount} items)`} className="w-9 h-9 md:w-11 md:h-11 flex items-center justify-center text-charcoal hover:text-premium-gold transition-colors relative">
+              <Link to="/cart" aria-label={`Cart (${itemCount} items)`} className="w-9 h-9 md:w-11 md:h-11 flex items-center justify-center text-charcoal hover:text-premium-gold transition-colors relative">
                 <ShoppingBag size={20} />
                 {itemCount > 0 && (
                   <span className="absolute top-1.5 right-1.5 md:top-2 md:right-2 w-4 h-4 bg-charcoal text-white text-[8px] font-black rounded-full flex items-center justify-center shadow-lg">
                     {itemCount}
                   </span>
                 )}
-              </button>
+              </Link>
 
               <div className="hidden md:block relative">
                 {isAuthenticated ? (

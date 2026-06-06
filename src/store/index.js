@@ -43,12 +43,10 @@ export const useUIStore = create((set) => ({
   isSearchOpen: false,
   isFilterOpen: false,
   searchQuery: '',
-  quickViewProduct: null,
   setMobileMenu: (open) => set({ isMobileMenuOpen: open }),
   setSearchOpen: (open) => set({ isSearchOpen: open }),
   setFilterOpen: (open) => set({ isFilterOpen: open }),
   setSearchQuery: (q) => set({ searchQuery: q }),
-  setQuickViewProduct: (product) => set({ quickViewProduct: product }),
 }));
 
 // ─── Wishlist Store (tracking IDs) ────────────────────────────

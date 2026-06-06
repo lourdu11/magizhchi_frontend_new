@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Heart, ShoppingBag, Star, Plus } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { wishlistService, authService } from '../../services';
-import { useAuthStore, useWishlistStore, useUIStore } from '../../store';
+import { useAuthStore, useWishlistStore } from '../../store';
 import { toast } from 'react-hot-toast';
 import SafeImage from '../common/SafeImage';
 
@@ -12,7 +12,6 @@ export default function ProductCard({ product }) {
   const { productIds, toggleId } = useWishlistStore();
   const [isAddingWishlist, setIsAddingWishlist] = useState(false);
   const [isAddingCart] = useState(false);
-  const { setQuickViewProduct } = useUIStore();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   
@@ -44,7 +43,7 @@ export default function ProductCard({ product }) {
       e.preventDefault();
       e.stopPropagation();
     }
-    setQuickViewProduct(product);
+    navigate(`/product/${product.slug}`);
   };
 
   const handleWishlist = async (e) => {
@@ -116,16 +115,16 @@ export default function ProductCard({ product }) {
           </div>
 
 
-          {/* Buy Now / Quick View Overlay (Desktop) */}
+          {/* Buy Now Overlay (Desktop) */}
           {!isOutOfStock && (
             <div className="hidden md:block absolute bottom-6 left-6 right-6 translate-y-12 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 z-30">
               <button 
                 onClick={handleCart} 
                 disabled={isAddingCart}
-                aria-label={`Quick View ${product.name}`}
-                className="w-full py-4 bg-gradient-to-r from-white to-light-bg text-charcoal hover:from-charcoal hover:to-charcoal hover:text-white rounded-2xl font-black text-xs uppercase tracking-[0.15em] flex items-center justify-center gap-2 transition-all shadow-xl shadow-black/10"
+                aria-label={`Buy ${product.name} now`}
+                className="w-full py-4 bg-gradient-to-r from-premium-gold to-amber-500 text-charcoal hover:from-charcoal hover:to-charcoal hover:text-white rounded-2xl font-black text-xs uppercase tracking-[0.15em] flex items-center justify-center gap-2 transition-all shadow-xl shadow-premium-gold/10"
               >
-                <ShoppingBag size={15} /> Quick View
+                {isAddingCart ? <div className="w-4 h-4 border-2 border-charcoal/30 border-t-charcoal rounded-full animate-spin" /> : <><ShoppingBag size={15} /> Buy Now</>}
               </button>
             </div>
           )}
