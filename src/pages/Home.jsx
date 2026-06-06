@@ -8,12 +8,7 @@ import ProductCard from '../components/product/ProductCard';
 import SkeletonCard from '../components/product/SkeletonCard';
 import SafeImage from '../components/common/SafeImage';
 
-const CATEGORIES = [
-  { name: 'Shirts', slug: 'shirts', img: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?q=80&w=600&auto=format&fit=crop', items: '120+ Items' },
-  { name: 'T-Shirts', slug: 't-shirts', img: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=600&auto=format&fit=crop', items: '80+ Items' },
-  { name: 'Jeans', slug: 'jeans', img: 'https://images.unsplash.com/photo-1542272604-787c3835535d?q=80&w=600&auto=format&fit=crop', items: '50+ Items' },
-  { name: 'Formals', slug: 'formals', img: 'https://images.unsplash.com/photo-1594938298596-168a7b1cb914?q=80&w=600&auto=format&fit=crop', items: '40+ Items' }
-];
+
 
 const DEFAULT_SLIDES = [];
 
@@ -55,14 +50,8 @@ export default function Home() {
 
   const featured = (featuredData?.length > 0) ? featuredData : (allProductsData || []);
 
-  // Stable category array to prevent CLS (Layout Shift) when loading dynamic categories
   const rawCats = catsData || [];
   const homeCategories = [...rawCats.slice(0, 4)];
-  if (homeCategories.length < 4) {
-    const needed = 4 - homeCategories.length;
-    const fallbackItems = CATEGORIES.filter(c => !homeCategories.some(h => h.slug === c.slug));
-    homeCategories.push(...fallbackItems.slice(0, needed));
-  }
   
   // Transform dynamic banners to match Hero layout
   const dynamicSlides = bannersData?.map(b => ({
@@ -254,8 +243,9 @@ export default function Home() {
       )}
 
       {/* ── Category Spotlight ── */}
-      <section className="py-24 bg-white cls-stable-section" style={{ minHeight: '420px', contain: 'layout' }}>
-        <div className="container-custom">
+      {(loadingCats || homeCategories.length > 0) && (
+        <section className="py-24 bg-white cls-stable-section" style={{ minHeight: '420px', contain: 'layout' }}>
+          <div className="container-custom">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6 animate-fade-in-up delay-100">
             <div>
               <p className="text-premium-gold font-black uppercase tracking-widest text-xs mb-3 animate-fade-in-up delay-200">
@@ -318,7 +308,8 @@ export default function Home() {
             )}
           </div>
         </div>
-      </section>
+        </section>
+      )}
 
       {/* ── Featured Showcase ── */}
       <section className="py-24 bg-light-bg rounded-[3rem] md:rounded-[5rem] mx-2 md:mx-6">
