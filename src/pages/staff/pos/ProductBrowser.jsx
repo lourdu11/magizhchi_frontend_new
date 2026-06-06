@@ -201,10 +201,10 @@ const ProductBrowser = memo(({ products, categories, isLoading }) => {
               <div className="p-4 md:p-8 border-b border-border-light flex items-center justify-between">
                  <div className="flex items-center gap-4">
                     <div className="w-16 h-16 bg-light-bg rounded-2xl overflow-hidden border border-border-light">
-                       <SafeImage src={selectedProduct.thumbnail || selectedProduct.images?.[0]} className="w-full h-full object-cover" />
+                       <SafeImage src={selectedProduct.laptopImage || selectedProduct.mobileImage || selectedProduct.thumbnail || selectedProduct.images?.[0]} className="w-full h-full object-cover" />
                     </div>
                     <div>
-                       <h2 className="text-xl font-black text-charcoal uppercase leading-none">{selectedProduct.productName}</h2>
+                       <h2 className="text-xl font-black text-charcoal uppercase leading-none">{selectedProduct.productName || selectedProduct.name}</h2>
                        <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mt-1.5">{selectedProduct.category?.name || selectedProduct.category || 'Collection'}</p>
                     </div>
                  </div>
@@ -229,7 +229,7 @@ const ProductBrowser = memo(({ products, categories, isLoading }) => {
                             // Allow variant selection even if stock is 0
                             dispatch({ 
                               type: 'SELECT_PRODUCT', 
-                              payload: { ...v, fallbackImage: selectedProduct.thumbnail || selectedProduct.images?.[0] } 
+                              payload: { ...v, fallbackImage: selectedProduct.laptopImage || selectedProduct.thumbnail || selectedProduct.images?.[0] } 
                             });
                             setSelectedProduct(null);
                           }}
@@ -237,10 +237,10 @@ const ProductBrowser = memo(({ products, categories, isLoading }) => {
                         >
                         <div className="flex items-center gap-4">
                            <div className="w-12 h-12 bg-white rounded-xl overflow-hidden flex items-center justify-center text-xs font-black text-charcoal border border-border-light uppercase shrink-0">
-                              {(v.laptopImage || v.images?.[0] || selectedProduct.thumbnail || selectedProduct.images?.[0]) ? (
+                              {(v.laptopImage || v.images?.[0] || selectedProduct.laptopImage || selectedProduct.thumbnail || selectedProduct.images?.[0]) ? (
                                 <SafeImage 
-                                  src={v.laptopImage || v.images?.[0] || selectedProduct.thumbnail || selectedProduct.images?.[0]} 
-                                  fallbackSrc={selectedProduct.thumbnail || selectedProduct.images?.[0]}
+                                  src={v.laptopImage || v.images?.[0] || selectedProduct.laptopImage || selectedProduct.thumbnail || selectedProduct.images?.[0]} 
+                                  fallbackSrc={selectedProduct.laptopImage || selectedProduct.thumbnail || selectedProduct.images?.[0]}
                                   className="w-full h-full object-cover" 
                                 />
                               ) : (
