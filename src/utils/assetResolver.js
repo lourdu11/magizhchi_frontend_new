@@ -5,7 +5,7 @@
 
 const VITE_API_URL = import.meta.env.VITE_API_URL || 'https://magizhchi-backend-28sx.onrender.com/api/v1';
 const API_BASE = VITE_API_URL;
-const PLACEHOLDER = 'https://placehold.co/600x800/1A1A1A/D4AF37?text=Magizhchi+Garments';
+const PLACEHOLDER = 'https://ui-avatars.com/api/?name=Magizhchi&background=1A1A1A&color=D4AF37&size=800';
 
 /**
  * Resolves a full URL for any asset path.

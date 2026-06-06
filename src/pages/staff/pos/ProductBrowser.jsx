@@ -201,7 +201,7 @@ const ProductBrowser = memo(({ products, categories, isLoading }) => {
               <div className="p-4 md:p-8 border-b border-border-light flex items-center justify-between">
                  <div className="flex items-center gap-4">
                     <div className="w-16 h-16 bg-light-bg rounded-2xl overflow-hidden border border-border-light">
-                       <SafeImage src={resolveAssetURL(selectedProduct.thumbnail || selectedProduct.images?.[0])} className="w-full h-full object-cover" />
+                       <SafeImage src={selectedProduct.thumbnail || selectedProduct.images?.[0]} className="w-full h-full object-cover" />
                     </div>
                     <div>
                        <h2 className="text-xl font-black text-charcoal uppercase leading-none">{selectedProduct.productName}</h2>
@@ -239,7 +239,7 @@ const ProductBrowser = memo(({ products, categories, isLoading }) => {
                            <div className="w-12 h-12 bg-white rounded-xl overflow-hidden flex items-center justify-center text-xs font-black text-charcoal border border-border-light uppercase shrink-0">
                               {(v.laptopImage || v.images?.[0] || selectedProduct.thumbnail || selectedProduct.images?.[0]) ? (
                                 <SafeImage 
-                                  src={resolveAssetURL(v.laptopImage || v.images?.[0] || selectedProduct.thumbnail || selectedProduct.images?.[0])} 
+                                  src={v.laptopImage || v.images?.[0] || selectedProduct.thumbnail || selectedProduct.images?.[0]} 
                                   fallbackSrc={selectedProduct.thumbnail || selectedProduct.images?.[0]}
                                   className="w-full h-full object-cover" 
                                 />
@@ -293,7 +293,7 @@ const ProductCard = memo(({ product, onSelect }) => {
     >
       <div className="aspect-square rounded-2xl overflow-hidden mb-4 bg-light-bg relative">
         <SafeImage 
-          src={resolveAssetURL(product.thumbnail || product.images?.[0] || product.laptopImage || product.tabletImage || product.mobileImage)} 
+          src={product.thumbnail || product.images?.[0] || product.laptopImage || product.tabletImage || product.mobileImage} 
           alt={product.name} 
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
         />
