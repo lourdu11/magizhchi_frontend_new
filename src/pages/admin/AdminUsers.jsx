@@ -57,10 +57,10 @@ export default function AdminUsers() {
 
       <div className="bg-white rounded-2xl border border-border-light overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className=" ">
+          <table className="w-full text-left whitespace-nowrap">
             <thead>
               <tr className="bg-light-bg border-b border-border-light">
-                <th className="px-4 sm:px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase">Customer</th>
+                <th className="px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase">Customer</th>
                 <th className="px-4 sm:px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase hidden md:table-cell">Contact</th>
                 <th className="px-4 sm:px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase">Orders</th>
                 <th className="px-4 sm:px-4 sm:px-6 py-4 text-xs font-bold text-text-muted uppercase hidden lg:table-cell">LTV (Spent)</th>
