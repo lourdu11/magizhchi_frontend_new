@@ -9,6 +9,7 @@ import { productService, cartService, wishlistService, reviewService, authServic
 import api from '../services/api';
 import { useAuthStore, useWishlistStore } from '../store';
 import SafeImage from '../components/common/SafeImage';
+import ProductViewer3D from '../components/three/ProductViewer3D';
 
 const COLOR_MAP = {
   black: '#000000',
@@ -56,8 +57,9 @@ export default function ProductDetails() {
   const [isAddingWishlist, setIsAddingWishlist] = useState(false);
   const [isAddingCart, setIsAddingCart] = useState(false);
 
-  // ── Image Zoom ──────────────────────────────────────────────────
+  // ── Image Zoom & 3D ─────────────────────────────────────────────
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [show3DViewer, setShow3DViewer] = useState(false);
   const imgContainerRef = useRef(null);
 
   const getHighResUrl = useCallback((src) => {
@@ -353,6 +355,15 @@ export default function ProductDetails() {
               {/* Gradient overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
+              {/* Explore in 3D Button */}
+              <button 
+                onClick={(e) => { e.stopPropagation(); setShow3DViewer(true); }}
+                className="absolute top-4 left-4 z-30 flex items-center gap-2 px-4 py-2 bg-charcoal/80 backdrop-blur-md text-premium-gold text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg hover:bg-charcoal transition-colors border border-premium-gold/30"
+              >
+                <div className="w-2 h-2 bg-premium-gold rounded-full animate-pulse" />
+                Explore in 3D
+              </button>
+
               {/* Click to Expand hint */}
               <div className="absolute top-4 right-4 z-30 flex items-center gap-1.5 px-3 py-1.5 bg-black/60 backdrop-blur-md text-white text-[9px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <Maximize2 size={12} strokeWidth={2.5} />
@@ -391,7 +402,8 @@ export default function ProductDetails() {
             )}
           </div>
 
-          {/* ── Full-Screen Lightbox (mobile tap / desktop click) ── */}
+          {/* ── Full-Screen Lightbox & 3D Viewer ── */}
+          <ProductViewer3D isVisible={show3DViewer} onClose={() => setShow3DViewer(false)} />
           <AnimatePresence>
             {lightboxOpen && (
               <motion.div

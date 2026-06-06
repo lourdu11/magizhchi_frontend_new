@@ -1,6 +1,8 @@
 import { lazy, Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
 import Header from './Header';
+import SlideCart from '../common/SlideCart';
+import QuickView from '../product/QuickView';
 
 const Footer = lazy(() => import('./Footer'));
 const CookieConsent = lazy(() => import('../common/CookieConsent'));
@@ -9,6 +11,8 @@ export default function UserLayout() {
   return (
     <div className="min-h-dvh flex flex-col bg-white">
       <Header />
+      <SlideCart />
+      <QuickView />
       <main className="flex-1">
         <div className="pt-16 md:pt-32">
           <Outlet />
