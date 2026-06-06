@@ -6,21 +6,23 @@ import { publicService } from '../services';
 import { toast } from 'react-hot-toast';
 
 export default function TrackOrder() {
-  const [orderNumber, setOrderNumber] = useState('');
-  const [phone, setPhone] = useState('');
+  const [trackInput, setTrackInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [order, setOrder] = useState(null);
 
   const handleTrack = async (e) => {
     e.preventDefault();
-    if (!orderNumber.trim() && !phone.trim()) return toast.error('Please enter either your Order ID or Phone Number');
+    if (!trackInput.trim()) return toast.error('Please enter your Order ID or Phone Number');
     
     setLoading(true);
     setOrder(null);
     try {
+      const input = trackInput.trim();
+      const isPhone = /^[0-9+\-\s]+$/.test(input) && input.replace(/\D/g, '').length >= 10;
+      
       const { data } = await publicService.trackOrder({
-        orderNumber: orderNumber.trim().toUpperCase(),
-        phone: phone.replace(/\D/g, '')
+        orderNumber: isPhone ? '' : input.toUpperCase(),
+        phone: isPhone ? input.replace(/\D/g, '') : ''
       });
       setOrder(data?.data?.order || null);
       toast.success('Order status retrieved!');
@@ -54,28 +56,16 @@ export default function TrackOrder() {
 
         {/* Tracking Form */}
         <div className="bg-white rounded-3xl border border-border-light p-4 md:p-8 shadow-sm mb-10 max-w-2xl mx-auto">
-          <form onSubmit={handleTrack} className="grid gap-4 md:grid-cols-[1fr_1fr_auto] items-stretch">
+          <form onSubmit={handleTrack} className="grid gap-4 md:grid-cols-[1fr_auto] items-stretch">
             <div className="flex-1">
-              <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-2 block">Order ID</label>
+              <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-2 block">Order ID or Phone Number</label>
               <div className="relative">
-                <Hash size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-premium-gold" />
+                <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-premium-gold" />
                 <input 
                   className="w-full bg-light-bg border border-border-light rounded-xl pl-11 pr-4 py-4 focus:outline-none focus:ring-2 focus:ring-premium-gold/20 text-sm font-bold placeholder:text-text-muted/40" 
-                  placeholder="e.g. ORD-1234"
-                  value={orderNumber}
-                  onChange={e => setOrderNumber(e.target.value)}
-                />
-              </div>
-            </div>
-            <div className="flex-1">
-              <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-2 block">Phone Number</label>
-              <div className="relative">
-                <Phone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-premium-gold" />
-                <input
-                  className="w-full bg-light-bg border border-border-light rounded-xl pl-11 pr-4 py-4 focus:outline-none focus:ring-2 focus:ring-premium-gold/20 text-sm font-bold placeholder:text-text-muted/40"
-                  placeholder="e.g. 9876543210"
-                  value={phone}
-                  onChange={e => setPhone(e.target.value)}
+                  placeholder="e.g. ORD-1234 or 9876543210"
+                  value={trackInput}
+                  onChange={e => setTrackInput(e.target.value)}
                 />
               </div>
             </div>
