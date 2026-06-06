@@ -3,31 +3,16 @@
     {
       "source": "/sitemap.xml",
       "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/xml; charset=utf-8"
-        },
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=86400"
-        },
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex"
-        }
+        { "key": "Content-Type", "value": "application/xml; charset=utf-8" },
+        { "key": "Cache-Control", "value": "public, max-age=86400" },
+        { "key": "X-Robots-Tag", "value": "noindex" }
       ]
     },
     {
       "source": "/robots.txt",
       "headers": [
-        {
-          "key": "Content-Type",
-          "value": "text/plain; charset=utf-8"
-        },
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=86400"
-        }
+        { "key": "Content-Type", "value": "text/plain; charset=utf-8" },
+        { "key": "Cache-Control", "value": "public, max-age=86400" }
       ]
     },
     {
@@ -37,49 +22,22 @@
           "key": "Content-Security-Policy",
           "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://*.razorpay.com https://*.google.com https://www.google.com https://*.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https://razorpay.com https://*.razorpay.com https://ik.imagekit.io https://res.cloudinary.com https://*.google.com https://images.unsplash.com https://placehold.co https://api.qrserver.com; connect-src 'self' https://*.razorpay.com https://magizhchi-backend-28sx.onrender.com https://ik.imagekit.io https://res.cloudinary.com; frame-src 'self' https://checkout.razorpay.com https://*.razorpay.com https://razorpay.com https://*.google.com https://www.google.com; frame-ancestors 'self' https://razorpay.com https://*.razorpay.com; object-src 'none'; upgrade-insecure-requests;"
         },
-        {
-          "key": "Access-Control-Expose-Headers",
-          "value": "x-rtb-fingerprint-id, request-id"
-        },
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "Referrer-Policy",
-          "value": "strict-origin-when-cross-origin"
-        },
-        {
-          "key": "Permissions-Policy",
-          "value": "camera=*, microphone=(), geolocation=(), accelerometer=*, gyroscope=*, magnetometer=*"
-        }
+        { "key": "Access-Control-Expose-Headers", "value": "x-rtb-fingerprint-id, request-id" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "camera=*, microphone=(), geolocation=(), accelerometer=*, gyroscope=*, magnetometer=*" }
       ]
     },
     {
       "source": "/index.html",
       "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, no-cache, no-store, must-revalidate"
-        }
+        { "key": "Cache-Control", "value": "public, no-cache, no-store, must-revalidate" }
       ]
     },
     {
       "source": "/assets/(.*)",
       "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
-    },
-    {
-      "source": "/(.*\.(js|css|jpg|jpeg|gif|png|svg|ttf|woff2|webmanifest))",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
       ]
     }
   ],
