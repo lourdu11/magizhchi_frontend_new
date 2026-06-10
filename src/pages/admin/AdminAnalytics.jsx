@@ -11,6 +11,7 @@ import {
 import { adminService, billService } from '../../services';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
+import * as XLSX from 'xlsx';
 
 const fmt = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`;
 const fmtN = (n) => Number(n || 0).toLocaleString('en-IN');
@@ -98,15 +99,96 @@ export default function AdminAnalytics() {
   const profitMarginPct = profit.totalRevenue > 0 ? ((profit.grossProfit / profit.totalRevenue) * 100).toFixed(1) : 0;
   const customerRetentionPct = customers.totalUniqueInPeriod > 0 ? ((customers.repeatCustomers / customers.totalUniqueInPeriod) * 100).toFixed(1) : 0;
 
-  const downloadCSV = () => {
-    if (!salesData.length) return toast.error('No data to export');
-    const rows = salesData.map(r => `${r._id},${r.revenue || 0},${r.orders || 0}`);
-    const csv = ['Date,Revenue,Orders', ...rows].join('\n');
-    const a = document.createElement('a');
-    a.href = 'data:text/csv,' + encodeURIComponent(csv);
-    a.download = `analytics_${period}_${Date.now()}.csv`;
-    a.click();
-    toast.success('CSV downloaded!');
+  const exportToExcel = () => {
+    if (!a || !a.summary) return toast.error('No data to export');
+    
+    const wb = XLSX.utils.book_new();
+
+    // 1. Summary Sheet
+    const summaryData = [
+      ['Metric', 'Value'],
+      ['Period', period],
+      ['Total Revenue', fmtN(summary.totalRevenue)],
+      ['Total Orders', summary.totalOrders],
+      ['Average Order Value', fmtN(summary.totalOrders > 0 ? summary.totalRevenue / summary.totalOrders : 0)],
+      ['Growth vs Prev Period (%)', summary.growth || 0],
+      ['Gross Profit', fmtN(profit.grossProfit)],
+      ['Estimated Cost', fmtN(profit.totalCost)],
+      ['Online Revenue', fmtN(channelSplit.online.revenue)],
+      ['Offline Revenue', fmtN(channelSplit.offline.revenue)],
+    ];
+    const wsSummary = XLSX.utils.aoa_to_sheet(summaryData);
+    XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
+
+    // 2. Sales Trend
+    if (salesData.length) {
+      const salesExport = salesData.map(r => ({
+        Date: r._id,
+        Revenue: r.revenue || 0,
+        Orders: r.orders || 0
+      }));
+      const wsSales = XLSX.utils.json_to_sheet(salesExport);
+      XLSX.utils.book_append_sheet(wb, wsSales, 'Sales Trend');
+    }
+
+    // 3. Category Mix
+    if (catData.length) {
+      const catExport = catData.map(c => ({
+        Category: c._id || 'Uncategorized',
+        Revenue: c.revenue || 0,
+        ItemsSold: c.count || 0
+      }));
+      const wsCat = XLSX.utils.json_to_sheet(catExport);
+      XLSX.utils.book_append_sheet(wb, wsCat, 'Categories');
+    }
+
+    // 4. Top Products
+    if (topProducts.length) {
+      const prodExport = topProducts.map(p => ({
+        Product: p.name,
+        QuantitySold: p.qty || 0,
+        Revenue: p.rev || 0
+      }));
+      const wsProd = XLSX.utils.json_to_sheet(prodExport);
+      XLSX.utils.book_append_sheet(wb, wsProd, 'Top Products');
+    }
+
+    // 5. Regional Sales
+    if (regionData.length) {
+      const regionExport = regionData.map(r => ({
+        Region: r._id || 'Unknown',
+        Revenue: r.revenue || 0,
+        Orders: r.orders || 0
+      }));
+      const wsRegion = XLSX.utils.json_to_sheet(regionExport);
+      XLSX.utils.book_append_sheet(wb, wsRegion, 'Regional Sales');
+    }
+
+    // 6. Payment Methods
+    if (payData.length) {
+      const payExport = payData.map(p => ({
+        Method: p._id || 'Unknown',
+        Revenue: p.revenue || 0,
+        Count: p.count || 0
+      }));
+      const wsPay = XLSX.utils.json_to_sheet(payExport);
+      XLSX.utils.book_append_sheet(wb, wsPay, 'Payment Methods');
+    }
+
+    // 7. Inventory & ERP
+    const erpData = [
+      ['Metric', 'Value'],
+      ['Total Stock Value', fmtN(erp.inventoryValue || 0)],
+      ['Supplier Payables', fmtN(erp.totalPayables || 0)],
+      ['Dead Stock Items', deadStock.length],
+      ['Low Margin Items', lowMargin.length]
+    ];
+    const wsERP = XLSX.utils.aoa_to_sheet(erpData);
+    XLSX.utils.book_append_sheet(wb, wsERP, 'Inventory & ERP');
+
+    // Generate Excel File
+    XLSX.writeFile(wb, `Business_Analytics_${period}_${new Date().toISOString().split('T')[0]}.xlsx`);
+    toast.success('Excel Report Downloaded!');
   };
 
   const TABS = [
@@ -155,8 +237,8 @@ export default function AdminAnalytics() {
             <button onClick={handleRefresh} disabled={refreshing} className="p-3 bg-light-bg border border-border-light rounded-2xl text-charcoal hover:border-premium-gold transition-all">
               <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} />
             </button>
-            <button onClick={downloadCSV} className="px-5 py-3 bg-premium-gold text-charcoal rounded-2xl text-[9px] font-black uppercase tracking-widest shadow-lg hover:scale-105 transition-all flex items-center gap-2">
-              <Download size={14} /> Export
+            <button onClick={exportToExcel} className="px-5 py-3 bg-premium-gold text-charcoal rounded-2xl text-[9px] font-black uppercase tracking-widest shadow-lg hover:scale-105 transition-all flex items-center gap-2">
+              <Download size={14} /> Full Report
             </button>
           </div>
         </div>
