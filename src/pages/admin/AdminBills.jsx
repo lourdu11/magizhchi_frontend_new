@@ -7,7 +7,8 @@ import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../../store';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
 
 export default function AdminBills() {
   const [search, setSearch] = useState('');
@@ -50,21 +51,43 @@ export default function AdminBills() {
     overscan: 10,
   });
 
-  const exportToExcel = () => {
+  const exportToExcel = async () => {
     if (!bills.length) return;
-    const exportData = bills.map(b => ({
-      'Bill #': b.billNumber, 
-      'Staff': b.staffId?.name || '-', 
-      'Customer': b.customerDetails?.name || 'Walk-in', 
-      'Phone': b.customerDetails?.phone || '-', 
-      'Amount': (b.pricing?.totalAmount / 100), 
-      'Payment': b.paymentMethod, 
-      'Date': new Date(b.createdAt).toLocaleDateString('en-IN')
-    }));
-    const ws = XLSX.utils.json_to_sheet(exportData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Bills');
-    XLSX.writeFile(wb, `Offline_Bills_${new Date().toISOString().split('T')[0]}.xlsx`);
+    toast.loading('Generating Excel...', { id: 'export' });
+    const wb = new ExcelJS.Workbook();
+    const ws = wb.addWorksheet('Bills');
+    
+    ws.columns = [
+      { header: 'Bill #', key: 'bill', width: 20 },
+      { header: 'Staff', key: 'staff', width: 25 },
+      { header: 'Customer', key: 'customer', width: 25 },
+      { header: 'Phone', key: 'phone', width: 20 },
+      { header: 'Amount', key: 'amount', width: 15 },
+      { header: 'Payment', key: 'payment', width: 15 },
+      { header: 'Date', key: 'date', width: 15 }
+    ];
+
+    ws.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+    ws.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1F2937' } };
+
+    bills.forEach(b => {
+      ws.addRow({
+        bill: b.billNumber,
+        staff: b.staffId?.name || '-',
+        customer: b.customerDetails?.name || 'Walk-in',
+        phone: b.customerDetails?.phone || '-',
+        amount: (b.pricing?.totalAmount / 100),
+        payment: b.paymentMethod,
+        date: new Date(b.createdAt).toLocaleDateString('en-IN')
+      });
+    });
+
+    ws.getColumn(5).numFmt = '"₹"#,##0.00';
+    
+    const buffer = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    saveAs(blob, `Offline_Bills_${new Date().toISOString().split('T')[0]}.xlsx`);
+    toast.success('Excel Downloaded!', { id: 'export' });
   };
 
   return (

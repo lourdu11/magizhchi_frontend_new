@@ -11,7 +11,8 @@ import {
 import { adminService, billService } from '../../services';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
 
 const fmt = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`;
 const fmtN = (n) => Number(n || 0).toLocaleString('en-IN');
@@ -99,96 +100,131 @@ export default function AdminAnalytics() {
   const profitMarginPct = profit.totalRevenue > 0 ? ((profit.grossProfit / profit.totalRevenue) * 100).toFixed(1) : 0;
   const customerRetentionPct = customers.totalUniqueInPeriod > 0 ? ((customers.repeatCustomers / customers.totalUniqueInPeriod) * 100).toFixed(1) : 0;
 
-  const exportToExcel = () => {
+  const exportToExcel = async () => {
     if (!a || !a.summary) return toast.error('No data to export');
     
-    const wb = XLSX.utils.book_new();
+    toast.loading('Generating Report...', { id: 'export' });
+    const wb = new ExcelJS.Workbook();
+    wb.creator = 'Magizhchi Admin';
+    wb.created = new Date();
+
+    const styleHeader = (worksheet) => {
+      worksheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      worksheet.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1F2937' } };
+      worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
+    };
 
     // 1. Summary Sheet
-    const summaryData = [
-      ['Metric', 'Value'],
-      ['Period', period],
-      ['Total Revenue', fmtN(summary.totalRevenue)],
-      ['Total Orders', summary.totalOrders],
-      ['Average Order Value', fmtN(summary.totalOrders > 0 ? summary.totalRevenue / summary.totalOrders : 0)],
-      ['Growth vs Prev Period (%)', summary.growth || 0],
-      ['Gross Profit', fmtN(profit.grossProfit)],
-      ['Estimated Cost', fmtN(profit.totalCost)],
-      ['Online Revenue', fmtN(channelSplit.online.revenue)],
-      ['Offline Revenue', fmtN(channelSplit.offline.revenue)],
+    const wsSummary = wb.addWorksheet('Summary');
+    wsSummary.columns = [
+      { header: 'Metric', key: 'metric', width: 35 },
+      { header: 'Value', key: 'value', width: 25 }
     ];
-    const wsSummary = XLSX.utils.aoa_to_sheet(summaryData);
-    XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
+    styleHeader(wsSummary);
+    wsSummary.addRows([
+      { metric: 'Period', value: period },
+      { metric: 'Total Revenue', value: summary.totalRevenue },
+      { metric: 'Total Orders', value: summary.totalOrders },
+      { metric: 'Average Order Value', value: summary.totalOrders > 0 ? summary.totalRevenue / summary.totalOrders : 0 },
+      { metric: 'Growth vs Prev Period (%)', value: summary.growth || 0 },
+      { metric: 'Gross Profit', value: profit.grossProfit },
+      { metric: 'Estimated Cost', value: profit.totalCost },
+      { metric: 'Online Revenue', value: channelSplit.online.revenue },
+      { metric: 'Offline Revenue', value: channelSplit.offline.revenue },
+    ]);
+    wsSummary.getColumn(2).eachCell((cell, rowNum) => {
+      if (rowNum > 2 && rowNum !== 5) {
+        cell.numFmt = '"₹"#,##0.00';
+        cell.alignment = { horizontal: 'right' };
+      }
+    });
 
     // 2. Sales Trend
     if (salesData.length) {
-      const salesExport = salesData.map(r => ({
-        Date: r._id,
-        Revenue: r.revenue || 0,
-        Orders: r.orders || 0
-      }));
-      const wsSales = XLSX.utils.json_to_sheet(salesExport);
-      XLSX.utils.book_append_sheet(wb, wsSales, 'Sales Trend');
+      const wsSales = wb.addWorksheet('Sales Trend');
+      wsSales.columns = [
+        { header: 'Date', key: 'date', width: 20 },
+        { header: 'Revenue', key: 'revenue', width: 20 },
+        { header: 'Orders', key: 'orders', width: 15 }
+      ];
+      styleHeader(wsSales);
+      salesData.forEach(r => wsSales.addRow({ date: r._id, revenue: r.revenue || 0, orders: r.orders || 0 }));
+      wsSales.getColumn(2).numFmt = '"₹"#,##0.00';
     }
 
     // 3. Category Mix
     if (catData.length) {
-      const catExport = catData.map(c => ({
-        Category: c._id || 'Uncategorized',
-        Revenue: c.revenue || 0,
-        ItemsSold: c.count || 0
-      }));
-      const wsCat = XLSX.utils.json_to_sheet(catExport);
-      XLSX.utils.book_append_sheet(wb, wsCat, 'Categories');
+      const wsCat = wb.addWorksheet('Categories');
+      wsCat.columns = [
+        { header: 'Category', key: 'category', width: 25 },
+        { header: 'Revenue', key: 'revenue', width: 20 },
+        { header: 'Items Sold', key: 'items', width: 15 }
+      ];
+      styleHeader(wsCat);
+      catData.forEach(c => wsCat.addRow({ category: c._id || 'Uncategorized', revenue: c.revenue || 0, items: c.count || 0 }));
+      wsCat.getColumn(2).numFmt = '"₹"#,##0.00';
     }
 
     // 4. Top Products
     if (topProducts.length) {
-      const prodExport = topProducts.map(p => ({
-        Product: p.name,
-        QuantitySold: p.qty || 0,
-        Revenue: p.rev || 0
-      }));
-      const wsProd = XLSX.utils.json_to_sheet(prodExport);
-      XLSX.utils.book_append_sheet(wb, wsProd, 'Top Products');
+      const wsProd = wb.addWorksheet('Top Products');
+      wsProd.columns = [
+        { header: 'Product', key: 'product', width: 45 },
+        { header: 'Quantity Sold', key: 'qty', width: 15 },
+        { header: 'Revenue', key: 'rev', width: 20 }
+      ];
+      styleHeader(wsProd);
+      topProducts.forEach(p => wsProd.addRow({ product: p.name, qty: p.qty || 0, rev: p.rev || 0 }));
+      wsProd.getColumn(3).numFmt = '"₹"#,##0.00';
     }
 
     // 5. Regional Sales
     if (regionData.length) {
-      const regionExport = regionData.map(r => ({
-        Region: r._id || 'Unknown',
-        Revenue: r.revenue || 0,
-        Orders: r.orders || 0
-      }));
-      const wsRegion = XLSX.utils.json_to_sheet(regionExport);
-      XLSX.utils.book_append_sheet(wb, wsRegion, 'Regional Sales');
+      const wsRegion = wb.addWorksheet('Regional Sales');
+      wsRegion.columns = [
+        { header: 'Region', key: 'region', width: 25 },
+        { header: 'Revenue', key: 'revenue', width: 20 },
+        { header: 'Orders', key: 'orders', width: 15 }
+      ];
+      styleHeader(wsRegion);
+      regionData.forEach(r => wsRegion.addRow({ region: r._id || 'Unknown', revenue: r.revenue || 0, orders: r.orders || 0 }));
+      wsRegion.getColumn(2).numFmt = '"₹"#,##0.00';
     }
 
     // 6. Payment Methods
     if (payData.length) {
-      const payExport = payData.map(p => ({
-        Method: p._id || 'Unknown',
-        Revenue: p.revenue || 0,
-        Count: p.count || 0
-      }));
-      const wsPay = XLSX.utils.json_to_sheet(payExport);
-      XLSX.utils.book_append_sheet(wb, wsPay, 'Payment Methods');
+      const wsPay = wb.addWorksheet('Payment Methods');
+      wsPay.columns = [
+        { header: 'Method', key: 'method', width: 25 },
+        { header: 'Revenue', key: 'revenue', width: 20 },
+        { header: 'Count', key: 'count', width: 15 }
+      ];
+      styleHeader(wsPay);
+      payData.forEach(p => wsPay.addRow({ method: p._id || 'Unknown', revenue: p.revenue || 0, count: p.count || 0 }));
+      wsPay.getColumn(2).numFmt = '"₹"#,##0.00';
     }
 
     // 7. Inventory & ERP
-    const erpData = [
-      ['Metric', 'Value'],
-      ['Total Stock Value', fmtN(erp.inventoryValue || 0)],
-      ['Supplier Payables', fmtN(erp.totalPayables || 0)],
-      ['Dead Stock Items', deadStock.length],
-      ['Low Margin Items', lowMargin.length]
+    const wsERP = wb.addWorksheet('Inventory & ERP');
+    wsERP.columns = [
+      { header: 'Metric', key: 'metric', width: 35 },
+      { header: 'Value', key: 'value', width: 25 }
     ];
-    const wsERP = XLSX.utils.aoa_to_sheet(erpData);
-    XLSX.utils.book_append_sheet(wb, wsERP, 'Inventory & ERP');
+    styleHeader(wsERP);
+    wsERP.addRows([
+      { metric: 'Total Stock Value', value: erp.inventoryValue || 0 },
+      { metric: 'Supplier Payables', value: erp.totalPayables || 0 },
+      { metric: 'Dead Stock Items', value: deadStock.length },
+      { metric: 'Low Margin Items', value: lowMargin.length }
+    ]);
+    wsERP.getCell('B2').numFmt = '"₹"#,##0.00';
+    wsERP.getCell('B3').numFmt = '"₹"#,##0.00';
 
-    // Generate Excel File
-    XLSX.writeFile(wb, `Business_Analytics_${period}_${new Date().toISOString().split('T')[0]}.xlsx`);
-    toast.success('Excel Report Downloaded!');
+    const buffer = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    saveAs(blob, `Business_Analytics_${period}_${new Date().toISOString().split('T')[0]}.xlsx`);
+    
+    toast.success('Admin-friendly Excel Downloaded!', { id: 'export' });
   };
 
   const TABS = [

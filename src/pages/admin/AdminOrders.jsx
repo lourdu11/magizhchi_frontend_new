@@ -7,7 +7,8 @@ import { toast } from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
 import ThermalReceipt from '../staff/pos/ThermalReceipt';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
 
 const STATUS_OPTIONS = ['placed', 'confirmed', 'shipped', 'out_for_delivery', 'delivered', 'cancelled'];
 const STATUS_COLORS = {
@@ -77,21 +78,43 @@ export default function AdminOrders() {
     onError: (err) => toast.error(err.response?.data?.message || 'Failed to resend receipt'),
   });
 
-  const exportToExcel = () => {
+  const exportToExcel = async () => {
     if (!orders.length) return;
-    const exportData = orders.map(o => ({
-      'Order #': o.orderNumber, 
-      'Customer': o.shippingAddress?.name || o.userId?.name || 'Guest', 
-      'Email/Phone': o.guestDetails?.email || o.userId?.email || o.shippingAddress?.phone || '-', 
-      'Amount': o.pricing?.totalAmount, 
-      'Status': o.orderStatus, 
-      'Payment': o.paymentMethod, 
-      'Date': new Date(o.createdAt).toLocaleDateString('en-IN')
-    }));
-    const ws = XLSX.utils.json_to_sheet(exportData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Orders');
-    XLSX.writeFile(wb, `Orders_${new Date().toISOString().split('T')[0]}.xlsx`);
+    toast.loading('Generating Excel...', { id: 'export' });
+    const wb = new ExcelJS.Workbook();
+    const ws = wb.addWorksheet('Orders');
+    
+    ws.columns = [
+      { header: 'Order #', key: 'order', width: 20 },
+      { header: 'Customer', key: 'customer', width: 25 },
+      { header: 'Email/Phone', key: 'contact', width: 30 },
+      { header: 'Amount', key: 'amount', width: 15 },
+      { header: 'Status', key: 'status', width: 15 },
+      { header: 'Payment', key: 'payment', width: 15 },
+      { header: 'Date', key: 'date', width: 15 }
+    ];
+
+    ws.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+    ws.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1F2937' } };
+
+    orders.forEach(o => {
+      ws.addRow({
+        order: o.orderNumber,
+        customer: o.shippingAddress?.name || o.userId?.name || 'Guest',
+        contact: o.guestDetails?.email || o.userId?.email || o.shippingAddress?.phone || '-',
+        amount: o.pricing?.totalAmount,
+        status: o.orderStatus,
+        payment: o.paymentMethod,
+        date: new Date(o.createdAt).toLocaleDateString('en-IN')
+      });
+    });
+
+    ws.getColumn(4).numFmt = '"₹"#,##0.00';
+    
+    const buffer = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    saveAs(blob, `Orders_${new Date().toISOString().split('T')[0]}.xlsx`);
+    toast.success('Excel Downloaded!', { id: 'export' });
   };
 
   return (

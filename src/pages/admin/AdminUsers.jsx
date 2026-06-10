@@ -4,7 +4,8 @@ import { Users, Search, Shield, ShieldOff, Download, Eye, Loader2, Mail, Phone }
 import { adminService } from '../../services';
 import { toast } from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
 
 export default function AdminUsers() {
   const [search, setSearch] = useState('');
@@ -24,20 +25,39 @@ export default function AdminUsers() {
     onSuccess: () => { queryClient.invalidateQueries(['admin-users']); toast.success('User status updated'); },
   });
 
-  const exportToExcel = () => {
+  const exportToExcel = async () => {
     if (!users?.length) return;
-    const exportData = users.map(u => ({
-      'Name': u.name, 
-      'Email': u.email, 
-      'Phone': u.phone || '-', 
-      'Role': u.role, 
-      'Status': u.isBlocked ? 'Blocked' : 'Active', 
-      'Joined': new Date(u.createdAt).toLocaleDateString('en-IN')
-    }));
-    const ws = XLSX.utils.json_to_sheet(exportData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Customers');
-    XLSX.writeFile(wb, `Customers_${new Date().toISOString().split('T')[0]}.xlsx`);
+    toast.loading('Generating Excel...', { id: 'export' });
+    const wb = new ExcelJS.Workbook();
+    const ws = wb.addWorksheet('Customers');
+    
+    ws.columns = [
+      { header: 'Name', key: 'name', width: 25 },
+      { header: 'Email', key: 'email', width: 30 },
+      { header: 'Phone', key: 'phone', width: 20 },
+      { header: 'Role', key: 'role', width: 15 },
+      { header: 'Status', key: 'status', width: 15 },
+      { header: 'Joined', key: 'date', width: 15 }
+    ];
+
+    ws.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+    ws.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1F2937' } };
+
+    users.forEach(u => {
+      ws.addRow({
+        name: u.name,
+        email: u.email,
+        phone: u.phone || '-',
+        role: u.role,
+        status: u.isBlocked ? 'Blocked' : 'Active',
+        date: new Date(u.createdAt).toLocaleDateString('en-IN')
+      });
+    });
+
+    const buffer = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    saveAs(blob, `Customers_${new Date().toISOString().split('T')[0]}.xlsx`);
+    toast.success('Excel Downloaded!', { id: 'export' });
   };
 
   return (
