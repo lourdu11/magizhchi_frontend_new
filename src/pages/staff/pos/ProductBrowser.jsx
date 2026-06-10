@@ -3,7 +3,7 @@ import { Search, LayoutGrid, ListFilter, X, ChevronRight, Scan, Camera } from 'l
 import CameraScanner from './CameraScanner';
 import { usePOS } from './POSContext';
 import SafeImage from '../../../components/common/SafeImage';
-import { resolveAssetURL, getValidImage } from '../../../utils/assetResolver';
+import { resolveAssetURL } from '../../../utils/assetResolver';
 import { PosProductSkeleton } from '../../../components/common/Skeletons';
 import { ShoppingBag } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -201,7 +201,7 @@ const ProductBrowser = memo(({ products, categories, isLoading }) => {
               <div className="p-4 md:p-8 border-b border-border-light flex items-center justify-between">
                  <div className="flex items-center gap-4">
                     <div className="w-16 h-16 bg-light-bg rounded-2xl overflow-hidden border border-border-light">
-                       <SafeImage src={getValidImage(selectedProduct)} className="w-full h-full object-cover" />
+                       <SafeImage src={selectedProduct.laptopImage || selectedProduct.mobileImage || selectedProduct.thumbnail || selectedProduct.images?.[0] || selectedProduct.variants?.[0]?.images?.[0] || selectedProduct.variants?.[0]?.laptopImage} className="w-full h-full object-cover" />
                     </div>
                     <div>
                        <h2 className="text-xl font-black text-charcoal uppercase leading-none">{selectedProduct.productName || selectedProduct.name}</h2>
@@ -293,7 +293,7 @@ const ProductCard = memo(({ product, onSelect }) => {
     >
       <div className="aspect-square rounded-2xl overflow-hidden mb-4 bg-light-bg relative">
         <SafeImage 
-          src={getValidImage(product)} 
+          src={product.thumbnail || product.images?.[0] || product.laptopImage || product.tabletImage || product.mobileImage || product.variants?.[0]?.images?.[0] || product.variants?.[0]?.laptopImage} 
           alt={product.name} 
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
         />
