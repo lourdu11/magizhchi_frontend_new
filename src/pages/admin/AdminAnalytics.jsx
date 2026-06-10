@@ -228,10 +228,10 @@ export default function AdminAnalytics() {
   };
 
   const TABS = [
-    { id: 'sales', label: 'Sales Report', icon: TrendingUp },
-    { id: 'profit', label: 'Profit Report', icon: IndianRupee },
-    { id: 'inventory', label: 'Inventory Report', icon: Package },
-    { id: 'customers', label: 'Customer Report', icon: Users },
+    { id: 'sales', label: 'Sales', icon: TrendingUp },
+    { id: 'profit', label: 'Profit', icon: IndianRupee },
+    { id: 'inventory', label: 'Stock', icon: Package },
+    { id: 'customers', label: 'Customers', icon: Users },
   ];
 
   return (
@@ -245,8 +245,8 @@ export default function AdminAnalytics() {
                 <Activity size={20} className="text-premium-gold" />
               </div>
               <div>
-                <h1 className="text-2xl font-black text-charcoal uppercase tracking-tighter">Business Reports</h1>
-                <p className="text-[9px] text-text-muted font-bold uppercase tracking-[0.3em] mt-0.5">Comprehensive intelligence hub</p>
+                <h1 className="text-2xl font-black text-charcoal uppercase tracking-tighter">Shop Analytics</h1>
+                <p className="text-[9px] text-text-muted font-bold uppercase tracking-[0.3em] mt-0.5">Overview of your shop's performance</p>
               </div>
             </div>
           </div>
@@ -297,14 +297,14 @@ export default function AdminAnalytics() {
       {activeTab === 'sales' && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            <SummaryBadge label="Total Revenue" value={fmt(summary.totalRevenue)} trend={summary.growth} color="#D4AF37" />
-            <SummaryBadge label="Total Orders" value={fmtN(summary.totalOrders)} color="#4F46E5" />
-            <SummaryBadge label="Avg Order Value" value={fmt(summary.totalOrders > 0 ? summary.totalRevenue / summary.totalOrders : 0)} color="#10B981" />
+            <SummaryBadge label="Total Income" value={fmt(summary.totalRevenue)} trend={summary.growth} color="#D4AF37" />
+            <SummaryBadge label="Total Bills" value={fmtN(summary.totalOrders)} color="#4F46E5" />
+            <SummaryBadge label="Avg Bill Value" value={fmt(summary.totalOrders > 0 ? summary.totalRevenue / summary.totalOrders : 0)} color="#10B981" />
             <SummaryBadge label="Growth vs Prev" value={`${summary.growth > 0 ? '+' : ''}${summary.growth || 0}%`} trend={summary.growth} color="#F59E0B" />
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
-            <SectionCard icon={TrendingUp} title="Revenue Trend" sub={period === 'daily' ? 'Last 30 days' : period === 'monthly' ? 'This year by month' : 'All time by year'}>
+            <SectionCard icon={TrendingUp} title="Income Graph" sub={period === 'daily' ? 'Last 30 days' : period === 'monthly' ? 'This year by month' : 'All time by year'}>
               {isLoading ? (
                 <div className="h-[300px] bg-light-bg rounded-2xl animate-pulse" />
               ) : salesData.length === 0 ? (
@@ -320,7 +320,7 @@ export default function AdminAnalytics() {
             </SectionCard>
 
             <div className="space-y-6">
-              <SectionCard icon={PieChart} title="Online vs Offline" sub="Revenue breakdown by channel">
+              <SectionCard icon={PieChart} title="Online Web vs Shop POS" sub="Income from Web and Shop">
                 <div className="flex gap-4 mb-4">
                   <div className="flex-1 p-4 bg-blue-50/50 rounded-2xl border border-blue-100">
                     <p className="text-[9px] font-black text-blue-600 uppercase tracking-widest mb-1 flex items-center gap-1.5"><Globe size={10} /> Online Web</p>
@@ -335,7 +335,7 @@ export default function AdminAnalytics() {
                 </div>
                 {/* Category Mix */}
                 <div className="mt-6 pt-6 border-t border-border-light">
-                  <h3 className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-4">Top Categories</h3>
+                  <h3 className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-4">Best Selling Categories</h3>
                   {catData.length === 0 ? (
                     <div className="text-[10px] font-black text-text-muted uppercase opacity-50">No data</div>
                   ) : (
@@ -373,7 +373,7 @@ export default function AdminAnalytics() {
               )}
             </SectionCard>
 
-            <SectionCard icon={MapPin} title="Regional Sales" sub="Orders by state">
+            <SectionCard icon={MapPin} title="Orders by City/State" sub="Location wise sales">
               {regionData.length === 0 ? (
                 <div className="text-center py-4 text-[10px] font-black text-text-muted uppercase tracking-widest opacity-40">No regional data</div>
               ) : (
@@ -403,13 +403,13 @@ export default function AdminAnalytics() {
       {activeTab === 'profit' && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <SummaryBadge label="Total Revenue" value={fmt(profit.totalRevenue)} color="#4F46E5" />
-            <SummaryBadge label="Total Est. Cost" value={fmt(profit.totalCost)} color="#EF4444" sub="Based on item purchase price" />
-            <SummaryBadge label="Gross Profit" value={fmt(profit.grossProfit)} color="#10B981" sub={`Margin: ${profitMarginPct}%`} />
+            <SummaryBadge label="Total Income" value={fmt(profit.totalRevenue)} color="#4F46E5" />
+            <SummaryBadge label="Total Purchase Cost" value={fmt(profit.totalCost)} color="#EF4444" sub="Based on item purchase price" />
+            <SummaryBadge label="Net Profit" value={fmt(profit.grossProfit)} color="#10B981" sub={`Margin: ${profitMarginPct}%`} />
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
-            <SectionCard icon={Star} title="Top Profitable Products" sub="Best selling items in this period">
+            <SectionCard icon={Star} title="Highest Profit Items" sub="Best selling items in this period">
               {topProducts.length === 0 ? (
                 <div className="text-center py-10 text-[10px] font-black text-text-muted uppercase tracking-widest opacity-40">No product sales data</div>
               ) : (
@@ -434,7 +434,7 @@ export default function AdminAnalytics() {
               )}
             </SectionCard>
 
-            <SectionCard icon={AlertTriangle} title="Low Margin Warning" sub="Products below 20% profit margin">
+            <SectionCard icon={AlertTriangle} title="Low Profit Items" sub="Products below 20% profit margin">
               {lowMargin.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-10 text-center">
                   <Trophy size={36} className="text-emerald-400 mb-3" />
@@ -469,13 +469,13 @@ export default function AdminAnalytics() {
       {activeTab === 'inventory' && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <SummaryBadge label="Total Stock Value" value={fmt(erp.inventoryValue || 0)} color="#D4AF37" sub="Estimated capital locked" />
-            <SummaryBadge label="Supplier Payables" value={fmt(erp.totalPayables || 0)} color="#EF4444" sub="Amount owed to suppliers" />
-            <SummaryBadge label="Dead Stock Count" value={fmtN(deadStock.length)} color="#8B5CF6" sub="Zero sales in 30+ days" />
+            <SummaryBadge label="Value of Stock in Shop" value={fmt(erp.inventoryValue || 0)} color="#D4AF37" sub="Estimated capital locked" />
+            <SummaryBadge label="Pending to Suppliers" value={fmt(erp.totalPayables || 0)} color="#EF4444" sub="Amount owed to suppliers" />
+            <SummaryBadge label="Unsold Items" value={fmtN(deadStock.length)} color="#8B5CF6" sub="Zero sales in 30+ days" />
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
-            <SectionCard icon={Package} title="Stock Aging Buckets" sub="Inventory by age (Capital Lock Risk)">
+            <SectionCard icon={Package} title="Old Stock Breakdown" sub="Inventory by age">
               {stockAging.length === 0 ? (
                 <div className="text-center py-4 text-[10px] font-black text-text-muted uppercase tracking-widest opacity-40">No aging data</div>
               ) : (
@@ -501,7 +501,7 @@ export default function AdminAnalytics() {
               )}
             </SectionCard>
 
-            <SectionCard icon={AlertTriangle} title="Dead Stock Alert" sub="0 sales in 30+ days">
+            <SectionCard icon={AlertTriangle} title="Unsold Items (30+ days)" sub="0 sales in 30+ days">
               {deadStock.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-10 text-center">
                   <Zap size={36} className="text-emerald-400 mb-3" />
@@ -532,13 +532,13 @@ export default function AdminAnalytics() {
       {activeTab === 'customers' && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            <SummaryBadge label="Total Active Customers" value={fmtN(customers.totalUniqueInPeriod)} color="#4F46E5" sub="Purchased in this period" />
-            <SummaryBadge label="Repeat Customers" value={fmtN(customers.repeatCustomers)} color="#10B981" sub={`Retention Rate: ${customerRetentionPct}%`} />
-            <SummaryBadge label="New Customers" value={fmtN(customers.totalUniqueInPeriod - customers.repeatCustomers)} color="#F59E0B" sub="First time buyers" />
+            <SummaryBadge label="Total Customers" value={fmtN(customers.totalUniqueInPeriod)} color="#4F46E5" sub="Purchased in this period" />
+            <SummaryBadge label="Returning Customers" value={fmtN(customers.repeatCustomers)} color="#10B981" sub={`Retention Rate: ${customerRetentionPct}%`} />
+            <SummaryBadge label="First Time Buyers" value={fmtN(customers.totalUniqueInPeriod - customers.repeatCustomers)} color="#F59E0B" sub="First time buyers" />
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
-            <SectionCard icon={Users} title="Customer Retention Split" sub="New vs Repeat buyers">
+            <SectionCard icon={Users} title="New vs Returning Customers" sub="New vs Repeat buyers">
               <div className="py-6">
                 <div className="flex justify-between mb-2">
                   <span className="text-[11px] font-black text-charcoal uppercase">New Customers</span>

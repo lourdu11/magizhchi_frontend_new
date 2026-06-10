@@ -5,7 +5,7 @@
 
 const VITE_API_URL = import.meta.env.VITE_API_URL || 'https://magizhchi-backend-28sx.onrender.com/api/v1';
 const API_BASE = VITE_API_URL;
-const PLACEHOLDER = 'https://ui-avatars.com/api/?name=Magizhchi&background=1A1A1A&color=D4AF37&size=800';
+const PLACEHOLDER = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MDAgODAwIj48cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjgwMCIgZmlsbD0iIzFBMUExQSIvPjx0ZXh0IHg9IjQwMCIgeT0iNDAwIiBmb250LWZhbWlseT0iYXJpYWwiIGZvbnQtc2l6ZT0iMjRweCIgZmlsbD0iI0Q0QUYzNyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+TUFHSVpIQ0hJPC90ZXh0Pjwvc3ZnPg==';
 
 /**
  * Resolves a full URL for any asset path.
