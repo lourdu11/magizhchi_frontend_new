@@ -73,6 +73,7 @@ export default function SafeImage({
         onError={(e) => {
           if (e.target.src !== fallbackUrl) {
             e.target.src = fallbackUrl;
+            e.target.srcset = '';
           }
         }}
         {...srcSetProps}
@@ -93,6 +94,7 @@ export default function SafeImage({
       onError={(e) => {
         if (e.target.src !== fallbackUrl) {
           e.target.src = fallbackUrl;
+          e.target.srcset = '';
         }
       }}
       {...srcSetProps}
