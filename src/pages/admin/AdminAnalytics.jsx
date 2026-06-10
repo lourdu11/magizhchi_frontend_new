@@ -115,7 +115,7 @@ export default function AdminAnalytics() {
     };
 
     // 1. Summary Sheet
-    const wsSummary = wb.addWorksheet('Summary');
+    const wsSummary = wb.addWorksheet('Overview');
     wsSummary.columns = [
       { header: 'Metric', key: 'metric', width: 35 },
       { header: 'Value', key: 'value', width: 25 }
@@ -123,41 +123,44 @@ export default function AdminAnalytics() {
     styleHeader(wsSummary);
     wsSummary.addRows([
       { metric: 'Period', value: period },
-      { metric: 'Total Revenue', value: summary.totalRevenue },
-      { metric: 'Total Orders', value: summary.totalOrders },
-      { metric: 'Average Order Value', value: summary.totalOrders > 0 ? summary.totalRevenue / summary.totalOrders : 0 },
+      { metric: 'Total Income', value: summary.totalRevenue },
+      { metric: 'Total Bills', value: summary.totalOrders },
+      { metric: 'Avg Bill Value', value: summary.totalOrders > 0 ? summary.totalRevenue / summary.totalOrders : 0 },
       { metric: 'Growth vs Prev Period (%)', value: summary.growth || 0 },
-      { metric: 'Gross Profit', value: profit.grossProfit },
-      { metric: 'Estimated Cost', value: profit.totalCost },
-      { metric: 'Online Revenue', value: channelSplit.online.revenue },
-      { metric: 'Offline Revenue', value: channelSplit.offline.revenue },
+      { metric: 'Net Profit', value: profit.grossProfit },
+      { metric: 'Total Purchase Cost', value: profit.totalCost },
+      { metric: 'Online Web Income', value: channelSplit.online.revenue },
+      { metric: 'Shop POS Income', value: channelSplit.offline.revenue },
+      { metric: 'Total Customers', value: customers.totalUniqueInPeriod || 0 },
+      { metric: 'Returning Customers', value: customers.repeatCustomers || 0 },
+      { metric: 'First Time Buyers', value: (customers.totalUniqueInPeriod || 0) - (customers.repeatCustomers || 0) },
     ]);
     wsSummary.getColumn(2).eachCell((cell, rowNum) => {
-      if (rowNum > 2 && rowNum !== 5) {
+      if (rowNum > 2 && rowNum !== 5 && rowNum < 11) {
         cell.numFmt = '"₹"#,##0.00';
         cell.alignment = { horizontal: 'right' };
       }
     });
 
-    // 2. Sales Trend
+    // 2. Sales Trend (Income Graph)
     if (salesData.length) {
-      const wsSales = wb.addWorksheet('Sales Trend');
+      const wsSales = wb.addWorksheet('Income Graph');
       wsSales.columns = [
         { header: 'Date', key: 'date', width: 20 },
-        { header: 'Revenue', key: 'revenue', width: 20 },
-        { header: 'Orders', key: 'orders', width: 15 }
+        { header: 'Income', key: 'revenue', width: 20 },
+        { header: 'Bills', key: 'orders', width: 15 }
       ];
       styleHeader(wsSales);
       salesData.forEach(r => wsSales.addRow({ date: r._id, revenue: r.revenue || 0, orders: r.orders || 0 }));
       wsSales.getColumn(2).numFmt = '"₹"#,##0.00';
     }
 
-    // 3. Category Mix
+    // 3. Category Mix (Best Selling Categories)
     if (catData.length) {
       const wsCat = wb.addWorksheet('Categories');
       wsCat.columns = [
         { header: 'Category', key: 'category', width: 25 },
-        { header: 'Revenue', key: 'revenue', width: 20 },
+        { header: 'Income', key: 'revenue', width: 20 },
         { header: 'Items Sold', key: 'items', width: 15 }
       ];
       styleHeader(wsCat);
@@ -165,26 +168,26 @@ export default function AdminAnalytics() {
       wsCat.getColumn(2).numFmt = '"₹"#,##0.00';
     }
 
-    // 4. Top Products
+    // 4. Top Products (Highest Profit Items)
     if (topProducts.length) {
-      const wsProd = wb.addWorksheet('Top Products');
+      const wsProd = wb.addWorksheet('Best Selling Items');
       wsProd.columns = [
         { header: 'Product', key: 'product', width: 45 },
         { header: 'Quantity Sold', key: 'qty', width: 15 },
-        { header: 'Revenue', key: 'rev', width: 20 }
+        { header: 'Income', key: 'rev', width: 20 }
       ];
       styleHeader(wsProd);
       topProducts.forEach(p => wsProd.addRow({ product: p.name, qty: p.qty || 0, rev: p.rev || 0 }));
       wsProd.getColumn(3).numFmt = '"₹"#,##0.00';
     }
 
-    // 5. Regional Sales
+    // 5. Regional Sales (Orders by City/State)
     if (regionData.length) {
-      const wsRegion = wb.addWorksheet('Regional Sales');
+      const wsRegion = wb.addWorksheet('City Wise Sales');
       wsRegion.columns = [
-        { header: 'Region', key: 'region', width: 25 },
-        { header: 'Revenue', key: 'revenue', width: 20 },
-        { header: 'Orders', key: 'orders', width: 15 }
+        { header: 'City / State', key: 'region', width: 25 },
+        { header: 'Income', key: 'revenue', width: 20 },
+        { header: 'Bills', key: 'orders', width: 15 }
       ];
       styleHeader(wsRegion);
       regionData.forEach(r => wsRegion.addRow({ region: r._id || 'Unknown', revenue: r.revenue || 0, orders: r.orders || 0 }));
@@ -196,7 +199,7 @@ export default function AdminAnalytics() {
       const wsPay = wb.addWorksheet('Payment Methods');
       wsPay.columns = [
         { header: 'Method', key: 'method', width: 25 },
-        { header: 'Revenue', key: 'revenue', width: 20 },
+        { header: 'Income', key: 'revenue', width: 20 },
         { header: 'Count', key: 'count', width: 15 }
       ];
       styleHeader(wsPay);
@@ -204,25 +207,65 @@ export default function AdminAnalytics() {
       wsPay.getColumn(2).numFmt = '"₹"#,##0.00';
     }
 
-    // 7. Inventory & ERP
-    const wsERP = wb.addWorksheet('Inventory & ERP');
+    // 7. Inventory & Stock Value
+    const wsERP = wb.addWorksheet('Stock Value Overview');
     wsERP.columns = [
       { header: 'Metric', key: 'metric', width: 35 },
       { header: 'Value', key: 'value', width: 25 }
     ];
     styleHeader(wsERP);
     wsERP.addRows([
-      { metric: 'Total Stock Value', value: erp.inventoryValue || 0 },
-      { metric: 'Supplier Payables', value: erp.totalPayables || 0 },
-      { metric: 'Dead Stock Items', value: deadStock.length },
-      { metric: 'Low Margin Items', value: lowMargin.length }
+      { metric: 'Value of Stock in Shop', value: erp.inventoryValue || 0 },
+      { metric: 'Pending to Suppliers', value: erp.totalPayables || 0 },
+      { metric: 'Unsold Items Count', value: deadStock.length },
+      { metric: 'Low Profit Items Count', value: lowMargin.length }
     ]);
     wsERP.getCell('B2').numFmt = '"₹"#,##0.00';
     wsERP.getCell('B3').numFmt = '"₹"#,##0.00';
 
+    // 8. Staff Leaderboard
+    if (staffData.length) {
+      const wsStaff = wb.addWorksheet('Staff Leaderboard');
+      wsStaff.columns = [
+        { header: 'Staff Name', key: 'name', width: 25 },
+        { header: 'Total Billed', key: 'revenue', width: 20 },
+        { header: 'Bills Generated', key: 'txns', width: 15 }
+      ];
+      styleHeader(wsStaff);
+      staffData.forEach(s => wsStaff.addRow({ name: s.name || 'Unknown', revenue: s.totalSales || 0, txns: s.txns || 0 }));
+      wsStaff.getColumn(2).numFmt = '"₹"#,##0.00';
+    }
+
+    // 9. Unsold Items (Dead Stock)
+    if (deadStock.length) {
+      const wsDead = wb.addWorksheet('Unsold Items (30+ Days)');
+      wsDead.columns = [
+        { header: 'Product Name', key: 'name', width: 40 },
+        { header: 'Variant', key: 'variant', width: 25 },
+        { header: 'Stock Left', key: 'stock', width: 15 },
+        { header: 'Days Unsold', key: 'days', width: 15 }
+      ];
+      styleHeader(wsDead);
+      deadStock.forEach(d => wsDead.addRow({ name: d.productName || d.name || 'Unknown', variant: `${d.size} - ${d.color}`, stock: d.totalStock || 0, days: Math.round(d.ageDays || 0) }));
+    }
+
+    // 10. Low Profit Items
+    if (lowMargin.length) {
+      const wsMargin = wb.addWorksheet('Low Profit Items');
+      wsMargin.columns = [
+        { header: 'Product Name', key: 'name', width: 40 },
+        { header: 'Variant', key: 'variant', width: 25 },
+        { header: 'Margin %', key: 'margin', width: 15 },
+        { header: 'Sell Price', key: 'price', width: 15 }
+      ];
+      styleHeader(wsMargin);
+      lowMargin.forEach(l => wsMargin.addRow({ name: l.productName || l.name || 'Unknown', variant: `${l.size} - ${l.color}`, margin: `${l.margin ? (l.margin * 100).toFixed(1) : 0}%`, price: l.sellingPrice || 0 }));
+      wsMargin.getColumn(4).numFmt = '"₹"#,##0.00';
+    }
+
     const buffer = await wb.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-    saveAs(blob, `Business_Analytics_${period}_${new Date().toISOString().split('T')[0]}.xlsx`);
+    saveAs(blob, `Shop_Analytics_${period}_${new Date().toISOString().split('T')[0]}.xlsx`);
     
     toast.success('Admin-friendly Excel Downloaded!', { id: 'export' });
   };
