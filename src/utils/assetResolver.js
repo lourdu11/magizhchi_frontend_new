@@ -110,3 +110,7 @@ export const resolveAssetURL = (path, width = null, quality = 70, options = {}) 
 };
 
 export const getPlaceholder = () => PLACEHOLDER;
+
+export const getValidImage = (...images) => {
+  return images.find(img => img && typeof img === 'string' && img !== 'null' && img !== 'undefined' && img.trim() !== '');
+};

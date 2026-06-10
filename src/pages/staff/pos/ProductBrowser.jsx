@@ -3,7 +3,7 @@ import { Search, LayoutGrid, ListFilter, X, ChevronRight, Scan, Camera } from 'l
 import CameraScanner from './CameraScanner';
 import { usePOS } from './POSContext';
 import SafeImage from '../../../components/common/SafeImage';
-import { resolveAssetURL } from '../../../utils/assetResolver';
+import { resolveAssetURL, getValidImage } from '../../../utils/assetResolver';
 import { PosProductSkeleton } from '../../../components/common/Skeletons';
 import { ShoppingBag } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -201,7 +201,7 @@ const ProductBrowser = memo(({ products, categories, isLoading }) => {
               <div className="p-4 md:p-8 border-b border-border-light flex items-center justify-between">
                  <div className="flex items-center gap-4">
                     <div className="w-16 h-16 bg-light-bg rounded-2xl overflow-hidden border border-border-light">
-                       <SafeImage src={selectedProduct.laptopImage || selectedProduct.mobileImage || selectedProduct.thumbnail || selectedProduct.images?.[0] || selectedProduct.variants?.[0]?.images?.[0] || selectedProduct.variants?.[0]?.laptopImage} className="w-full h-full object-cover" />
+                       <SafeImage src={getValidImage(selectedProduct.laptopImage, selectedProduct.mobileImage, selectedProduct.thumbnail, selectedProduct.images?.[0], selectedProduct.variants?.[0]?.laptopImage, selectedProduct.variants?.[0]?.images?.[0])} className="w-full h-full object-cover" />
                     </div>
                     <div>
                        <h2 className="text-xl font-black text-charcoal uppercase leading-none">{selectedProduct.productName || selectedProduct.name}</h2>
@@ -239,8 +239,8 @@ const ProductBrowser = memo(({ products, categories, isLoading }) => {
                            <div className="w-12 h-12 bg-white rounded-xl overflow-hidden flex items-center justify-center text-xs font-black text-charcoal border border-border-light uppercase shrink-0">
                               {(v.laptopImage || v.images?.[0] || selectedProduct.laptopImage || selectedProduct.thumbnail || selectedProduct.images?.[0]) ? (
                                 <SafeImage 
-                                  src={v.laptopImage || v.images?.[0] || selectedProduct.laptopImage || selectedProduct.thumbnail || selectedProduct.images?.[0]} 
-                                  fallbackSrc={selectedProduct.laptopImage || selectedProduct.thumbnail || selectedProduct.images?.[0]}
+                                  src={getValidImage(v.laptopImage, v.images?.[0], selectedProduct.laptopImage, selectedProduct.mobileImage, selectedProduct.thumbnail, selectedProduct.images?.[0])} 
+                                  fallbackSrc={getValidImage(selectedProduct.laptopImage, selectedProduct.thumbnail, selectedProduct.images?.[0])}
                                   className="w-full h-full object-cover" 
                                 />
                               ) : (
@@ -293,7 +293,7 @@ const ProductCard = memo(({ product, onSelect }) => {
     >
       <div className="aspect-square rounded-2xl overflow-hidden mb-4 bg-light-bg relative">
         <SafeImage 
-          src={product.thumbnail || product.images?.[0] || product.laptopImage || product.tabletImage || product.mobileImage || product.variants?.[0]?.images?.[0] || product.variants?.[0]?.laptopImage} 
+          src={getValidImage(product.laptopImage, product.mobileImage, product.thumbnail, product.images?.[0], product.variants?.[0]?.laptopImage, product.variants?.[0]?.images?.[0])} 
           alt={product.name} 
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
         />
