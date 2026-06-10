@@ -4,6 +4,7 @@ import { Users, Search, Shield, ShieldOff, Download, Eye, Loader2, Mail, Phone }
 import { adminService } from '../../services';
 import { toast } from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
+import * as XLSX from 'xlsx';
 
 export default function AdminUsers() {
   const [search, setSearch] = useState('');
@@ -23,13 +24,20 @@ export default function AdminUsers() {
     onSuccess: () => { queryClient.invalidateQueries(['admin-users']); toast.success('User status updated'); },
   });
 
-  const downloadCSV = () => {
+  const exportToExcel = () => {
     if (!users?.length) return;
-    const headers = ['Name', 'Email', 'Phone', 'Role', 'Status', 'Joined'];
-    const rows = users.map(u => [u.name, u.email, u.phone || '-', u.role, u.isBlocked ? 'Blocked' : 'Active', new Date(u.createdAt).toLocaleDateString('en-IN')]);
-    const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'users.csv'; a.click();
+    const exportData = users.map(u => ({
+      'Name': u.name, 
+      'Email': u.email, 
+      'Phone': u.phone || '-', 
+      'Role': u.role, 
+      'Status': u.isBlocked ? 'Blocked' : 'Active', 
+      'Joined': new Date(u.createdAt).toLocaleDateString('en-IN')
+    }));
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Customers');
+    XLSX.writeFile(wb, `Customers_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
   return (
@@ -40,8 +48,8 @@ export default function AdminUsers() {
           <h1 className="text-2xl font-bold text-text-primary">Customers</h1>
           <p className="text-text-muted text-sm">{pagination?.total || users?.length || 0} total customers (incl. guests)</p>
         </div>
-        <button onClick={downloadCSV} className="btn-dark flex items-center gap-2 self-start py-2 px-4 text-sm">
-          <Download size={16} /> Export CSV
+        <button onClick={exportToExcel} className="btn-dark flex items-center gap-2 self-start py-2 px-4 text-sm">
+          <Download size={16} /> Export Excel
         </button>
       </div>
 

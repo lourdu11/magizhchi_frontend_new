@@ -345,7 +345,7 @@ export default function StaffDailyReport() {
 
                 <div className="grid grid-cols-2 gap-4 flex-1">
                   {[
-                    { id: 'csv', title: 'Raw Data (CSV)', desc: 'For Tally/Zoho import', icon: FileSpreadsheet, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+                    { id: 'csv', title: 'Excel Data (XLSX)', desc: 'For Tally/Zoho import', icon: FileSpreadsheet, color: 'text-emerald-600', bg: 'bg-emerald-50' },
                     { id: 'cloud', title: 'Cloud Sync', desc: 'Secure AWS vault backup', icon: Cloud, color: 'text-blue-600', bg: 'bg-blue-50' },
                     { id: 'admin', title: 'Admin Dispatch', desc: 'Automated EOD email', icon: Mail, color: 'text-purple-600', bg: 'bg-purple-50' },
                   ].map(opt => (

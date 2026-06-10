@@ -7,6 +7,7 @@ import { toast } from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
 import ThermalReceipt from '../staff/pos/ThermalReceipt';
+import * as XLSX from 'xlsx';
 
 const STATUS_OPTIONS = ['placed', 'confirmed', 'shipped', 'out_for_delivery', 'delivered', 'cancelled'];
 const STATUS_COLORS = {
@@ -76,21 +77,21 @@ export default function AdminOrders() {
     onError: (err) => toast.error(err.response?.data?.message || 'Failed to resend receipt'),
   });
 
-  const downloadCSV = () => {
+  const exportToExcel = () => {
     if (!orders.length) return;
-    const headers = ['Order #', 'Customer', 'Email/Phone', 'Amount', 'Status', 'Payment', 'Date'];
-    const rows = orders.map(o => [
-      o.orderNumber, 
-      o.shippingAddress?.name || o.userId?.name || 'Guest', 
-      o.guestDetails?.email || o.userId?.email || o.shippingAddress?.phone || '-', 
-      o.pricing?.totalAmount, 
-      o.orderStatus, 
-      o.paymentMethod, 
-      new Date(o.createdAt).toLocaleDateString('en-IN')
-    ]);
-    const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'orders.csv'; a.click();
+    const exportData = orders.map(o => ({
+      'Order #': o.orderNumber, 
+      'Customer': o.shippingAddress?.name || o.userId?.name || 'Guest', 
+      'Email/Phone': o.guestDetails?.email || o.userId?.email || o.shippingAddress?.phone || '-', 
+      'Amount': o.pricing?.totalAmount, 
+      'Status': o.orderStatus, 
+      'Payment': o.paymentMethod, 
+      'Date': new Date(o.createdAt).toLocaleDateString('en-IN')
+    }));
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Orders');
+    XLSX.writeFile(wb, `Orders_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
   return (
@@ -139,8 +140,8 @@ export default function AdminOrders() {
           </h1>
           <p className="text-text-muted text-sm">{total} total orders</p>
         </div>
-        <button onClick={downloadCSV} className="btn-dark flex items-center gap-2 self-start py-2 px-4 text-sm">
-          <Download size={16} /> Export CSV
+        <button onClick={exportToExcel} className="btn-dark flex items-center gap-2 self-start py-2 px-4 text-sm">
+          <Download size={16} /> Export Excel
         </button>
       </div>
 

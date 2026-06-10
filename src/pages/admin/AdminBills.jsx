@@ -7,6 +7,7 @@ import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../../store';
 import { useVirtualizer } from '@tanstack/react-virtual';
+import * as XLSX from 'xlsx';
 
 export default function AdminBills() {
   const [search, setSearch] = useState('');
@@ -49,13 +50,21 @@ export default function AdminBills() {
     overscan: 10,
   });
 
-  const downloadCSV = () => {
+  const exportToExcel = () => {
     if (!bills.length) return;
-    const headers = ['Bill #', 'Staff', 'Customer', 'Phone', 'Amount', 'Payment', 'Date'];
-    const rows = bills.map(b => [b.billNumber, b.staffId?.name || '-', b.customerDetails?.name || 'Walk-in', b.customerDetails?.phone || '-', (b.pricing?.totalAmount / 100), b.paymentMethod, new Date(b.createdAt).toLocaleDateString('en-IN')]);
-    const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'bills.csv'; a.click();
+    const exportData = bills.map(b => ({
+      'Bill #': b.billNumber, 
+      'Staff': b.staffId?.name || '-', 
+      'Customer': b.customerDetails?.name || 'Walk-in', 
+      'Phone': b.customerDetails?.phone || '-', 
+      'Amount': (b.pricing?.totalAmount / 100), 
+      'Payment': b.paymentMethod, 
+      'Date': new Date(b.createdAt).toLocaleDateString('en-IN')
+    }));
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Bills');
+    XLSX.writeFile(wb, `Offline_Bills_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
   return (
@@ -66,8 +75,8 @@ export default function AdminBills() {
           <h1 className="text-2xl font-bold text-text-primary">Offline Bills</h1>
           <p className="text-text-muted text-sm">All bills created by staff at the counter</p>
         </div>
-        <button onClick={downloadCSV} className="btn-dark flex items-center gap-2 self-start py-2 px-4 text-sm">
-          <Download size={16} /> Export CSV
+        <button onClick={exportToExcel} className="btn-dark flex items-center gap-2 self-start py-2 px-4 text-sm">
+          <Download size={16} /> Export Excel
         </button>
       </div>
 
