@@ -9,6 +9,7 @@ import { productService, cartService, wishlistService, reviewService, authServic
 import api from '../services/api';
 import { useAuthStore, useWishlistStore } from '../store';
 import SafeImage from '../components/common/SafeImage';
+import { resolveAssetURL } from '../utils/assetResolver';
 
 const COLOR_MAP = {
   black: '#000000',
@@ -60,65 +61,8 @@ export default function ProductDetails() {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const imgContainerRef = useRef(null);
 
-  const getHighResUrl = useCallback((src) => {
-    if (!src || typeof src !== 'string') return src;
-    // Cloudinary: upgrade to w_2000, q_90 for crisp zoom
-    if (src.includes('res.cloudinary.com') && src.includes('/upload/')) {
-      const parts = src.split('/upload/');
-      if (parts.length === 2) {
-         let after = parts[1];
-         const versionMatch = after.match(/v\d+\//);
-         if (versionMatch) {
-           after = after.substring(after.indexOf(versionMatch[0]));
-         } else {
-           const firstPart = after.split('/')[0];
-           if (firstPart.includes('_') && (firstPart.includes('w_') || firstPart.includes('c_') || firstPart.includes('q_') || firstPart.includes('f_'))) {
-             after = after.substring(firstPart.length + 1);
-           }
-         }
-         return `${parts[0]}/upload/f_auto,q_90,w_2000,e_improve/${after}`;
-      }
-    }
-    // ImageKit: request w-2000
-    if (src.includes('ik.imagekit.io')) {
-      try {
-        const u = new URL(src);
-        u.searchParams.set('tr', 'w-2000,q-90,f-auto');
-        return u.toString().replace(/%2C/g, ',');
-      } catch { return src; }
-    }
-    return src;
-  }, []);
-
-  const getUltraResUrl = useCallback((src) => {
-    if (!src || typeof src !== 'string') return src;
-    // Cloudinary: upgrade to w_4000, q_100 for ultra-crisp zoom
-    if (src.includes('res.cloudinary.com') && src.includes('/upload/')) {
-      const parts = src.split('/upload/');
-      if (parts.length === 2) {
-         let after = parts[1];
-         const versionMatch = after.match(/v\d+\//);
-         if (versionMatch) {
-           after = after.substring(after.indexOf(versionMatch[0]));
-         } else {
-           const firstPart = after.split('/')[0];
-           if (firstPart.includes('_') && (firstPart.includes('w_') || firstPart.includes('c_') || firstPart.includes('q_') || firstPart.includes('f_'))) {
-             after = after.substring(firstPart.length + 1);
-           }
-         }
-         return `${parts[0]}/upload/f_auto,q_100,w_4000,e_improve/${after}`;
-      }
-    }
-    // ImageKit: request w-4000
-    if (src.includes('ik.imagekit.io')) {
-      try {
-        const u = new URL(src);
-        u.searchParams.set('tr', 'w-4000,q-100,f-auto');
-        return u.toString().replace(/%2C/g, ',');
-      } catch { return src; }
-    }
-    return src;
-  }, []);
+  const getHighResUrl = useCallback((src) => resolveAssetURL(src, 1200, 90), []);
+  const getUltraResUrl = useCallback((src) => resolveAssetURL(src, 2000, 100), []);
 
   const { data, isLoading } = useQuery({
     queryKey: ['product', slug],
