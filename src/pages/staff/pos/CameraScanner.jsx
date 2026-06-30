@@ -119,24 +119,8 @@ const CameraScanner = ({ isOpen, onClose, onScan }) => {
     setFacingMode(prev => prev === 'environment' ? 'user' : 'environment');
   };
 
-  // Don't render anything if not open or camera not ready
+  // Don't render anything if not open
   if (!isOpen) return null;
-
-  // Show loading spinner while camera is initializing
-  if (!cameraReady) {
-    return (
-      <div className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-sm flex items-center justify-center">
-        <div className="bg-charcoal rounded-2xl p-4 md:p-8 text-center">
-          <div className="w-10 h-10 border-[3px] border-premium-gold border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-white text-sm font-bold">Opening Camera...</p>
-          <p className="text-gray-400 text-xs mt-1">Tap "Allow" if prompted</p>
-          <button onClick={handleClose} className="mt-4 px-5 py-2 bg-gray-700 text-white rounded-xl text-xs font-bold">
-            Cancel
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   if (errorState !== 'none') {
     return (
@@ -173,6 +157,22 @@ const CameraScanner = ({ isOpen, onClose, onScan }) => {
         >
           Close Scanner
         </button>
+      </div>
+    );
+  }
+
+  // Show loading spinner while camera is initializing
+  if (!cameraReady) {
+    return (
+      <div className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-sm flex items-center justify-center">
+        <div className="bg-charcoal rounded-2xl p-4 md:p-8 text-center">
+          <div className="w-10 h-10 border-[3px] border-premium-gold border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-white text-sm font-bold">Opening Camera...</p>
+          <p className="text-gray-400 text-xs mt-1">Tap "Allow" if prompted</p>
+          <button onClick={handleClose} className="mt-4 px-5 py-2 bg-gray-700 text-white rounded-xl text-xs font-bold">
+            Cancel
+          </button>
+        </div>
       </div>
     );
   }
