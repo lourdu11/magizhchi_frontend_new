@@ -1146,7 +1146,7 @@ export default function StaffCreateBill() {
                     >
                       <div className="relative aspect-[4/5] overflow-hidden bg-[#F5F5F7] shrink-0">
                         <SafeImage 
-                          src={getValidImage(product.laptopImage, product.mobileImage, product.thumbnail, product.images?.[0], product.variants?.[0]?.laptopImage, product.variants?.[0]?.images?.[0])} 
+                          src={getValidImage(product.images?.[0], product.thumbnail, product.laptopImage, product.mobileImage, product.variants?.[0]?.images?.[0], product.variants?.[0]?.laptopImage)} 
                           width={200} quality={70}
                           alt="" 
                           className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
@@ -1204,7 +1204,7 @@ export default function StaffCreateBill() {
                       className="flex items-center gap-4 bg-white p-3 rounded-2xl border border-border-light/50 hover:border-premium-gold hover:shadow-md transition-all cursor-pointer group"
                     >
                       <div className="w-12 h-14 rounded-xl overflow-hidden shrink-0 border border-border-light/50 bg-[#F5F5F7] relative">
-                        <SafeImage src={getValidImage(product.laptopImage, product.mobileImage, product.thumbnail, product.images?.[0], product.variants?.[0]?.laptopImage, product.variants?.[0]?.images?.[0])} width={200} quality={70} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                        <SafeImage src={getValidImage(product.images?.[0], product.thumbnail, product.laptopImage, product.mobileImage, product.variants?.[0]?.images?.[0], product.variants?.[0]?.laptopImage)} width={200} quality={70} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                         {isOutOfStock && <div className="absolute inset-0 bg-charcoal/60 flex items-center justify-center"><span className="text-[6px] font-black text-white uppercase tracking-widest">OUT</span></div>}
                       </div>
                       <div className="flex-1 min-w-0 text-left">
