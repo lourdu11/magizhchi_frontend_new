@@ -77,7 +77,7 @@ export default function AdminLayout() {
   };
 
   return (
-    <div className="min-h-dvh print:min-h-0 print:h-auto print:block bg-[#F8F9FA] font-sans">
+    <div className="h-dvh print:h-auto print:block bg-[#F8F9FA] font-sans overflow-hidden">
       {/* Mobile Header (Fixed at top) */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-[#DADCE0] px-4 sm:px-6 flex items-center justify-between z-[60] print:hidden">
         <div className="flex items-center gap-2">
@@ -105,12 +105,12 @@ export default function AdminLayout() {
         )}
       </AnimatePresence>
 
-      <div className="flex">
+      <div className="flex h-full">
         {/* Sidebar */}
         <aside className={`
           ${collapsed ? 'w-16' : 'w-64'} 
           ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-          shrink-0 bg-white border-r border-[#DADCE0] flex flex-col transition-all duration-300 fixed lg:sticky top-0 h-dvh z-[80] shadow-xl lg:shadow-none print:hidden
+          shrink-0 bg-white border-r border-[#DADCE0] flex flex-col transition-all duration-300 fixed lg:static top-0 h-full z-[80] shadow-xl lg:shadow-none print:hidden
         `}>
           {/* Logo */}
           <div className={`flex items-center ${collapsed ? 'justify-center' : 'justify-between'} px-4 sm:px-6 py-5 border-b border-[#F1F3F4]`}>
@@ -178,7 +178,7 @@ export default function AdminLayout() {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 min-w-0 max-w-full overflow-x-hidden min-h-dvh print:min-h-0 print:h-auto print:m-0 print:p-0 print:block pt-16 lg:pt-0">
+        <main className="flex-1 min-w-0 max-w-full overflow-y-auto overflow-x-hidden h-full print:h-auto print:m-0 print:p-0 print:block pt-16 lg:pt-0">
           <div className="w-full p-4 md:p-5 md:p-10 print:p-0 print:m-0 max-w-[1600px] print:max-w-none mx-auto">
             <Outlet />
           </div>
