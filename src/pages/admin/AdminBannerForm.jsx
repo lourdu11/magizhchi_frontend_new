@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Save, Loader2, ImageIcon, ChevronLeft, Eye, EyeOff, ExternalLink, Check, Monitor, Smartphone, Copy } from 'lucide-react';
@@ -32,22 +32,23 @@ export default function AdminBannerForm() {
   const [urlInput, setUrlInput] = useState('');
   const [lastUrl, setLastUrl] = useState('');
 
-  const { isFetching } = useQuery({
+  const { data: bannerData, isFetching } = useQuery({
     queryKey: ['admin-banner', id],
     queryFn: () => bannerService.getAllBanners().then(r => r.data.data.find(b => b._id === id)),
     enabled: !!id,
-    onSuccess: (data) => {
-      if (data) {
-        setForm({
-          ...data,
-          desktopFit: data.desktopFit || 'cover',
-          desktopPos: data.desktopPos || 'center',
-          mobileFit: data.mobileFit || 'cover',
-          mobilePos: data.mobilePos || 'center'
-        });
-      }
-    }
   });
+
+  useEffect(() => {
+    if (bannerData) {
+      setForm({
+        ...bannerData,
+        desktopFit: bannerData.desktopFit || 'cover',
+        desktopPos: bannerData.desktopPos || 'center',
+        mobileFit: bannerData.mobileFit || 'cover',
+        mobilePos: bannerData.mobilePos || 'center'
+      });
+    }
+  }, [bannerData]);
 
   const saveMutation = useMutation({
     mutationFn: (data) => id ? bannerService.updateBanner(id, data) : bannerService.createBanner(data),
@@ -294,7 +295,7 @@ export default function AdminBannerForm() {
               </div>
             </div>
             
-            <div className="grid lg:grid-cols-2 gap-8">
+            <div className="grid lg:grid-cols-3 gap-8">
               <div className="space-y-3 bg-light-bg/20 p-4 sm:p-4 sm:p-6 rounded-[2rem] border border-border-light/50">
                 <div className="flex items-center justify-between">
                   <span className="text-[9px] font-black text-charcoal uppercase tracking-wider flex items-center gap-2"><Monitor size={12}/> Desktop (21:9)</span>
@@ -306,6 +307,20 @@ export default function AdminBannerForm() {
                   scale={form.desktopScale}
                   label="Desktop"
                   aspect="21/9"
+                />
+              </div>
+
+              <div className="space-y-3 bg-light-bg/20 p-4 sm:p-4 sm:p-6 rounded-[2rem] border border-border-light/50">
+                <div className="flex items-center justify-between">
+                  <span className="text-[9px] font-black text-charcoal uppercase tracking-wider flex items-center gap-2"><Monitor size={12}/> Tablet (16:9)</span>
+                </div>
+                <LivePreview
+                  src={form.desktopImage}
+                  fit={form.desktopFit}
+                  position={form.desktopPos}
+                  scale={form.desktopScale}
+                  label="Tablet"
+                  aspect="16/9"
                 />
               </div>
 
