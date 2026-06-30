@@ -28,7 +28,7 @@ function WhatsAppStatus({ collapsed }) {
   }, []);
 
   return (
-    <div className={`px-4 py-2 mt-auto mb-2 ${collapsed ? 'flex justify-center' : ''}`}>
+    <div className={`px-4 py-2 mb-2 ${collapsed ? 'flex justify-center' : ''}`}>
       <div className={`
         flex items-center gap-2 px-3 py-2 rounded-xl border font-sans text-xs
         ${isReady ? 'bg-[#E6F4EA] border-[#CEEAD6] text-[#137333]' : 'bg-[#FEF7E0] border-[#FEEFC3] text-[#B06000]'}
@@ -132,9 +132,8 @@ export default function AdminLayout() {
           </div>
 
           {/* Scrollable Content */}
-          <div className="flex-1 overflow-y-auto custom-scrollbar">
-            <div className="flex flex-col min-h-full">
-              {/* Nav */}
+          <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col">
+            {/* Nav */}
               <nav className="py-4 sm:py-6 px-3 space-y-1">
                 {NAV.map(({ icon: Icon, label, path }) => {
                   const active = location.pathname === path || (path !== '/admin' && location.pathname.startsWith(path));
@@ -155,7 +154,7 @@ export default function AdminLayout() {
                 })}
               </nav>
 
-              <div className="mt-auto">
+              <div>
                 {/* WhatsApp Status */}
                 <WhatsAppStatus collapsed={collapsed} />
 
@@ -173,7 +172,6 @@ export default function AdminLayout() {
                   </button>
                 </div>
               </div>
-            </div>
           </div>
         </aside>
 
