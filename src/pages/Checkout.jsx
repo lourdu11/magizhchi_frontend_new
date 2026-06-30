@@ -411,6 +411,12 @@ export default function Checkout() {
                         </div>
 
                         <div>
+                          <label className="text-[10px] font-black text-text-muted uppercase tracking-widest block mb-2">Pincode *</label>
+                          <input value={address.pincode} onChange={e => updateAddr('pincode', e.target.value.replace(/\D/g, '').slice(0,6))} className={`input font-mono ${errors.pincode ? 'border-red-500 bg-red-50/10' : ''}`} placeholder="600001" />
+                          {errors.pincode && <p className="text-[10px] text-red-500 font-bold mt-1 ml-1">{errors.pincode}</p>}
+                        </div>
+
+                        <div>
                           <label className="text-[10px] font-black text-text-muted uppercase tracking-widest block mb-2">City / District *</label>
                           <div className="relative">
                             {districtsByState[address.state] ? (
@@ -441,12 +447,6 @@ export default function Checkout() {
                         <div>
                           <label className="text-[10px] font-black text-text-muted uppercase tracking-widest block mb-2">Country</label>
                           <input value="India" disabled className="input bg-light-bg cursor-not-allowed font-bold opacity-60" />
-                        </div>
-
-                        <div>
-                          <label className="text-[10px] font-black text-text-muted uppercase tracking-widest block mb-2">Pincode *</label>
-                          <input value={address.pincode} onChange={e => updateAddr('pincode', e.target.value.replace(/\D/g, '').slice(0,6))} className={`input font-mono ${errors.pincode ? 'border-red-500 bg-red-50/10' : ''}`} placeholder="600001" />
-                          {errors.pincode && <p className="text-[10px] text-red-500 font-bold mt-1 ml-1">{errors.pincode}</p>}
                         </div>
                       </div>
 

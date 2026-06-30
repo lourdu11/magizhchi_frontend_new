@@ -219,6 +219,11 @@ function Addresses() {
             </div>
 
             <div>
+              <label className="text-[10px] font-black text-text-muted uppercase tracking-widest block mb-2">Pincode *</label>
+              <input value={form.pincode} onChange={e => setForm({...form, pincode: e.target.value.replace(/\D/g, '').slice(0,6)})} className={`w-full bg-light-bg border border-border-light rounded-xl px-4 py-3 font-mono font-medium placeholder:text-text-muted/50 focus:outline-none focus:border-charcoal ${errors.pincode ? 'border-red-500 bg-red-50/10' : ''}`} placeholder="600001" />
+            </div>
+
+            <div>
               <label className="text-[10px] font-black text-text-muted uppercase tracking-widest block mb-2">City / District *</label>
               <div className="relative">
                 {districtsByState[form.state] ? (
@@ -246,8 +251,8 @@ function Addresses() {
             </div>
 
             <div>
-              <label className="text-[10px] font-black text-text-muted uppercase tracking-widest block mb-2">Pincode *</label>
-              <input value={form.pincode} onChange={e => setForm({...form, pincode: e.target.value.replace(/\D/g, '').slice(0,6)})} className={`w-full bg-light-bg border border-border-light rounded-xl px-4 py-3 font-mono font-medium placeholder:text-text-muted/50 focus:outline-none focus:border-charcoal ${errors.pincode ? 'border-red-500 bg-red-50/10' : ''}`} placeholder="600001" />
+              <label className="text-[10px] font-black text-text-muted uppercase tracking-widest block mb-2">Country</label>
+              <input value="India" disabled className="w-full bg-light-bg border border-border-light rounded-xl px-4 py-3 font-bold opacity-60 cursor-not-allowed" />
             </div>
             
             <div className="flex items-center gap-3">
