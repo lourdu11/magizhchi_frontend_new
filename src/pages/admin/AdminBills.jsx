@@ -27,11 +27,17 @@ export default function AdminBills() {
   
   // Date filters
   const now = new Date();
+  
+  const getLocalYMD = (d) => {
+    const tzOffset = d.getTimezoneOffset() * 60000;
+    return new Date(d.getTime() - tzOffset).toISOString().split('T')[0];
+  };
+
   const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
   const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
   
-  const [fromDate, setFromDate] = useState(firstDay.toISOString().split('T')[0]);
-  const [toDate, setToDate] = useState(lastDay.toISOString().split('T')[0]);
+  const [fromDate, setFromDate] = useState(getLocalYMD(firstDay));
+  const [toDate, setToDate] = useState(getLocalYMD(now)); // Default to today instead of end of month, more intuitive for "up to today"
 
   const [selectedBill, setSelectedBill] = useState(null);
   const [deletingBill, setDeletingBill] = useState(null);
