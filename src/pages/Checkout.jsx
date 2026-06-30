@@ -54,6 +54,7 @@ export default function Checkout() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [localCartItems, setLocalCartItems] = useState([]);
   const [errors, setErrors] = useState({});
+  const [existingOrderId, setExistingOrderId] = useState(null);
 
   useEffect(() => {
     sessionStorage.setItem('magizhchi-checkout-step', step);
@@ -170,6 +171,11 @@ export default function Checkout() {
   
   const { items, subtotal } = useMemo(() => calculatePromoPrices(rawItems), [rawItems]);
 
+  // Reset existing order if cart changes
+  useEffect(() => {
+    setExistingOrderId(null);
+  }, [items, subtotal]);
+
   const shipping = useMemo(() => subtotal >= shippingThreshold ? 0 : flatRate, [subtotal, shippingThreshold, flatRate]);
   const currentCodCharge = useMemo(() => (paymentMethod === 'cod' && isCodEnabled) ? codExtra : 0, [paymentMethod, isCodEnabled, codExtra]);
   const total = useMemo(() => subtotal + shipping + currentCodCharge, [subtotal, shipping, currentCodCharge]);
@@ -200,36 +206,48 @@ export default function Checkout() {
     setShowConfirmModal(false);
     setLoading(true);
     try {
-      const orderItems = items.map(item => ({
-        productId: item?.productId?._id || item?.productId,
-        size: item?.variant?.size || item?.size,
-        color: item?.variant?.color || item?.color,
-        quantity: item?.quantity,
-        isCombo: item?.isCombo || false,
-        comboSelections: item?.comboSelections || []
-      })).filter(i => i.productId);
+      let order, checkoutAccessToken, razorpayOrder;
 
-      const payload = {
-        items: orderItems,
-        shippingAddress: {
-          name:         address.name,
-          phone:        address.phone,
-          addressLine1: address.addressLine1,
-          addressLine2: address.addressLine2 || '',
-          city:         address.city || '',
-          state:        address.state,
-          pincode:      address.pincode,
-        },
-        paymentMethod,
-      };
+      if (existingOrderId && paymentMethod === 'razorpay') {
+        const { data } = await orderService.retryPayment(existingOrderId);
+        order = data.data.order;
+        razorpayOrder = data.data.razorpayOrder;
+        checkoutAccessToken = sessionStorage.getItem(`magizhchi-order-token:${order._id}`);
+      } else {
+        const orderItems = items.map(item => ({
+          productId: item?.productId?._id || item?.productId,
+          size: item?.variant?.size || item?.size,
+          color: item?.variant?.color || item?.color,
+          quantity: item?.quantity,
+          isCombo: item?.isCombo || false,
+          comboSelections: item?.comboSelections || []
+        })).filter(i => i.productId);
 
-      if (!isAuthenticated) {
-        payload.guestDetails = { name: address.name, phone: address.phone, email: guestDetails.email || '' };
+        const payload = {
+          items: orderItems,
+          shippingAddress: {
+            name:         address.name,
+            phone:        address.phone,
+            addressLine1: address.addressLine1,
+            addressLine2: address.addressLine2 || '',
+            city:         address.city || '',
+            state:        address.state,
+            pincode:      address.pincode,
+          },
+          paymentMethod,
+        };
+
+        if (!isAuthenticated) {
+          payload.guestDetails = { name: address.name, phone: address.phone, email: guestDetails.email || '' };
+        }
+
+        const { data } = await orderService.createOrder(payload);
+        order = data.data.order;
+        checkoutAccessToken = data.data.checkoutAccessToken;
+        razorpayOrder = data.data.razorpayOrder;
+        sessionStorage.setItem(`magizhchi-order-token:${order._id}`, checkoutAccessToken);
+        setExistingOrderId(order._id);
       }
-
-      const { data } = await orderService.createOrder(payload);
-      const { order, checkoutAccessToken, razorpayOrder } = data.data;
-      sessionStorage.setItem(`magizhchi-order-token:${order._id}`, checkoutAccessToken);
 
       const clearCompletedCheckout = () => {
         if (!isAuthenticated) {
