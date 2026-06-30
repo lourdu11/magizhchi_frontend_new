@@ -54,11 +54,21 @@ export default function Checkout() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [localCartItems, setLocalCartItems] = useState([]);
   const [errors, setErrors] = useState({});
-  const [existingOrderId, setExistingOrderId] = useState(null);
+  const [existingOrderId, setExistingOrderId] = useState(() => {
+    return sessionStorage.getItem('magizhchi-checkout-order-id') || null;
+  });
 
   useEffect(() => {
     sessionStorage.setItem('magizhchi-checkout-step', step);
   }, [step]);
+
+  useEffect(() => {
+    if (existingOrderId) {
+      sessionStorage.setItem('magizhchi-checkout-order-id', existingOrderId);
+    } else {
+      sessionStorage.removeItem('magizhchi-checkout-order-id');
+    }
+  }, [existingOrderId]);
 
   useEffect(() => {
     sessionStorage.setItem('magizhchi-checkout-payment', paymentMethod);
@@ -261,6 +271,7 @@ export default function Checkout() {
         sessionStorage.removeItem('magizhchi-checkout-address');
         sessionStorage.removeItem('magizhchi-checkout-guest');
         sessionStorage.removeItem('magizhchi-checkout-payment');
+        sessionStorage.removeItem('magizhchi-checkout-order-id');
       };
 
       if (paymentMethod === 'cod') {
