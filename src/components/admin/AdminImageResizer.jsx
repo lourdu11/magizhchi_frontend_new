@@ -96,9 +96,13 @@ export default function AdminImageResizer({ isOpen, onClose, file, onSave }) {
   // Load image when file prop changes
   React.useEffect(() => {
     if (file) {
-      const reader = new FileReader();
-      reader.onload = () => setImageSrc(reader.result);
-      reader.readAsDataURL(file);
+      if (typeof file === 'string') {
+        setImageSrc(file);
+      } else {
+        const reader = new FileReader();
+        reader.onload = () => setImageSrc(reader.result);
+        reader.readAsDataURL(file);
+      }
     }
   }, [file]);
 

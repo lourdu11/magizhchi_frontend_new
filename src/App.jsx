@@ -55,6 +55,7 @@ const AdminCoupons = lazy(() => import('./pages/admin/AdminCoupons'));
 const AdminReviews = lazy(() => import('./pages/admin/AdminReviews'));
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
 const AdminBanners = lazy(() => import('./pages/admin/AdminBanners'));
+const AdminBannerForm = lazy(() => import('./pages/admin/AdminBannerForm'));
 const AdminProcurement = lazy(() => import('./pages/admin/AdminProcurement'));
 const AdminPurchaseForm = lazy(() => import('./pages/admin/AdminPurchaseForm'));
 const AdminSupplierForm = lazy(() => import('./pages/admin/AdminSupplierForm'));
@@ -171,6 +172,8 @@ export default function App() {
           <Route path="daily-report" element={<StaffDailyReport />} />
           <Route path="settings" element={<AdminSettings />} />
           <Route path="banners" element={<AdminBanners />} />
+          <Route path="banners/new" element={<AdminBannerForm />} />
+          <Route path="banners/edit/:id" element={<AdminBannerForm />} />
           <Route path="broadcast" element={<BroadcastCenter />} />
         </Route>
 
