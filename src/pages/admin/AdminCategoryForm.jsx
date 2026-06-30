@@ -162,8 +162,8 @@ export default function AdminCategoryForm() {
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-[3.5rem] border border-border-light p-5 md:p-10 shadow-xl max-w-6xl">
         <form onSubmit={(e) => { e.preventDefault(); saveMutation.mutate(form); }} className="space-y-10">
-          <div className="grid lg:grid-cols-2 gap-16">
-            <div className="space-y-8">
+          <div className="grid lg:grid-cols-12 gap-10 md:gap-16">
+            <div className="lg:col-span-7 space-y-10">
               <label className="block space-y-2">
                 <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Category Designation</span>
                 <input required className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 font-bold text-sm transition-all" placeholder="e.g. Premium Shirts" value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
@@ -196,7 +196,7 @@ export default function AdminCategoryForm() {
             </div>
 
             {/* ── MASTER IMAGE UPLOAD ─────────────────────────────────── */}
-            <div className="space-y-6">
+            <div className="lg:col-span-5 space-y-8 bg-light-bg/30 p-6 sm:p-8 rounded-[2.5rem] border border-border-light/50">
               <div className="flex items-center flex-wrap gap-3">
                 <div className="w-10 h-10 rounded-2xl bg-premium-gold/10 flex items-center justify-center">
                   <ImageIcon size={20} className="text-premium-gold" />
