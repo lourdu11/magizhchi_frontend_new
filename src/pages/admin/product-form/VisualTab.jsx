@@ -181,7 +181,7 @@ export default function VisualTab() {
   ];
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-12">
       <SectionHeader title="Visual Identity" subtitle="Manage all product images and device layouts in one place" />
 
       <div className="grid lg:grid-cols-12 gap-8 items-start">

@@ -17,7 +17,7 @@ export const InputField = ({ label, value, onChange, placeholder, type = "text",
       <input
         type={type}
         disabled={disabled}
-        className={`w-full bg-light-bg/50 border-none rounded-2xl ${Icon ? 'pl-16' : 'px-4 md:px-4 md:px-8'} py-5 font-black text-xs placeholder:text-text-muted/40 focus:ring-4 focus:ring-premium-gold/10 transition-all outline-none`}
+        className={`w-full bg-white border border-border-light shadow-sm rounded-2xl ${Icon ? 'pl-16' : 'px-5'} py-4 font-black text-xs text-charcoal placeholder:text-text-muted/40 focus:ring-4 focus:ring-premium-gold/10 transition-all outline-none`}
         placeholder={placeholder}
         value={value === 0 ? 0 : (value || '')}
         onChange={e => {
@@ -41,7 +41,7 @@ export const SelectField = ({ label, value, options, onChange, icon: Icon }) => 
     <div className="relative group">
        {Icon && <Icon className="absolute left-6 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-premium-gold transition-colors" size={16} />}
        <select 
-          className={`w-full bg-light-bg/50 border-none rounded-2xl ${Icon ? 'pl-16' : 'px-5'} py-5 font-black text-xs uppercase appearance-none outline-none focus:ring-4 focus:ring-premium-gold/10 transition-all`}
+          className={`w-full bg-white border border-border-light shadow-sm rounded-2xl ${Icon ? 'pl-16' : 'px-5'} py-4 font-black text-xs text-charcoal uppercase appearance-none outline-none focus:ring-4 focus:ring-premium-gold/10 transition-all`}
           value={value} 
           onChange={e => onChange(e.target.value)}
        >

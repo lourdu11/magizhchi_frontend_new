@@ -306,7 +306,7 @@ function VariantManagerSection({ productName, variants, basePrice, sellingPrice,
   };
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-12">
       <div className="flex bg-light-bg p-1 rounded-2xl w-fit">
         <button type="button" onClick={() => setMultiMode(true)} className={`px-4 sm:px-4 sm:px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${multiMode ? 'bg-white text-charcoal shadow-sm' : 'text-text-muted hover:text-charcoal'}`}>Multi-Select Mode</button>
         <button type="button" onClick={() => setMultiMode(false)} className={`px-4 sm:px-4 sm:px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${!multiMode ? 'bg-white text-charcoal shadow-sm' : 'text-text-muted hover:text-charcoal'}`}>Individual Add</button>
