@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
-import { User, Package, Heart, Star, Wallet, MapPin, ChevronRight, LogOut, Edit, Lock, Plus, Trash2, Check, Loader2, Phone, Mail, ShoppingCart } from 'lucide-react';
+import { User, Package, Heart, Star, Wallet, MapPin, ChevronRight, LogOut, Edit, Lock, Plus, Trash2, Check, Loader2, Phone, Mail, ShoppingCart, User as UserIcon, Smartphone } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore, useWishlistStore } from '../store';
 import { orderService } from '../services';
+import { districtsByState } from '../utils/locations';
 
 import { toast } from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
@@ -158,7 +159,8 @@ function Profile() {
 function Addresses() {
   const { user, updateUser } = useAuthStore();
   const [adding, setAdding] = useState(false);
-  const [form, setForm] = useState({ type: 'home', name: '', phone: '', addressLine1: '', addressLine2: '', city: '', state: '', pincode: '', isDefault: false });
+  const [form, setForm] = useState({ type: 'home', name: '', phone: '', addressLine1: '', addressLine2: '', city: '', state: 'Tamil Nadu', pincode: '', isDefault: false });
+  const [errors, setErrors] = useState({});
   const qc = useQueryClient();
 
   const addMutation = useMutation({
@@ -179,13 +181,79 @@ function Addresses() {
 
       {adding && (
         <div className="bg-white rounded-2xl border border-border-light p-5 space-y-4">
-          <div className="grid md:grid-cols-2 gap-4">
-            {[['Name', 'name'], ['Phone', 'phone'], ['Address Line 1', 'addressLine1'], ['Address Line 2 (Optional)', 'addressLine2'], ['City', 'city'], ['State', 'state'], ['Pincode', 'pincode']].map(([label, key]) => (
-              <label key={key} className={`block ${key === 'addressLine1' || key === 'addressLine2' ? 'md:col-span-2' : ''}`}>
-                <span className="text-xs font-bold text-text-muted uppercase mb-1 block">{label}</span>
-                <input className="w-full bg-light-bg border border-border-light rounded-xl px-4 py-2.5" value={form[key]} onChange={e => setForm({...form, [key]: e.target.value})} />
-              </label>
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div>
+              <label className="text-[10px] font-black text-text-muted uppercase tracking-widest block mb-2">Address Type</label>
+              <select className="w-full bg-light-bg border border-border-light rounded-xl px-4 py-3 font-bold appearance-none" value={form.type} onChange={e => setForm({...form, type: e.target.value})}>
+                <option value="home">Home</option>
+                <option value="work">Work</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div className="hidden sm:block"></div>
+
+            <div>
+              <label className="text-[10px] font-black text-text-muted uppercase tracking-widest block mb-2">Full Name *</label>
+              <div className="relative">
+                <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted opacity-40" size={16} />
+                <input value={form.name} onChange={e => setForm({...form, name: e.target.value})} className={`w-full bg-light-bg border border-border-light rounded-xl pl-11 pr-4 py-3 font-medium placeholder:text-text-muted/50 focus:outline-none focus:border-charcoal ${errors.name ? 'border-red-500 bg-red-50/10' : ''}`} placeholder="Receiver Name" />
+              </div>
+            </div>
+            
+            <div>
+              <label className="text-[10px] font-black text-text-muted uppercase tracking-widest block mb-2">Phone Number (10 Digits) *</label>
+              <div className="relative">
+                <Smartphone className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted opacity-40" size={16} />
+                <input value={form.phone} onChange={e => setForm({...form, phone: e.target.value.replace(/\D/g, '').slice(0,10)})} className={`w-full bg-light-bg border border-border-light rounded-xl pl-11 pr-4 py-3 font-mono font-medium placeholder:text-text-muted/50 focus:outline-none focus:border-charcoal ${errors.phone ? 'border-red-500 bg-red-50/10' : ''}`} placeholder="9876543210" />
+              </div>
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="text-[10px] font-black text-text-muted uppercase tracking-widest block mb-2">Street Address *</label>
+              <input value={form.addressLine1} onChange={e => setForm({...form, addressLine1: e.target.value})} className={`w-full bg-light-bg border border-border-light rounded-xl px-4 py-3 font-medium placeholder:text-text-muted/50 focus:outline-none focus:border-charcoal ${errors.addressLine1 ? 'border-red-500 bg-red-50/10' : ''}`} placeholder="House no., Apartment, Street" />
+            </div>
+            
+            <div className="sm:col-span-2">
+              <label className="text-[10px] font-black text-text-muted uppercase tracking-widest block mb-2">Landmark / Apartment (Optional)</label>
+              <input value={form.addressLine2} onChange={e => setForm({...form, addressLine2: e.target.value})} className="w-full bg-light-bg border border-border-light rounded-xl px-4 py-3 font-medium placeholder:text-text-muted/50 focus:outline-none focus:border-charcoal" placeholder="e.g. Near Big Temple" />
+            </div>
+
+            <div>
+              <label className="text-[10px] font-black text-text-muted uppercase tracking-widest block mb-2">City / District *</label>
+              <div className="relative">
+                {districtsByState[form.state] ? (
+                  <select value={form.city} onChange={e => setForm({...form, city: e.target.value})} className={`w-full bg-light-bg border border-border-light rounded-xl px-4 py-3 font-medium appearance-none focus:outline-none focus:border-charcoal ${errors.city ? 'border-red-500 bg-red-50/10' : ''}`}>
+                    <option value="">Select City</option>
+                    {(districtsByState[form.state] || []).map(d => <option key={d} value={d}>{d}</option>)}
+                  </select>
+                ) : (
+                  <input value={form.city} onChange={e => setForm({...form, city: e.target.value})} className={`w-full bg-light-bg border border-border-light rounded-xl px-4 py-3 font-medium placeholder:text-text-muted/50 focus:outline-none focus:border-charcoal ${errors.city ? 'border-red-500 bg-red-50/10' : ''}`} placeholder="Enter City" />
+                )}
+                {districtsByState[form.state] && <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 rotate-90 text-text-muted pointer-events-none" size={14} />}
+              </div>
+            </div>
+
+            <div>
+              <label className="text-[10px] font-black text-text-muted uppercase tracking-widest block mb-2">State *</label>
+              <div className="relative">
+                <select value={form.state} onChange={e => { setForm({...form, state: e.target.value, city: districtsByState[e.target.value]?.[0] || ''}); }} className="w-full bg-light-bg border border-border-light rounded-xl px-4 py-3 font-medium appearance-none focus:outline-none focus:border-charcoal">
+                  {Object.keys(districtsByState).concat(['Bihar', 'Gujarat', 'Punjab', 'Rajasthan', 'Uttar Pradesh', 'West Bengal']).sort().map(s => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+                <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 rotate-90 text-text-muted pointer-events-none" size={14} />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-[10px] font-black text-text-muted uppercase tracking-widest block mb-2">Pincode *</label>
+              <input value={form.pincode} onChange={e => setForm({...form, pincode: e.target.value.replace(/\D/g, '').slice(0,6)})} className={`w-full bg-light-bg border border-border-light rounded-xl px-4 py-3 font-mono font-medium placeholder:text-text-muted/50 focus:outline-none focus:border-charcoal ${errors.pincode ? 'border-red-500 bg-red-50/10' : ''}`} placeholder="600001" />
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <input type="checkbox" id="isDefault" checked={form.isDefault} onChange={e => setForm({...form, isDefault: e.target.checked})} className="w-4 h-4 text-charcoal rounded focus:ring-charcoal/20 border-border-light cursor-pointer" />
+              <label htmlFor="isDefault" className="text-xs font-bold text-charcoal cursor-pointer">Set as default address</label>
+            </div>
           </div>
           <div className="flex gap-3">
             <button onClick={() => addMutation.mutate(form)} disabled={addMutation.isPending} className="btn-dark px-4 sm:px-6 py-2.5 flex items-center gap-2">
