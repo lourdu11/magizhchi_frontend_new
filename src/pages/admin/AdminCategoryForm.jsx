@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import AdminSingleImageResizer from '../../components/admin/AdminSingleImageResizer';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Save, X, Loader2, ImageIcon, Plus, ChevronLeft, Info, Eye, EyeOff, Upload, Link2, Copy, ExternalLink, Check } from 'lucide-react';
+import { Save, X, Loader2, ImageIcon, Plus, ChevronLeft, Info, Eye, EyeOff, Upload, Link2, Copy, ExternalLink, Check, Monitor } from 'lucide-react';
 import { categoryService, adminService } from '../../services';
 import { toast } from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
