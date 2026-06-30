@@ -132,12 +132,14 @@ export const billService = {
   getBill: (id) => api.get(`/bills/${id}`),
   deleteBill: (id, reason) => api.delete(`/bills/${id}`, { data: { reason } }),
   getDailyReport: (date) => api.get('/bills/daily-report', { params: { date } }),
+  getBillsAnalytics: (params) => api.get('/bills/analytics', { params }),
   lookupCustomer: (phone) => api.get(`/bills/customer/${phone}`),
   getByBarcode: (barcode) => api.get(`/bills/barcode/${barcode}`),
   updateBill: (id, data) => api.put(`/bills/${id}`, data),
   resendReceipt: (id) => api.post(`/bills/${id}/resend-receipt`),
   getStaffStats: () => api.get('/bills/staff-stats'),
 };
+
 
 export const bannerService = {
   getActiveBanners: () => cachedGet('/banners/active'),
