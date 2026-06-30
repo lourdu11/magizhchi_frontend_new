@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { X, Camera, SwitchCamera, Zap, RefreshCw } from 'lucide-react';
+import { X, Camera, SwitchCamera, Zap, RefreshCw, Lock, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const CameraScanner = ({ isOpen, onClose, onScan }) => {
   const html5QrCodeRef = useRef(null);
   const [cameraReady, setCameraReady] = useState(false);
   const [facingMode, setFacingMode] = useState('environment');
+  const [errorState, setErrorState] = useState('none'); // 'none', 'denied', 'not_found', 'unknown'
   const hasScannedRef = useRef(false);
 
   // ── Check camera & start scanner when opened ──
@@ -32,16 +33,12 @@ const CameraScanner = ({ isOpen, onClose, onScan }) => {
         // Permission denied or no camera
         if (!cancelled) {
           if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-            toast.error(
-              '📷 Camera blocked! Tap 🔒 lock icon in address bar → Camera → Allow → Refresh page',
-              { duration: 6000, style: { maxWidth: '400px' } }
-            );
+            setErrorState('denied');
           } else if (err.name === 'NotFoundError') {
-            toast.error('📷 No camera found on this device', { duration: 4000 });
+            setErrorState('not_found');
           } else {
-            toast.error('📷 Camera error. Check permissions and try again.', { duration: 4000 });
+            setErrorState('unknown');
           }
-          onClose();
         }
         return;
       }
@@ -141,8 +138,47 @@ const CameraScanner = ({ isOpen, onClose, onScan }) => {
     );
   }
 
+  if (errorState !== 'none') {
+    return (
+      <div className="fixed inset-0 z-[100] bg-charcoal flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mb-6">
+          {errorState === 'denied' ? <Lock size={32} className="text-red-500" /> : <AlertCircle size={32} className="text-red-500" />}
+        </div>
+        
+        <h2 className="text-2xl font-black text-white mb-2">
+          {errorState === 'denied' ? 'Camera Blocked' : errorState === 'not_found' ? 'No Camera Found' : 'Camera Error'}
+        </h2>
+        
+        <p className="text-gray-400 text-sm mb-8 max-w-sm">
+          {errorState === 'denied' 
+            ? 'Your browser is blocking camera access. To use the barcode scanner, you must manually unblock it.'
+            : 'We could not access your camera. Please check your device settings.'}
+        </p>
+
+        {errorState === 'denied' && (
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-5 mb-8 text-left w-full max-w-sm">
+            <h3 className="text-premium-gold text-xs font-bold uppercase tracking-wider mb-3">How to unblock:</h3>
+            <ol className="text-white text-sm space-y-3">
+              <li className="flex gap-3"><span className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center shrink-0 text-xs">1</span> <span>Tap the <b>🔒 Lock</b> or <b>ⓘ Info</b> icon in your browser's address bar at the top of the screen.</span></li>
+              <li className="flex gap-3"><span className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center shrink-0 text-xs">2</span> <span>Select <b>Site Settings</b> or <b>Permissions</b>.</span></li>
+              <li className="flex gap-3"><span className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center shrink-0 text-xs">3</span> <span>Change Camera access to <b>Allow</b>.</span></li>
+              <li className="flex gap-3"><span className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center shrink-0 text-xs">4</span> <span><b>Refresh</b> this page completely.</span></li>
+            </ol>
+          </div>
+        )}
+
+        <button
+          onClick={onClose}
+          className="px-8 py-3.5 bg-white text-charcoal font-black rounded-xl hover:bg-gray-200 transition-colors"
+        >
+          Close Scanner
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="fixed inset-0 z-[9999] bg-black flex flex-col">
+    <div className="fixed inset-0 z-[100] bg-black flex flex-col">
       {/* Top Bar */}
       <div className="flex items-center justify-between px-4 py-3 bg-black/80 backdrop-blur-sm safe-area-top">
         <div className="flex items-center gap-2">
