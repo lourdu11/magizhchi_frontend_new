@@ -68,9 +68,9 @@ export default function VisualTab() {
       toast.error('This URL is already in the showcase gallery!');
       return;
     }
-    setField('images', [...currentImages, url]);
+    // Launch resizer with URL instead of applying immediately
+    setResizerState({ isOpen: true, file: url, target: 'gallery' });
     setUrlInput('');
-    toast.success('✅ URL added to showcase gallery!');
   };
 
   const handleMultiDrop = (e) => {

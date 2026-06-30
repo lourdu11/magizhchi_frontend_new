@@ -86,9 +86,13 @@ export default function AdminSingleImageResizer({
 
   useEffect(() => {
     if (file) {
-      const reader = new FileReader();
-      reader.onload = () => setImageSrc(reader.result);
-      reader.readAsDataURL(file);
+      if (typeof file === 'string') {
+        setImageSrc(file);
+      } else {
+        const reader = new FileReader();
+        reader.onload = () => setImageSrc(reader.result);
+        reader.readAsDataURL(file);
+      }
     }
   }, [file]);
 

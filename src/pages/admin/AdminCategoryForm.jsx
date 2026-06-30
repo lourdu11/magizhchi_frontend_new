@@ -115,10 +115,9 @@ export default function AdminCategoryForm() {
 
   const applyUrl = (url) => {
     if (!url.trim()) return toast.error('Please enter a URL');
-    setForm(prev => ({ ...prev, image: url.trim(), tabletImage: url.trim(), mobileImage: url.trim() }));
-    setCatLastUrl(url.trim());
+    // Pass the URL string to the resizer instead of applying directly
+    handleUpload(url.trim(), 'all');
     setCatUrlInput('');
-    toast.success('✅ URL applied to all devices!');
   };
 
   if (id && isFetching) {
