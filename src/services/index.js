@@ -131,6 +131,7 @@ export const billService = {
   getBills: (params) => api.get('/bills', { params }),
   getBill: (id) => api.get(`/bills/${id}`),
   deleteBill: (id, reason) => api.delete(`/bills/${id}`, { data: { reason } }),
+  refundBill: (id, data) => api.post(`/bills/${id}/refund`, data),
   getDailyReport: (date) => api.get('/bills/daily-report', { params: { date } }),
   getBillsAnalytics: (params) => api.get('/bills/analytics', { params }),
   lookupCustomer: (phone) => api.get(`/bills/customer/${phone}`),

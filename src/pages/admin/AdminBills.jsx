@@ -42,6 +42,11 @@ export default function AdminBills() {
   const [selectedBill, setSelectedBill] = useState(null);
   const [deletingBill, setDeletingBill] = useState(null);
   const [deleteReason, setDeleteReason] = useState('');
+  
+  // Refund state
+  const [refundingBill, setRefundingBill] = useState(null);
+  const [refundAmount, setRefundAmount] = useState('');
+  const [refundReason, setRefundReason] = useState('');
 
   const queryClient = useQueryClient();
   const { user: currentUser } = useAuthStore();
@@ -74,6 +79,24 @@ export default function AdminBills() {
   const confirmDelete = () => {
     if (!deleteReason.trim()) return toast.error('Please specify a reason');
     deleteMutation.mutate({ id: deletingBill._id, reason: deleteReason });
+  };
+
+  const refundMutation = useMutation({
+    mutationFn: ({ id, amount, reason }) => billService.refundBill(id, { amount, reason, method: 'cash' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-bills-list'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-bills-analytics'] });
+      setRefundingBill(null);
+      setRefundAmount('');
+      setRefundReason('');
+      toast.success('Refund processed and logged');
+    },
+    onError: (err) => toast.error(err.response?.data?.message || 'Refund failed'),
+  });
+
+  const confirmRefund = () => {
+    if (!refundAmount || refundAmount <= 0) return toast.error('Enter valid amount');
+    refundMutation.mutate({ id: refundingBill._id, amount: refundAmount, reason: refundReason });
   };
 
   const printBill = (bill) => {
@@ -590,14 +613,22 @@ export default function AdminBills() {
               </div>
 
               {/* Drawer Footer Actions */}
-              <div className="p-4 border-t border-border-light bg-light-bg/50 flex gap-3">
+              <div className="p-4 border-t border-border-light bg-light-bg/50 flex flex-wrap gap-3">
                 {selectedBill.status !== 'voided' && currentUser?.role === 'admin' && (
-                  <button 
-                    onClick={() => setDeletingBill(selectedBill)}
-                    className="flex-1 py-3 rounded-xl border border-red-200 text-red-600 font-black text-xs uppercase tracking-widest hover:bg-red-50 hover:border-red-300 transition-all flex items-center justify-center gap-2"
-                  >
-                    <Trash2 size={14} /> Void Bill
-                  </button>
+                  <>
+                    <button 
+                      onClick={() => setRefundingBill(selectedBill)}
+                      className="flex-1 py-3 rounded-xl border border-blue-200 text-blue-600 font-black text-xs uppercase tracking-widest hover:bg-blue-50 hover:border-blue-300 transition-all flex items-center justify-center gap-2"
+                    >
+                      Issue Refund
+                    </button>
+                    <button 
+                      onClick={() => setDeletingBill(selectedBill)}
+                      className="flex-1 py-3 rounded-xl border border-red-200 text-red-600 font-black text-xs uppercase tracking-widest hover:bg-red-50 hover:border-red-300 transition-all flex items-center justify-center gap-2"
+                    >
+                      <Trash2 size={14} /> Void
+                    </button>
+                  </>
                 )}
                 <button 
                   onClick={() => printBill(selectedBill)}
@@ -608,6 +639,60 @@ export default function AdminBills() {
               </div>
             </motion.div>
           </>
+        )}
+      </AnimatePresence>
+
+      {/* ── Refund Modal ── */}
+      <AnimatePresence>
+        {refundingBill && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setRefundingBill(null)} className="absolute inset-0 bg-charcoal/40 backdrop-blur-sm" />
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="relative bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-border-light">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center border border-blue-100">
+                  <Wallet size={24} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-charcoal">Process Refund</h3>
+                  <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mt-0.5">Bill #{refundingBill.billNumber} • Total: {formatCurrency(refundingBill.pricing?.totalAmount)}</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="text-[9px] font-black text-text-muted uppercase tracking-widest block mb-1.5">Refund Amount (Rs)</label>
+                  <input 
+                    type="number"
+                    value={refundAmount}
+                    onChange={e => setRefundAmount(e.target.value)}
+                    className="w-full bg-light-bg border border-border-light rounded-xl px-4 py-3 font-black text-xl text-charcoal focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                    placeholder="Enter amount..."
+                  />
+                </div>
+                <div>
+                  <label className="text-[9px] font-black text-text-muted uppercase tracking-widest block mb-1.5">Reason / Note</label>
+                  <input 
+                    type="text"
+                    value={refundReason}
+                    onChange={e => setRefundReason(e.target.value)}
+                    className="w-full bg-light-bg border border-border-light rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                    placeholder="e.g., Customer returned damaged item..."
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 mt-8">
+                <button onClick={() => setRefundingBill(null)} className="py-3 px-4 rounded-xl border border-border-light text-xs font-black uppercase tracking-widest text-text-muted hover:bg-light-bg transition-all">Cancel</button>
+                <button 
+                  onClick={confirmRefund} 
+                  disabled={refundMutation.isPending}
+                  className="py-3 px-4 rounded-xl bg-blue-600 text-white text-xs font-black uppercase tracking-widest hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20 disabled:opacity-50"
+                >
+                  {refundMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : 'Confirm Refund'}
+                </button>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
 
