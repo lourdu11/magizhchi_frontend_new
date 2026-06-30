@@ -367,17 +367,11 @@ function QuickStockModal({ product, onClose }) {
                   </div>
                </div>
 
-               <div className="grid grid-cols-2 gap-6">
+               <div className="grid grid-cols-1 gap-6">
                   <div className="space-y-2">
                      <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Stock Change (+/-)</label>
                      <input type="number" className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 font-black text-xl outline-none focus:ring-4 focus:ring-premium-gold/10" value={formData.stock} onChange={e => setFormData({...formData, stock: e.target.value})} />
                   </div>
-                  {Number(formData.stock) >= 0 && (
-                     <div className="space-y-2">
-                        <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Selling Price (₹)</label>
-                        <input type="number" className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 font-black text-xl outline-none focus:ring-4 focus:ring-premium-gold/10" value={formData.sellingPrice} onChange={e => setFormData({...formData, sellingPrice: e.target.value})} />
-                     </div>
-                  )}
                </div>
 
                <div className="space-y-2">
