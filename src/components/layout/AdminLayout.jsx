@@ -153,25 +153,25 @@ export default function AdminLayout() {
                   );
                 })}
               </nav>
+          </div>
 
-              <div>
-                {/* WhatsApp Status */}
-                <WhatsAppStatus collapsed={collapsed} />
+          <div className="shrink-0 bg-white">
+            {/* WhatsApp Status */}
+            <WhatsAppStatus collapsed={collapsed} />
 
-                {/* User Profile */}
-                <div className={`border-t border-[#F1F3F4] p-4 sm:p-6 ${collapsed && !mobileOpen ? 'flex flex-col items-center' : ''}`}>
-                  {(!collapsed || mobileOpen) && (
-                    <div className="mb-4 bg-[#F8F9FA] border border-[#DADCE0] p-4 rounded-2xl">
-                      <p className="text-[#202124] text-[10px] font-black uppercase tracking-widest truncate">{user?.name || 'Administrator'}</p>
-                      <p className="text-[#5F6368] text-[8px] font-bold uppercase tracking-widest mt-1">Full Access</p>
-                    </div>
-                  )}
-                  <button onClick={handleLogout} className={`flex items-center gap-3 text-[#5F6368] hover:text-[#EA4335] transition-colors ${collapsed && !mobileOpen ? '' : 'px-2'}`}>
-                    <LogOut size={16} />
-                    {(!collapsed || mobileOpen) && <span className="text-[9px] font-black uppercase tracking-[0.2em]">Exit System</span>}
-                  </button>
+            {/* User Profile */}
+            <div className={`border-t border-[#F1F3F4] p-4 sm:p-6 ${collapsed && !mobileOpen ? 'flex flex-col items-center' : ''}`}>
+              {(!collapsed || mobileOpen) && (
+                <div className="mb-4 bg-[#F8F9FA] border border-[#DADCE0] p-4 rounded-2xl">
+                  <p className="text-[#202124] text-[10px] font-black uppercase tracking-widest truncate">{user?.name || 'Administrator'}</p>
+                  <p className="text-[#5F6368] text-[8px] font-bold uppercase tracking-widest mt-1">Full Access</p>
                 </div>
-              </div>
+              )}
+              <button onClick={handleLogout} className={`flex items-center gap-3 text-[#5F6368] hover:text-[#EA4335] transition-colors ${collapsed && !mobileOpen ? '' : 'px-2'}`}>
+                <LogOut size={16} />
+                {(!collapsed || mobileOpen) && <span className="text-[9px] font-black uppercase tracking-[0.2em]">Exit System</span>}
+              </button>
+            </div>
           </div>
         </aside>
 
