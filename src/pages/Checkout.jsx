@@ -297,6 +297,7 @@ export default function Checkout() {
           ondismiss: async () => {
             try {
               console.log('Payment modal closed by user');
+              await orderService.abandonPayment(order._id);
               toast.error('Payment cancelled. Reserved stock will be released automatically.');
             } catch (err) {
               console.error('Failed to handle payment failure:', err);

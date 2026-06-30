@@ -254,6 +254,11 @@ export default function AdminOrders() {
                     <span className={`ml-1 text-[10px] font-bold ${o.paymentStatus === 'completed' ? 'text-green-600' : o.paymentStatus === 'failed' ? 'text-red-600 font-extrabold uppercase' : 'text-amber-600'}`}>
                       · {o.paymentStatus}
                     </span>
+                    {(o.paymentRetryCount > 0) && (
+                      <span className="ml-2 inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[8px] font-black bg-red-100 text-red-600 border border-red-200 uppercase tracking-widest" title={`Customer tried paying ${o.paymentRetryCount + 1} times`}>
+                        Retried {o.paymentRetryCount}x
+                      </span>
+                    )}
                   </td>
                   <td className="px-5 py-4 text-xs text-text-muted whitespace-nowrap hidden md:table-cell">
                     <p>{new Date(o.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
@@ -543,6 +548,13 @@ function OrderDetailsModal({ order, onClose, onUpdateStatus, onPrint, isUpdating
                               : 'text-amber-600'
                         }`}>{order.paymentStatus}</p>
                       </div>
+                      {(order.paymentRetryCount > 0) && (
+                        <div className="mt-1 flex justify-end">
+                          <span className="inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[9px] font-black bg-red-100 text-red-600 border border-red-200 uppercase tracking-widest">
+                            {order.paymentRetryCount} Retries
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

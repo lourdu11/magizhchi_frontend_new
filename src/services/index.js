@@ -60,6 +60,7 @@ export const orderService = {
   cancelOrder: (id, reason) => api.post(`/orders/${id}/cancel`, { reason }),
   requestReturn: (id, data) => api.post(`/orders/${id}/return`, data),
   retryPayment: (id) => api.post(`/orders/${id}/retry-payment`),
+  abandonPayment: (id) => api.post(`/orders/${id}/payment-abandoned`),
 };
 
 export const couponService = {
