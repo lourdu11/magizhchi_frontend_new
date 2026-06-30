@@ -135,7 +135,7 @@ export default function AdminLayout() {
           <div className="flex-1 overflow-y-auto custom-scrollbar">
             <div className="flex flex-col min-h-full">
               {/* Nav */}
-              <nav className="py-4 sm:py-6 px-3 space-y-1 flex-1">
+              <nav className="py-4 sm:py-6 px-3 space-y-1">
                 {NAV.map(({ icon: Icon, label, path }) => {
                   const active = location.pathname === path || (path !== '/admin' && location.pathname.startsWith(path));
                   return (
