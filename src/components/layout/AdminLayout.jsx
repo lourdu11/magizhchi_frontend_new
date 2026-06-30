@@ -6,44 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useAuthStore } from '../../store';
 import { adminService } from '../../services';
 
-function WhatsAppStatus({ collapsed }) {
-  const [status, setStatus] = useState('Checking...');
-  const [isReady, setIsReady] = useState(false);
 
-  useEffect(() => {
-    const checkStatus = async () => {
-      if (!useAuthStore.getState().isAuthenticated) return;
-      try {
-        const { data } = await adminService.getHealth();
-        setStatus(data.whatsapp || 'Unknown');
-        setIsReady(data.whatsapp === 'Ready');
-      } catch (_err) {
-        setStatus('Error');
-        setIsReady(false);
-      }
-    };
-    checkStatus();
-    const interval = setInterval(checkStatus, 60000); // Check every 60s
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <div className={`px-4 py-2 mb-2 ${collapsed ? 'flex justify-center' : ''}`}>
-      <div className={`
-        flex items-center gap-2 px-3 py-2 rounded-xl border font-sans text-xs
-        ${isReady ? 'bg-[#E6F4EA] border-[#CEEAD6] text-[#137333]' : 'bg-[#FEF7E0] border-[#FEEFC3] text-[#B06000]'}
-      `}>
-        <Smartphone size={14} className={isReady ? '' : 'animate-pulse'} />
-        {!collapsed && (
-          <div className="flex flex-col">
-            <span className="text-[7.5px] font-black uppercase tracking-widest leading-none">WhatsApp</span>
-            <span className="text-[9.5px] font-black uppercase tracking-tighter mt-0.5">{status}</span>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
 
 const NAV = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
@@ -156,8 +119,6 @@ export default function AdminLayout() {
           </div>
 
           <div className="shrink-0 bg-white">
-            {/* WhatsApp Status */}
-            <WhatsAppStatus collapsed={collapsed} />
 
             {/* User Profile */}
             <div className={`border-t border-[#F1F3F4] p-4 sm:p-6 ${collapsed && !mobileOpen ? 'flex flex-col items-center' : ''}`}>
