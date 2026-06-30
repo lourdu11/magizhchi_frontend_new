@@ -293,27 +293,7 @@ export default function AdminCategoryForm() {
                   </div>
                 )}
 
-                {/* Image Controls */}
-                {form.image && (
-                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-5 p-4 sm:p-4 sm:p-6 bg-light-bg rounded-3xl border border-border-light">
-                    <p className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em] flex items-center gap-2">
-                      Image Display Controls
-                    </p>
 
-                    <FitSelector value={form.fit} onChange={v => setForm({...form, fit: v})} />
-                    <PositionPicker value={form.position} onChange={v => setForm({...form, position: v})} />
-                    <ScaleControl value={form.scale} onChange={v => setForm({...form, scale: v})} />
-                    
-                    <div className="space-y-2">
-                      <span className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em]">AI Auto Gravity</span>
-                      <select className="w-full bg-white border border-border-light rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer" value={form.gravity} onChange={e => setForm({...form, gravity: e.target.value})}>
-                        <option value="auto">AI AUTO</option>
-                        <option value="faces">FACES</option>
-                        <option value="center">CENTER</option>
-                      </select>
-                    </div>
-                  </motion.div>
-                )}
               </div>
             </div>
           </div>
