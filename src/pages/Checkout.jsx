@@ -171,10 +171,12 @@ export default function Checkout() {
   
   const { items, subtotal } = useMemo(() => calculatePromoPrices(rawItems), [rawItems]);
 
-  // Reset existing order if cart changes
+  const cartHash = useMemo(() => items.map(i => `${i.productId?._id || i.productId}-${i.quantity}`).join('|'), [items]);
+
+  // Reset existing order ONLY if the actual cart contents change (prevents refetch bugs wiping state)
   useEffect(() => {
     setExistingOrderId(null);
-  }, [items, subtotal]);
+  }, [cartHash, subtotal]);
 
   const shipping = useMemo(() => subtotal >= shippingThreshold ? 0 : flatRate, [subtotal, shippingThreshold, flatRate]);
   const currentCodCharge = useMemo(() => (paymentMethod === 'cod' && isCodEnabled) ? codExtra : 0, [paymentMethod, isCodEnabled, codExtra]);
