@@ -314,32 +314,42 @@ export default function AdminCategoryForm() {
                     </div>
                   </motion.div>
                 )}
-
-                {/* Live Previews */}
-                <div className="space-y-4 pt-4 border-t border-border-light">
-                  <p className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em]">Live Preview — All Devices</p>
-                  
-                  {[
-                    { key: 'image', label: 'Desktop', aspect: '16/9' },
-                    { key: 'tabletImage', label: 'Tablet', aspect: '4/3' },
-                    { key: 'mobileImage', label: 'Mobile', aspect: '1/1' },
-                  ].map(dev => (
-                    <div key={dev.key} className="space-y-1.5">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[9px] font-black text-charcoal uppercase tracking-wider">{dev.label}</span>
-                      </div>
-                      <LivePreview
-                        src={form[dev.key]}
-                        fit={form.fit}
-                        position={form.position}
-                        scale={form.scale}
-                        label={dev.label}
-                        aspect={dev.aspect}
-                      />
-                    </div>
-                  ))}
-                </div>
               </div>
+            </div>
+          </div>
+
+          {/* ── LIVE PREVIEWS (FULL WIDTH) ──────────────────────────── */}
+          <div className="space-y-6 pt-10 border-t border-border-light">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl bg-charcoal/5 flex items-center justify-center">
+                <Monitor size={14} className="text-charcoal" />
+              </div>
+              <div>
+                <h3 className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">Cross-Device Validation</h3>
+                <p className="text-xs font-bold text-charcoal uppercase tracking-widest mt-0.5">Live Preview Showcase</p>
+              </div>
+            </div>
+            
+            <div className="grid lg:grid-cols-3 gap-8">
+              {[
+                { key: 'image', label: 'Desktop (16:9)', aspect: '16/9' },
+                { key: 'tabletImage', label: 'Tablet (4:3)', aspect: '4/3' },
+                { key: 'mobileImage', label: 'Mobile (1:1)', aspect: '1/1' },
+              ].map(dev => (
+                <div key={dev.key} className="space-y-3 bg-light-bg/20 p-4 sm:p-4 sm:p-6 rounded-[2rem] border border-border-light/50">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[9px] font-black text-charcoal uppercase tracking-wider">{dev.label}</span>
+                  </div>
+                  <LivePreview
+                    src={form[dev.key]}
+                    fit={form.fit}
+                    position={form.position}
+                    scale={form.scale}
+                    label={dev.label.split(' ')[0]}
+                    aspect={dev.aspect}
+                  />
+                </div>
+              ))}
             </div>
           </div>
 
