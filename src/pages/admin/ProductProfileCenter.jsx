@@ -272,16 +272,30 @@ export default function ProductProfileCenter() {
 }
 
 function QuickStockModal({ product, onClose }) {
-   const availableSizes = [...new Set(product.variants?.map(v => v.size).filter(Boolean))];
-   const availableColors = [...new Set(product.variants?.map(v => v.color).filter(Boolean))];
-
+   const availableSizes = useMemo(() => [...new Set(product.variants?.map(v => v.size).filter(Boolean))], [product.variants]);
+   
    const [formData, setFormData] = useState({
       size: availableSizes.length > 0 ? availableSizes[0] : '',
-      color: availableColors.length > 0 ? availableColors[0] : '',
+      color: '',
       stock: 1,
       sellingPrice: product.sellingPrice || 0,
       sku: ''
    });
+
+   const validColors = useMemo(() => {
+      return [...new Set(
+         product.variants
+            ?.filter(v => v.size === formData.size)
+            .map(v => v.color)
+            .filter(Boolean)
+      )];
+   }, [product.variants, formData.size]);
+
+   useEffect(() => {
+      if (validColors.length > 0 && !validColors.includes(formData.color)) {
+         setFormData(prev => ({ ...prev, color: validColors[0] }));
+      }
+   }, [validColors, formData.color]);
    const queryClient = useQueryClient();
 
    const addStockMutation = useMutation({
@@ -338,14 +352,14 @@ function QuickStockModal({ product, onClose }) {
                   </div>
                   <div className="space-y-2">
                      <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Color (Required)</label>
-                     {availableColors.length > 0 ? (
+                     {validColors.length > 0 ? (
                         <select 
                            className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 font-bold text-sm outline-none focus:ring-4 focus:ring-premium-gold/10" 
                            value={formData.color} 
                            onChange={e => setFormData({...formData, color: e.target.value})}
                         >
                            <option value="" disabled>Select Color</option>
-                           {availableColors.map(c => <option key={c} value={c}>{c}</option>)}
+                           {validColors.map(c => <option key={c} value={c}>{c}</option>)}
                         </select>
                      ) : (
                         <input className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 font-bold text-sm outline-none focus:ring-4 focus:ring-premium-gold/10" placeholder="e.g. Navy Blue" value={formData.color} onChange={e => setFormData({...formData, color: e.target.value})} />
