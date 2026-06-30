@@ -279,7 +279,7 @@ export default function AdminOrders() {
                       
                       <button 
                         onClick={(e) => { e.stopPropagation(); resendReceipt.mutate(o._id); }}
-                        className="p-2 text-text-muted hover:text-green-600 transition-colors opacity-0 group-hover:opacity-100"
+                        className="p-2 text-text-muted hover:text-green-600 transition-colors"
                         title="Resend Receipt (WA/Email)"
                       >
                         <Smartphone size={16} />
@@ -287,7 +287,7 @@ export default function AdminOrders() {
                       
                       <button 
                         onClick={() => handlePrint(o)}
-                        className="p-2 text-text-muted hover:text-premium-gold transition-colors opacity-0 group-hover:opacity-100"
+                        className="p-2 text-text-muted hover:text-premium-gold transition-colors"
                         title="Print Invoice"
                       >
                         <Printer size={16} />
