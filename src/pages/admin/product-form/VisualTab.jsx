@@ -340,29 +340,7 @@ export default function VisualTab() {
             </div>
           )}
 
-          {/* Image Controls (only show if we have images) */}
-          {masterImage && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 p-4 sm:p-4 sm:p-6 bg-light-bg rounded-3xl border border-border-light space-y-5">
-              <p className="text-[9px] font-black text-charcoal uppercase tracking-[0.2em] flex items-center gap-2">
-                <Move size={12} className="text-premium-gold" /> Device Display Controls
-              </p>
-              <div className="grid grid-cols-2 gap-4">
-                <FitSelector value={fit} onChange={v => setField('detailFit', v)} />
-                <PositionPicker value={position} onChange={v => setField('position', v)} />
-              </div>
-              <ScaleControl value={scale} onChange={v => setField('scale', v)} />
-              <div className="space-y-2">
-                <p className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em]">Background Style</p>
-                <div className="flex gap-2">
-                  {[{ val: 'ambient', label: 'Glow Effect' }, { val: 'solid', label: 'White BG' }].map(opt => (
-                    <button key={opt.val} type="button" onClick={() => setField('bgStyle', opt.val)} className={`flex-1 py-2.5 rounded-xl border text-[9px] font-black uppercase tracking-wider transition-all ${bgStyle === opt.val ? 'bg-charcoal text-white border-charcoal' : 'bg-white border-border-light text-text-muted hover:border-premium-gold'}`}>
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-          )}
+
         </div>
 
         {/* ── RIGHT: LIVE PREVIEWS ───────────────────────────── */}

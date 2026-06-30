@@ -169,11 +169,7 @@ export default function VariantsTab() {
 }
 
 function VariantManagerSection({ productName, variants, basePrice, sellingPrice, onUpdate }) {
-  const [multiMode, setMultiMode] = useState(true);
-  const [colors, setColors] = useState([]);
-  const [sizes, setSizes] = useState([]);
-  const [initialQty, setInitialQty] = useState(0);
-  const [colorInput, setColorInput] = useState('');
+
   const [newV, setNewV] = useState({ size: '', color: '', sku: '', available: 0, image: '' });
   const [editingId, setEditingId] = useState(null);
   const [editValues, setEditValues] = useState({ size: '', color: '', sku: '', available: 0, image: '' });
@@ -250,50 +246,7 @@ function VariantManagerSection({ productName, variants, basePrice, sellingPrice,
     setActiveVariants((variants || []).filter(v => !v.isDeleted));
   }, [variants]);
 
-  const addColor = () => {
-    const val = colorInput.trim();
-    if (!val) return;
-    if (!colors.includes(val)) setColors([...colors, val]);
-    setColorInput('');
-  };
 
-  const toggleSize = (s) => {
-    if (sizes.includes(s)) setSizes(sizes.filter(x => x !== s));
-    else setSizes([...sizes, s]);
-  };
-
-  const generateCombinations = () => {
-    if (colors.length === 0 || sizes.length === 0) {
-      toast.error('Select at least one color and one size');
-      return;
-    }
-    
-    const newVariants = [];
-    colors.forEach(c => {
-      sizes.forEach(s => {
-        const exists = activeVariants.find(v => v.color === c && v.size === s);
-        if (!exists) {
-          newVariants.push({
-            _id: `temp-${Date.now()}-${Math.random()}`,
-            color: c,
-            size: s,
-            sku: '',
-            available: Number(initialQty) || 0,
-            totalStock: Number(initialQty) || 0,
-            price: basePrice || 0,
-            isDeleted: false
-          });
-        }
-      });
-    });
-
-    if (newVariants.length > 0) {
-      onUpdate([...(variants || []), ...newVariants]);
-      toast.success(`Generated ${newVariants.length} variants`);
-    } else {
-      toast.error('All combinations already exist');
-    }
-  };
 
   const handleAdd = () => {
     if (!newV.size || !newV.color) return toast.error('Size and Color are mandatory');
@@ -307,89 +260,25 @@ function VariantManagerSection({ productName, variants, basePrice, sellingPrice,
 
   return (
     <div className="space-y-12">
-      <div className="flex bg-light-bg p-1 rounded-2xl w-fit">
-        <button type="button" onClick={() => setMultiMode(true)} className={`px-4 sm:px-4 sm:px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${multiMode ? 'bg-white text-charcoal shadow-sm' : 'text-text-muted hover:text-charcoal'}`}>Multi-Select Mode</button>
-        <button type="button" onClick={() => setMultiMode(false)} className={`px-4 sm:px-4 sm:px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${!multiMode ? 'bg-white text-charcoal shadow-sm' : 'text-text-muted hover:text-charcoal'}`}>Individual Add</button>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-end bg-light-bg/30 p-5 md:p-10 rounded-[3rem] border border-border-light text-left shadow-inner">
+        <div className="space-y-2">
+          <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Size Option</label>
+          <select className="w-full bg-white border border-border-light rounded-2xl px-4 sm:px-4 sm:px-6 py-5 font-black text-xs uppercase outline-none focus:ring-4 focus:ring-premium-gold/10 transition-all shadow-sm" value={newV.size} onChange={e => setNewV({...newV, size: e.target.value})}>
+            <option value="">Select Size...</option>
+            {COMMON_SIZES.map(s => <option key={s} value={s}>{s}</option>)}
+            <option value="CUSTOM">Custom...</option>
+          </select>
+        </div>
+        <div className="space-y-2">
+          <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Color Shade</label>
+          <input className="w-full bg-white border border-border-light rounded-2xl px-4 sm:px-4 sm:px-6 py-5 font-black text-xs uppercase outline-none focus:ring-4 focus:ring-premium-gold/10 transition-all shadow-sm" placeholder="e.g. Slate Gray" value={newV.color} onChange={e => setNewV({...newV, color: e.target.value})} />
+        </div>
+        <div className="space-y-2">
+          <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Initial Qty</label>
+          <input type="number" className="w-full bg-white border border-border-light rounded-2xl px-4 sm:px-4 sm:px-6 py-5 font-black text-xs uppercase outline-none focus:ring-4 focus:ring-premium-gold/10 transition-all shadow-sm" placeholder="0" value={newV.available} onChange={e => setNewV({...newV, available: Number(e.target.value)})} />
+        </div>
+        <button type="button" onClick={handleAdd} className="h-[68px] bg-charcoal text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:bg-premium-gold hover:text-charcoal transition-all">Add To Catalog</button>
       </div>
-
-      {multiMode ? (
-        <div className="p-5 md:p-10 bg-light-bg/30 rounded-[3rem] border border-border-light space-y-10 text-left">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Color Palette</label>
-                {colors.length > 0 && <button onClick={() => setColors([])} className="text-[8px] font-black text-red-500 uppercase tracking-widest hover:underline">Clear All</button>}
-              </div>
-              <div className="flex flex-wrap gap-2 p-4 sm:p-4 sm:p-6 bg-white rounded-3xl border border-border-light min-h-[80px] shadow-inner">
-                {colors.map(c => (
-                  <motion.span initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} key={c} className="px-4 py-2 bg-charcoal text-white rounded-full text-[10px] font-black uppercase tracking-tighter flex items-center gap-2 group">
-                    {c} <X size={12} className="cursor-pointer hover:text-premium-gold transition-colors" onClick={() => setColors(colors.filter(x => x !== c))} />
-                  </motion.span>
-                ))}
-                <div className="flex-1 flex items-center gap-2 min-w-[150px]">
-                  <input 
-                    className="w-full bg-transparent border-none outline-none text-[11px] font-black uppercase placeholder:text-text-muted/40" 
-                    placeholder="Add Color (e.g. Red)..." 
-                    value={colorInput} 
-                    onChange={e => setColorInput(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addColor())}
-                  />
-                  <button onClick={addColor} className="p-2 bg-light-bg hover:bg-premium-gold/10 text-charcoal rounded-lg transition-all"><Plus size={14} /></button>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Size Matrix (Select Multiple)</label>
-                {sizes.length > 0 && <button onClick={() => setSizes([])} className="text-[8px] font-black text-red-500 uppercase tracking-widest hover:underline">Deselect All</button>}
-              </div>
-              <div className="grid grid-cols-5 gap-3 p-4 sm:p-4 sm:p-6 bg-white rounded-3xl border border-border-light shadow-inner">
-                {COMMON_SIZES.map(s => (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => toggleSize(s)}
-                    className={`py-3 rounded-xl text-[10px] font-black transition-all border-2 ${sizes.includes(s) ? 'bg-premium-gold border-premium-gold text-charcoal shadow-lg shadow-premium-gold/20 scale-105' : 'bg-white border-border-light text-text-muted hover:border-premium-gold/30'}`}
-                  >
-                    {s}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col md:flex-row items-end gap-8 pt-6 border-t border-border-light/40">
-            <div className="w-full md:w-64">
-              <InputField type="number" label="Arrival Opening Stock" value={initialQty} onChange={v => setInitialQty(v)} placeholder="0" />
-            </div>
-            <button type="button" onClick={generateCombinations} className="flex-1 h-[68px] bg-charcoal text-white rounded-2xl text-[12px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-charcoal/20 hover:bg-premium-gold hover:text-charcoal transition-all flex items-center justify-center gap-4 group">
-              <Sparkles size={20} className="group-hover:rotate-12 transition-transform" /> 
-              Generate Variant Blueprint
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-end bg-light-bg/30 p-5 md:p-10 rounded-[3rem] border border-border-light text-left shadow-inner">
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Size Option</label>
-            <select className="w-full bg-white border border-border-light rounded-2xl px-4 sm:px-4 sm:px-6 py-5 font-black text-xs uppercase outline-none focus:ring-4 focus:ring-premium-gold/10 transition-all shadow-sm" value={newV.size} onChange={e => setNewV({...newV, size: e.target.value})}>
-              <option value="">Select Size...</option>
-              {COMMON_SIZES.map(s => <option key={s} value={s}>{s}</option>)}
-              <option value="CUSTOM">Custom...</option>
-            </select>
-          </div>
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Color Shade</label>
-            <input className="w-full bg-white border border-border-light rounded-2xl px-4 sm:px-4 sm:px-6 py-5 font-black text-xs uppercase outline-none focus:ring-4 focus:ring-premium-gold/10 transition-all shadow-sm" placeholder="e.g. Slate Gray" value={newV.color} onChange={e => setNewV({...newV, color: e.target.value})} />
-          </div>
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Initial Qty</label>
-            <input type="number" className="w-full bg-white border border-border-light rounded-2xl px-4 sm:px-4 sm:px-6 py-5 font-black text-xs uppercase outline-none focus:ring-4 focus:ring-premium-gold/10 transition-all shadow-sm" placeholder="0" value={newV.available} onChange={e => setNewV({...newV, available: Number(e.target.value)})} />
-          </div>
-          <button type="button" onClick={handleAdd} className="h-[68px] bg-charcoal text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:bg-premium-gold hover:text-charcoal transition-all">Add To Catalog</button>
-        </div>
-      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
         {activeVariants.length === 0 ? (
