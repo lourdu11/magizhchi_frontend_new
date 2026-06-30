@@ -110,7 +110,7 @@ export default function AdminLayout() {
         <aside className={`
           ${collapsed ? 'w-16' : 'w-64'} 
           ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-          shrink-0 bg-white border-r border-[#DADCE0] flex flex-col transition-all duration-300 fixed lg:static top-0 h-full z-[80] shadow-xl lg:shadow-none print:hidden
+          shrink-0 bg-white border-r border-[#DADCE0] flex flex-col transition-all duration-300 fixed lg:static top-0 h-full z-[80] shadow-xl lg:shadow-none print:hidden overflow-hidden
         `}>
           {/* Logo */}
           <div className={`flex items-center ${collapsed ? 'justify-center' : 'justify-between'} px-4 sm:px-6 py-5 border-b border-[#F1F3F4]`}>
@@ -132,7 +132,7 @@ export default function AdminLayout() {
           </div>
 
           {/* Scrollable Content */}
-          <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col">
+          <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col min-h-0">
             {/* Nav */}
               <nav className="py-4 sm:py-6 px-3 space-y-1">
                 {NAV.map(({ icon: Icon, label, path }) => {
