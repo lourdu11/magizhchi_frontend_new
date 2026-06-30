@@ -314,29 +314,39 @@ export default function AdminBanners() {
         </div>
       )}
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8">
-        {banners?.length === 0 && <div className="col-span-full py-20 text-center text-text-muted italic">No banners found. Start by adding a hero banner.</div>}
+      <div className="flex flex-col gap-4">
+        {banners?.length === 0 && <div className="col-span-full py-20 text-center text-text-muted font-bold uppercase tracking-widest">No banners found. Start by adding a hero banner.</div>}
         {banners?.map(banner => (
-          <div key={banner._id} className="bg-white rounded-[2.5rem] border border-border-light overflow-hidden shadow-sm group hover:shadow-xl transition-all duration-500">
-            <div className="aspect-[21/9] relative bg-light-bg overflow-hidden">
+          <div key={banner._id} className={`bg-white p-4 rounded-3xl border border-border-light shadow-sm group hover:shadow-lg transition-all flex flex-col md:flex-row items-center gap-6 ${!banner.isActive ? 'opacity-75 grayscale-[0.5]' : ''}`}>
+            
+            <div className="w-full md:w-80 aspect-[21/9] rounded-2xl bg-light-bg relative overflow-hidden shrink-0">
               <SafeImage src={banner.desktopImage} alt={banner.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                <button onClick={() => handleEdit(banner)} className="p-4 bg-white text-charcoal rounded-2xl hover:bg-premium-gold hover:text-white transition-all shadow-xl"><Edit3 size={20} /></button>
-                <button onClick={() => { if(window.confirm('Delete this banner?')) deleteMutation.mutate(banner._id); }} className="p-4 bg-white text-stock-out rounded-2xl hover:bg-stock-out hover:text-white transition-all shadow-xl"><Trash2 size={20} /></button>
-              </div>
-              <div className="absolute top-6 left-6 bg-charcoal/80 backdrop-blur-md text-white text-[10px] font-black px-3 py-1.5 rounded-full tracking-widest uppercase">
+              <div className="absolute top-2 left-2 bg-charcoal/80 backdrop-blur-md text-white text-[9px] font-black px-3 py-1.5 rounded-full tracking-widest uppercase">
                 Order: {banner.displayOrder}
               </div>
             </div>
-            <div className="p-4 sm:p-4 sm:p-6">
-              <div className="flex items-start justify-between gap-4">
+            
+            <div className="flex-1 min-w-0 w-full py-2">
+              <div className="flex flex-col md:flex-row items-start justify-between gap-4">
                 <div>
-                  <h4 className="font-black text-charcoal text-lg tracking-tight mb-1">{banner.title}</h4>
-                  <p className="text-xs text-text-muted line-clamp-1 mb-3 font-medium">{banner.subtitle || 'No subtitle provided'}</p>
-                  <p className="text-[10px] text-text-muted flex items-center gap-1 font-bold uppercase tracking-widest"><ExternalLink size={10} /> {banner.link}</p>
+                  <h4 className="font-black text-charcoal text-lg sm:text-xl tracking-tight mb-1 group-hover:text-premium-gold transition-colors">{banner.title}</h4>
+                  <p className="text-xs text-text-muted line-clamp-1 mb-4 font-medium">{banner.subtitle || 'No subtitle provided'}</p>
+                  
+                  <div className="flex items-center gap-4">
+                    <p className="text-[10px] text-charcoal flex items-center gap-1.5 font-bold uppercase tracking-widest bg-light-bg px-3 py-1.5 rounded-xl border border-border-light"><ExternalLink size={12} className="text-premium-gold" /> {banner.link}</p>
+                    <div className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] border ${banner.isActive ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
+                      {banner.isActive ? 'Public' : 'Hidden'}
+                    </div>
+                  </div>
                 </div>
-                <div className={`px-3 py-1.5 rounded-full text-[8px] font-black uppercase tracking-[0.2em] ${banner.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                  {banner.isActive ? 'Public' : 'Private'}
+                
+                <div className="flex items-center gap-2 self-end md:self-auto mt-4 md:mt-0">
+                  <button onClick={() => handleEdit(banner)} className="p-3 bg-light-bg text-charcoal rounded-xl hover:bg-premium-gold hover:text-charcoal transition-all shadow-sm">
+                    <Edit3 size={16} />
+                  </button>
+                  <button onClick={() => { if(window.confirm('Delete this banner?')) deleteMutation.mutate(banner._id); }} className="p-3 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm">
+                    <Trash2 size={16} />
+                  </button>
                 </div>
               </div>
             </div>
