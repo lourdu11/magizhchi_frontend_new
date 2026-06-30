@@ -272,9 +272,12 @@ export default function ProductProfileCenter() {
 }
 
 function QuickStockModal({ product, onClose }) {
+   const availableSizes = [...new Set(product.variants?.map(v => v.size).filter(Boolean))];
+   const availableColors = [...new Set(product.variants?.map(v => v.color).filter(Boolean))];
+
    const [formData, setFormData] = useState({
-      size: '',
-      color: '',
+      size: availableSizes.length > 0 ? availableSizes[0] : '',
+      color: availableColors.length > 0 ? availableColors[0] : '',
       stock: 1,
       sellingPrice: product.sellingPrice || 0,
       sku: ''
@@ -320,18 +323,40 @@ function QuickStockModal({ product, onClose }) {
                <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
                      <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Size (Required)</label>
-                     <input className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 font-bold text-sm" placeholder="e.g. XL, 32" value={formData.size} onChange={e => setFormData({...formData, size: e.target.value})} />
+                     {availableSizes.length > 0 ? (
+                        <select 
+                           className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 font-bold text-sm outline-none focus:ring-4 focus:ring-premium-gold/10" 
+                           value={formData.size} 
+                           onChange={e => setFormData({...formData, size: e.target.value})}
+                        >
+                           <option value="" disabled>Select Size</option>
+                           {availableSizes.map(s => <option key={s} value={s}>{s}</option>)}
+                        </select>
+                     ) : (
+                        <input className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 font-bold text-sm outline-none focus:ring-4 focus:ring-premium-gold/10" placeholder="e.g. XL, 32" value={formData.size} onChange={e => setFormData({...formData, size: e.target.value})} />
+                     )}
                   </div>
                   <div className="space-y-2">
                      <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Color (Required)</label>
-                     <input className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 font-bold text-sm" placeholder="e.g. Navy Blue" value={formData.color} onChange={e => setFormData({...formData, color: e.target.value})} />
+                     {availableColors.length > 0 ? (
+                        <select 
+                           className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 font-bold text-sm outline-none focus:ring-4 focus:ring-premium-gold/10" 
+                           value={formData.color} 
+                           onChange={e => setFormData({...formData, color: e.target.value})}
+                        >
+                           <option value="" disabled>Select Color</option>
+                           {availableColors.map(c => <option key={c} value={c}>{c}</option>)}
+                        </select>
+                     ) : (
+                        <input className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 font-bold text-sm outline-none focus:ring-4 focus:ring-premium-gold/10" placeholder="e.g. Navy Blue" value={formData.color} onChange={e => setFormData({...formData, color: e.target.value})} />
+                     )}
                   </div>
                </div>
 
                <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
-                     <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Initial Stock (Pcs)</label>
-                     <input type="number" className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 font-black text-xl" value={formData.stock} onChange={e => setFormData({...formData, stock: e.target.value})} />
+                     <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Stock Change (+/-)</label>
+                     <input type="number" className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 font-black text-xl outline-none focus:ring-4 focus:ring-premium-gold/10" value={formData.stock} onChange={e => setFormData({...formData, stock: e.target.value})} />
                   </div>
                   <div className="space-y-2">
                      <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Selling Price (₹)</label>
@@ -347,7 +372,7 @@ function QuickStockModal({ product, onClose }) {
                <div className="p-4 sm:p-4 sm:p-6 bg-orange-50 rounded-3xl border border-orange-100">
                   <p className="text-[10px] font-bold text-orange-700 leading-relaxed">
                      <span className="font-black uppercase tracking-widest block mb-1">💡 Flexible Workflow</span>
-                     This entry is optional. You can close this window now and add stock later from the Procurement Hub or Inventory Master.
+                     If the Size and Color combination already exists in inventory, this will <b>Add/Subtract</b> the stock value. If it doesn't exist, it will create a new inventory record.
                   </p>
                </div>
 
