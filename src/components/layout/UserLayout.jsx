@@ -3,7 +3,6 @@ import { Outlet } from 'react-router-dom';
 import Header from './Header';
 
 const Footer = lazy(() => import('./Footer'));
-const CookieConsent = lazy(() => import('../common/CookieConsent'));
 
 export default function UserLayout() {
   return (
@@ -17,7 +16,6 @@ export default function UserLayout() {
 
       <Suspense fallback={null}>
         <Footer />
-        <CookieConsent />
       </Suspense>
 
       {/* Floating WhatsApp Button */}
