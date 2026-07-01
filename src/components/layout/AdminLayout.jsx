@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Package, ShoppingBag, Users, BarChart2, Settings, FileText, Tag, Image, UserCog, Boxes, LogOut, ChevronLeft, ChevronRight, Menu, RefreshCcw, Star, Truck, History, RotateCcw, LayoutGrid, X, Receipt, Smartphone } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingBag, Users, BarChart2, Settings, FileText, Tag, Image, UserCog, Boxes, LogOut, ChevronLeft, ChevronRight, Menu, RefreshCcw, Star, Truck, History, RotateCcw, LayoutGrid, X, Receipt, Smartphone, ShieldCheck } from 'lucide-react';
 
 import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -68,11 +68,25 @@ export default function AdminLayout() {
   // Protect internal admin routes from staff
   useEffect(() => {
     if (user?.role === 'staff') {
+      // Legacy token check: if permissions array doesn't exist on the user object, their session is stale.
+      if (!user.permissions) {
+        alert("Security Update: Your session must be refreshed. Please log in again.");
+        handleLogout();
+        return;
+      }
+
+      // If the admin has revoked ALL permissions, they shouldn't see any module.
+      if (staffAllowedPaths.length === 0) {
+        if (location.pathname !== '/admin') {
+          navigate('/admin', { replace: true });
+        }
+        return; // They will stay on the dashboard but it will be empty
+      }
+
       const isAllowed = staffAllowedPaths.some(p => location.pathname.startsWith(p));
       if (!isAllowed) {
-        // Redirect to their first available permitted module, or a safe fallback if none
-        const fallbackPath = staffAllowedPaths.length > 0 ? staffAllowedPaths[0] : '/admin/create-bill';
-        navigate(fallbackPath, { replace: true });
+        // Redirect to their first available permitted module
+        navigate(staffAllowedPaths[0], { replace: true });
       }
     }
   }, [location.pathname, user, navigate, staffAllowedPaths]);
