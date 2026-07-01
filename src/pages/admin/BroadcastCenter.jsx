@@ -545,46 +545,50 @@ const BroadcastCenter = () => {
                     <h2 className="text-3xl font-black text-[#202124] tracking-tighter uppercase">What's the message?</h2>
                   </div>
 
-                  <div className="bg-white rounded-[2.5rem] border border-[#DADCE0] p-5 md:p-10 shadow-sm space-y-8">
-                      <div>
-                          <label className="text-[10px] font-black text-[#5F6368] uppercase tracking-[0.2em] mb-3 block">Internal Title</label>
+                  <div className="bg-charcoal rounded-[2.5rem] border border-white/10 p-5 md:p-10 shadow-2xl shadow-black/20 space-y-8 relative overflow-hidden">
+                      <div className="absolute top-0 right-0 w-96 h-96 bg-premium-gold/5 blur-[80px] rounded-full pointer-events-none -mr-40 -mt-40" />
+                      
+                      <div className="relative z-10">
+                          <label className="text-[10px] font-black text-premium-gold uppercase tracking-[0.2em] mb-3 block">Internal Title</label>
                           <input 
                             type="text" 
-                            className="w-full bg-[#F8F9FA] border border-[#DADCE0] rounded-2xl px-4 sm:px-4 sm:px-6 py-4 focus:ring-4 focus:ring-blue-100 outline-none font-bold"
+                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 sm:px-6 py-4 focus:ring-1 focus:ring-premium-gold focus:border-premium-gold outline-none font-bold text-white placeholder-white/30 transition-all"
                             placeholder="e.g., Festival Offer 2026"
                             value={broadcastData.title}
                             onChange={(e) => setBroadcastData({...broadcastData, title: e.target.value})}
                           />
                       </div>
 
-                      <div>
+                      <div className="relative z-10">
                           <div className="flex justify-between items-end mb-3">
-                            <label className="text-[10px] font-black text-[#5F6368] uppercase tracking-[0.2em]">Message Body</label>
+                            <label className="text-[10px] font-black text-premium-gold uppercase tracking-[0.2em]">Message Body</label>
                             <button 
                                 onClick={() => setBroadcastData({...broadcastData, message: broadcastData.message + ' {{name}}'})}
-                                className="text-[9px] font-black text-[#1A73E8] bg-blue-50 px-3 py-1 rounded-full"
+                                className="text-[9px] font-black text-charcoal bg-premium-gold px-4 py-1.5 rounded-full hover:scale-105 transition-all shadow-md"
                             >
                                 + Insert {"{{name}}"}
                             </button>
                           </div>
                           <textarea 
                             rows={8}
-                            className="w-full bg-[#F8F9FA] border border-[#DADCE0] rounded-2xl px-4 sm:px-4 sm:px-6 py-4 focus:ring-4 focus:ring-blue-100 outline-none font-medium text-lg leading-relaxed"
+                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 sm:px-6 py-4 focus:ring-1 focus:ring-premium-gold focus:border-premium-gold outline-none font-medium text-lg leading-relaxed text-white placeholder-white/30 transition-all custom-scrollbar"
                             placeholder="Type your magic here..."
                             value={broadcastData.message}
                             onChange={(e) => setBroadcastData({...broadcastData, message: e.target.value})}
                           />
                       </div>
 
-                      <div className="p-4 md:p-4 md:p-8 bg-[#F8F9FA] rounded-[2rem] border-2 border-dashed border-[#DADCE0] space-y-6">
+                      <div className="relative z-10 p-4 md:p-8 bg-white/5 rounded-[2rem] border-2 border-dashed border-white/20 space-y-6 hover:border-premium-gold/50 transition-colors">
                           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                               <div className="flex items-center flex-wrap gap-4">
-                                  <ImageIcon size={24} className="text-[#1A73E8]" />
-                                  <span className="text-[10px] font-black uppercase tracking-widest text-[#202124]">Promotional Image</span>
+                                  <div className="w-10 h-10 rounded-xl bg-premium-gold/20 flex items-center justify-center">
+                                      <ImageIcon size={20} className="text-premium-gold" />
+                                  </div>
+                                  <span className="text-[10px] font-black uppercase tracking-widest text-white">Promotional Image</span>
                               </div>
                               <div className="flex gap-2 w-full md:w-auto">
                                   <input type="file" className="hidden" ref={fileInputRef} onChange={handleImageUpload} />
-                                  <button onClick={() => fileInputRef.current.click()} className="bg-white px-4 sm:px-4 sm:px-6 py-2.5 rounded-xl border border-[#DADCE0] text-[9px] font-black uppercase tracking-widest flex-1 md:flex-none">
+                                  <button onClick={() => fileInputRef.current.click()} className="bg-white/10 px-4 sm:px-6 py-3 rounded-xl border border-white/10 text-[9px] font-black uppercase tracking-widest text-white flex-1 md:flex-none hover:bg-white/20 transition-all">
                                       {uploading ? <Loader2 size={14} className="animate-spin inline" /> : 'Upload File'}
                                   </button>
                               </div>
@@ -594,7 +598,7 @@ const BroadcastCenter = () => {
                              <input 
                                 type="url" 
                                 placeholder="Or paste Cloudinary / S3 URL..."
-                                className="flex-1 bg-white border border-[#DADCE0] rounded-xl px-4 py-2.5 text-[10px] font-bold focus:outline-none focus:border-[#1A73E8]"
+                                className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-[10px] font-bold focus:outline-none focus:border-premium-gold text-white placeholder-white/30"
                                 value={broadcastUrlInput}
                                 onChange={e => setBroadcastUrlInput(e.target.value)}
                              />
@@ -605,19 +609,21 @@ const BroadcastCenter = () => {
                                    setBroadcastUrlInput('');
                                    toast.success('URL applied!');
                                 }}
-                                className="bg-[#202124] text-white px-4 sm:px-4 sm:px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest"
+                                className="bg-white text-charcoal px-4 sm:px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-gray-200 transition-colors"
                              >
                                 Apply
                              </button>
                           </div>
 
                           {broadcastData.mediaUrl && (
-                              <div className="relative">
-                                  <img src={broadcastData.mediaUrl} className="w-full h-48 object-cover rounded-2xl border border-[#DADCE0]" />
-                                  <button onClick={() => setBroadcastData({...broadcastData, mediaUrl: '', mediaType: 'none'})} className="absolute top-3 right-3 bg-white/80 p-2 rounded-full text-red-500 shadow-md">
-                                      <Trash2 size={16} />
-                                  </button>
-                                  <div className="absolute bottom-3 left-3 bg-white/90 px-3 py-1.5 rounded-lg border border-[#DADCE0] text-[8px] font-mono text-gray-700 truncate max-w-[80%]">
+                              <div className="relative group rounded-2xl overflow-hidden border border-white/20 shadow-2xl">
+                                  <img src={broadcastData.mediaUrl} className="w-full h-56 object-cover" />
+                                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                      <button onClick={() => setBroadcastData({...broadcastData, mediaUrl: '', mediaType: 'none'})} className="bg-red-500 text-white p-3 rounded-full shadow-2xl hover:scale-110 transition-transform">
+                                          <Trash2 size={20} />
+                                      </button>
+                                  </div>
+                                  <div className="absolute bottom-3 left-3 bg-black/80 px-3 py-1.5 rounded-lg border border-white/20 text-[8px] font-mono text-white/70 truncate max-w-[80%] backdrop-blur-sm">
                                       {broadcastData.mediaUrl}
                                   </div>
                               </div>
@@ -629,7 +635,7 @@ const BroadcastCenter = () => {
                       <button 
                         onClick={() => setCurrentStep(3)}
                         disabled={!broadcastData.message || !broadcastData.title}
-                        className="bg-[#1A73E8] text-white px-12 py-5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-blue-100 flex items-center gap-2 disabled:opacity-50"
+                        className="bg-gradient-to-r from-premium-gold to-amber-500 text-charcoal px-12 py-5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-premium-gold/20 flex items-center gap-2 disabled:opacity-50 hover:from-charcoal hover:to-charcoal hover:text-premium-gold transition-all duration-500"
                       >
                         Preview & Launch <ArrowRight size={14} />
                       </button>
