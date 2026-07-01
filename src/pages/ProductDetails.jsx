@@ -56,6 +56,8 @@ export default function ProductDetails() {
   const [activeTab, setActiveTab] = useState('details');
   const [isAddingWishlist, setIsAddingWishlist] = useState(false);
   const [isAddingCart, setIsAddingCart] = useState(false);
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
 
   // ── Image Zoom ──────────────────────────────────────────────────
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -207,6 +209,31 @@ export default function ProductDetails() {
       : ['https://images.unsplash.com/photo-1596755094514-f87e34085b2c?q=80&w=800&auto=format&fit=crop'];
   }, [product?.images, product?.laptopImage, product?.tabletImage, product?.mobileImage]);
 
+  // Touch Swipe Handlers for Mobile
+  const minSwipeDistance = 50;
+
+  const handleTouchStart = (e) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    
+    if (isLeftSwipe && images.length > 1) {
+      setSelectedImage(prev => (prev + 1) % images.length);
+    } else if (isRightSwipe && images.length > 1) {
+      setSelectedImage(prev => (prev === 0 ? images.length - 1 : prev - 1));
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-dvh flex items-center justify-center bg-white">
@@ -273,6 +300,9 @@ export default function ProductDetails() {
               ref={imgContainerRef}
               className="relative aspect-[4/5] rounded-[2.5rem] md:rounded-[3.5rem] overflow-hidden border border-border-light shadow-xl shadow-black/5 bg-white select-none cursor-pointer group"
               onClick={() => setLightboxOpen(true)}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
             >
               <motion.div
                 key={selectedImage}
