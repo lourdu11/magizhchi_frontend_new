@@ -81,7 +81,7 @@ export default function AdminStaff() {
 
       {activeTab === 'list' ? (
         <div className="space-y-10">
-          {(showAdd || editingStaff) && (
+          {(showAdd || editingStaff) ? (
             <div className="bg-white p-5 md:p-10 rounded-[3rem] border border-border-light shadow-sm max-w-5xl mx-auto">
               <h3 className="text-xl font-black text-charcoal mb-8 uppercase tracking-tight flex items-center gap-3">
                  <Target size={20} className="text-premium-gold" /> {editingStaff ? 'Refine Account' : 'Initialize Account'}
@@ -127,11 +127,10 @@ export default function AdminStaff() {
                 </div>
               </form>
             </div>
-          )}
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {isLoading && <div className="col-span-full py-20 flex justify-center"><Loader2 className="animate-spin text-premium-gold" size={40} /></div>}
-            {staff?.length === 0 && <div className="col-span-full py-24 text-center text-text-muted font-bold uppercase tracking-widest">No staff accounts registered.</div>}
+          ) : (
+            <div className="flex flex-col gap-6 max-w-3xl mx-auto">
+              {isLoading && <div className="py-20 flex justify-center"><Loader2 className="animate-spin text-premium-gold" size={40} /></div>}
+              {staff?.length === 0 && <div className="py-24 text-center text-text-muted font-bold uppercase tracking-widest">No staff accounts registered.</div>}
             {staff?.map(s => (
               <div key={s._id} className="bg-white p-4 md:p-4 md:p-8 rounded-[3rem] border border-border-light shadow-sm flex flex-col gap-6 group hover:shadow-xl hover:-translate-y-1 transition-all">
                 <div className="flex items-center gap-5">
@@ -168,6 +167,7 @@ export default function AdminStaff() {
               </div>
             ))}
           </div>
+          )}
         </div>
       ) : (
         <div className="space-y-10">
