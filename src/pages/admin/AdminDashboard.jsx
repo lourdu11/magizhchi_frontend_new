@@ -23,11 +23,11 @@ function LiveClock() {
     return () => clearInterval(t);
   }, []);
   return (
-    <div className="text-right">
-      <p className="text-2xl font-black text-charcoal tracking-tighter tabular-nums">
+    <div className="text-right md:text-left lg:text-right">
+      <p className="text-2xl md:text-3xl font-black text-white tracking-tighter tabular-nums drop-shadow-md">
         {time.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
       </p>
-      <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mt-1">
+      <p className="text-[10px] md:text-xs font-bold text-white/50 uppercase tracking-[0.2em] mt-1">
         {time.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}
       </p>
     </div>
