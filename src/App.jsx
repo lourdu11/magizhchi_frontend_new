@@ -53,6 +53,7 @@ const AdminAnalytics = lazy(() => import('./pages/admin/AdminAnalytics'));
 const AdminCoupons = lazy(() => import('./pages/admin/AdminCoupons'));
 const AdminReviews = lazy(() => import('./pages/admin/AdminReviews'));
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
+const StaffLogin = lazy(() => import('./pages/admin/StaffLogin'));
 const AdminBanners = lazy(() => import('./pages/admin/AdminBanners'));
 const AdminBannerForm = lazy(() => import('./pages/admin/AdminBannerForm'));
 const AdminProcurement = lazy(() => import('./pages/admin/AdminProcurement'));
@@ -176,8 +177,8 @@ export default function App() {
         </Route>
 
         {/* ── Dedicated Staff Login Route ── */}
-        <Route path="/staff/login" element={<AdminLogin />} />
-        <Route path="/staff/login/*" element={<AdminLogin />} />
+        <Route path="/staff/login" element={<StaffLogin />} />
+        <Route path="/staff/login/*" element={<StaffLogin />} />
         <Route path="/staff/*" element={<Navigate to="/staff/login" replace />} />
 
         {/* ── 404 ── */}

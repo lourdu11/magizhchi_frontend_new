@@ -33,7 +33,7 @@ export default function AdminLogin() {
 
   if (isAuthenticated && user?.role) {
     if (user.role === 'admin') return <Navigate to="/admin" replace />;
-    if (user.role === 'staff') return <Navigate to="/admin" replace />;
+    if (user.role === 'staff') return <Navigate to="/staff/login" replace />;
   }
 
   const handleLogin = async (e) => {
@@ -51,15 +51,19 @@ export default function AdminLogin() {
         return;
       }
 
-      if (data.data.user.role !== 'admin' && data.data.user.role !== 'staff') {
-        toast.error('Unauthorized access. Admin/Staff only.');
+      if (data.data.user.role === 'staff') {
+        toast.error('Staff members must use the dedicated Staff Portal.');
+        return;
+      }
+
+      if (data.data.user.role !== 'admin') {
+        toast.error('Unauthorized access. Admin only.');
         return;
       }
       setAuth(data.data.user, data.data.accessToken);
-      toast.success(`Access Granted: ${data.data.user.role === 'admin' ? 'Administrator' : 'Staff'} Session Active`);
+      toast.success(`Access Granted: Administrator Session Active`);
       
       if (data.data.user.role === 'admin') navigate('/admin');
-      else if (data.data.user.role === 'staff') navigate('/admin');
       else navigate('/');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Authentication failed');
