@@ -58,6 +58,7 @@ export default function ProductDetails() {
   const [isAddingCart, setIsAddingCart] = useState(false);
   const [touchStart, setTouchStart] = useState(null);
   const [touchEnd, setTouchEnd] = useState(null);
+  const isSwipingRef = useRef(false);
 
   // ── Image Zoom ──────────────────────────────────────────────────
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -215,6 +216,7 @@ export default function ProductDetails() {
   const handleTouchStart = (e) => {
     setTouchEnd(null);
     setTouchStart(e.targetTouches[0].clientX);
+    isSwipingRef.current = false;
   };
 
   const handleTouchMove = (e) => {
@@ -226,6 +228,10 @@ export default function ProductDetails() {
     const distance = touchStart - touchEnd;
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
+    
+    if (Math.abs(distance) > 10) {
+      isSwipingRef.current = true;
+    }
     
     if (isLeftSwipe && images.length > 1) {
       setSelectedImage(prev => (prev + 1) % images.length);
@@ -298,8 +304,10 @@ export default function ProductDetails() {
             {/* Main Image */}
             <div
               ref={imgContainerRef}
-              className="relative aspect-[4/5] rounded-[2.5rem] md:rounded-[3.5rem] overflow-hidden border border-border-light shadow-xl shadow-black/5 bg-white select-none cursor-pointer group"
-              onClick={() => setLightboxOpen(true)}
+              className="relative aspect-[4/5] rounded-[2.5rem] md:rounded-[3.5rem] overflow-hidden border border-border-light shadow-xl shadow-black/5 bg-white select-none cursor-pointer group touch-pan-y"
+              onClick={() => {
+                if (!isSwipingRef.current) setLightboxOpen(true);
+              }}
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
