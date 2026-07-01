@@ -72,7 +72,7 @@ const StaffDailyReport = lazy(() => import('./pages/staff/StaffDailyReport'));
 
 import ScrollToTop from './components/layout/ScrollToTop';
 import { useAuthStore } from './store';
-import { checkAuthSession, setToken } from './services/api';
+import api, { checkAuthSession, setToken } from './services/api';
 
 export default function App() {
   const logout = useAuthStore((state) => state.logout);
@@ -88,6 +88,17 @@ export default function App() {
         const success = await checkAuthSession();
         if (!success) {
           logout();
+        } else {
+          try {
+            const res = await api.get('/auth/me');
+            const currentUserData = res.data?.data?.user || res.data?.user;
+            if (currentUserData) {
+              const currentToken = useAuthStore.getState().token;
+              useAuthStore.getState().setAuth(currentUserData, currentToken);
+            }
+          } catch (err) {
+            console.error('Failed to sync latest user profile on load', err);
+          }
         }
       }
     };
