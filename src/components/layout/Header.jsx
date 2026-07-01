@@ -21,6 +21,17 @@ export default function Header() {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [visible, setVisible] = useState(true);
   const lastScrollY = useRef(0);
+  const userMenuRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setShowUserMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const { isAuthenticated, user, logout } = useAuthStore();
   const { itemCount, setItemCount } = useCartStore();
@@ -259,7 +270,7 @@ export default function Header() {
 
               <div className="hidden md:block relative">
                 {isAuthenticated ? (
-                  <div className="relative group/user">
+                  <div className="relative group/user" ref={userMenuRef}>
                     <button onClick={() => setShowUserMenu(!showUserMenu)} aria-label="Toggle user menu" className={`w-11 h-11 rounded-2xl flex items-center justify-center shadow-lg transition-all ${showUserMenu ? 'bg-premium-gold text-charcoal' : 'bg-charcoal text-premium-gold hover:scale-105'}`}>
                       <User size={18} />
                     </button>
