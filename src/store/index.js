@@ -3,6 +3,35 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 
 import { setToken, clearToken } from '../services/api';
 
+// ─── Custom Storage Engine for Role-Based Persistence ───
+// Customers stay logged in (localStorage)
+// Admins and Staff get logged out on browser close (sessionStorage)
+const customAuthStorage = {
+  getItem: (name) => {
+    // Prioritize sessionStorage, fallback to localStorage
+    return sessionStorage.getItem(name) || localStorage.getItem(name);
+  },
+  setItem: (name, value) => {
+    try {
+      const parsed = JSON.parse(value);
+      const role = parsed?.state?.user?.role;
+      if (role === 'admin' || role === 'staff') {
+        sessionStorage.setItem(name, value);
+        localStorage.removeItem(name); // Ensure no persistent trace
+      } else {
+        localStorage.setItem(name, value);
+        sessionStorage.removeItem(name);
+      }
+    } catch (e) {
+      localStorage.setItem(name, value);
+    }
+  },
+  removeItem: (name) => {
+    sessionStorage.removeItem(name);
+    localStorage.removeItem(name);
+  }
+};
+
 // ─── Auth Store ───────────────────────────────────────
 export const useAuthStore = create(
   persist(
@@ -23,7 +52,7 @@ export const useAuthStore = create(
     }),
     {
       name: 'magizhchi-auth',
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => customAuthStorage),
       partialize: (state) => ({ user: state.user, token: state.token, isAuthenticated: state.isAuthenticated })
     }
   )
