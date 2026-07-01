@@ -33,11 +33,10 @@ export default function AdminBills() {
     return new Date(d.getTime() - tzOffset).toISOString().split('T')[0];
   };
 
-  const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-  const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  const firstDay = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000); // Default to last 30 days instead of current month (prevents empty view on the 1st of the month)
   
   const [fromDate, setFromDate] = useState(getLocalYMD(firstDay));
-  const [toDate, setToDate] = useState(getLocalYMD(now)); // Default to today instead of end of month, more intuitive for "up to today"
+  const [toDate, setToDate] = useState(getLocalYMD(now));
 
   const [selectedBill, setSelectedBill] = useState(null);
   const [deletingBill, setDeletingBill] = useState(null);
