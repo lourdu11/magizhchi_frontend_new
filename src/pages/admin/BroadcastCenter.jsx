@@ -36,7 +36,7 @@ const BroadcastCenter = () => {
   const [broadcastData, setBroadcastData] = useState({
     title: '',
     message: '',
-    mediaUrl: '',
+    mediaUrls: [],
     mediaType: 'none'
   });
   
@@ -159,7 +159,7 @@ const BroadcastCenter = () => {
     try {
       const { data } = await adminService.uploadImage(formData);
       if (data.success) {
-        setBroadcastData(prev => ({ ...prev, mediaUrl: data.url, mediaType: 'image' }));
+        setBroadcastData(prev => ({ ...prev, mediaUrls: [...(prev.mediaUrls || []), data.url], mediaType: 'image' }));
         toast.success('Image attached');
       }
     } catch (err) { toast.error('Upload failed'); }
@@ -605,7 +605,7 @@ const BroadcastCenter = () => {
                              <button 
                                 onClick={() => {
                                    if(!broadcastUrlInput.trim()) return;
-                                   setBroadcastData(prev => ({ ...prev, mediaUrl: broadcastUrlInput.trim(), mediaType: 'image' }));
+                                   setBroadcastData(prev => ({ ...prev, mediaUrls: [...(prev.mediaUrls || []), broadcastUrlInput.trim()], mediaType: 'image' }));
                                    setBroadcastUrlInput('');
                                    toast.success('URL applied!');
                                 }}
@@ -615,17 +615,21 @@ const BroadcastCenter = () => {
                              </button>
                           </div>
 
-                          {broadcastData.mediaUrl && (
-                              <div className="relative group rounded-2xl overflow-hidden border border-white/20 shadow-2xl">
-                                  <img src={broadcastData.mediaUrl} className="w-full h-56 object-cover" />
-                                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                      <button onClick={() => setBroadcastData({...broadcastData, mediaUrl: '', mediaType: 'none'})} className="bg-red-500 text-white p-3 rounded-full shadow-2xl hover:scale-110 transition-transform">
-                                          <Trash2 size={20} />
-                                      </button>
-                                  </div>
-                                  <div className="absolute bottom-3 left-3 bg-black/80 px-3 py-1.5 rounded-lg border border-white/20 text-[8px] font-mono text-white/70 truncate max-w-[80%] backdrop-blur-sm">
-                                      {broadcastData.mediaUrl}
-                                  </div>
+                          {broadcastData.mediaUrls && broadcastData.mediaUrls.length > 0 && (
+                              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                  {broadcastData.mediaUrls.map((url, idx) => (
+                                      <div key={idx} className="relative group rounded-2xl overflow-hidden border border-white/20 shadow-2xl aspect-square">
+                                          <img src={url} className="w-full h-full object-cover" />
+                                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                              <button onClick={() => setBroadcastData({...broadcastData, mediaUrls: broadcastData.mediaUrls.filter((_, i) => i !== idx), mediaType: broadcastData.mediaUrls.length === 1 ? 'none' : 'image'})} className="bg-red-500 text-white p-3 rounded-full shadow-2xl hover:scale-110 transition-transform">
+                                                  <Trash2 size={20} />
+                                              </button>
+                                          </div>
+                                          <div className="absolute top-2 left-2 bg-black/80 px-2 py-1 rounded-md text-[8px] font-black text-premium-gold backdrop-blur-sm shadow-md border border-white/10">
+                                              {idx + 1}/{broadcastData.mediaUrls.length}
+                                          </div>
+                                      </div>
+                                  ))}
                               </div>
                           )}
                       </div>
@@ -690,7 +694,13 @@ const BroadcastCenter = () => {
                     </div>
 
                     <div className="bg-[#262626] rounded-2xl rounded-tl-none p-5 border border-white/5 shadow-xl">
-                        {broadcastData.mediaUrl && <img src={broadcastData.mediaUrl} className="w-full h-32 object-cover rounded-xl mb-4" />}
+                        {broadcastData.mediaUrls && broadcastData.mediaUrls.length > 0 && (
+                            <div className="grid grid-cols-2 gap-2 mb-4">
+                                {broadcastData.mediaUrls.map((url, i) => (
+                                    <img key={i} src={url} className={`w-full object-cover rounded-xl border border-white/10 ${broadcastData.mediaUrls.length === 1 ? 'h-40 col-span-2' : 'h-24'}`} />
+                                ))}
+                            </div>
+                        )}
                         <p className="text-white text-[14px] leading-relaxed whitespace-pre-wrap font-medium">
                             {broadcastData.message.replace('{{name}}', 'Lourdu')}
                         </p>
@@ -997,6 +1007,15 @@ const BroadcastCenter = () => {
                   {/* WhatsApp Style Preview */}
                   <div className="mt-6 bg-[#E7FFDB] p-4 sm:p-4 sm:p-6 rounded-2xl rounded-tl-none border border-[#D0EBC1] relative shadow-sm max-w-[90%]">
                       <div className="absolute -left-2 top-0 w-4 h-4 bg-[#E7FFDB] rotate-45 border-l border-t border-[#D0EBC1]" style={{ clipPath: 'polygon(0 0, 100% 0, 0 100%)' }} />
+                      
+                      {selectedBroadcast.mediaUrls && selectedBroadcast.mediaUrls.length > 0 && (
+                          <div className="grid grid-cols-2 gap-2 mb-4">
+                              {selectedBroadcast.mediaUrls.map((url, i) => (
+                                  <img key={i} src={url} className={`w-full object-cover rounded-xl border border-black/10 ${selectedBroadcast.mediaUrls.length === 1 ? 'h-48 col-span-2' : 'h-28'}`} />
+                              ))}
+                          </div>
+                      )}
+                      
                       <p className="text-[#202124] text-sm whitespace-pre-wrap leading-relaxed">{selectedBroadcast.message}</p>
                       <div className="flex justify-end items-center gap-1 mt-2">
                           <p className="text-[9px] text-[#5F6368] uppercase font-bold">{format(new Date(selectedBroadcast.createdAt), 'hh:mm a')}</p>
