@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
+import { Routes, Route, Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { User, Package, Heart, Star, Wallet, MapPin, ChevronRight, LogOut, Edit, Lock, Plus, Trash2, Check, Loader2, Phone, Mail, ShoppingCart, User as UserIcon, Smartphone } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore, useWishlistStore } from '../store';
