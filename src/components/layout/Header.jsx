@@ -122,9 +122,9 @@ export default function Header() {
                 <SafeImage
                   src="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0043.jpg?updatedAt=1772379265473"
                   alt="Magizhchi"
-                  width={55}
-                  height={55}
-                  quality={80}
+                  width={150}
+                  height={150}
+                  quality={100}
                   priority={true}
                   fetchPriority="high"
                   loading="eager"
@@ -190,9 +190,9 @@ export default function Header() {
                 <div className="perspective-1000 transition-transform duration-500 hover:scale-105">
                   <SafeImage 
                     src="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0043.jpg?updatedAt=1772379265473" 
-                    width={55} 
-                    height={55}
-                    quality={80}
+                    width={150} 
+                    height={150}
+                    quality={100}
                     priority={true}
                     fetchPriority="high"
                     loading="eager"
