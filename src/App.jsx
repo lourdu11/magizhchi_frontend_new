@@ -8,7 +8,6 @@ import UserLayout from './components/layout/UserLayout';
 import ProtectedRoute from './components/common/ProtectedRoute';
 // AdminLayout & StaffLayout are lazy: they bring framer-motion + heavy deps
 const AdminLayout = lazy(() => import('./components/layout/AdminLayout'));
-const StaffLayout = lazy(() => import('./components/layout/StaffLayout'));
 import PageLoader from './components/common/PageLoader';
 
 // Eagerly loaded pages
@@ -65,7 +64,6 @@ const AdminAudit = lazy(() => import('./pages/admin/AdminAudit'));
 const BroadcastCenter = lazy(() => import('./pages/admin/BroadcastCenter'));
 
 // Staff pages
-const StaffLogin = lazy(() => import('./pages/staff/StaffLogin'));
 const PosLayout = lazy(() => import('./pages/staff/pos/PosLayout'));
 const StaffSalesHistory = lazy(() => import('./pages/staff/StaffSalesHistory'));
 const StaffDailyReport = lazy(() => import('./pages/staff/StaffDailyReport'));
@@ -177,13 +175,9 @@ export default function App() {
           <Route path="broadcast" element={<BroadcastCenter />} />
         </Route>
 
-        {/* ── Staff Routes ── */}
-        <Route path="/staff/login" element={<StaffLogin />} />
-        <Route path="/staff" element={<ProtectedRoute role="staff"><StaffLayout /></ProtectedRoute>}>
-          <Route index element={<PosLayout />} />
-          <Route path="history" element={<StaffSalesHistory />} />
-          <Route path="report" element={<StaffDailyReport />} />
-        </Route>
+        {/* ── Legacy Staff Routes (Redirect to Unified Admin UI) ── */}
+        <Route path="/staff/login" element={<Navigate to="/admin/login" replace />} />
+        <Route path="/staff/*" element={<Navigate to="/admin/create-bill" replace />} />
 
         {/* ── 404 ── */}
         <Route path="*" element={<NotFound />} />

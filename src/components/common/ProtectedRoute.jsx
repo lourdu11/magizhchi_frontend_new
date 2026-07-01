@@ -29,8 +29,16 @@ export default function ProtectedRoute({ children, role }) {
     return <Navigate to="/login" replace />;
   }
 
-  if (role && user?.role !== role && !(role === 'staff' && user?.role === 'admin')) {
-    return <Navigate to="/" replace />;
+  // Allow admin full access. If role is admin, allow staff too (since they share AdminLayout, we filter internally).
+  if (role && user?.role !== role) {
+    const isAdminRoute = role === 'admin';
+    const isStaffTryingToAccessAdminRoute = isAdminRoute && user?.role === 'staff';
+    const isStaffRoute = role === 'staff';
+    const isAdminTryingToAccessStaffRoute = isStaffRoute && user?.role === 'admin';
+
+    if (!isStaffTryingToAccessAdminRoute && !isAdminTryingToAccessStaffRoute) {
+      return <Navigate to="/" replace />;
+    }
   }
 
   return children;

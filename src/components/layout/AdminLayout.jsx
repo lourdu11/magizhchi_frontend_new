@@ -39,6 +39,23 @@ export default function AdminLayout() {
     }, 50);
   };
 
+  const staffAllowedPaths = ['/admin/orders', '/admin/users', '/admin/create-bill', '/admin/bills'];
+  
+  // Filter navigation for staff
+  const filteredNav = user?.role === 'staff' 
+    ? NAV.filter(item => staffAllowedPaths.includes(item.path))
+    : NAV;
+
+  // Protect internal admin routes from staff
+  useEffect(() => {
+    if (user?.role === 'staff') {
+      const isAllowed = staffAllowedPaths.some(p => location.pathname.startsWith(p));
+      if (!isAllowed) {
+        navigate('/admin/create-bill', { replace: true });
+      }
+    }
+  }, [location.pathname, user, navigate]);
+
   return (
     <div className="h-dvh print:h-auto print:block bg-[#F8F9FA] font-sans overflow-hidden">
       {/* Mobile Header (Fixed at top) */}
@@ -108,25 +125,25 @@ export default function AdminLayout() {
           {/* Scrollable Content */}
           <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col min-h-0">
             {/* Nav */}
-              <nav className="py-4 sm:py-6 px-3 space-y-1">
-                {NAV.map(({ icon: Icon, label, path }) => {
-                  const active = location.pathname === path || (path !== '/admin' && location.pathname.startsWith(path));
-                  return (
-                    <Link 
-                      key={path} 
-                      to={path}
-                      onClick={() => setMobileOpen(false)}
-                      className={`
-                        flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group relative
-                        ${active ? 'bg-[#E8F0FE] text-[#1a73e8] font-black' : 'text-[#5F6368] hover:text-[#202124] hover:bg-[#F1F3F4]'}
-                      `}
-                    >
-                      <Icon size={18} className={`${active ? 'text-[#1a73e8]' : 'group-hover:scale-105 transition-transform'}`} />
-                      {(!collapsed || mobileOpen) && <span className="text-[9px] font-bold uppercase tracking-widest leading-none">{label}</span>}
-                    </Link>
-                  );
-                })}
-              </nav>
+              <nav className="flex-1 overflow-y-auto py-4 px-3 sm:px-4 space-y-1 custom-scrollbar">
+              {filteredNav.map((item) => (
+                <Link
+                  key={item.label}
+                  to={item.path}
+                  onClick={() => setMobileOpen(false)}
+                  className={`
+                    flex items-center ${collapsed ? 'justify-center' : 'justify-start'} gap-3 px-3 py-3 rounded-2xl transition-all font-bold text-[11px] uppercase tracking-widest
+                    ${location.pathname === item.path 
+                      ? 'bg-blue-50 text-blue-600 shadow-sm' 
+                      : 'text-[#5F6368] hover:bg-[#F1F3F4] hover:text-[#202124]'
+                    }
+                  `}
+                >
+                  <item.icon size={18} className={location.pathname === item.path ? 'text-blue-600' : 'text-[#5F6368]'} />
+                  {!collapsed && <span>{item.label}</span>}
+                </Link>
+              ))}
+            </nav>
           </div>
 
           <div className="shrink-0 bg-white">
