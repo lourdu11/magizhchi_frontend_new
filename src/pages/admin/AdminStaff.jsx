@@ -125,22 +125,7 @@ export default function AdminStaff() {
                      <ShieldCheck size={16} className="text-premium-gold" /> Module Access Control
                    </h4>
                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                     {[
-                       { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-                       { id: 'categories', label: 'Category', icon: Tag },
-                       { id: 'procurement', label: 'Procurement', icon: Truck },
-                       { id: 'profiles', label: 'Product Profiles', icon: Boxes },
-                       { id: 'orders', label: 'Orders', icon: ShoppingBag },
-                       { id: 'customers', label: 'Customers', icon: Users },
-                       { id: 'create-bill', label: 'Create Bill', icon: Receipt },
-                       { id: 'offline-bills', label: 'Offline Bills', icon: FileText },
-                       { id: 'reviews', label: 'Reviews', icon: Star },
-                       { id: 'analytics', label: 'Analysis', icon: BarChart2 },
-                       { id: 'broadcast', label: 'Broadcast', icon: Smartphone },
-                       { id: 'staff', label: 'Staff Ops', icon: UserCog },
-                       { id: 'banners', label: 'Banners', icon: Image },
-                       { id: 'settings', label: 'Settings', icon: Settings }
-                     ].map(module => (
+                     {STAFF_MODULES.map(module => (
                        <label key={module.id} className="flex items-center gap-3 p-3 bg-light-bg rounded-2xl cursor-pointer hover:bg-premium-gold/5 transition-colors border border-transparent hover:border-premium-gold/20">
                          <input 
                            type="checkbox" 
