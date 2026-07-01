@@ -95,12 +95,13 @@ function MyOrders() {
 function Profile() {
   const { user, updateUser } = useAuthStore();
   const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState({ name: user?.name || '', phone: user?.phone || '' });
+  const [form, setForm] = useState({ name: user?.name || '', email: user?.email || '', phone: user?.phone || '' });
   const [pwForm, setPwForm] = useState({ currentPassword: '', newPassword: '' });
 
   const updateMutation = useMutation({
     mutationFn: (data) => api.put('/users/profile', data),
     onSuccess: (r) => { updateUser(r.data.data); toast.success('Profile updated'); setEditing(false); },
+    onError: (err) => toast.error(err.response?.data?.message || 'Failed to update profile'),
   });
   const pwMutation = useMutation({
     mutationFn: (data) => api.put('/users/change-password', data),
@@ -128,6 +129,8 @@ function Profile() {
           <div className="grid md:grid-cols-2 gap-4">
             <label className="block"><span className="text-xs font-bold text-text-muted uppercase mb-1 block">Full Name</span>
               <input className="w-full bg-light-bg border border-border-light rounded-xl px-4 py-2.5" value={form.name} onChange={e => setForm({...form, name: e.target.value})} /></label>
+            <label className="block"><span className="text-xs font-bold text-text-muted uppercase mb-1 block">Email</span>
+              <input className="w-full bg-light-bg border border-border-light rounded-xl px-4 py-2.5" value={form.email} onChange={e => setForm({...form, email: e.target.value})} /></label>
             <label className="block"><span className="text-xs font-bold text-text-muted uppercase mb-1 block">Phone</span>
               <input className="w-full bg-light-bg border border-border-light rounded-xl px-4 py-2.5" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} /></label>
           </div>
