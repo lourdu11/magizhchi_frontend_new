@@ -33,12 +33,12 @@ export default function SafeImage({
   const isSmall = width && parseInt(width, 10) <= 150;
   if (!isSmall && src && typeof src === 'string' && (src.includes('ik.imagekit.io') || src.includes('res.cloudinary.com') || src.includes('images.unsplash.com'))) {
     const widths = [200, 320, 480, 600, 768, 1024, 1440];
-    const baseQuality = quality ? parseInt(quality, 10) : 65;
+    const baseQuality = quality ? parseInt(quality, 10) : 85;
     const numWidth = width ? parseInt(width, 10) : null;
     const numHeight = height ? parseInt(height, 10) : null;
     const srcSetList = widths.map(w => {
-      // Intelligently scale down image compression quality for smaller mobile size viewports
-      const targetQuality = w <= 240 ? Math.min(baseQuality, 45) : (w <= 480 ? Math.min(baseQuality, 50) : (w <= 960 ? Math.min(baseQuality, 60) : baseQuality));
+      // Use the base quality to ensure high resolution everywhere
+      const targetQuality = baseQuality;
       // Proportionally scale height to maintain matching aspect ratio across all candidates
       const scaledHeight = numHeight && numWidth ? Math.round((numHeight / numWidth) * w) : undefined;
       return `${resolveAssetURL(src, w, targetQuality, { gravity, crop, aspect, height: scaledHeight })} ${w}w`;

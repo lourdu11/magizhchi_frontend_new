@@ -42,6 +42,26 @@
   h1, h2, h3 { 
     font-family: 'Playfair Display', Georgia, Cambria, "Times New Roman", Times, serif; 
   }
+
+  /* ─── Premium Custom Scrollbar ─── */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-light);
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--premium-gold);
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-light) transparent;
+  }
 }
 
 /* Layout Containment to Eliminate CLS */
