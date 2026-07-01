@@ -8,6 +8,22 @@ import api from '../../services/api';
 
 const StaffBarChart = lazy(() => import('./charts/StaffBarChart'));
 
+const STAFF_MODULES = [
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, desc: 'View main dashboard metrics' },
+  { id: 'categories', label: 'Category', icon: Tag, desc: 'Manage product categories' },
+  { id: 'procurement', label: 'Procurement Hub', icon: Truck, desc: 'Manage purchases and suppliers' },
+  { id: 'profiles', label: 'Product Profiles', icon: Boxes, desc: 'Manage main product catalog' },
+  { id: 'orders', label: 'Orders', icon: ShoppingBag, desc: 'View and update customer orders' },
+  { id: 'customers', label: 'Customers', icon: Users, desc: 'Access customer database' },
+  { id: 'create-bill', label: 'Create Bill', icon: Receipt, desc: 'Billing Station / POS' },
+  { id: 'offline-bills', label: 'Offline Bills', icon: FileText, desc: 'Manage manual bills' },
+  { id: 'reviews', label: 'Reviews', icon: Star, desc: 'Moderate product reviews' },
+  { id: 'analytics', label: 'Analysis', icon: BarChart2, desc: 'View advanced sales analytics' },
+  { id: 'broadcast', label: 'Broadcast Center', icon: Smartphone, desc: 'Send promotional messages' },
+  { id: 'banners', label: 'Banners', icon: Image, desc: 'Manage app banners' },
+  { id: 'settings', label: 'Settings', icon: Settings, desc: 'System configuration' }
+];
+
 export default function AdminStaff() {
   const [showAdd, setShowAdd] = useState(false);
   const [editingStaff, setEditingStaff] = useState(null);
