@@ -277,7 +277,7 @@ export default function Header() {
                       ) : (
                         <>
                           <Link to="/dashboard" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 px-4 sm:px-6 py-3 text-[10px] font-black uppercase tracking-widest text-charcoal/60 hover:text-premium-gold hover:bg-premium-gold/5 transition-all">My Account</Link>
-                          <Link to="/dashboard/orders" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 px-4 sm:px-6 py-3 text-[10px] font-black uppercase tracking-widest text-charcoal/60 hover:text-premium-gold hover:bg-premium-gold/5 transition-all">Order History</Link>
+                          <Link to="/dashboard" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 px-4 sm:px-6 py-3 text-[10px] font-black uppercase tracking-widest text-charcoal/60 hover:text-premium-gold hover:bg-premium-gold/5 transition-all">Order History</Link>
                         </>
                       )}
                       <div className="h-px bg-white/20 my-2 mx-4" />

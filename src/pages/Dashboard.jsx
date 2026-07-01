@@ -448,6 +448,7 @@ export default function Dashboard() {
         <main className="flex-1 min-w-0">
           <Routes>
             <Route index element={<MyOrders />} />
+            <Route path="orders" element={<Navigate to="/dashboard" replace />} />
             <Route path="profile" element={<Profile />} />
             <Route path="addresses" element={<Addresses />} />
             <Route path="wishlist" element={<MyWishlist />} />
