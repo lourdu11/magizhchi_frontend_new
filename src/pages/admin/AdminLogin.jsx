@@ -33,7 +33,7 @@ export default function AdminLogin() {
 
   if (isAuthenticated && user?.role) {
     if (user.role === 'admin') return <Navigate to="/admin" replace />;
-    if (user.role === 'staff') return <Navigate to="/staff" replace />;
+    if (user.role === 'staff') return <Navigate to="/admin" replace />;
   }
 
   const handleLogin = async (e) => {
@@ -59,7 +59,7 @@ export default function AdminLogin() {
       toast.success(`Access Granted: ${data.data.user.role === 'admin' ? 'Administrator' : 'Staff'} Session Active`);
       
       if (data.data.user.role === 'admin') navigate('/admin');
-      else if (data.data.user.role === 'staff') navigate('/staff');
+      else if (data.data.user.role === 'staff') navigate('/admin');
       else navigate('/');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Authentication failed');
@@ -81,7 +81,7 @@ export default function AdminLogin() {
       toast.success(`Identity Confirmed. Session Active.`);
       
       if (data.data.user.role === 'admin') navigate('/admin');
-      else if (data.data.user.role === 'staff') navigate('/staff');
+      else if (data.data.user.role === 'staff') navigate('/admin');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Invalid Security Code');
     } finally {
