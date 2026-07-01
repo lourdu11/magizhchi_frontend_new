@@ -175,10 +175,10 @@ export default function App() {
           <Route path="broadcast" element={<BroadcastCenter />} />
         </Route>
 
-        {/* ── Dedicated Staff Login Route ── */}
-        <Route path="/staff/login" element={<AdminLogin />} />
-        <Route path="/staff/login/*" element={<AdminLogin />} />
-        <Route path="/staff/*" element={<Navigate to="/staff/login" replace />} />
+        {/* ── Legacy Staff Routes (Redirect to Unified Admin UI) ── */}
+        <Route path="/staff/login" element={<Navigate to="/admin/login" replace />} />
+        <Route path="/staff/login/*" element={<Navigate to="/admin/login" replace />} />
+        <Route path="/staff/*" element={<Navigate to="/admin/login" replace />} />
 
         {/* ── 404 ── */}
         <Route path="*" element={<NotFound />} />
