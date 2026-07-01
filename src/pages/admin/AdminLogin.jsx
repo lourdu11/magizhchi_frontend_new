@@ -138,7 +138,7 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-dvh bg-charcoal flex items-center justify-center p-4 sm:p-6 relative overflow-hidden font-sans">
+    <div className="min-h-dvh bg-light-bg flex items-center justify-center p-4 sm:p-6 relative overflow-hidden font-sans">
       <Helmet><title>Security Portal — Magizhchi Garments</title></Helmet>
 
       {/* ── Luxury Dark Dynamic Background ── */}
@@ -161,16 +161,16 @@ export default function AdminLogin() {
             <motion.div 
               whileHover={{ scale: 1.05 }}
               transition={{ duration: 0.2 }}
-              className="w-16 h-16 bg-gradient-to-br from-charcoal-light to-charcoal rounded-3xl flex items-center justify-center shadow-2xl border border-white/5 mb-3 relative overflow-hidden"
+              className="w-16 h-16 bg-white rounded-3xl flex items-center justify-center shadow-lg border border-border-light mb-3 relative overflow-hidden"
             >
               <Fingerprint className="w-8 h-8 text-premium-gold" />
             </motion.div>
-            <h1 className="font-sans text-xl font-black text-white tracking-[0.2em] uppercase leading-none">MAGIZHCHI</h1>
+            <h1 className="font-sans text-xl font-black text-charcoal tracking-[0.2em] uppercase leading-none">MAGIZHCHI</h1>
             <p className="text-[9px] text-premium-gold font-black tracking-[0.4em] mt-2 uppercase">Command Center</p>
           </Link>
         </div>
 
-        <div className="bg-charcoal-light/50 backdrop-blur-xl border border-white/5 p-6 md:p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
+        <div className="bg-white/80 backdrop-blur-xl border border-border-light p-6 md:p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
           <AnimatePresence mode="wait">
             {step === 'login' && (
               <motion.div key="login" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.05 }}>
@@ -179,7 +179,7 @@ export default function AdminLogin() {
                     <ShieldCheck size={20} />
                   </div>
                   <div>
-                    <h2 className="text-lg font-black text-white tracking-tight">Identity Verification</h2>
+                    <h2 className="text-lg font-black text-charcoal tracking-tight">Identity Verification</h2>
                     <p className="text-[9px] font-black text-text-muted uppercase tracking-wider">Secure Administrator Portal</p>
                   </div>
                 </div>
@@ -192,7 +192,7 @@ export default function AdminLogin() {
                       <input
                         type="text" required value={identifier} onChange={(e) => setIdentifier(e.target.value)}
                         placeholder="admin@magizhchi.com"
-                        className="w-full bg-charcoal border border-white/10 text-white pl-11 pr-5 py-3.5 rounded-2xl focus:outline-none focus:ring-2 focus:ring-premium-gold/50 focus:border-premium-gold transition-all font-bold placeholder:text-text-muted/30 text-xs tracking-wide"
+                        className="w-full bg-light-bg border border-border-light text-charcoal pl-11 pr-5 py-3.5 rounded-2xl focus:outline-none focus:ring-2 focus:ring-premium-gold/50 focus:border-premium-gold transition-all font-bold placeholder:text-text-muted/50 text-xs tracking-wide"
                       />
                     </div>
                   </div>
@@ -206,7 +206,7 @@ export default function AdminLogin() {
                       <input
                         type={showPassword ? "text" : "password"} required value={password} onChange={(e) => setPassword(e.target.value)}
                         placeholder="••••••••••••"
-                        className="w-full bg-charcoal border border-white/10 text-white pl-11 pr-12 py-3.5 rounded-2xl focus:outline-none focus:ring-2 focus:ring-premium-gold/50 focus:border-premium-gold transition-all font-bold placeholder:text-text-muted/30 text-xs tracking-widest"
+                        className="w-full bg-light-bg border border-border-light text-charcoal pl-11 pr-12 py-3.5 rounded-2xl focus:outline-none focus:ring-2 focus:ring-premium-gold/50 focus:border-premium-gold transition-all font-bold placeholder:text-text-muted/50 text-xs tracking-widest"
                       />
                       <button 
                         type="button" 
@@ -217,7 +217,7 @@ export default function AdminLogin() {
                       </button>
                     </div>
                     <div className="flex justify-end pt-1">
-                      <button type="button" onClick={() => setStep('forgot')} className="text-[9px] font-black uppercase tracking-widest text-premium-gold hover:text-white transition-all">Forgot Credentials?</button>
+                      <button type="button" onClick={() => setStep('forgot')} className="text-[9px] font-black uppercase tracking-widest text-premium-gold hover:text-charcoal transition-all">Forgot Credentials?</button>
                     </div>
                   </div>
 
@@ -241,8 +241,8 @@ export default function AdminLogin() {
                     <ShieldCheck size={20} />
                   </div>
                   <div>
-                    <h2 className="text-lg font-black text-white tracking-tight">2FA Security Challenge</h2>
-                    <p className="text-[9px] font-black text-text-muted uppercase tracking-wider">Verification required</p>
+                    <h2 className="text-lg font-black text-charcoal tracking-tight">Verify Security Code</h2>
+                    <p className="text-[9px] font-black text-text-muted uppercase tracking-wider">Enter code from email/SMS</p>
                   </div>
                 </div>
                 <form onSubmit={handleVerifyAdminOTP} className="space-y-6">
@@ -251,7 +251,7 @@ export default function AdminLogin() {
                     <input
                       type="text" required maxLength={6} value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
                       placeholder="0 0 0 0 0 0"
-                      className="w-full bg-charcoal border border-white/10 text-premium-gold text-center text-3xl tracking-[0.4em] py-4 rounded-2xl focus:border-premium-gold focus:outline-none transition-all font-black placeholder:text-white/10"
+                      className="w-full bg-light-bg border border-border-light text-premium-gold text-center text-3xl tracking-[0.4em] py-4 rounded-2xl focus:border-premium-gold focus:outline-none transition-all font-black placeholder:text-charcoal/10"
                     />
                   </div>
                   <button type="submit" disabled={loading || otp.length < 6} className="w-full bg-premium-gold hover:bg-premium-gold/90 text-charcoal font-black py-4 rounded-2xl shadow-lg shadow-premium-gold/20 flex items-center justify-center gap-2 transition-all disabled:opacity-50 uppercase text-xs tracking-widest">
@@ -271,7 +271,7 @@ export default function AdminLogin() {
                     <KeyRound size={20} />
                   </div>
                   <div>
-                    <h2 className="text-lg font-black text-white tracking-tight">Identity Recovery</h2>
+                    <h2 className="text-lg font-black text-charcoal tracking-tight">Identity Recovery</h2>
                     <p className="text-[9px] font-black text-text-muted uppercase tracking-wider">Authorized credential dispatch</p>
                   </div>
                 </div>
@@ -283,7 +283,7 @@ export default function AdminLogin() {
                       <input
                         type="text" required value={identifier} onChange={(e) => setIdentifier(e.target.value)}
                         placeholder="admin@magizhchi.com"
-                        className="w-full bg-charcoal border border-white/10 text-white pl-11 pr-5 py-3.5 rounded-2xl focus:border-premium-gold focus:outline-none transition-all font-bold placeholder:text-text-muted/30 text-xs"
+                        className="w-full bg-light-bg border border-border-light text-charcoal pl-11 pr-5 py-3.5 rounded-2xl focus:border-premium-gold focus:outline-none transition-all font-bold placeholder:text-text-muted/50 text-xs"
                       />
                     </div>
                   </div>
@@ -304,7 +304,7 @@ export default function AdminLogin() {
                     <Smartphone size={20} />
                   </div>
                   <div>
-                    <h2 className="text-lg font-black text-white tracking-tight">Signal Verification</h2>
+                    <h2 className="text-lg font-black text-charcoal tracking-tight">Signal Verification</h2>
                     <p className="text-[9px] font-black text-text-muted uppercase tracking-wider">6-Digit encrypted validation</p>
                   </div>
                 </div>
@@ -314,7 +314,7 @@ export default function AdminLogin() {
                     <input
                       type="text" required maxLength={6} value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
                       placeholder="0 0 0 0 0 0"
-                      className="w-full bg-charcoal border border-white/10 text-premium-gold text-center text-3xl tracking-[0.4em] py-4 rounded-2xl focus:border-premium-gold focus:outline-none transition-all font-black placeholder:text-white/10"
+                      className="w-full bg-light-bg border border-border-light text-premium-gold text-center text-3xl tracking-[0.4em] py-4 rounded-2xl focus:border-premium-gold focus:outline-none transition-all font-black placeholder:text-charcoal/10"
                     />
                   </div>
                   <button type="submit" disabled={loading || otp.length < 6} className="w-full bg-premium-gold hover:bg-premium-gold/90 text-charcoal font-black py-4 rounded-2xl shadow-lg shadow-premium-gold/20 flex items-center justify-center gap-2 transition-all disabled:opacity-50 uppercase text-xs tracking-widest">
@@ -331,8 +331,8 @@ export default function AdminLogin() {
                     <ShieldCheck size={20} />
                   </div>
                   <div>
-                    <h2 className="text-lg font-black text-white tracking-tight">Access Key Reset</h2>
-                    <p className="text-[9px] font-black text-text-muted uppercase tracking-wider">Establish new authorization</p>
+                    <h2 className="text-lg font-black text-charcoal tracking-tight">Create New Key</h2>
+                    <p className="text-[9px] font-black text-text-muted uppercase tracking-wider">Secure your command center</p>
                   </div>
                 </div>
                 <form onSubmit={handleResetPassword} className="space-y-6">
@@ -340,9 +340,9 @@ export default function AdminLogin() {
                     <div className="space-y-1.5 relative group">
                       <label className="text-[9px] font-black uppercase tracking-wider text-text-muted ml-1">New Access Key</label>
                       <input
-                        type={showPassword ? "text" : "password"} required value={newPassword} onChange={(e) => setNewPassword(e.target.value)}
-                        placeholder="••••••••••••"
-                        className="w-full bg-charcoal border border-white/10 text-white px-5 py-3.5 rounded-2xl focus:border-premium-gold focus:outline-none transition-all font-bold text-xs pr-12"
+                        type={showPassword ? "text" : "password"} required value={newPassword} onChange={(e) => setNewPassword(e.target.value)} minLength={8}
+                        placeholder="New passkey (min 8 chars)"
+                        className="w-full bg-light-bg border border-border-light text-charcoal pl-11 pr-12 py-3.5 rounded-2xl focus:border-premium-gold focus:outline-none transition-all font-bold placeholder:text-text-muted/50 text-xs tracking-widest"
                       />
                       <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 translate-y-1 text-text-muted hover:text-premium-gold transition-colors">
                         {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -351,9 +351,9 @@ export default function AdminLogin() {
                     <div className="space-y-1.5 relative group">
                       <label className="text-[9px] font-black uppercase tracking-wider text-text-muted ml-1">Confirm Access Key</label>
                       <input
-                        type={showPassword ? "text" : "password"} required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
-                        placeholder="••••••••••••"
-                        className="w-full bg-charcoal border border-white/10 text-white px-5 py-3.5 rounded-2xl focus:border-premium-gold focus:outline-none transition-all font-bold text-xs pr-12"
+                        type={showPassword ? "text" : "password"} required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} minLength={8}
+                        placeholder="Confirm new passkey"
+                        className="w-full bg-light-bg border border-border-light text-charcoal pl-11 pr-5 py-3.5 rounded-2xl focus:border-premium-gold focus:outline-none transition-all font-bold placeholder:text-text-muted/50 text-xs tracking-widest"
                       />
                     </div>
                   </div>
