@@ -23,7 +23,7 @@ export const useAuthStore = create(
     }),
     {
       name: 'magizhchi-auth',
-      storage: createJSONStorage(() => sessionStorage),
+      storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({ user: state.user, token: state.token, isAuthenticated: state.isAuthenticated })
     }
   )
