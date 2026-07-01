@@ -1,6 +1,6 @@
 import { useState, lazy, Suspense } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { UserPlus, Trash2, Loader2, X, Save, Mail, Phone, Edit2, Percent, TrendingUp, Trophy, IndianRupee, ShoppingBag, Target } from 'lucide-react';
+import { UserPlus, Trash2, Loader2, X, Save, Mail, Phone, Edit2, Percent, TrendingUp, Trophy, IndianRupee, ShoppingBag, Target, ShieldCheck, Users, Receipt, FileText } from 'lucide-react';
 import { adminService } from '../../services';
 import { toast } from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
@@ -54,7 +54,7 @@ export default function AdminStaff() {
 
   const startEdit = (s) => {
     setEditingStaff(s._id);
-    setFormData({ name: s.name, email: s.email, phone: s.phone || '', password: '', commissionRate: s.commissionRate || '' });
+    setFormData({ name: s.name, email: s.email, phone: s.phone || '', password: '', commissionRate: s.commissionRate || '', permissions: s.permissions || [] });
   };
 
   return (
@@ -73,7 +73,7 @@ export default function AdminStaff() {
             <button onClick={() => setActiveTab('list')} className={`px-4 sm:px-4 sm:px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'list' ? 'bg-charcoal text-white shadow-xl' : 'text-text-muted hover:text-charcoal'}`}>Accounts</button>
             <button onClick={() => setActiveTab('performance')} className={`px-4 sm:px-4 sm:px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'performance' ? 'bg-charcoal text-white shadow-xl' : 'text-text-muted hover:text-charcoal'}`}>Performance</button>
           </div>
-          <button onClick={() => { setShowAdd(!showAdd); setEditingStaff(null); setFormData({ name: '', email: '', phone: '', password: '', commissionRate: '' }); }} className="bg-premium-gold text-charcoal px-4 sm:px-4 sm:px-6 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all flex items-center gap-2 shadow-lg shadow-premium-gold/20">
+          <button onClick={() => { setShowAdd(!showAdd); setEditingStaff(null); setFormData({ name: '', email: '', phone: '', password: '', commissionRate: '', permissions: [] }); }} className="bg-premium-gold text-charcoal px-4 sm:px-4 sm:px-6 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all flex items-center gap-2 shadow-lg shadow-premium-gold/20">
             {showAdd ? <X size={14} /> : <><UserPlus size={14} /> New Staff</>}
           </button>
         </div>
@@ -100,16 +100,16 @@ export default function AdminStaff() {
                     <input required className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 font-bold text-sm" placeholder="e.g. Rahul Sharma" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Email Access</label>
-                    <input required type="email" className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 font-bold text-sm" placeholder="staff@magizhchi.in" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+                    <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Email Access <span className="text-gray-400 lowercase normal-case tracking-normal">(Optional)</span></label>
+                    <input type="email" className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 font-bold text-sm" placeholder="staff@magizhchi.in" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Primary Phone</label>
                     <input type="tel" className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 font-bold text-sm" placeholder="+91 XXXXX XXXXX" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Secure Password</label>
-                    <input required={!editingStaff} type="password" minLength="8" className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 font-bold text-sm" placeholder={editingStaff ? 'Keep current if blank' : 'Min 8 chars'} value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} />
+                    <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">{editingStaff ? 'Set New Password' : 'Secure Password'}</label>
+                    <input required={!editingStaff} type="password" minLength="8" className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 font-bold text-sm" placeholder={editingStaff ? 'Leave blank to keep current password' : 'Min 8 chars'} value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} />
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Commission Rate (%)</label>
@@ -118,6 +118,35 @@ export default function AdminStaff() {
                        <input type="number" step="0.1" className="w-full bg-light-bg border-none rounded-2xl px-4 sm:px-4 sm:px-6 py-4 focus:ring-2 focus:ring-premium-gold/30 font-black text-sm" placeholder="2.5" value={formData.commissionRate} onChange={e => setFormData({...formData, commissionRate: e.target.value})} />
                     </div>
                   </div>
+                </div>
+
+                <div className="pt-4 border-t border-border-light">
+                   <h4 className="text-[10px] font-black text-charcoal uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                     <ShieldCheck size={16} className="text-premium-gold" /> Module Access Control
+                   </h4>
+                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                     {[
+                       { id: 'orders', label: 'Orders', icon: ShoppingBag },
+                       { id: 'customers', label: 'Customers', icon: Users },
+                       { id: 'create-bill', label: 'Create Bill', icon: Receipt },
+                       { id: 'offline-bills', label: 'Offline Bills', icon: FileText }
+                     ].map(module => (
+                       <label key={module.id} className="flex items-center gap-3 p-3 bg-light-bg rounded-2xl cursor-pointer hover:bg-premium-gold/5 transition-colors border border-transparent hover:border-premium-gold/20">
+                         <input 
+                           type="checkbox" 
+                           className="w-4 h-4 text-premium-gold rounded border-gray-300 focus:ring-premium-gold"
+                           checked={formData.permissions?.includes(module.id)}
+                           onChange={(e) => {
+                             const newPerms = e.target.checked 
+                               ? [...(formData.permissions || []), module.id]
+                               : (formData.permissions || []).filter(p => p !== module.id);
+                             setFormData({...formData, permissions: newPerms});
+                           }}
+                         />
+                         <span className="text-xs font-bold text-charcoal flex items-center gap-1.5"><module.icon size={14} className="text-text-muted"/> {module.label}</span>
+                       </label>
+                     ))}
+                   </div>
                 </div>
                 <div className="flex gap-4 pt-4">
                   <button type="submit" disabled={createMutation.isLoading || updateMutation.isLoading} className="bg-charcoal text-white px-10 py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest hover:bg-premium-gold hover:text-charcoal transition-all flex items-center gap-2 shadow-xl">

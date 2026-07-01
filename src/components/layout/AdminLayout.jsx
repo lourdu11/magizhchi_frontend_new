@@ -39,7 +39,16 @@ export default function AdminLayout() {
     }, 50);
   };
 
-  const staffAllowedPaths = ['/admin/orders', '/admin/users', '/admin/create-bill', '/admin/bills'];
+  // Map backend permission keys to exact frontend route paths
+  const permissionPathMap = {
+    'orders': '/admin/orders',
+    'customers': '/admin/users',
+    'create-bill': '/admin/create-bill',
+    'offline-bills': '/admin/bills'
+  };
+
+  // Dynamically derive allowed paths based on user's granted permissions
+  const staffAllowedPaths = (user?.permissions || []).map(p => permissionPathMap[p]).filter(Boolean);
   
   // Filter navigation for staff
   const filteredNav = user?.role === 'staff' 
@@ -51,10 +60,12 @@ export default function AdminLayout() {
     if (user?.role === 'staff') {
       const isAllowed = staffAllowedPaths.some(p => location.pathname.startsWith(p));
       if (!isAllowed) {
-        navigate('/admin/create-bill', { replace: true });
+        // Redirect to their first available permitted module, or a safe fallback if none
+        const fallbackPath = staffAllowedPaths.length > 0 ? staffAllowedPaths[0] : '/admin/create-bill';
+        navigate(fallbackPath, { replace: true });
       }
     }
-  }, [location.pathname, user, navigate]);
+  }, [location.pathname, user, navigate, staffAllowedPaths]);
 
   return (
     <div className="h-dvh print:h-auto print:block bg-[#F8F9FA] font-sans overflow-hidden">
