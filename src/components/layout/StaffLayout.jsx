@@ -17,8 +17,13 @@ export default function StaffLayout() {
     <div className="min-h-dvh print:min-h-0 print:h-auto print:block bg-light-bg flex">
       <aside className="w-52 shrink-0 bg-charcoal flex flex-col fixed h-full z-30 print:hidden">
         <div className="px-5 py-5 border-b border-white/10">
-          <div className="font-display text-lg font-bold text-white tracking-widest">MAGIZHCHI</div>
-          <div className="text-[9px] text-white/30 tracking-[0.4em]">STAFF PANEL</div>
+          <div className="flex items-center gap-2.5">
+            <img src="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0043.jpg?updatedAt=1772379265473&tr=w-150,h-150,q-100" alt="Logo" className="w-8 h-8 rounded-full object-cover shrink-0" />
+            <div>
+              <div className="font-display text-lg font-bold text-white tracking-widest leading-none">MAGIZHCHI</div>
+              <div className="text-[9px] text-white/30 tracking-[0.4em] mt-1 uppercase">STAFF PANEL</div>
+            </div>
+          </div>
         </div>
         <nav className="flex-1 py-4">
           {NAV.map(({ icon: Icon, label, path }) => { // eslint-disable-line no-unused-vars

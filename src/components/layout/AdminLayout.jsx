@@ -77,18 +77,29 @@ export default function AdminLayout() {
         `}>
           {/* Logo */}
           <div className={`flex items-center ${collapsed ? 'justify-center' : 'justify-between'} px-4 sm:px-6 py-5 border-b border-[#F1F3F4]`}>
-            {!collapsed && (
-              <div className="flex flex-col">
-                <div className="flex items-center gap-1.5">
-                  <span className="font-black text-[#202124] text-base tracking-tighter leading-none">MAGIZHCHI</span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#4285F4]" />
+            {collapsed ? (
+              <button onClick={() => setCollapsed(false)} className="hidden lg:block w-8 h-8 rounded-full overflow-hidden hover:opacity-80 transition-opacity">
+                <img src="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0043.jpg?updatedAt=1772379265473&tr=w-150,h-150,q-100" alt="Logo" className="w-full h-full object-cover" />
+              </button>
+            ) : (
+              <div className="flex items-center gap-2.5">
+                <img src="https://ik.imagekit.io/Lourdu/magizhchi_garments/maghchi%20image/IMG-20251126-WA0043.jpg?updatedAt=1772379265473&tr=w-150,h-150,q-100" alt="Logo" className="w-8 h-8 rounded-full object-cover shrink-0" />
+                <div className="flex flex-col">
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-black text-[#202124] text-base tracking-tighter leading-none">MAGIZHCHI</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#4285F4]" />
+                  </div>
+                  <span className="text-[8px] text-[#5F6368] font-black tracking-[0.25em] uppercase mt-1">Control Console</span>
                 </div>
-                <span className="text-[8px] text-[#5F6368] font-black tracking-[0.25em] uppercase mt-1">Control Console</span>
               </div>
             )}
-            <button onClick={() => setCollapsed(!collapsed)} className="hidden lg:block text-[#5F6368] hover:text-[#202124] transition-colors">
-              {collapsed ? <Menu size={16} /> : <ChevronLeft size={16} />}
-            </button>
+            
+            {!collapsed && (
+              <button onClick={() => setCollapsed(!collapsed)} className="hidden lg:block text-[#5F6368] hover:text-[#202124] transition-colors shrink-0 ml-2">
+                <ChevronLeft size={16} />
+              </button>
+            )}
+            
             <button onClick={() => setMobileOpen(false)} className="lg:hidden w-8 h-8 bg-[#F1F3F4] text-[#5F6368] rounded-lg flex items-center justify-center hover:bg-[#E8F0FE]">
               <X size={18} />
             </button>
