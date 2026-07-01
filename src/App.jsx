@@ -48,6 +48,7 @@ const AdminInventory = lazy(() => import('./pages/admin/AdminInventory'));
 const AdminBills = lazy(() => import('./pages/admin/AdminBills'));
 const AdminStaff = lazy(() => import('./pages/admin/AdminStaff'));
 const AdminStaffForm = lazy(() => import('./pages/admin/AdminStaffForm'));
+const StaffProfile = lazy(() => import('./pages/admin/StaffProfile'));
 const AdminProductForm = lazy(() => import('./pages/admin/AdminProductForm'));
 const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'));
 const AdminAnalytics = lazy(() => import('./pages/admin/AdminAnalytics'));
@@ -152,6 +153,7 @@ export default function App() {
           <Route path="staff" element={<AdminStaff />} />
           <Route path="staff/new" element={<AdminStaffForm />} />
           <Route path="staff/edit/:id" element={<AdminStaffForm />} />
+          <Route path="profile" element={<StaffProfile />} />
           <Route path="products/new" element={<AdminProductForm />} />
           <Route path="products/edit/:id" element={<AdminProductForm />} />
           <Route path="profiles" element={<ProductProfileCenter />} />

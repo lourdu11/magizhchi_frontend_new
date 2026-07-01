@@ -186,9 +186,20 @@ export default function AdminLayout() {
             {/* User Profile */}
             <div className={`border-t border-[#F1F3F4] p-4 sm:p-6 ${collapsed && !mobileOpen ? 'flex flex-col items-center' : ''}`}>
               {(!collapsed || mobileOpen) && (
-                <div className="mb-4 bg-[#F8F9FA] border border-[#DADCE0] p-4 rounded-2xl">
-                  <p className="text-[#202124] text-[10px] font-black uppercase tracking-widest truncate">{user?.name || 'Administrator'}</p>
-                  <p className="text-[#5F6368] text-[8px] font-bold uppercase tracking-widest mt-1">Full Access</p>
+                <div className="mb-4 bg-[#F8F9FA] border border-[#DADCE0] p-4 rounded-2xl flex items-center justify-between">
+                  <div className="min-w-0">
+                    <p className="text-[#202124] text-[10px] font-black uppercase tracking-widest truncate">{user?.name || 'User'}</p>
+                    <p className="text-[#5F6368] text-[8px] font-bold uppercase tracking-widest mt-1">
+                      {user?.role === 'admin' ? 'Administrator' : 'Staff Member'}
+                    </p>
+                  </div>
+                  <button 
+                    onClick={() => { setMobileOpen(false); navigate('/admin/profile'); }}
+                    className="p-1.5 text-[#5F6368] hover:text-[#202124] hover:bg-[#E8EAED] rounded-lg transition-colors ml-2 shrink-0"
+                    title="Account Settings"
+                  >
+                    <Settings size={14} />
+                  </button>
                 </div>
               )}
               <button onClick={handleLogout} className={`flex items-center gap-3 text-[#5F6368] hover:text-[#EA4335] transition-colors ${collapsed && !mobileOpen ? '' : 'px-2'}`}>
