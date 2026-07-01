@@ -41,10 +41,20 @@ export default function AdminLayout() {
 
   // Map backend permission keys to exact frontend route paths
   const permissionPathMap = {
+    'dashboard': '/admin',
+    'categories': '/admin/categories',
+    'procurement': '/admin/procurement',
+    'profiles': '/admin/profiles',
     'orders': '/admin/orders',
     'customers': '/admin/users',
     'create-bill': '/admin/create-bill',
-    'offline-bills': '/admin/bills'
+    'offline-bills': '/admin/bills',
+    'reviews': '/admin/reviews',
+    'analytics': '/admin/analytics',
+    'broadcast': '/admin/broadcast',
+    'staff': '/admin/staff',
+    'banners': '/admin/banners',
+    'settings': '/admin/settings'
   };
 
   // Dynamically derive allowed paths based on user's granted permissions
